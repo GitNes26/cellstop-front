@@ -1,0 +1,144 @@
+/* HTML: <div class="loader-circle-shadow"></div> */
+.loader-circle-shadow {
+   height: 80px;
+   aspect-ratio: 1;
+   box-sizing: border-box;
+   position: relative;
+   mask: 
+     radial-gradient(#0000 47%,#000 48% 71%,#0000 72%) exclude,
+     conic-gradient(#000 0 0) no-clip;
+   animation: l11 1.5s linear infinite;
+ }
+ .loader-circle-shadow:before {
+   content: "";
+   position: absolute;
+   inset: 0 35% 70%;
+   border-radius: 50%;
+   background: #000;
+   filter: blur(15px);
+ }
+ @keyframes l11 {
+   to {rotate: 1turn}
+ }
+
+.icon-loader {
+   width: 350px;
+   aspect-ratio: 1;
+   display: grid;
+   place-items: center; /* Centra la imagen */
+   position: relative; /* Necesario para posicionar la imagen */
+}
+
+ /* HTML: <div class="loader-circle-spinner"></div> */
+ .loader-circle-spinner {
+   width: 350px;
+   aspect-ratio: 1;
+   display: grid;
+   place-items: center; /* Centra la imagen */
+   position: relative; /* Necesario para posicionar la imagen */
+   animation: l14 1.5s infinite;
+}
+
+.loader-circle-spinner::before,
+.loader-circle-spinner::after {    
+   content: "";
+   grid-area: 1/1;
+   /* border: 8px solid;
+   border-radius: 50%;
+   border-color: #EE2C8C #EE2C8C #97C227 #97C227; */
+   mix-blend-mode: darken;
+   animation: l14 1s infinite linear;
+}
+
+.loader-circle-spinner::after {
+   /* border-color: #F06100 #F06100 #6C2C8D #6C2C8D; */
+   animation-direction: reverse;
+}
+
+@keyframes l14 { 
+   100% { transform: rotate(1turn) }
+}
+
+/* 🔥 Imagen centrada dentro del spinner */
+.loader-image {
+   position: absolute;
+   width: 30%; /* Ajusta el tamaño de la imagen */
+   height: 30%;
+   object-fit: contain;
+}
+
+
+/* ~~~~~~~~~~~ ANIMACION SIMULANDO ESCRITURA ~~~~~~~~~~~ */
+
+/* Agrega tu animación personalizada */
+.animate-typing {
+   overflow: hidden;
+   white-space: nowrap;
+   border-right: 2px solid currentColor;
+   animation:
+      typing 2.5s steps(25, end) 1s infinite,
+      blink-caret 0.75s step-end infinite;
+}
+@keyframes typing {
+   0% {
+      width: 0;
+   }
+   75% {
+      width: 13ch;
+      opacity: 1;
+   }
+   100% {
+      opacity: 0;
+   }
+}
+@keyframes blink-caret {
+   from,
+   to {
+      border-color: transparent;
+   }
+   50% {
+      border-color: currentColor;
+   }
+}
+
+/* ~~~~~~~~~~~ ANIMACION SIMULANDO LLENADO DE LETRAS DE UN COLOR A OTRO ~~~~~~~~~~~ */
+.animate-gradient-text {
+   font-size: 2rem;
+   font-weight: bold;
+   background: linear-gradient(to top, currentColor 0%, #ff4500 25%, #ffa500 50%, #ffff00 75%, #7fff00 100%);
+   background-size: 100% 200%; /* Duplicar el tamaño vertical del fondo */
+   background-clip: text;
+   -webkit-background-clip: text; /* Soporte para navegadores WebKit */
+   color: transparent; /* Texto transparente para mostrar el fondo */
+   animation: gradientMove 4s infinite ease-in-out; /* Animación */
+}
+@keyframes gradientMove {
+   0% {
+      background-position: 0% 100%; /* Inicia abajo */
+   }
+   100% {
+      background-position: 0% 0%; /* Se mueve hacia arriba */
+   }
+}
+
+
+
+/* ANIMACION DE RESPIRO */
+@keyframes photo-taken {
+   0% {
+     transform: translate(-50%, -50%) scale(1);
+     opacity: 1;
+   }
+   50% {
+     transform: translate(-50%, -50%) scale(0.75);
+     opacity: 0.8;
+   }
+   100% {
+     transform: translate(-50%, -50%) scale(1);
+     opacity: 1;
+   }
+ }
+ 
+ .photo-animation {
+   animation: photo-taken 0.6s ease-in-out;
+ }

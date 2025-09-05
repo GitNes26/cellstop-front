@@ -1,0 +1,38 @@
+@media print {
+  /* Estilos para impresión */
+  body {
+    font-size: 12pt;
+    background: white;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Ocultar elementos que no deben imprimirse */
+  .print-hide,
+  button,
+  select {
+    display: none !important;
+  }
+
+  /* Asegurar que la tabla se imprima correctamente */
+  table {
+    width: 100%;
+    page-break-inside: avoid;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+  }
+
+  /* Ajustar márgenes y tamaños */
+  @page {
+    size: landscape;
+    margin: 1cm;
+  }
+}
