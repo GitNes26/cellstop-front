@@ -198,7 +198,8 @@ export default function LoginForms() {
    }, []);
 
    return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="flex flex-col gap-5">
+         <img src={images.icon} className="object-contain h-20 self-center" />
          <Card
             sx={{
                width: { xs: "90%", sm: 450 },
@@ -215,7 +216,7 @@ export default function LoginForms() {
             <Box
                sx={{
                   height: 6,
-                  background: "linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef, #6366f1)",
+                  background: "linear-gradient(90deg, #034AAB, #8b5cf6, #d946ef, #034AAB)",
                   backgroundSize: "200% 100%",
                   animation: "gradient 3s ease infinite",
                   "@keyframes gradient": {
@@ -368,7 +369,8 @@ export default function LoginForms() {
                               startIcon={formState === "login" ? <Login /> : formState === "register" ? <HowToReg /> : <Send />}
                               sx={{
                                  py: 1.5,
-                                 background: "linear-gradient(45deg, #6366f1, #8b5cf6)",
+                                 color: "whitesmoke",
+                                 background: "linear-gradient(45deg, #034AAB, #8b5cf6)",
                                  "&:hover": {
                                     background: "linear-gradient(45deg, #4f46e5, #7c3aed)"
                                  },

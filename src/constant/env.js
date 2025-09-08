@@ -21,7 +21,7 @@ const env = {
                   paper: "#f5f5f5" //Nav y Side
                },
                primary: {
-                  main: "#4DA8DA"
+                  main: "#034AAB"
                }
             },
             shape: {

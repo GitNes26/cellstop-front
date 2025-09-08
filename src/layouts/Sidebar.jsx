@@ -259,7 +259,7 @@ export default function Sidebar() {
                <IconButton onClick={handleDrawerClose}>{env.THEME.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}</IconButton>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", py: 4, justifyItems: "center", alignItems: "center", gap: 0.5 }}>
-               <img src={images.logo} className={`transition-all ${openDrawerSidebar ? "w-[30%]" : "w-[55%]"}`} />
+               <img src={images.logo} className={`transition-all ${openDrawerSidebar ? "max-w-[200px] w-[100%]" : "max-w-[50px] w-[100%]"}`} />
                <Typography
                   variant="h5"
                   noWrap

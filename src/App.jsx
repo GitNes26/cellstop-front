@@ -12,7 +12,7 @@ import { isMobile } from "react-device-detect";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect } from "react";
-import echo from "./utils/Notifications";
+// import echo from "./utils/Notifications";
 
 function Copyright() {
    return (
