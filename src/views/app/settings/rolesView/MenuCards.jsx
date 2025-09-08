@@ -1,4 +1,16 @@
-import { Backdrop, Box, Card, Checkbox, CircularProgress, FormControlLabel, Typography, useColorScheme } from "@mui/material";
+import {
+   Accordion,
+   AccordionDetails,
+   AccordionSummary,
+   Backdrop,
+   Box,
+   Card,
+   Checkbox,
+   CircularProgress,
+   FormControlLabel,
+   Typography,
+   useColorScheme
+} from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { Masonry } from "@mui/lab";
 import Toast from "../../../../utils/Toast";
@@ -6,6 +18,7 @@ import { useMenuContext } from "../../../../context/MenuContext";
 import { useRoleContext } from "../../../../context/RoleContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useAuthContext } from "../../../../context/AuthContext";
+import { ExpandMore, ExpandLess } from "@mui/icons-material";
 
 // let checkTheme = localStorage.getItem("theme");
 
@@ -18,105 +31,121 @@ const CardMenu = ({ id = 0, title = "", others_permissions = [], checkMenus, han
    // console.log("isChecked", isChecked);
    return (
       <Card className="border-2 rounded-lg card border-black">
-         <Box textAlign={"center"}>
-            <FormControlLabel
-               value={`${id}@page`}
-               id={`${id}@page`}
-               control={
-                  <Checkbox checked={isChecked} style={{ color: mode === "dark" ? "whitesmoke" : "inherit" }} onChange={(e) => handleCheckboxChange(e.target, id)} />
-               }
-               label={
-                  <Typography variant="h6" className={"text-base-content"}>
-                     {title}
-                  </Typography>
-               }
-               labelPlacement="start"
-            />
-         </Box>
-         <Masonry columns={3} spacing={2} sx={{ backgroundColor: "white", p: 0, m: 0, textAlign: "center" }}>
-            <FormControlLabel
-               value={`${id}@read`}
-               id={`${id}@read`}
-               control={
-                  <Checkbox
-                     checked={checkMenus.some((check) => check.id === id && check.permissions.read)}
-                     style={{ color: mode === "dark" ? "inherit" : "inherit" }}
-                     onChange={(e) => handleCheckboxChange(e.target, id)}
-                  />
-               }
-               sx={{ color: "black" }}
-               label="Ver"
-               labelPlacement="bottom"
-            />
-            {!readOnly && (
-               <>
-                  <FormControlLabel
-                     value={`${id}@create`}
-                     id={`${id}@create`}
-                     control={
-                        <Checkbox
-                           checked={checkMenus.some((check) => check.id === id && check.permissions.create)}
-                           style={{ color: mode === "dark" ? "inherit" : "inherit" }}
-                           onChange={(e) => handleCheckboxChange(e.target, id)}
-                        />
-                     }
-                     sx={{ color: "black" }}
-                     label="Crear"
-                     labelPlacement="bottom"
-                  />
-                  <FormControlLabel
-                     value={`${id}@update`}
-                     id={`${id}@update`}
-                     control={
-                        <Checkbox
-                           checked={checkMenus.some((check) => check.id === id && check.permissions.update)}
-                           style={{ color: mode === "dark" ? "inherit" : "inherit" }}
-                           onChange={(e) => handleCheckboxChange(e.target, id)}
-                        />
-                     }
-                     sx={{ color: "black" }}
-                     label="Editar"
-                     labelPlacement="bottom"
-                  />
-                  <FormControlLabel
-                     value={`${id}@delete`}
-                     id={`${id}@delete`}
-                     className="text-base-content"
-                     control={
-                        <Checkbox
-                           checked={checkMenus.some((check) => check.id === id && check.permissions.delete)}
-                           style={{ color: mode === "dark" ? "inherit" : "inherit" }}
-                           onChange={(e) => handleCheckboxChange(e.target, id)}
-                        />
-                     }
-                     sx={{ color: "black" }}
-                     label="Eliminar"
-                     labelPlacement="bottom"
-                  />
-               </>
-            )}
-            {others_permissions.map((op, opIndex) => (
+         <Accordion sx={{ p: 0, m: 0 }} defaultExpanded>
+            <Box textAlign={"center"}>
                <FormControlLabel
-                  key={`COP_${id}_${opIndex}`}
-                  value={`${op}`}
-                  id={`${op}`}
+                  value={`${id}@page`}
+                  id={`${id}@page`}
                   control={
                      <Checkbox
-                        checked={checkMenus.some(
-                           // (check) => check.id === id && (check.others_permissions.includes(`${op}`) || check.others_permissions.includes("todas"))
-                           (check) => check.id === id && (check.permissions.more_permissions.includes(`${op}`) || check.permissions.more_permissions.includes("todas"))
-                           // (check) => check.id === id && includesInArray([op, "todas"], check.permissions.more_permissions)
-                        )}
+                        checked={isChecked}
+                        style={{ color: mode === "dark" ? "whitesmoke" : "inherit" }}
                         onChange={(e) => handleCheckboxChange(e.target, id)}
-                        style={{ color: "goldenrod" }}
                      />
                   }
-                  sx={{ color: "black" }}
-                  label={op.includes("@") ? op.split("@")[1] : op}
-                  labelPlacement="bottom"
+                  label={
+                     <AccordionSummary
+                        expandIcon={<ExpandMore color={mode === "dark" ? "inherit" : "whitesmoke"} />}
+                        sx={{ p: 0, my: -1, width: "100%", display: "flex", justifyContent: "center" }}
+                        aria-controls={`subpanel${id}-content`}
+                        id={`subpanel${id}-header`}
+                     >
+                        <Typography variant="h6" className={"text-base-content"}>
+                           {title}
+                        </Typography>
+                     </AccordionSummary>
+                  }
+                  labelPlacement="end"
                />
-            ))}
-         </Masonry>
+            </Box>
+            <AccordionDetails sx={{ p: 0, m: 0 }}>
+               <Masonry columns={3} spacing={2} sx={{ backgroundColor: "white", p: 0, m: 0, textAlign: "center" }}>
+                  <FormControlLabel
+                     value={`${id}@read`}
+                     id={`${id}@read`}
+                     control={
+                        <Checkbox
+                           checked={checkMenus.some((check) => check.id === id && check.permissions.read)}
+                           style={{ color: mode === "dark" ? "inherit" : "inherit" }}
+                           onChange={(e) => handleCheckboxChange(e.target, id)}
+                        />
+                     }
+                     sx={{ color: "black" }}
+                     label="Ver"
+                     labelPlacement="bottom"
+                  />
+                  {!readOnly && (
+                     <>
+                        <FormControlLabel
+                           value={`${id}@create`}
+                           id={`${id}@create`}
+                           control={
+                              <Checkbox
+                                 checked={checkMenus.some((check) => check.id === id && check.permissions.create)}
+                                 style={{ color: mode === "dark" ? "inherit" : "inherit" }}
+                                 onChange={(e) => handleCheckboxChange(e.target, id)}
+                              />
+                           }
+                           sx={{ color: "black" }}
+                           label="Crear"
+                           labelPlacement="bottom"
+                        />
+                        <FormControlLabel
+                           value={`${id}@update`}
+                           id={`${id}@update`}
+                           control={
+                              <Checkbox
+                                 checked={checkMenus.some((check) => check.id === id && check.permissions.update)}
+                                 style={{ color: mode === "dark" ? "inherit" : "inherit" }}
+                                 onChange={(e) => handleCheckboxChange(e.target, id)}
+                              />
+                           }
+                           sx={{ color: "black" }}
+                           label="Editar"
+                           labelPlacement="bottom"
+                        />
+                        <FormControlLabel
+                           value={`${id}@delete`}
+                           id={`${id}@delete`}
+                           className="text-base-content"
+                           control={
+                              <Checkbox
+                                 checked={checkMenus.some((check) => check.id === id && check.permissions.delete)}
+                                 style={{ color: mode === "dark" ? "inherit" : "inherit" }}
+                                 onChange={(e) => handleCheckboxChange(e.target, id)}
+                              />
+                           }
+                           sx={{ color: "black" }}
+                           label="Eliminar"
+                           labelPlacement="bottom"
+                        />
+                     </>
+                  )}
+                  {others_permissions.map((op, opIndex) => (
+                     <FormControlLabel
+                        key={`COP_${id}_${opIndex}`}
+                        value={`${op}`}
+                        id={`${op}`}
+                        control={
+                           <Checkbox
+                              checked={checkMenus.some(
+                                 // (check) => check.id === id && (check.others_permissions.includes(`${op}`) || check.others_permissions.includes("todas"))
+                                 (check) =>
+                                    check.id === id && (check.permissions.more_permissions.includes(`${op}`) || check.permissions.more_permissions.includes("todas"))
+                                 // (check) => check.id === id && includesInArray([op, "todas"], check.permissions.more_permissions)
+                              )}
+                              onChange={(e) => handleCheckboxChange(e.target, id)}
+                              style={{ color: "goldenrod" }}
+                           />
+                        }
+                        sx={{ color: "black" }}
+                        label={op.includes("@") ? op.split("@")[1] : op}
+                        labelPlacement="bottom"
+                     />
+                  ))}
+               </Masonry>
+            </AccordionDetails>
+         </Accordion>
       </Card>
    );
 };
@@ -134,47 +163,66 @@ const CardHeaderMenu = ({ id = 0, title = "", children = [], checkMenus, handleC
    useEffect(() => {
       // console.log("🚀 ~ CardHeaderMenu ~ mode:", mode);
    }, [mode]);
-
    return (
       <Card /* sx={classes.cardHeader} */ className="border-2 rounded-lg shadow-sm border-base-300">
-         <Box textAlign={"center"} mb={1} sx={{ backgroundColor: "primary.main" }}>
-            <FormControlLabel
-               value={`${id}@menu`}
-               id={`${id}@menu`}
-               control={
-                  <Checkbox checked={isChecked} style={{ color: mode === "dark" ? "whitesmoke" : "inherit" }} onChange={(e) => handleCheckboxChange(e.target, id)} />
-               }
-               label={
-                  <Typography variant="h5" className="text-base-content" fontWeight={"medium"}>
-                     {title.toUpperCase()}
-                  </Typography>
-               }
-               labelPlacement="start"
-            />
-         </Box>
+         <Accordion sx={{ p: 0, m: 0 }} defaultExpanded>
+            <Box textAlign={"center"} mb={0} sx={{ backgroundColor: "primary.main" }}>
+               <FormControlLabel
+                  value={`${id}@menu`}
+                  id={`${id}@menu`}
+                  className=""
+                  control={
+                     <Checkbox
+                        checked={isChecked}
+                        style={{ color: mode === "dark" ? "inherit" : "whitesmoke" }}
+                        onChange={(e) => handleCheckboxChange(e.target, id)}
+                     />
+                  }
+                  label={
+                     <AccordionSummary
+                        expandIcon={<ExpandMore />}
+                        sx={{ p: 0, my: -1, width: "100%", display: "flex", justifyContent: "center" }}
+                        aria-controls={`panel${id}-content`}
+                        id={`panel${id}-header`}
+                     >
+                        <Typography
+                           variant="h5"
+                           className="text-base-content w-full"
+                           fontWeight={"medium"}
+                           style={{ color: mode === "dark" ? "inherit" : "whitesmoke" }}
+                        >
+                           {title.toUpperCase()}
+                        </Typography>
+                     </AccordionSummary>
+                  }
+                  labelPlacement="end"
+               />
+            </Box>
+            <AccordionDetails sx={{ p: 0, m: 0 }}>
+               <Masonry
+                  columns={children.length == 1 ? 1 : 2}
+                  spacing={2}
+                  sx={{ backgroundColor: "white", p: 0, m: 0, borderBottomRightRadius: 5, borderBottomLeftRadius: 5 }}
+               >
+                  {children.map((m) => {
+                     if (auth.role_id !== ROLE_SUPER_ADMIN && m.title === "Menus") return;
 
-         <Masonry
-            columns={children.length == 1 ? 1 : 2}
-            spacing={2}
-            sx={{ backgroundColor: "white", p: 0, m: 0, borderBottomRightRadius: 5, borderBottomLeftRadius: 5 }}
-         >
-            {children.map((m) => {
-               if (auth.role_id !== ROLE_SUPER_ADMIN && m.title === "Menus") return;
-
-               return (
-                  <CardMenu
-                     key={`CMC_${m.id}`}
-                     id={m.id}
-                     title={m.title}
-                     others_permissions={m.others_permissions}
-                     checkMenus={checkMenus}
-                     handleCheckboxChange={handleCheckboxChange}
-                     isChecked={checkMenus.some((check) => check.id === m.id && check.isChecked)}
-                     readOnly={m.readOnly}
-                  />
-               );
-            })}
-         </Masonry>
+                     return (
+                        <CardMenu
+                           key={`CMC_${m.id}`}
+                           id={m.id}
+                           title={m.title}
+                           others_permissions={m.others_permissions}
+                           checkMenus={checkMenus}
+                           handleCheckboxChange={handleCheckboxChange}
+                           isChecked={checkMenus.some((check) => check.id === m.id && check.isChecked)}
+                           readOnly={m.readOnly}
+                        />
+                     );
+                  })}
+               </Masonry>
+            </AccordionDetails>
+         </Accordion>
       </Card>
    );
 };
