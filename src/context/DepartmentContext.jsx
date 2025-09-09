@@ -8,10 +8,10 @@ import to from "await-to-js";
 
 const DepartmentContext = createContext();
 
-export const formDataInitialState = {
-   folio: "",
-   active: ""
-};
+// export const formDataInitialState = {
+//    folio: "",
+//    active: ""
+// };
 const prefixPath = "/departments";
 
 export default function DepartmentContextProvider({ children }) {
@@ -27,7 +27,7 @@ export default function DepartmentContextProvider({ children }) {
    const [departmentsSelect, setDepartmentsSelect] = useState([]);
    const [formTitle, setFormTitle] = useState(`REGISTRAR ${singularName.toUpperCase()}`);
    const [textBtnSubmit, setTextBtnSubmit] = useState("REGISTRAR");
-   const [formData, setFormData] = useState(formDataInitialState);
+   const [formData, setFormData] = useState(null);
    const [openDialog, setOpenDialog] = useState(false);
    const formikRef = useRef(null);
    const [isEdit, setIsEdit] = useState(false);

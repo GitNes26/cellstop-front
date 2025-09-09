@@ -11,6 +11,7 @@ const RolesView = lazy(() => import("./../views/app/settings/rolesView/Index"));
 const DepartmentsView = lazy(() => import("./../views/app/settings/departmentsView/Index")); //import DepartmentsView from "./../views/app/settings/departmentsView/Index";
 const PositionsView = lazy(() => import("./../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
 const EmployeesView = lazy(() => import("./../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
+const SellersView = lazy(() => import("./../views/app/catalogs/sellersView/Index")); //import SellerView from "./../views/app/settings/sellersView/Index";
 
 const UsersView = lazy(() => import("./../views/app/settings/usersView/Index")); //import UsersView from "./../views/app/settings/usersView/Index";
 const NotFound = lazy(() => import("./../views/NotFound")); //import NotFound from "./../views/NotFound";
@@ -22,6 +23,8 @@ import EmployeeContextProvider from "../context/EmployeeContext";
 import PositionContextProvider from "../context/PositionContext";
 import DepartmentContextProvider from "../context/DepartmentContext";
 import MenuContextProvider from "../context/MenuContext";
+// import SellersView from "../views/app/catalogs/sellersView/Index";
+import SellerContextProvider from "../context/SellerContext";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -117,6 +120,19 @@ const mainRouter = {
                         </DepartmentContextProvider>
                      </RoleContextProvider>
                   </UserContextProvider>
+               )
+            }
+         ]
+      },
+      {
+         path: "catalogos",
+         children: [
+            {
+               path: "vendedores",
+               element: (
+                  <SellerContextProvider>
+                     <SellersView />
+                  </SellerContextProvider>
                )
             }
          ]

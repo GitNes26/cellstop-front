@@ -244,7 +244,7 @@ export default function AuthContextProvider({ children }) {
    };
 
    const logout = async (status = null) => {
-      // console.log("🚀 ~ logout ~ status:", status);
+      console.log("🚀 ~ logout ~ status:", status);
       try {
          if (status === 401) {
             localStorage.removeItem("token");
