@@ -6,25 +6,25 @@ import { useAuthContext } from "./AuthContext";
 import { ROLE_ADMIN } from "./GlobalContext";
 import to from "await-to-js";
 
-const SellerContext = createContext();
+const ChipContext = createContext();
 
 // export const formDataInitialState = {
 //    folio: "",
 //    active: ""
 // };
-const prefixPath = "/sellers";
+const prefixPath = "/chips";
 
-export default function SellerContextProvider({ children }) {
+export default function ChipContextProvider({ children }) {
    const params = useParams();
-   const singularName = "Vendedor", //Escribirlo siempre letra Capital
-      pluralName = "Vendedores"; //Escribirlo siempre letra Capital
+   const singularName = "Chip", //Escribirlo siempre letra Capital
+      pluralName = "Chips"; //Escribirlo siempre letra Capital
 
    // const { counters, setCounters } = useGlobalContext();
    const { auth } = useAuthContext();
 
-   const [seller, setSeller] = useState(null);
-   const [allSellers, setAllSellers] = useState([]);
-   const [sellersSelect, setSellersSelect] = useState([]);
+   const [chip, setChip] = useState(null);
+   const [allChips, setAllChips] = useState([]);
+   const [chipsSelect, setChipsSelect] = useState([]);
    const [formTitle, setFormTitle] = useState(`REGISTRAR ${singularName.toUpperCase()}`);
    const [textBtnSubmit, setTextBtnSubmit] = useState("REGISTRAR");
    const [formData, setFormData] = useState(null);
@@ -33,15 +33,15 @@ export default function SellerContextProvider({ children }) {
    const [isEdit, setIsEdit] = useState(false);
 
    //#region CRUD
-   const getAllSellers = async () => {
+   const getAllChips = async () => {
       // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}`));
-      // console.log("🚀 ~ getAllSellers ~ error:", error);
-      // console.log("🚀 ~ getAllSellers ~ response:", response);
+      // console.log("🚀 ~ getAllChips ~ error:", error);
+      // console.log("🚀 ~ getAllChips ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getAllSellers ~ error:", error);
-         const message = error.response.data.message || "getAllSellers ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getAllChips ~ error:", error);
+         const message = error.response.data.message || "getAllChips ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -49,20 +49,20 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setAllSellers(res.result);
+      setAllChips(res.result);
 
       return res;
    };
 
-   const getSelectIndexSellers = async () => {
+   const getSelectIndexChips = async () => {
       // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
-      // console.log("🚀 ~ getSelectIndexSellers ~ error:", error);
-      // console.log("🚀 ~ getSelectIndexSellers ~ response:", response);
+      // console.log("🚀 ~ getSelectIndexChips ~ error:", error);
+      // console.log("🚀 ~ getSelectIndexChips ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getSelectIndexSellers ~ error:", error);
-         const message = error.response.data.message || "getSelectIndexSellers ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getSelectIndexChips ~ error:", error);
+         const message = error.response.data.message || "getSelectIndexChips ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -70,22 +70,22 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setSellersSelect(res.result);
+      setChipsSelect(res.result);
 
       return res;
    };
 
-   const createOrUpdateSeller = async (data) => {
-      // console.log("🚀 ~ createOrUpdateSeller ~ data:", data);
+   const createOrUpdateChip = async (data) => {
+      // console.log("🚀 ~ createOrUpdateChip ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
-      // console.log("🚀 ~ createOrUpdateSeller ~ error:", error);
-      // console.log("🚀 ~ createOrUpdateSeller ~ response:", response);
+      // console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+      // console.log("🚀 ~ createOrUpdateChip ~ response:", response);
       if (error) {
-         console.log("🚀 ~ createOrUpdateSeller ~ error:", error);
-         const message = error.response.data.message || "createOrUpdateSeller ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+         const message = error.response.data.message || "createOrUpdateChip ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -93,20 +93,20 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllSellers();
+      await getAllChips();
 
       return res;
    };
 
-   const getSeller = async (id) => {
+   const getChip = async (id) => {
       // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
-      // console.log("🚀 ~ getSeller ~ error:", error);
-      // console.log("🚀 ~ getSeller ~ response:", response);
+      // console.log("🚀 ~ getChip ~ error:", error);
+      // console.log("🚀 ~ getChip ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getSeller ~ error:", error);
-         const message = error.response.data.message || "getSeller ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getChip ~ error:", error);
+         const message = error.response.data.message || "getChip ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -114,21 +114,21 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setSeller(res.result);
+      setChip(res.result);
 
       return res;
    };
 
-   const deleteSeller = async (id) => {
-      // console.log("🚀 ~ deleteSeller ~ data:", data);
+   const deleteChip = async (id) => {
+      // console.log("🚀 ~ deleteChip ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
-      // console.log("🚀 ~ deleteSeller ~ error:", error);
-      // console.log("🚀 ~ deleteSeller ~ response:", response);
+      // console.log("🚀 ~ deleteChip ~ error:", error);
+      // console.log("🚀 ~ deleteChip ~ response:", response);
       if (error) {
-         console.log("🚀 ~ deleteSeller ~ error:", error);
-         const message = error.response.data.message || "deleteSeller ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ deleteChip ~ error:", error);
+         const message = error.response.data.message || "deleteChip ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -136,21 +136,21 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllSellers();
+      await getAllChips();
 
       return res;
    };
 
-   const disEnableSeller = async (id, active) => {
-      // console.log("🚀 ~ disEnableSeller ~ data:", data);
+   const disEnableChip = async (id, active) => {
+      // console.log("🚀 ~ disEnableChip ~ data:", data);
       // await checkLoggedIn();
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
-      // console.log("🚀 ~ disEnableSeller ~ error:", error);
-      // console.log("🚀 ~ disEnableSeller ~ response:", response);
+      // console.log("🚀 ~ disEnableChip ~ error:", error);
+      // console.log("🚀 ~ disEnableChip ~ response:", response);
       if (error) {
-         console.log("🚀 ~ disEnableSeller ~ error:", error);
-         const message = error.response.data.message || "disEnableSeller ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ disEnableChip ~ error:", error);
+         const message = error.response.data.message || "disEnableChip ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -158,28 +158,28 @@ export default function SellerContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllSellers();
+      await getAllChips();
 
       return res;
    };
    //#endregion CRUD
 
    // useEffect(() => {
-   //    // console.log("el useEffect de SellerContext");
-   //    // getSeller();
+   //    // console.log("el useEffect de ChipContext");
+   //    // getChip();
    // });
 
    return (
-      <SellerContext.Provider
+      <ChipContext.Provider
          value={{
             singularName,
             pluralName,
-            seller,
-            setSeller,
-            allSellers,
-            setAllSellers,
-            sellersSelect,
-            setSellersSelect,
+            chip,
+            setChip,
+            allChips,
+            setAllChips,
+            chipsSelect,
+            setChipsSelect,
             formTitle,
             setFormTitle,
             textBtnSubmit,
@@ -191,16 +191,16 @@ export default function SellerContextProvider({ children }) {
             formikRef,
             isEdit,
             setIsEdit,
-            getAllSellers,
-            getSelectIndexSellers,
-            createOrUpdateSeller,
-            getSeller,
-            deleteSeller,
-            disEnableSeller
+            getAllChips,
+            getSelectIndexChips,
+            createOrUpdateChip,
+            getChip,
+            deleteChip,
+            disEnableChip
          }}
       >
          {children}
-      </SellerContext.Provider>
+      </ChipContext.Provider>
    );
 }
-export const useSellerContext = () => useContext(SellerContext);
+export const useChipContext = () => useContext(ChipContext);
