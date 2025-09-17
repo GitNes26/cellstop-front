@@ -15,9 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <GlobalContextProvider>
          <AuthContextProvider>
             <MenuContextProvider>
-               <App  />
+               <App />
             </MenuContextProvider>
          </AuthContextProvider>
       </GlobalContextProvider>
-   </React.StrictMode>,
+   </React.StrictMode>
 );

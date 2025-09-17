@@ -8,12 +8,12 @@ import { useGlobalContext } from "../../../../context/GlobalContext";
 
 const ChipsView = ({}) => {
    const { openDialog, setOpenDialog } = useGlobalContext();
-   const { pluralName, allChip, setAllChip, getAllChip } = useChipContext();
+   const { pluralName, allChips, setAllChips, getAllChips } = useChipContext();
 
    // CARGA DE LISTADOS
-   useFetch(getAllChip, setAllChip);
+   useFetch(getAllChips, setAllChips);
 
-   useEffect(() => {}, [allChip]);
+   useEffect(() => {}, [allChips]);
 
    return (
       <>
@@ -21,7 +21,7 @@ const ChipsView = ({}) => {
             {pluralName.toUpperCase()}
          </Typography>
          <ChipDT />
-         <ChipForm container={"drawer"} refreshSelect={getAllChip} openDialog={openDialog} setOpenDialog={setOpenDialog} />
+         <ChipForm container={"drawer"} refreshSelect={getAllChips} openDialog={openDialog} setOpenDialog={setOpenDialog} />
       </>
    );
 };

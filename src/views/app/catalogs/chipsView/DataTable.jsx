@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Typography } from "@mui/material";
+import { useEffect, useRef } from "react";
+import { Button, Stack, Typography } from "@mui/material";
 
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
@@ -11,29 +11,30 @@ import withReactContent from "sweetalert2-react-content";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useChipContext } from "../../../../context/ChipContext";
-import { CheckCircleRounded } from "@mui/icons-material";
+import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
 
 const ChipDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip } =
+   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip, importChips } =
       useChipContext();
    const mySwal = withReactContent(Swal);
+   const fileInputRef = useRef(null);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["letters", "chip", "chip_description", "active", "created_at"];
+   const globalFilterFields = ["iccid", "operator", "chip_description", "active", "created_at"];
 
    // #region BodysTemplate
-   const LettersBodyTemplate = (obj) => (
+   const IccidBodyTemplate = (obj) => (
       <Typography textAlign={"center"} size={fontSizeTable.text} className="font-black">
-         {obj.letters}
+         {obj.iccid}
       </Typography>
    );
-   const ChipBodyTemplate = (obj) => (
+   const OperatorBodyTemplate = (obj) => (
       <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.chip}
+         {obj.operator}
       </Typography>
    );
    const DescriptionBodyTemplate = (obj) => (
@@ -56,24 +57,24 @@ const ChipDT = () => {
 
    const columns = [
       {
-         field: "letters",
-         headerName: "Letras clave",
+         field: "iccid",
+         headerName: "ICCID",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <LettersBodyTemplate {...params.row} key={`letters-${params.row.id}`} />,
+         renderCell: (params) => <IccidBodyTemplate {...params.row} key={`iccid-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
       {
-         field: "chip",
-         headerName: "Vendedor",
+         field: "operator",
+         headerName: "Operadora",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <ChipBodyTemplate {...params.row} key={`chip-${params.row.id}`} />,
+         renderCell: (params) => <OperatorBodyTemplate {...params.row} key={`operator-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
@@ -222,6 +223,50 @@ const ChipDT = () => {
       }
    };
 
+   // toolbar content: input hidden + importar
+   const toolbarContentEnd = (
+      <Stack direction="row" spacing={1} alignItems="center">
+         <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            style={{ display: "none" }}
+            onChange={async (e) => {
+               try {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setIsLoading(true);
+                  const res = await importChips(file);
+                  if (!res) return setIsLoading(false);
+                  if (res.errors) {
+                     setIsLoading(false);
+                     Object.values(res.errors).forEach((errors) => {
+                        errors.map((error) => Toast.Warning(error));
+                     });
+                     return;
+                  } else if (res.status_code !== 200) {
+                     setIsLoading(false);
+                     return Toast.Customizable(res.alert_text, res.alert_icon);
+                  }
+                  if (res.alert_text) Toast.Success(res.alert_text);
+                  await getAllChips();
+                  setIsLoading(false);
+               } catch (error) {
+                  console.log(error);
+                  Toast.Error(error);
+                  setIsLoading(false);
+               } finally {
+                  // limpiar input para poder re-subir mismo archivo si se desea
+                  e.target.value = "";
+               }
+            }}
+         />
+         <Button variant="contained" startIcon={<UploadFileRounded />} onClick={() => fileInputRef.current?.click()} disabled={!auth.permissions.create}>
+            Importar
+         </Button>
+      </Stack>
+   );
+
    const data = [];
    const formatData = async () => {
       try {
@@ -248,27 +293,69 @@ const ChipDT = () => {
    useEffect(() => {}, []);
 
    return (
-      <DataTableComponent
-         dataColumns={columns}
-         data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
-         headerFilters={true}
-         btnAdd={auth.permissions.create}
-         handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         numberColumnName={1}
-         rowEdit={false}
-         refreshTable={getAllChips}
-         btnsExport={false}
-         scrollHeight="80vh"
-         // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
-         // positionBtnsToolbar="center"
-         // toolbarContentCenter={toolbarContentCenter}
-         // toolbarContentEnd={toolbarContentEnd}
-      />
+      <>
+         <Stack direction="row" spacing={1} alignItems="center" padding={1}>
+            <input
+               ref={fileInputRef}
+               type="file"
+               accept=".xlsx,.xls,.csv"
+               style={{ display: "none" }}
+               onChange={async (e) => {
+                  try {
+                     const file = e.target.files?.[0];
+                     if (!file) return;
+                     setIsLoading(true);
+                     const res = await importChips(file);
+                     if (!res) return setIsLoading(false);
+                     if (res.errors) {
+                        setIsLoading(false);
+                        Object.values(res.errors).forEach((errors) => {
+                           errors.map((error) => Toast.Warning(error));
+                        });
+                        return;
+                     } else if (res.status_code !== 200) {
+                        setIsLoading(false);
+                        return Toast.Customizable(res.alert_text, res.alert_icon);
+                     }
+                     if (res.alert_text) Toast.Success(res.alert_text);
+                     await getAllChips();
+                     setIsLoading(false);
+                  } catch (error) {
+                     console.log(error);
+                     Toast.Error(error);
+                     setIsLoading(false);
+                  } finally {
+                     // limpiar input para poder re-subir mismo archivo si se desea
+                     e.target.value = "";
+                  }
+               }}
+            />
+            <Button variant="contained" startIcon={<UploadFileRounded />} onClick={() => fileInputRef.current?.click()} disabled={!auth.permissions.create}>
+               Importar (Carga Masiva)
+            </Button>
+         </Stack>
+         <DataTableComponent
+            dataColumns={columns}
+            data={data}
+            // setData={setRequestBecas}
+            // globalFilterFields={globalFilterFields}
+            headerFilters={true}
+            btnAdd={auth.permissions.create}
+            handleClickAdd={handleClickAdd}
+            handleClickEdit={handleClickEdit}
+            handleClickDisEnable={handleClickDisEnable}
+            singularName={singularName}
+            numberColumnName={1}
+            rowEdit={false}
+            refreshTable={getAllChips}
+            btnsExport={false}
+            scrollHeight="80vh"
+            // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+            // positionBtnsToolbar="center"
+            // toolbarContentCenter={toolbarContentCenter}
+            // toolbarContentEnd={toolbarContentEnd}
+         />
+      </>
    );
 };
 export default ChipDT;

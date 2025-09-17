@@ -4,13 +4,13 @@ import { Button, ButtonGroup, ToggleButton, Tooltip, Typography } from "@mui/mat
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Toast from "../../../../utils/Toast";
-import icons from "../../../../constant/icons";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useMenuContext } from "../../../../context/MenuContext";
 import { DataTableComponent } from "../../../../components";
 import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
+import * as MuiIcons from "@mui/icons-material";
 
 const MenuDT = () => {
    const { auth } = useAuthContext();
@@ -27,18 +27,26 @@ const MenuDT = () => {
       // console.log("🚀 ~ MenuDT ~ params:", obj);
       // console.log("🚀 ~ MenuBodyTemplate ~ data:", data);
       // const obj = data.filter((obj) => obj.id === params.id)[0];
+      // const IconComponent = MuiIcons[obj.icon];
+
+      const renderMuiIcon = (iconName, type) => {
+         if (!iconName) return type === "group" ? <MuiIcons.TokenRounded /> : <MuiIcons.BlurOnRounded />;
+         const IconComponent = MuiIcons[iconName];
+         return IconComponent != undefined ? <IconComponent /> : type === "group" ? <MuiIcons.TokenRounded /> : <MuiIcons.BlurOnRounded />;
+      };
 
       return (
-         <>
+         <div className="flex flex-col items-center justify-center h-full">
+            {renderMuiIcon(obj.icon, "icon")}
             <Typography textAlign={"center"} size={fontSizeTable.text}>
                {obj.menu}
             </Typography>
             {obj.caption && (
-               <Typography textAlign={"center"} size={fontSizeTable.subtext} className="italic">
+               <Typography textAlign={"center"} size={fontSizeTable.subtext} className="italic opacity-65">
                   {obj.caption}
                </Typography>
             )}
-         </>
+         </div>
       );
    };
    const InfoBodyTemplate = (obj) => (
@@ -59,14 +67,14 @@ const MenuDT = () => {
                </span>
             </Typography>
          ) : (
-            <>
+            <div className="flex flex-col items-center justify-center h-full">
                <Typography textAlign={"center"} size={fontSizeTable.subtext}>
                   <b>{"***** MENÚ PADRE *****"}</b>
                </Typography>
                <Typography textAlign={"center"} size={fontSizeTable.subtext}>
                   Orden: <b>{obj.order ?? "-"}</b>
                </Typography>
-            </>
+            </div>
          )}
       </>
    );

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Axios, Response } from "../utils/Api";
+import { Axios, AxiosFiles, Response } from "../utils/Api";
 import Toast from "../utils/Toast";
 import { useAuthContext } from "./AuthContext";
 import { ROLE_ADMIN } from "./GlobalContext";
@@ -79,8 +79,8 @@ export default function ChipContextProvider({ children }) {
       // console.log("🚀 ~ createOrUpdateChip ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
-      const id = data.id > 0 ? `/${data.id}` : "";
-      const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
+      const id = data.id > 0 ? `update/${data.id}` : "store";
+      const [error, response] = await to(Axios.post(`${prefixPath}/${id}`, data));
       // console.log("🚀 ~ createOrUpdateChip ~ error:", error);
       // console.log("🚀 ~ createOrUpdateChip ~ response:", response);
       if (error) {
@@ -164,6 +164,30 @@ export default function ChipContextProvider({ children }) {
    };
    //#endregion CRUD
 
+   const importChips = async (file) => {
+      // console.log("🚀 ~ createOrUpdateChip ~ data:", data);
+      // // if (!(await checkLoggedIn())) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+      const [error, response] = await to(AxiosFiles.post(`${prefixPath}/import`, formData, { headers: { "Content-Type": "multipart/form-data" } }));
+      console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+      console.log("🚀 ~ createOrUpdateChip ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+         const message = error.response.data.message || "createOrUpdateChip ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      await getAllChips();
+
+      return res;
+   };
+
    // useEffect(() => {
    //    // console.log("el useEffect de ChipContext");
    //    // getChip();
@@ -196,7 +220,8 @@ export default function ChipContextProvider({ children }) {
             createOrUpdateChip,
             getChip,
             deleteChip,
-            disEnableChip
+            disEnableChip,
+            importChips
          }}
       >
          {children}
