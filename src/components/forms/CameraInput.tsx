@@ -107,6 +107,10 @@ const CameraInput = ({ getFile, caputureINE }) => {
       setIsAnimating(false);
       setPhoto(null);
       detectCameraAndStartVideo();
+
+      return () => {
+         setHasCamera(false);
+      };
    }, [openCamera]);
 
    const tomarFoto = () => {
