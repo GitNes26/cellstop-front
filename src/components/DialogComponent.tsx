@@ -65,7 +65,7 @@ const DialogComponent = ({
             fullWidth
             onClose={handleClose}
             aria-describedby="alert-dialog-slide-description"
-            sx={{ backgroundColor: "transparent", borderRadius: 5, zIndex: 10000 }}
+            sx={{ backgroundColor: "transparent", borderRadius: 5, zIndex: 1201 }}
             fullScreen={fullScreenDialog}
          >
             <DialogTitle my={0} py={0} sx={{ padding: 0, backgroundColor: "primary.main" }} className="flex flex-col py-1 text-base-content">

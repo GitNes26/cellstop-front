@@ -1,12 +1,46 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 // import Input from "./Input";
 import { base64ToFile } from "../../utils/Formats";
 import { imageCompress } from "./FileInput";
-import { Button } from "@mui/material";
+import { Button, Grid, SxProps } from "@mui/material";
 import DialogComponent from "../DialogComponent";
+import { FormikValues, useFormikContext } from "formik";
+
+// const saveFirm = async (data) => {
+//    setIsLoading(true);
+//    situation.img_firm_requester = data;
+//    const res = await saveFirmRequester(situation);
+//    // console.log('🚀 ~ handleClickLogout ~ res:', res);
+//    if (!res) return setIsLoading(false);
+//    if (res.status_code !== 200) {
+//       setIsLoading(false);
+//       return Toast.Customizable(res.alert_text, res.alert_icon);
+//    }
+//    setOpenDialogFirm(false);
+//    await refreshSituations();
+//    setIsLoading(false);
+//    if (res.alert_text) Toast.Success(res.alert_text);
+//    setIsLoading(false);
+// };
 
 interface FirmPadProps {
+   xsOffset?: number | null;
+   // loading?: true | false; // Indica que la información se esta procesando
+   col?: number;
+   sizeCols?: {
+      xs: number;
+      sm: number;
+      md: number;
+   };
+   idName: string;
+   label: string;
+   variant?: "filled" | "outlined" | "standard"; //"classic" | "floating" | "icon-start-inside" | "icon-end-inside" | "start-inside" | "end-inside"; // Estilo del input
+   size?: "small" | "medium";
+   className?: string;
+   sx?: SxProps<Theme> | undefined;
+   hidden?: boolean;
+   mb?: number;
    onSave: (signatureData: File) => void;
    fullWidth?: boolean;
    width?: number;
@@ -16,7 +50,27 @@ interface FirmPadProps {
    inDialog?: boolean;
 }
 
-const FirmPad: React.FC<FirmPadProps> = ({ onSave, fullWidth, width = 400, height = 200, penColor = "#0000FF", penWidth = 2, inDialog = true }) => {
+const FirmPad: React.FC<FirmPadProps> = ({
+   xsOffset = null,
+   col = 12,
+   sizeCols = { xs: 12, sm: 12, md: col }, // 97% Altura máxima del formulario
+   // loading,
+   idName,
+   label,
+   variant = "outlined", // Estilo del input
+   size = "medium",
+   className = "",
+   sx,
+   hidden = false,
+   mb = 0,
+   onSave,
+   fullWidth,
+   width = 400,
+   height = 200,
+   penColor = "#0000FF",
+   penWidth = 2,
+   inDialog = true
+}) => {
    const sigCanvas = useRef<SignatureCanvas | null>(null);
    const [currentColor, setCurrentColor] = useState(penColor);
    const [currentWidth, setCurrentWidth] = useState(penWidth);
@@ -24,6 +78,7 @@ const FirmPad: React.FC<FirmPadProps> = ({ onSave, fullWidth, width = 400, heigh
    const [openDialogFirm, setOpenDialogFirm] = useState(false);
    const [firmFile, setFirmFile] = useState(null);
    const [signed, setSigned] = useState(false);
+   const formik = useFormikContext<FormikValues>();
 
    const clearSignature = () => {
       sigCanvas.current?.clear();
@@ -72,22 +127,25 @@ const FirmPad: React.FC<FirmPadProps> = ({ onSave, fullWidth, width = 400, heigh
    const saveSignature = async () => {
       if (!sigCanvas.current || sigCanvas.current.isEmpty()) return;
       setSigned(true);
-      console.log("firmado");
       const originalCanvas = sigCanvas.current.getCanvas();
       const trimmedCanvas = getTrimmedCanvas(originalCanvas);
       const signatureDataBase64String = trimmedCanvas.toDataURL("image/png");
+
+      // Mostrar inmediatamente la firma en la interfaz
+      setFirmFile(signatureDataBase64String);
+
+      // Convertir a File, comprimir y enviar al callback
       const file = await base64ToFile(signatureDataBase64String, "firm.png");
-      console.log("🚀 ~ saveSignature ~ file:", file);
       const fileCompress = await imageCompress(file);
-      clearSignature();
-      onSave(fileCompress);
+      if (onSave) onSave(fileCompress);
 
-      const reader = new FileReader();
-      reader.onload = () => {
-         setFirmFile(reader.result); // Guarda el Base64 en el estado
-      };
-      reader.readAsDataURL(file);
+      console.log("🚀 ~ saveSignature ~ fileCompress:", fileCompress);
+      // Actualizar el valor en Formik
+      formik?.setFieldValue(idName, fileCompress);
+      console.log("🚀 ~ saveSignature ~ formik:", formik);
 
+      // limpiar el canvas y cerrar el diálogo
+      // clearSignature();
       setOpenDialogFirm(false);
    };
 
@@ -101,6 +159,7 @@ const FirmPad: React.FC<FirmPadProps> = ({ onSave, fullWidth, width = 400, heigh
                minWidth={currentWidth}
                maxWidth={currentWidth}
                canvasProps={{ className: "w-full h-full border border-gray-400" }}
+               onBegin={() => setIsEmpty(false)}
                onEnd={() => setIsEmpty(false)}
             />
          </div>
@@ -136,33 +195,56 @@ const FirmPad: React.FC<FirmPadProps> = ({ onSave, fullWidth, width = 400, heigh
             <Button sx={{ py: 0, my: 0, px: 4 }} onClick={clearSignature} variant="outlined" disabled={isEmpty}>
                LIMPIAR
             </Button>
-            <Button sx={{ py: 0, my: 0, px: 4 }} onClick={saveSignature} variant="contained" disabled={isEmpty}>
+            <Button
+               sx={{ py: 0, my: 0, px: 4 }}
+               onClick={() => {
+                  saveSignature();
+                  setOpenDialogFirm(false);
+               }}
+               variant="contained"
+               disabled={isEmpty}
+            >
                GUARDAR
             </Button>
          </div>
       </div>
    );
 
+   // useEffect(() => {
+   //    clearSignature();
+   //    setSigned(false);
+   //    setFirmFile(null);
+   // }, []);
+
    return (
-      // <div className="flex flex-col items-center w-full max-w-lg p-2 bg-white border shadow-md rounded-xl">
       <>
          {inDialog ? (
             <>
-               <Button
-                  variant="text"
-                  color={!signed ? "primary" : "success"}
-                  sx={{ fontWeight: "bold", fontSize: "large" }}
-                  onClick={() => setOpenDialogFirm(true)}
-                  fullWidth={fullWidth}
-               >
-                  {!signed ? "Firmar" : "Firmado"}
-               </Button>
+               <Grid size={sizeCols} offset={{ xs: xsOffset }} hidden={hidden} mb={mb} px={{}} sx={sx} /* className={`pt-2 mb-[${mb}]`} */>
+                  <Button
+                     className="btn hover:cursor-pointer"
+                     variant="outlined"
+                     color={!signed ? "primary" : "success"}
+                     sx={{ fontWeight: "bold", fontSize: "large" }}
+                     onClick={() => {
+                        clearSignature();
+                        setSigned(false);
+                        setFirmFile(null);
+                        setOpenDialogFirm(true);
+                     }}
+                     fullWidth={signed ? true : fullWidth}
+                  >
+                     {!signed ? "Dibujar Firmar" : "Firmado"}
+                  </Button>
+                  {/* <input type="file" name={idName} id={idName} value={formik.values[idName]} /> */}
+                  {firmFile ? <img src={firmFile} alt="firma" className="mt-2 p-1 rounded-md border" style={{ maxWidth: "100%", maxHeight: 140 }} /> : null}
+               </Grid>
                <DialogComponent
                   open={openDialogFirm}
                   setOpen={setOpenDialogFirm}
                   fullScreen={true}
                   modalTitle=""
-                  height={undefined}
+                  height={"100vh"}
                   formikRef={undefined}
                   textBtnSubmit={undefined}
                >

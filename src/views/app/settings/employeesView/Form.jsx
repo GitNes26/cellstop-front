@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormikForm, { DividerComponent, FileInput, Input, Select2 } from "../../../../components/forms";
+import FormikForm, { DividerComponent, FileInput, FirmPad, Input, Select2 } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography } from "@mui/material";
@@ -268,20 +268,23 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
       {
          name: "img_firm",
          input: (
-            <FileInput
-               key={`key-input-img_firm`}
-               col={12}
-               idName="img_firm"
-               label="Firma del Empleado"
-               filePreviews={imgFirm}
-               setFilePreviews={setImgFirm}
-               multiple={false}
-               accept={"image/*"}
-               // handleUploadingFile={handleUpload}
-               fileSizeMax={3}
-               showBtnCamera={true}
-               // showDialogFileOrFirm={true}
-            />
+            <Grid container size={"grow"} display={"flex"} alignItems={"center"} className={"border-1 border-gray-400 rounded-2xl p-2"} justifyContent={"center"}>
+               <FileInput
+                  key={`key-input-img_firm`}
+                  col={10}
+                  idName="img_firm"
+                  label="Firma del Empleado"
+                  filePreviews={imgFirm}
+                  setFilePreviews={setImgFirm}
+                  multiple={false}
+                  accept={"image/*"}
+                  // handleUploadingFile={handleUpload}
+                  fileSizeMax={3}
+                  showBtnCamera={true}
+                  // showDialogFileOrFirm={true}
+               />
+               <FirmPad col={2} idName="img_firm"  />
+            </Grid>
          ),
          value: null,
          validations: null,

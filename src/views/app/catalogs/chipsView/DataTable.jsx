@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Button, Stack, Typography } from "@mui/material";
 
 import Toast from "../../../../utils/Toast";
-import { DataTableComponent } from "../../../../components";
+import { DataTableComponent, ExcelUploader } from "../../../../components";
 
 import { formatDatetime } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
@@ -13,6 +13,53 @@ import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalCo
 import { useChipContext } from "../../../../context/ChipContext";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
+import { env } from "../../../../constant";
+
+const columnas = [
+   "FILTRO",
+   "TELEFONO",
+   "IMEI",
+   "ICCID",
+   "ESTATUS",
+   "LIN",
+   "MOVIMIENTO",
+   "FECHA_ACTIV",
+   "FECHA_PRIM_LLAM",
+   "FECHA_DOL",
+   "ESTATUS_PAGO",
+   "MOTIVO_ESTATUS",
+   "MONTO_COM",
+   "TIPO_COMISION",
+   "EVALUACION",
+   "FZA_VTA_PAGO",
+   "FECHA_EVALUACION",
+   "FOLIO",
+   "FACTURA",
+   "FECHA_PUBLICACION"
+];
+
+// Validaciones por columna: null = opcional
+const validaciones = {
+   TELEFONO: (v) => /^\d{10}$/.test(v),
+   IMEI: (v) => /^\d{15}$/.test(v),
+   ICCID: (v) => !!v && v.length >= 10,
+   ESTATUS: null,
+   LIN: null,
+   MOVIMIENTO: null,
+   FECHA_ACTIV: (v) => !isNaN(Date.parse(v)),
+   FECHA_PRIM_LLAM: (v) => !v || !isNaN(Date.parse(v)), // opcional
+   FECHA_DOL: (v) => !v || !isNaN(Date.parse(v)),
+   ESTATUS_PAGO: null,
+   MOTIVO_ESTATUS: null,
+   MONTO_COM: (v) => !isNaN(Number(v)),
+   TIPO_COMISION: null,
+   EVALUACION: null,
+   FZA_VTA_PAGO: null,
+   FECHA_EVALUACION: (v) => !v || !isNaN(Date.parse(v)),
+   FOLIO: null,
+   FACTURA: null,
+   FECHA_PUBLICACION: (v) => !v || !isNaN(Date.parse(v))
+};
 
 const ChipDT = () => {
    const { auth } = useAuthContext();
@@ -226,6 +273,7 @@ const ChipDT = () => {
    // toolbar content: input hidden + importar
    const toolbarContentEnd = (
       <Stack direction="row" spacing={1} alignItems="center">
+         <ExcelUploader columns={columnas} validations={validaciones} apiEndpoint={`${env.API_URL}/chips/import`} />
          <input
             ref={fileInputRef}
             type="file"

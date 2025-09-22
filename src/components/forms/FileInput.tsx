@@ -381,7 +381,7 @@ const FileInput: React.FC<FileInputProps> = ({
          <Grid
             size={{ xs: 12, md: col }}
             offset={{ xs: xsOffset }}
-            sx={{ display: hidden ? "none" : "flex", flexDirection: "column", alignItems: "center", mb: marginBottom ? marginBottom : 2 }}
+            sx={{ display: hidden ? "none" : "flex", flexDirection: "column", alignItems: "center", mb: marginBottom ? marginBottom : 0 }}
          >
             <FormControl fullWidth sx={{}}>
                <Typography

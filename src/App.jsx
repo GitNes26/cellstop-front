@@ -74,8 +74,8 @@ export default function App({}) {
                style={{
                   // color: "white",
                   borderRadius: 15,
-                  fontWeight: "bold"
-                  // zIndex: 999999
+                  fontWeight: "bold",
+                  zIndex: 11000
                }}
             >
                <Loading open={isLoading} animation="bounce" />
