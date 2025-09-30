@@ -2,6 +2,7 @@ import Toast from "./Toast";
 import dayjs from "dayjs";
 import "dayjs/locale/es"; // importa el locale español
 dayjs.locale("es"); // establece el locale global a español
+import * as XLSX from "xlsx";
 
 //#region /** FECHAS - FORMATEADO */
 function validateRangeDates(action, input_initial_date, input_final_date) {
@@ -722,3 +723,27 @@ export const sleep = (ms) => {
       setTimeout(resolve, ms);
    });
 };
+
+export function excelDateToJSDate(excelDate) {
+   if (!excelDate) return null;
+
+   // Caso 1: número serial
+   if (typeof excelDate === "number") {
+      const date = new Date((excelDate - 25569) * 86400 * 1000);
+      return date.toISOString().split("T")[0]; // YYYY-MM-DD
+   }
+
+   // Caso 2: string (dd/mm/yyyy o similar)
+   if (typeof excelDate === "string") {
+      const parts = excelDate.split(/[\/\-]/); // divide por / o -
+      if (parts.length === 3) {
+         const [day, month, year] = parts.map((p) => parseInt(p, 10));
+         if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            const date = new Date(year, month - 1, day);
+            return date.toISOString().split("T")[0];
+         }
+      }
+   }
+
+   return null;
+}

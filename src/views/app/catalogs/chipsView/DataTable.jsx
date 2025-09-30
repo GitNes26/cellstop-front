@@ -20,58 +20,54 @@ const columnas = [
    "TELEFONO",
    "IMEI",
    "ICCID",
-   "ESTATUS",
-   "LIN",
+   "ESTATUS LIN",
    "MOVIMIENTO",
    "FECHA_ACTIV",
    "FECHA_PRIM_LLAM",
-   "FECHA_DOL",
+   "FECHA DOL",
    "ESTATUS_PAGO",
    "MOTIVO_ESTATUS",
    "MONTO_COM",
    "TIPO_COMISION",
    "EVALUACION",
    "FZA_VTA_PAGO",
-   "FECHA_EVALUACION",
-   "FOLIO",
-   "FACTURA",
-   "FECHA_PUBLICACION"
+   "FECHA EVALUACION",
+   "FOLIO FACTURA",
+   "FECHA PUBLICACION"
 ];
 
 // Validaciones por columna: null = opcional
 const validaciones = {
-   TELEFONO: (v) => /^\d{10}$/.test(v),
-   IMEI: (v) => /^\d{15}$/.test(v),
+   FILTRO: () => null,
+   // TELEFONO: (v) => /^\d{10}$/.test(v),
+   TELEFONO: (v) => !!v && v.length === 10,
+   // IMEI: (v) => /^\d{15}$/.test(v),
+   IMEI: (v) => !!v && v.length === 15,
    ICCID: (v) => !!v && v.length >= 10,
-   ESTATUS: null,
-   LIN: null,
+   "ESTATUS LIN": null,
    MOVIMIENTO: null,
    FECHA_ACTIV: (v) => !isNaN(Date.parse(v)),
    FECHA_PRIM_LLAM: (v) => !v || !isNaN(Date.parse(v)), // opcional
-   FECHA_DOL: (v) => !v || !isNaN(Date.parse(v)),
+   "FECHA DOL": (v) => !v || !isNaN(Date.parse(v)),
    ESTATUS_PAGO: null,
    MOTIVO_ESTATUS: null,
    MONTO_COM: (v) => !isNaN(Number(v)),
    TIPO_COMISION: null,
    EVALUACION: null,
    FZA_VTA_PAGO: null,
-   FECHA_EVALUACION: (v) => !v || !isNaN(Date.parse(v)),
-   FOLIO: null,
-   FACTURA: null,
-   FECHA_PUBLICACION: (v) => !v || !isNaN(Date.parse(v))
+   "FECHA EVALUACION": (v) => !v || !isNaN(Date.parse(v)),
+   "FOLIO FACTURA": null,
+   "FECHA PUBLICACION": (v) => !v || !isNaN(Date.parse(v))
 };
 
 const ChipDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip, importChips } =
-      useChipContext();
+   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip } = useChipContext();
    const mySwal = withReactContent(Swal);
-   const fileInputRef = useRef(null);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["iccid", "operator", "chip_description", "active", "created_at"];
 
    // #region BodysTemplate
    const IccidBodyTemplate = (obj) => (
@@ -271,49 +267,6 @@ const ChipDT = () => {
    };
 
    // toolbar content: input hidden + importar
-   const toolbarContentEnd = (
-      <Stack direction="row" spacing={1} alignItems="center">
-         <ExcelUploader columns={columnas} validations={validaciones} apiEndpoint={`${env.API_URL}/chips/import`} />
-         <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            style={{ display: "none" }}
-            onChange={async (e) => {
-               try {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  setIsLoading(true);
-                  const res = await importChips(file);
-                  if (!res) return setIsLoading(false);
-                  if (res.errors) {
-                     setIsLoading(false);
-                     Object.values(res.errors).forEach((errors) => {
-                        errors.map((error) => Toast.Warning(error));
-                     });
-                     return;
-                  } else if (res.status_code !== 200) {
-                     setIsLoading(false);
-                     return Toast.Customizable(res.alert_text, res.alert_icon);
-                  }
-                  if (res.alert_text) Toast.Success(res.alert_text);
-                  await getAllChips();
-                  setIsLoading(false);
-               } catch (error) {
-                  console.log(error);
-                  Toast.Error(error);
-                  setIsLoading(false);
-               } finally {
-                  // limpiar input para poder re-subir mismo archivo si se desea
-                  e.target.value = "";
-               }
-            }}
-         />
-         <Button variant="contained" startIcon={<UploadFileRounded />} onClick={() => fileInputRef.current?.click()} disabled={!auth.permissions.create}>
-            Importar
-         </Button>
-      </Stack>
-   );
 
    const data = [];
    const formatData = async () => {
@@ -343,44 +296,7 @@ const ChipDT = () => {
    return (
       <>
          <Stack direction="row" spacing={1} alignItems="center" padding={1}>
-            <input
-               ref={fileInputRef}
-               type="file"
-               accept=".xlsx,.xls,.csv"
-               style={{ display: "none" }}
-               onChange={async (e) => {
-                  try {
-                     const file = e.target.files?.[0];
-                     if (!file) return;
-                     setIsLoading(true);
-                     const res = await importChips(file);
-                     if (!res) return setIsLoading(false);
-                     if (res.errors) {
-                        setIsLoading(false);
-                        Object.values(res.errors).forEach((errors) => {
-                           errors.map((error) => Toast.Warning(error));
-                        });
-                        return;
-                     } else if (res.status_code !== 200) {
-                        setIsLoading(false);
-                        return Toast.Customizable(res.alert_text, res.alert_icon);
-                     }
-                     if (res.alert_text) Toast.Success(res.alert_text);
-                     await getAllChips();
-                     setIsLoading(false);
-                  } catch (error) {
-                     console.log(error);
-                     Toast.Error(error);
-                     setIsLoading(false);
-                  } finally {
-                     // limpiar input para poder re-subir mismo archivo si se desea
-                     e.target.value = "";
-                  }
-               }}
-            />
-            <Button variant="contained" startIcon={<UploadFileRounded />} onClick={() => fileInputRef.current?.click()} disabled={!auth.permissions.create}>
-               Importar (Carga Masiva)
-            </Button>
+            <ExcelUploader columns={columnas} chunkSize={500} apiEndpoint="chips/import" headerRow={4} dataStartRow={5} onFinish={getAllChips} />
          </Stack>
          <DataTableComponent
             dataColumns={columns}

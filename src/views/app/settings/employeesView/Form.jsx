@@ -283,7 +283,7 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
                   showBtnCamera={true}
                   // showDialogFileOrFirm={true}
                />
-               <FirmPad col={2} idName="img_firm"  />
+               <FirmPad col={2} idName="img_firm"  /> 
             </Grid>
          ),
          value: null,
