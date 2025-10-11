@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormikForm, { Input, Textarea, Select2 } from "../../../../components/forms";
+import FormikForm, { Input, Textarea, Select2, DateTimePicker } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography } from "@mui/material";
@@ -75,6 +75,8 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
    const { singularName, chip, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdateChip } = useChipContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
+
+   // const { refetch: refreshRoles } = useFetch(getSelectIndexRoles, setAllRoles);
 
    // const formData = [
    //    {
@@ -156,6 +158,18 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       {
          name: "product_id",
          input: (
+            // <Select2
+            //    key={`key-input-product_id`}
+            //    col={12}
+            //    idName="product_id"
+            //    label="Tipo de producto"
+            //    placeholder="Seleccione el tipo de producto"
+            //    refreshSelect={refreshRoles}
+            //    options={allRoles || []}
+            //    addRegister={auth.permissions.create ? () => setRoleFormDialog(true) : null}
+            //    required
+            //    hidden
+            // />
             <Input
                key={`key-input-product_id`}
                col={12}
@@ -165,9 +179,10 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
                type="number"
                helperText=""
                required
+               hidden
             />
          ),
-         value: "",
+         value: 1,
          validations: Yup.number().required("ID del producto requerido"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
@@ -182,7 +197,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "telefono",
-         input: <Input key={`key-input-telefono`} col={12} idName="telefono" label="Teléfono" placeholder="Ingrese el número de teléfono" type="text" helperText="" />,
+         input: <Input key={`key-input-telefono`} col={6} idName="telefono" label="Teléfono" placeholder="Ingrese el número de teléfono" type="text" helperText="" />,
          value: "",
          validations: Yup.string().trim().required("Teléfono requerido"),
          validationPage: [],
@@ -190,7 +205,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "imei",
-         input: <Input key={`key-input-imei`} col={12} idName="imei" label="IMEI" placeholder="Ingrese el IMEI" type="text" helperText="" />,
+         input: <Input key={`key-input-imei`} col={6} idName="imei" label="IMEI" placeholder="Ingrese el IMEI" type="text" helperText="" />,
          value: "",
          validations: null,
          validationPage: [],
@@ -198,7 +213,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "iccid",
-         input: <Input key={`key-input-iccid`} col={12} idName="iccid" label="ICCID" placeholder="Ingrese el ICCID" type="text" helperText="" required />,
+         input: <Input key={`key-input-iccid`} col={6} idName="iccid" label="ICCID" placeholder="Ingrese el ICCID" type="text" helperText="" required />,
          value: "",
          validations: Yup.string().trim().required("ICCID requerido"),
          validationPage: [],
@@ -209,7 +224,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-estatus_lin`}
-               col={12}
+               col={6}
                idName="estatus_lin"
                label="Estatus Línea"
                placeholder="Ingrese el estatus de la línea"
@@ -243,14 +258,18 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       {
          name: "fecha_activ",
          input: (
-            <Input
-               key={`key-input-fecha_activ`}
+            <DateTimePicker
+               key={"key-input-fecha_activ"}
                col={6}
                idName="fecha_activ"
-               label="Fecha Activación"
-               placeholder="Seleccione la fecha de activación"
-               type="date"
-               helperText=""
+               label="Fecha Activacion"
+               // value={formik.values.fecha_activ}
+               // onChange={(val) => formik.setFieldValue("fecha_activ", val)}
+               // onChangeExtra={(val) => console.log("Valor adicional:", val)}
+               required
+               helperText="Seleccione la fecha de activación"
+               color="primary"
+               // startAdornmentContent={<CalendarMonthIcon />}
             />
          ),
          value: "",
@@ -261,14 +280,18 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       {
          name: "fecha_prim_llam",
          input: (
-            <Input
-               key={`key-input-fecha_prim_llam`}
+            <DateTimePicker
+               key={"key-input-fecha_prim_llam"}
                col={6}
                idName="fecha_prim_llam"
                label="Fecha 1ra Llamada"
-               placeholder="Seleccione la fecha de primera llamada"
-               type="date"
-               helperText=""
+               // value={formik.values.fecha_prim_llam}
+               // onChange={(val) => formik.setFieldValue("fecha_prim_llam", val)}
+               // onChangeExtra={(val) => console.log("Valor adicional:", val)}
+               required
+               helperText="Seleccione la fecha de la 1ra llamada"
+               color="primary"
+               // startAdornmentContent={<CalendarMonthIcon />}
             />
          ),
          value: "",
@@ -278,7 +301,21 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "fecha_dol",
-         input: <Input key={`key-input-fecha_dol`} col={6} idName="fecha_dol" label="Fecha DOL" placeholder="Seleccione la fecha DOL" type="date" helperText="" />,
+         input: (
+            <DateTimePicker
+               key={"key-input-fecha_dol"}
+               col={6}
+               idName="fecha_dol"
+               label="Fecha DOL"
+               // value={formik.values.fecha_dol}
+               // onChange={(val) => formik.setFieldValue("fecha_dol", val)}
+               // onChangeExtra={(val) => console.log("Valor adicional:", val)}
+               required
+               helperText="Seleccione la fecha DOL"
+               color="primary"
+               // startAdornmentContent={<CalendarMonthIcon />}
+            />
+         ),
          value: "",
          validations: Yup.date().nullable(),
          validationPage: [],
@@ -317,7 +354,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-monto_com`}
-               col={6}
+               col={3}
                idName="monto_com"
                label="Monto Comisión"
                placeholder="Ingrese el monto de comisión"
@@ -335,7 +372,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-tipo_comision`}
-               col={6}
+               col={9}
                idName="tipo_comision"
                label="Tipo de Comisión"
                placeholder="Ingrese el tipo de comisión"
@@ -350,7 +387,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "evaluacion",
-         input: <Input key={`key-input-evaluacion`} col={12} idName="evaluacion" label="Evaluación" placeholder="Ingrese la evaluación" type="text" helperText="" />,
+         input: <Input key={`key-input-evaluacion`} col={2} idName="evaluacion" label="Evaluación" placeholder="Ingrese la evaluación" type="text" helperText="" />,
          value: "",
          validations: null,
          validationPage: [],
@@ -361,7 +398,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-fza_vta_pago`}
-               col={12}
+               col={6}
                idName="fza_vta_pago"
                label="Fuerza Venta Pago"
                placeholder="Ingrese la fuerza de venta del pago"
@@ -376,7 +413,21 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "fecha_evaluacion",
-         input: <Input key={`key-input-fecha_evaluacion`} col={6} idName="fecha_evaluacion" label="Fecha Evaluación" type="date" helperText="" />,
+         input: (
+            <DateTimePicker
+               key={"key-input-fecha_evaluacion"}
+               col={4}
+               idName="fecha_evaluacion"
+               label="Fecha Evaluación"
+               // value={formik.values.fecha_evaluacion}
+               // onChange={(val) => formik.setFieldValue("fecha_evaluacion", val)}
+               // onChangeExtra={(val) => console.log("Valor adicional:", val)}
+               required
+               // helperText="Seleccione la fecha de evaluación"
+               color="primary"
+               // startAdornmentContent={<CalendarMonthIcon />}
+            />
+         ),
          value: "",
          validations: Yup.date().nullable(),
          validationPage: [],
@@ -402,7 +453,21 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       },
       {
          name: "fecha_publicacion",
-         input: <Input key={`key-input-fecha_publicacion`} col={6} idName="fecha_publicacion" label="Fecha Publicación" type="date" helperText="" />,
+         input: (
+            <DateTimePicker
+               key={"key-input-fecha_publicacion"}
+               col={6}
+               idName="fecha_publicacion"
+               label="Fecha Publicación"
+               // value={formik.values.fecha_publicacion}
+               // onChange={(val) => formik.setFieldValue("fecha_publicacion", val)}
+               // onChangeExtra={(val) => console.log("Valor adicional:", val)}
+               required
+               helperText="Seleccione la fecha de publicación"
+               color="primary"
+               // startAdornmentContent={<CalendarMonthIcon />}
+            />
+         ),
          value: "",
          validations: Yup.date().nullable(),
          validationPage: [],

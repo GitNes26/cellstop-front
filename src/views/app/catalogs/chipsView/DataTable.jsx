@@ -70,71 +70,6 @@ const ChipDT = () => {
    const fontSizeTable = { text: "sm", subtext: "xs" };
 
    // #region BodysTemplate
-   // const IccidBodyTemplate = (obj) => (
-   //    <Typography textAlign={"center"} size={fontSizeTable.text} className="font-black">
-   //       {obj.iccid}
-   //    </Typography>
-   // );
-   // const OperatorBodyTemplate = (obj) => (
-   //    <Typography textAlign={"center"} size={fontSizeTable.text}>
-   //       {obj.operator}
-   //    </Typography>
-   // );
-   // const DescriptionBodyTemplate = (obj) => (
-   //    <Typography textAlign={"center"} size={fontSizeTable.text}>
-   //       {obj.chip_description}
-   //    </Typography>
-   // );
-
-   // const ActiveBodyTemplate = (obj) => (
-   //    <Typography textAlign={"center"} className="flex justify-center">
-   //       {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
-   //    </Typography>
-   // );
-   // const CreatedAtBodyTemplate = (obj) => (
-   //    <Typography textAlign={"center"} size={fontSizeTable.text}>
-   //       {formatDatetime(obj.created_at, true)}
-   //    </Typography>
-   // );
-   // #endregion BodysTemplate
-
-   // const columns = [
-   //    {
-   //       field: "iccid",
-   //       headerName: "ICCID",
-   //       description: "",
-   //       // width: 90,
-   //       sortable: true,
-   //       functionEdit: null,
-   //       renderCell: (params) => <IccidBodyTemplate {...params.row} key={`iccid-${params.row.id}`} />,
-   //       filter: true,
-   //       filterField: null
-   //    },
-   //    {
-   //       field: "operator",
-   //       headerName: "Operadora",
-   //       description: "",
-   //       // width: 90,
-   //       sortable: true,
-   //       functionEdit: null,
-   //       renderCell: (params) => <OperatorBodyTemplate {...params.row} key={`operator-${params.row.id}`} />,
-   //       filter: true,
-   //       filterField: null
-   //    },
-   //    {
-   //       field: "chip_description",
-   //       headerName: "Descripción",
-   //       description: "",
-   //       // width: 90,
-   //       sortable: true,
-   //       functionEdit: null,
-   //       renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`description-${params.row.id}`} />,
-   //       filter: true,
-   //       filterField: null
-   //    }
-   // ];
-   // #region Body Templates
-
    const FiltroBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
          {obj.filtro}
@@ -173,19 +108,19 @@ const ChipDT = () => {
 
    const FechaActivBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_activ, true)}
+         {formatDatetime(obj.fecha_activ, false)}
       </Typography>
    );
 
    const FechaPrimLlamBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_prim_llam, true)}
+         {formatDatetime(obj.fecha_prim_llam, false)}
       </Typography>
    );
 
    const FechaDolBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_dol, true)}
+         {formatDatetime(obj.fecha_dol, false)}
       </Typography>
    );
 
@@ -227,7 +162,7 @@ const ChipDT = () => {
 
    const FechaEvaluacionBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_evaluacion, true)}
+         {formatDatetime(obj.fecha_evaluacion, false)}
       </Typography>
    );
 
@@ -239,7 +174,7 @@ const ChipDT = () => {
 
    const FechaPublicacionBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_publicacion, true)}
+         {formatDatetime(obj.fecha_publicacion, false)}
       </Typography>
    );
 
@@ -266,8 +201,7 @@ const ChipDT = () => {
          {formatDatetime(obj.created_at, true)}
       </Typography>
    );
-
-   // #endregion
+   // #region Body Templates
 
    // #region Columns Definition
    const columns = [
@@ -422,7 +356,7 @@ const ChipDT = () => {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getChip(id);
-         // console.log("🚀 ~ handleClickLogout ~ res:", res);
+         console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -554,7 +488,7 @@ const ChipDT = () => {
             rowEdit={false}
             refreshTable={getAllChips}
             btnsExport={false}
-            scrollHeight="80vh"
+            scrollHeight="75vh"
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}

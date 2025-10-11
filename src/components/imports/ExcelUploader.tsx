@@ -34,9 +34,10 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chu
    const fileInputRef = useRef(null);
 
    const handleFile = (file: File) => {
-      setIsLoading(true);
+      // setIsLoading(true);
       const reader = new FileReader();
       reader.onload = async (e: any) => {
+         console.log("🚀 ~ handleFile ~ file:", file);
          const data = new Uint8Array(e.target.result);
          const workbook = XLSX.read(data, { type: "array" });
          const sheetName = workbook.SheetNames[0];
@@ -105,6 +106,12 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chu
                   }
                }
             });
+            row.fileData = {
+               name: file.name,
+               size: file.size,
+               type: file.type,
+               lastModified: file.lastModified
+            };
             // poner encabezados como key
 
             if (filaValida) validos.push(row);
@@ -121,6 +128,8 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chu
             const chunk = validos.slice(i, i + chunkSize);
             // console.log("🚀 ~ handleFile ~ chunk:", chunk);
             try {
+               console.log("🚀 ~ handleFile ~ chunk:", chunk);
+               // return;
                // await Axios.post(apiEndpoint, chunk);
                const [error, response] = await to(Axios.post(`${apiEndpoint}`, chunk));
                // console.log("🚀 ~ createOrUpdateDepartment ~ error:", error);

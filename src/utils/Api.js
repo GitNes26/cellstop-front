@@ -36,7 +36,7 @@ const Axios = axios.create({
    responseType: "json",
    withCredentials: true,
    headers: { Accept: "application/json", "Content-Type": "application/json" }
-});
+}).;
 Axios.interceptors.request.use(
    (config) => {
       // const token = useAuthStore.getState().token;
@@ -48,17 +48,17 @@ Axios.interceptors.request.use(
    },
    (error) => {
       console.error("🚀 ~ error:", error);
-      // if (error.response?.status === 401) {
-      //    console.warn("⚠️ No autenticado, redirigiendo a login o cerrando sesión...");
-      //    localStorage.removeItem("token"); // o dispatch logout, etc.
-      //    // Redireccionar si aplica
-      //    window.location.href = "/login";
-      // } else if (error.response?.status === 403) {
-      //    console.warn("❌ No tienes permisos suficientes.");
-      // } else if (error.response?.status >= 500) {
-      //    console.error("💥 Error del servidor.");
-      // }
-      // return Promise.reject(error);
+      if (error.response?.status === 401) {
+         console.warn("⚠️ No autenticado, redirigiendo a login o cerrando sesión...");
+         localStorage.removeItem("token"); // o dispatch logout, etc.
+         // Redireccionar si aplica
+         window.location.href = "/login";
+      } else if (error.response?.status === 403) {
+         console.warn("❌ No tienes permisos suficientes.");
+      } else if (error.response?.status >= 500) {
+         console.error("💥 Error del servidor.");
+      }
+      return Promise.reject(error);
    }
 );
 
