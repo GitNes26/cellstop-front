@@ -36,7 +36,7 @@ const Axios = axios.create({
    responseType: "json",
    withCredentials: true,
    headers: { Accept: "application/json", "Content-Type": "application/json" }
-}).;
+});
 Axios.interceptors.request.use(
    (config) => {
       // const token = useAuthStore.getState().token;

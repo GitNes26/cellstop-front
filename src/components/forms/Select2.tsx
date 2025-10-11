@@ -345,7 +345,7 @@ const Select2: React.FC<Select2Props> = ({
             <Autocomplete
                key={`select_${idName}`}
                ref={inputRef}
-               disablePortal
+               // disablePortal
                openOnFocus
                id={idName}
                loading={loading}

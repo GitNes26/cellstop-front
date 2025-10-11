@@ -131,7 +131,9 @@ const mainRouter = {
                path: "chips",
                element: (
                   <ChipContextProvider>
-                     <ChipsView />
+                     <EmployeeContextProvider>
+                        <ChipsView />
+                     </EmployeeContextProvider>
                   </ChipContextProvider>
                )
             }

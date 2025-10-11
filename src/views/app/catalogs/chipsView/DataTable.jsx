@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Stack, Typography } from "@mui/material";
 
 import Toast from "../../../../utils/Toast";
@@ -14,6 +14,7 @@ import { useChipContext } from "../../../../context/ChipContext";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
 import { env } from "../../../../constant";
+import AssignmentForm from "./AssignmentForm";
 
 const columnas = [
    "FILTRO",
@@ -65,6 +66,8 @@ const ChipDT = () => {
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip } = useChipContext();
    const mySwal = withReactContent(Swal);
+
+   const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
@@ -201,9 +204,8 @@ const ChipDT = () => {
          {formatDatetime(obj.created_at, true)}
       </Typography>
    );
-   // #region Body Templates
+   // #endregion Body Templates
 
-   // #region Columns Definition
    const columns = [
       { field: "filtro", headerName: "Filtro", sortable: true, renderCell: (params) => <FiltroBodyTemplate {...params.row} key={`filtro-${params.row.id}`} /> },
       {
@@ -306,7 +308,7 @@ const ChipDT = () => {
          renderCell: (params) => <ActivationStatusBodyTemplate {...params.row} key={`actst-${params.row.id}`} />
       }
    ];
-   // #endregion
+   // #endregion COLUMNAS
 
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
@@ -472,6 +474,7 @@ const ChipDT = () => {
       <>
          <Stack direction="row" spacing={1} alignItems="center" padding={1}>
             <ExcelUploader columns={columnas} chunkSize={500} apiEndpoint="chips/import" headerRow={4} dataStartRow={5} onFinish={getAllChips} />
+            <AssignmentForm   openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent
             dataColumns={columns}

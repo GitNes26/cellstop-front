@@ -11,3 +11,4 @@ export { default as CameraInput } from "./CameraInput";
 export { default as FirmPad } from "./FirmPad";
 export { default as DateTimePicker } from "./DateTimePicker";
 export { default as DividerComponent } from "./DividerComponent";
+export { default as TransferList } from "./TransferList";
