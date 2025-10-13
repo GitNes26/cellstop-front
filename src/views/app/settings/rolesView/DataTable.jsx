@@ -233,7 +233,7 @@ const RoleDT = ({ openDialogTable, setOpenDialogTable }) => {
             handleClickEdit={handleClickEdit}
             handleClickDisEnable={handleClickDisEnable}
             singularName={singularName}
-            numberColumnName={1}
+            indexColumnName={1}
             rowEdit={false}
             refreshTable={getAllRoles}
             btnsExport={false}

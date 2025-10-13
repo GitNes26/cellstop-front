@@ -241,7 +241,7 @@ const PositionDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         numberColumnName={0}
+         indexColumnName={0}
          rowEdit={false}
          refreshTable={getAllPositions}
          btnsExport={false}

@@ -362,14 +362,14 @@ function CustomToolbar(handleClickAdd: any, handleClickRefresh: () => Promise<vo
 //    }
 // });
 
-const RowActions = ({ params, singularName, numberColumnName = 1, handleClickDisEnable }) => {
-   // console.log("🚀 ~ RowActions ~ params:", params);
+const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisEnable }) => {
+   // console.log("🚀 ~ RowActions ~ params:", params.row);
    // console.log("🚀 ~ RowActions ~ params.columns:", params.columns);
    const { auth } = useAuthContext();
 
    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
    const open = Boolean(anchorEl);
-   const objName = params.columns[numberColumnName].field;
+   const objName = params.columns[indexColumnName].field;
    const id = params.row.id;
    const active = params.row.active;
    // console.log("🚀 ~ RowActions ~ active:", active)
@@ -458,7 +458,7 @@ interface DataTableComponentProps {
    handleClickDisEnable?: (params: any) => void;
    refreshTable?: () => Promise<void>;
    singularName?: string;
-   numberColumnName?: number;
+   indexColumnName?: number;
    scrollHeight?: number | string;
 }
 const DataTableComponent = ({
@@ -469,7 +469,7 @@ const DataTableComponent = ({
    handleClickDisEnable,
    refreshTable,
    singularName,
-   numberColumnName,
+   indexColumnName,
    scrollHeight = 720
 }: DataTableComponentProps) => {
    const { setLoading } = useGlobalContext();
@@ -524,13 +524,7 @@ const DataTableComponent = ({
             //classes.pinnedColumn, // Fija esta columna
 
             getActions: (params) => [
-               <RowActions
-                  params={params}
-                  key={params.id}
-                  numberColumnName={numberColumnName}
-                  handleClickDisEnable={handleClickDisEnable}
-                  singularName={singularName}
-               />
+               <RowActions params={params} key={params.id} indexColumnName={indexColumnName} handleClickDisEnable={handleClickDisEnable} singularName={singularName} />
             ],
             // Estilos para columna fija (opcional)
             cellClassName: "pinned-column",
@@ -605,7 +599,6 @@ const DataTableComponent = ({
 
    const handleClickRefresh = async () => {
       try {
-         console.log("Holishshsh");
          setIsLoading(true);
          if (refreshTable) await refreshTable();
          setIsLoading(false);

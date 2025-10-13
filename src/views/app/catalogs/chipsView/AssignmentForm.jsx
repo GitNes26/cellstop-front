@@ -5,9 +5,9 @@ import { DialogComponent } from "../../../../components";
 import { useEffect, useState } from "react";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useChipContext } from "../../../../context/ChipContext";
-import { AddLinkRounded, AssignmentInd, Inventory } from "@mui/icons-material";
+import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mui/icons-material";
 import { useAuthContext } from "../../../../context/AuthContext";
-import { useEmployeeContext } from "./../../../../context/EmployeeContext";
+import { useLoteContext } from "./../../../../context/LoteContext";
 import useFetch from "../../../../hooks/useFetch";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
@@ -65,23 +65,31 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       formikRef,
       isEdit,
       setIsEdit,
-      createOrUpdateChip,
+      updatePackageAssignment,
       chipsSelect,
       setChipsSelect,
       getSelectIndexChips
    } = useChipContext();
-   const { employeesSelect, setEmployeesSelect, getSelectIndexEmployees } = useEmployeeContext();
+   const { lotesSelect, setLotesSelect, getSelectIndexLotes } = useLoteContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
 
-   const { refetch: refreshEmployees } = useFetch(getSelectIndexEmployees, setEmployeesSelect);
+   const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
    const { refetch: refreshChips } = useFetch(getSelectIndexChips, setChipsSelect);
 
-   const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock");
-   console.log("🚀 ~ AssignmentForm ~ chipsEnStock:", chipsEnStock);
-   const chipsAsignados = chipsSelect.filter((chip) => chip.location_status === "Asignado");
-   console.log("🚀 ~ AssignmentForm ~ chipsAsignados:", chipsAsignados);
-   formikRef?.current?.setFieldValue("chips_en_stock", chipsEnStock);
+   const init = () => {
+      const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock");
+      const chipsAsignados = chipsSelect.filter((chip) => chip.location_status === "Asignado");
+      formikRef?.current?.setFieldValue(
+         "chips_en_stock",
+         chipsEnStock.map((d) => d.id)
+      );
+      formikRef?.current?.setFieldValue(
+         "chip_ids",
+         chipsAsignados.map((d) => d.id)
+      );
+   };
+   init();
 
    const formData = [
       {
@@ -93,33 +101,33 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
       {
-         name: "seller_id",
+         name: "lote_id",
          input: (
             <Select2
-               key={`key-input-seller_id`}
+               key={`key-input-lote_id`}
                col={7}
-               idName="seller_id"
-               label="Vendedor"
-               options={employeesSelect}
-               refreshSelect={refreshEmployees}
+               idName="lote_id"
+               label="Lote"
+               options={lotesSelect}
+               refreshSelect={refreshLotes}
                startAdornmentContent={<AssignmentInd />}
                required
             />
          ),
          value: "",
-         validations: Yup.number().min(1, "Esta opción no es valida").required("Vendedor requerido"),
+         validations: Yup.number().min(1, "Esta opción no es valida").required("Lote requerido"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
       {
-         name: "lote_id",
+         name: "seller",
          input: (
             <Input
-               key={`key-input-lote_id`}
+               key={`key-input-seller`}
                col={3}
-               idName="lote_id"
-               label="Lote"
-               placeholder="000"
+               idName="seller"
+               label="Vendedor Asignado"
+               placeholder=""
                type="text"
                helperText=""
                required
@@ -127,7 +135,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             />
          ),
          value: null,
-         validations: Yup.string().required("Lote requerido"),
+         validations: Yup.string().required("Vendedor requerido"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
@@ -200,7 +208,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await createOrUpdateChip(values);
+      const res = await updatePackageAssignment(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {
@@ -252,8 +260,8 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    return (
       <>
-         <Button variant="contained" startIcon={<AddLinkRounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="secondary">
-            Asignar chips - vendedores
+         <Button variant="contained" startIcon={<Inventory2Rounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="secondary">
+            Asignar chips a lotes
          </Button>
 
          <DialogComponent
@@ -262,7 +270,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             modalTitle={
                <Grid display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
                   <Typography className="font-extrabold text-center" variant="h4" fontWeight={"bold"}>
-                     {"Asignar Chips"}
+                     {"Asignar chips a un lote"}
                   </Typography>
 
                   <Tooltip title={"Al estar activo, el formulario no se cerrará al terminar un registro"}>

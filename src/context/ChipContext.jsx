@@ -171,6 +171,28 @@ export default function ChipContextProvider({ children }) {
       const formData = new FormData();
       formData.append("file", file);
       const [error, response] = await to(AxiosFiles.post(`${prefixPath}/import`, formData, { headers: { "Content-Type": "multipart/form-data" } }));
+      // console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+      // console.log("🚀 ~ createOrUpdateChip ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createOrUpdateChip ~ error:", error);
+         const message = error.response.data.message || "createOrUpdateChip ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      await getAllChips();
+
+      return res;
+   };
+
+   const updatePackageAssignment = async (data) => {
+      // console.log("🚀 ~ createOrUpdateChip ~ data:", data);
+      // // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.post(`distribuciones/updatePackageAssignment`, data));
       console.log("🚀 ~ createOrUpdateChip ~ error:", error);
       console.log("🚀 ~ createOrUpdateChip ~ response:", response);
       if (error) {
@@ -221,7 +243,8 @@ export default function ChipContextProvider({ children }) {
             getChip,
             deleteChip,
             disEnableChip,
-            importChips
+            importChips,
+            updatePackageAssignment
          }}
       >
          {children}

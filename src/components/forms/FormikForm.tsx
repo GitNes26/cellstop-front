@@ -95,83 +95,111 @@ const FormikForm = forwardRef<any, FormikFormProps>(
          }
       };
 
+         // const onChange = () => {
+         //    if (activeStep && setStepFailed) {
+         //       if (Object.keys(formikRef?.current.errors).length > 0) setStepFailed(activeStep);
+         //       else setStepFailed(-1);
+         //    }
+         // };
+
       const onChange = () => {
-         if (activeStep && setStepFailed) {
-            if (Object.keys(formikRef?.current.errors).length > 0) setStepFailed(activeStep);
-            else setStepFailed(-1);
+         if (activeStep && setStepFailed && !formikRef?.current?.isSubmitting) {
+            const hasErrors = Object.keys(formikRef?.current.errors || {}).length > 0;
+            if (hasErrors && formikRef.current.stepFailed !== activeStep) {
+               setStepFailed(activeStep);
+               formikRef.current.stepFailed = activeStep; // evitar múltiples renders
+            } else if (!hasErrors && formikRef.current.stepFailed !== -1) {
+               setStepFailed(-1);
+               formikRef.current.stepFailed = -1;
+            }
          }
       };
 
-      const onReset = (resetForm: { (nextState?: Partial<FormikState<FormikValues>> | undefined): void; (): void }) => {
-         resetForm();
-         formikRef?.current.setValues(formikRef?.current.initialValues);
-         handleCancel && handleCancel(resetForm);
-         // console.log("🚀 ~ onReset ~ formikRef?.current:", formikRef?.current);
-      };
+      // const onReset = (resetForm: { (nextState?: Partial<FormikState<FormikValues>> | undefined): void; (): void }) => {
+      //    resetForm();
+      //    formikRef?.current.setValues(formikRef?.current.initialValues);
+      //    handleCancel && handleCancel(resetForm);
+      //    // console.log("🚀 ~ onReset ~ formikRef?.current:", formikRef?.current);
+      // };
 
       return (
          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit} innerRef={formikRef == null ? ref : formikRef}>
-            {({ handleSubmit, isSubmitting, resetForm }) => (
-               <form
-                  noValidate
-                  className={`grid ${inContainer && "h-full"} my-3 ${className} w-full`}
-                  onSubmit={handleSubmit}
-                  onBlur={onBlur}
-                  onChangeCapture={onChange}
-                  style={{ alignContent: alignContent }}
-               >
-                  {!showActionButtons ? (
-                     <Grid
-                        container
-                        spacing={spacing}
-                        size={sizeCols}
-                        height={maxHeight}
-                        maxHeight={maxHeight}
-                        alignContent={"flex-start"}
-                        alignItems={alignItems}
-                        p={1}
-                     >
-                        {children}
-                     </Grid>
-                  ) : (
-                     <>
+            {({ handleSubmit, isSubmitting, resetForm, errors }) => {
+               useEffect(() => {
+                  if (activeStep && setStepFailed) {
+                     if (Object.keys(errors).length > 0) setStepFailed(activeStep);
+                     else setStepFailed(-1);
+                  }
+               }, [errors, activeStep, setStepFailed]); // ✅ dependencias seguras
+
+               const onReset = (resetFormFn: any) => {
+                  resetFormFn();
+                  formikRef?.current.setValues(formikRef?.current.initialValues);
+                  handleCancel && handleCancel(resetFormFn);
+               };
+
+               return (
+                  <form
+                     noValidate
+                     className={`grid ${inContainer && "h-full"} my-3 ${className} w-full`}
+                     onSubmit={handleSubmit}
+                     onBlur={onBlur}
+                     onChangeCapture={onChange}
+                     style={{ alignContent: alignContent }}
+                  >
+                     {!showActionButtons ? (
                         <Grid
                            container
                            spacing={spacing}
                            size={sizeCols}
                            height={maxHeight}
                            maxHeight={maxHeight}
-                           overflow={"auto"}
                            alignContent={"flex-start"}
                            alignItems={alignItems}
-                           className={className}
                            p={1}
                         >
                            {children}
                         </Grid>
-                        <Grid container spacing={2} p={1} mt={2} size={sizeCols}>
-                           <Button type="submit" color="primary" disabled={isSubmitting} loading={isSubmitting} variant="contained" fullWidth size={btnSize}>
-                              {textBtnSubmit}
-                           </Button>
-                           {showCancelButton && (
-                              <Button
-                                 type="reset"
-                                 variant="outlined"
-                                 color="error"
-                                 fullWidth
-                                 size={btnSize}
-                                 onClick={() => {
-                                    onReset(resetForm);
-                                 }}
-                              >
-                                 CANCELAR
+                     ) : (
+                        <>
+                           <Grid
+                              container
+                              spacing={spacing}
+                              size={sizeCols}
+                              height={maxHeight}
+                              maxHeight={maxHeight}
+                              overflow={"auto"}
+                              alignContent={"flex-start"}
+                              alignItems={alignItems}
+                              className={className}
+                              p={1}
+                           >
+                              {children}
+                           </Grid>
+                           <Grid container spacing={2} p={1} mt={2} size={sizeCols}>
+                              <Button type="submit" color="primary" disabled={isSubmitting} loading={isSubmitting} variant="contained" fullWidth size={btnSize}>
+                                 {textBtnSubmit}
                               </Button>
-                           )}
-                        </Grid>
-                     </>
-                  )}
-               </form>
-            )}
+                              {showCancelButton && (
+                                 <Button
+                                    type="reset"
+                                    variant="outlined"
+                                    color="error"
+                                    fullWidth
+                                    size={btnSize}
+                                    onClick={() => {
+                                       onReset(resetForm);
+                                    }}
+                                 >
+                                    CANCELAR
+                                 </Button>
+                              )}
+                           </Grid>
+                        </>
+                     )}
+                  </form>
+               );
+            }}
          </Formik>
       );
    }

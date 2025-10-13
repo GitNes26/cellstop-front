@@ -1,55 +1,54 @@
-import { useEffect } from "react";
-import { Typography } from "@mui/material";
+import React, { useCallback, useEffect } from "react";
 
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
 
-import { formatDatetime } from "../../../../utils/Formats";
+import { formatDatetime, stringAvatar } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { formatPhone } from "../../../../utils/Formats";
+import { setObjImg } from "../../../../components/forms/FileInput";
+import env from "../../../../constant/env";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
-import { useDepartmentContext } from "../../../../context/DepartmentContext";
-import { CheckCircleRounded } from "@mui/icons-material";
-import { CancelRounded } from "@mui/icons-material";
+import { useLoteContext } from "../../../../context/LoteContext";
+import { Avatar, Typography } from "@mui/material";
+import { AlternateEmailRounded, AssignmentIndRounded, CancelRounded, CheckCircleRounded, FaxRounded, NumbersRounded, PhoneAndroidRounded } from "@mui/icons-material";
 
-const DepartmentDT = () => {
+const LoteDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const {
-      singularName,
-      allDepartments,
-      setFormTitle,
-      setTextBtnSubmit,
-      formikRef,
-      setIsEdit,
-      deleteDepartment,
-      disEnableDepartment,
-      getAllDepartments,
-      getDepartment
-   } = useDepartmentContext();
+   const { singularName, allLotes, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, setImgAvatar, setImgFirm, deleteLote, disEnableLote, getAllLotes, getLote } =
+      useLoteContext();
    const mySwal = withReactContent(Swal);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["letters", "department", "department_description", "active", "created_at"];
+   const globalFilterFields = ["active", "created_at"];
 
    // #region BodysTemplate
-   const LettersBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text} className="font-black">
-         {obj.letters}
-      </Typography>
+   const LoteBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text}>
+            {obj.lote}
+         </Typography>
+      </>
    );
-   const DepartmentBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.department}
-      </Typography>
+   const SellerBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
+            {obj.seller.username ?? "Sin asignar"}
+         </Typography>
+      </>
    );
    const DescriptionBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.department_description}
-      </Typography>
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text}>
+            {obj.description}
+         </Typography>
+      </>
    );
 
    const ActiveBodyTemplate = (obj) => (
@@ -66,35 +65,35 @@ const DepartmentDT = () => {
 
    const columns = [
       {
-         field: "letters",
-         headerName: "Letras clave",
+         field: "lote",
+         headerName: "Lote",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <LettersBodyTemplate {...params.row} key={`letters-${params.row.id}`} />,
+         renderCell: (params) => <LoteBodyTemplate {...params.row} key={`lote-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
       {
-         field: "department",
-         headerName: "Departamento",
+         field: "seller",
+         headerName: "Vendedor",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <DepartmentBodyTemplate {...params.row} key={`department-${params.row.id}`} />,
+         renderCell: (params) => <SellerBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
       {
-         field: "department_description",
+         field: "description",
          headerName: "Descripción",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`description-${params.row.id}`} />,
+         renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
          filter: true,
          filterField: null
       }
@@ -119,7 +118,7 @@ const DepartmentDT = () => {
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created-at-${params.row.id}`} />,
+            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
             filter: false,
             filterField: null
          }
@@ -131,6 +130,8 @@ const DepartmentDT = () => {
          if (formikRef.current === null) setOpenDialog(true);
          formikRef?.current?.resetForm();
          formikRef?.current?.setValues(formikRef.current.initialValues);
+         setImgAvatar([]);
+         setImgFirm([]);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
@@ -146,7 +147,7 @@ const DepartmentDT = () => {
       try {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
-         const res = await getDepartment(id);
+         const res = await getLote(id);
          // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -160,7 +161,9 @@ const DepartmentDT = () => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         if (res.result.department_description) res.result.department_description == null && (res.result.department_description = "");
+         // if (res.result.description) res.result.description == null && (res.result.description = "");
+         setObjImg(res.result.avatar, setImgAvatar);
+         setObjImg(res.result.img_firm, setImgFirm);
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -178,10 +181,10 @@ const DepartmentDT = () => {
 
    const handleClickDelete = async (id, name) => {
       try {
-         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el departamento de ${name}?`, "CONFIRMAR")).then(async (result) => {
+         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el lote #${name}?`, "CONFIRMAR")).then(async (result) => {
             if (result.isConfirmed) {
                setIsLoading(true);
-               const res = await deleteDepartment(id);
+               const res = await deleteLote(id);
                // console.log('🚀 ~ handleClickLogout ~ res:', res);
                if (!res) return setIsLoading(false);
                if (res.errors) {
@@ -209,7 +212,7 @@ const DepartmentDT = () => {
       try {
          setTimeout(async () => {
             setIsLoading(true);
-            const res = await disEnableDepartment(id, !active);
+            const res = await disEnableLote(id, !active);
             // console.log('🚀 ~ handleClickLogout ~ res:', res);
             if (!res) return setIsLoading(false);
             if (res.errors) {
@@ -233,17 +236,18 @@ const DepartmentDT = () => {
    };
 
    const data = [];
-   const formatData = async () => {
+
+   async function formatData() {
       try {
-         // console.log("cargar listado", allDepartments);
-         await allDepartments.map((obj, index) => {
+         // console.log("cargar listado", allLotes);
+         await allLotes.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.department} active={obj.active} />;
+            // register.actions = <ButtonsAction id={obj.id} name={obj.lote} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.department), color: "red" }
+               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.lote), color: "red" }
             ];
             data.push(register);
          });
@@ -252,9 +256,8 @@ const DepartmentDT = () => {
          console.log(error);
          Toast.Error(error);
       }
-   };
+   }
    formatData();
-
    useEffect(() => {}, []);
 
    return (
@@ -269,11 +272,12 @@ const DepartmentDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={1}
+         indexColumnName={0}
          rowEdit={false}
-         refreshTable={getAllDepartments}
-         btnsExport={false}
-         scrollHeight="80vh"
+         refreshTable={getAllLotes}
+         btnsExport={true}
+         fileNameExport="Lotes"
+         scrollHeight="67vh"
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
          // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
@@ -281,4 +285,4 @@ const DepartmentDT = () => {
       />
    );
 };
-export default DepartmentDT;
+export default LoteDT;

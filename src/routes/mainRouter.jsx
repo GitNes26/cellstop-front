@@ -12,6 +12,7 @@ const DepartmentsView = lazy(() => import("./../views/app/settings/departmentsVi
 const PositionsView = lazy(() => import("./../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
 const EmployeesView = lazy(() => import("./../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
 const ChipsView = lazy(() => import("../views/app/catalogs/chipsView/Index")); //import ChipView from "./../views/app/settings/chipsView/Index";
+const LotesView = lazy(() => import("../views/app/catalogs/lotesView/Index")); //import LoteView from "./../views/app/settings/lotesView/Index";
 
 const UsersView = lazy(() => import("./../views/app/settings/usersView/Index")); //import UsersView from "./../views/app/settings/usersView/Index";
 const NotFound = lazy(() => import("./../views/NotFound")); //import NotFound from "./../views/NotFound";
@@ -25,6 +26,7 @@ import DepartmentContextProvider from "../context/DepartmentContext";
 import MenuContextProvider from "../context/MenuContext";
 // import ChipsView from "../views/app/catalogs/chipsView/Index";
 import ChipContextProvider from "../context/ChipContext";
+import LoteContextProvider from "../context/LoteContext";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -131,10 +133,28 @@ const mainRouter = {
                path: "chips",
                element: (
                   <ChipContextProvider>
-                     <EmployeeContextProvider>
+                     <LoteContextProvider>
                         <ChipsView />
-                     </EmployeeContextProvider>
+                     </LoteContextProvider>
                   </ChipContextProvider>
+               )
+            },
+            {
+               path: "lotes",
+               element: (
+                  <LoteContextProvider>
+                     <UserContextProvider>
+                        <RoleContextProvider>
+                           <EmployeeContextProvider>
+                              <DepartmentContextProvider>
+                                 <PositionContextProvider>
+                                    <LotesView />
+                                 </PositionContextProvider>
+                              </DepartmentContextProvider>
+                           </EmployeeContextProvider>
+                        </RoleContextProvider>
+                     </UserContextProvider>
+                  </LoteContextProvider>
                )
             }
          ]

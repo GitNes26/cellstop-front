@@ -34,10 +34,10 @@ const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chu
    const fileInputRef = useRef(null);
 
    const handleFile = (file: File) => {
-      // setIsLoading(true);
+      setIsLoading(true);
       const reader = new FileReader();
       reader.onload = async (e: any) => {
-         console.log("🚀 ~ handleFile ~ file:", file);
+         // console.log("🚀 ~ handleFile ~ file:", file);
          const data = new Uint8Array(e.target.result);
          const workbook = XLSX.read(data, { type: "array" });
          const sheetName = workbook.SheetNames[0];

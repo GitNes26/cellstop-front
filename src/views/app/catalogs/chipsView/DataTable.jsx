@@ -474,7 +474,7 @@ const ChipDT = () => {
       <>
          <Stack direction="row" spacing={1} alignItems="center" padding={1}>
             <ExcelUploader columns={columnas} chunkSize={500} apiEndpoint="chips/import" headerRow={4} dataStartRow={5} onFinish={getAllChips} />
-            <AssignmentForm   openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
+            <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent
             dataColumns={columns}
@@ -487,7 +487,7 @@ const ChipDT = () => {
             handleClickEdit={handleClickEdit}
             handleClickDisEnable={handleClickDisEnable}
             singularName={singularName}
-            numberColumnName={1}
+            indexColumnName={1}
             rowEdit={false}
             refreshTable={getAllChips}
             btnsExport={false}

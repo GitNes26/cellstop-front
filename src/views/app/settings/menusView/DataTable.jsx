@@ -260,7 +260,7 @@ const MenuDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         numberColumnName={1}
+         indexColumnName={1}
          rowEdit={false}
          refreshTable={getAllMenus}
          btnsExport={false}
