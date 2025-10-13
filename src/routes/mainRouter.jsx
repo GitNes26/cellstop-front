@@ -132,18 +132,28 @@ const mainRouter = {
             {
                path: "chips",
                element: (
-                  <ChipContextProvider>
-                     <LoteContextProvider>
-                        <ChipsView />
-                     </LoteContextProvider>
-                  </ChipContextProvider>
+                  <UserContextProvider>
+                     <ChipContextProvider>
+                        <RoleContextProvider>
+                           <EmployeeContextProvider>
+                              <DepartmentContextProvider>
+                                 <PositionContextProvider>
+                                    <LoteContextProvider>
+                                       <ChipsView />
+                                    </LoteContextProvider>
+                                 </PositionContextProvider>
+                              </DepartmentContextProvider>
+                           </EmployeeContextProvider>
+                        </RoleContextProvider>
+                     </ChipContextProvider>
+                  </UserContextProvider>
                )
             },
             {
                path: "lotes",
                element: (
-                  <LoteContextProvider>
-                     <UserContextProvider>
+                  <UserContextProvider>
+                     <LoteContextProvider>
                         <RoleContextProvider>
                            <EmployeeContextProvider>
                               <DepartmentContextProvider>
@@ -153,8 +163,8 @@ const mainRouter = {
                               </DepartmentContextProvider>
                            </EmployeeContextProvider>
                         </RoleContextProvider>
-                     </UserContextProvider>
-                  </LoteContextProvider>
+                     </LoteContextProvider>
+                  </UserContextProvider>
                )
             }
          ]

@@ -33,6 +33,7 @@ export default function LoteContextProvider({ children }) {
    const [isEdit, setIsEdit] = useState(false);
    const [imgAvatar, setImgAvatar] = useState([]);
    const [imgFirm, setImgFirm] = useState([]);
+   const [allLoteDetailsByLote, setAllLoteDetailsByLote] = useState([]);
 
    //#region CRUD
    const getAllLotes = async () => {
@@ -166,6 +167,27 @@ export default function LoteContextProvider({ children }) {
    };
    //#endregion CRUD
 
+   const getLoteDetailsByLote = async (loteId) => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`loteDetails/showByLote/${loteId}`));
+      // console.log("🚀 ~ getLoteDetailsByLote ~ error:", error);
+      // console.log("🚀 ~ getLoteDetailsByLote ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getLoteDetailsByLote ~ error:", error);
+         const message = error.response.data.message || "getLoteDetailsByLote ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllLoteDetailsByLote(res.result);
+
+      return res;
+   };
+
    // useEffect(() => {
    //    // console.log("el useEffect de LoteContext");
    //    // getLote();
@@ -202,7 +224,10 @@ export default function LoteContextProvider({ children }) {
             createOrUpdateLote,
             getLote,
             deleteLote,
-            disEnableLote
+            disEnableLote,
+            getLoteDetailsByLote,
+            allLoteDetailsByLote,
+            setAllLoteDetailsByLote
          }}
       >
          {children}

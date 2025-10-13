@@ -9,6 +9,8 @@ import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mu
 import { useAuthContext } from "../../../../context/AuthContext";
 import { useLoteContext } from "./../../../../context/LoteContext";
 import useFetch from "../../../../hooks/useFetch";
+import LoteForm from "../lotesView/Form";
+import Toast from "../../../../utils/Toast";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -65,31 +67,35 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       formikRef,
       isEdit,
       setIsEdit,
-      updatePackageAssignment,
+      updateLoteAssignment,
       chipsSelect,
       setChipsSelect,
       getSelectIndexChips
    } = useChipContext();
-   const { lotesSelect, setLotesSelect, getSelectIndexLotes } = useLoteContext();
+   const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
+   const [loteFormDialog, setLoteFormDialog] = useState(false);
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
    const { refetch: refreshChips } = useFetch(getSelectIndexChips, setChipsSelect);
 
    const init = () => {
+      console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock");
-      const chipsAsignados = chipsSelect.filter((chip) => chip.location_status === "Asignado");
+      // const chipsAsignados = allLoteDetailsByLote.filter((chip) => chip.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
          "chips_en_stock",
          chipsEnStock.map((d) => d.id)
       );
-      formikRef?.current?.setFieldValue(
-         "chip_ids",
-         chipsAsignados.map((d) => d.id)
-      );
+      // formikRef?.current?.setFieldValue(
+      //    "chip_ids",
+      //    chipsAsignados.map((d) => d.id)
+      // );
    };
-   init();
+   useEffect(() => {
+      init();
+   }, [openDialog]);
 
    const formData = [
       {
@@ -105,11 +111,13 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          input: (
             <Select2
                key={`key-input-lote_id`}
-               col={7}
+               col={12}
                idName="lote_id"
                label="Lote"
                options={lotesSelect}
+               onChangeExtra={handleChangeLote}
                refreshSelect={refreshLotes}
+               addRegister={auth.permissions.create ? () => setLoteFormDialog(true) : null}
                startAdornmentContent={<AssignmentInd />}
                required
             />
@@ -119,47 +127,27 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
-      {
-         name: "seller",
-         input: (
-            <Input
-               key={`key-input-seller`}
-               col={3}
-               idName="seller"
-               label="Vendedor Asignado"
-               placeholder=""
-               type="text"
-               helperText=""
-               required
-               startAdornmentContent={<Inventory />}
-            />
-         ),
-         value: null,
-         validations: Yup.string().required("Vendedor requerido"),
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
-      {
-         name: "assigned_at",
-         input: (
-            <DateTimePicker
-               key={"key-input-assigned_at"}
-               col={2}
-               idName="assigned_at"
-               label="Fecha de asignación"
-               picker={"date"}
-               format={"DD/MM/YYYY"}
-               // helperText={"DD/MM/AAAA"}
-               color="primary"
-               disabled
-               // startAdornmentContent={<CalendarMonthIcon />}
-            />
-         ),
-         value: "",
-         validations: Yup.date().nullable(),
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
+      // {
+      //    name: "assigned_at",
+      //    input: (
+      //       <DateTimePicker
+      //          key={"key-input-assigned_at"}
+      //          col={3}
+      //          idName="assigned_at"
+      //          label="Fecha de asignación"
+      //          picker={"date"}
+      //          format={"DD/MM/YYYY"}
+      //          // helperText={"DD/MM/AAAA"}
+      //          color="primary"
+      //          disabled
+      //          // startAdornmentContent={<CalendarMonthIcon />}
+      //       />
+      //    ),
+      //    value: "",
+      //    validations: Yup.date().nullable(),
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
       {
          name: "chip_ids",
          input: (
@@ -179,17 +167,17 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          validations: null, // Yup.array().min(1, "Debe seleccionar al menos un chip.").required("Debe seleccionar al menos un chip."),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
-      {
-         name: "motivo_estatus",
-         input: (
-            <Textarea key={`key-input-motivo_estatus`} col={12} idName="motivo_estatus" label="Motivo Estatus" placeholder="Describa el motivo del estatus" rows={3} />
-         ),
-         value: "",
-         validations: null,
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       }
+      // {
+      //    name: "motivo_estatus",
+      //    input: (
+      //       <Textarea key={`key-input-motivo_estatus`} col={12} idName="motivo_estatus" label="Motivo Estatus" placeholder="Describa el motivo del estatus" rows={3} />
+      //    ),
+      //    value: "",
+      //    validations: null,
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // }
    ];
 
    const validations = {};
@@ -208,7 +196,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await updatePackageAssignment(values);
+      const res = await updateLoteAssignment(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {
@@ -241,6 +229,49 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       if (refreshSelect) refreshSelect();
       if (!checkAdd) setOpenDialog(false);
    };
+
+   async function handleChangeLote(values) {
+      console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
+      try {
+         if (values.value.id < 1) {
+            formikRef?.current?.setFieldValue("chip_ids", []);
+            return Toast.Warning("Selecciona un lote");
+         }
+         setIsLoading(true);
+         if (formikRef.current === null) setOpenDialog(true);
+         const res = await getLoteDetailsByLote(values.value.id);
+         console.log("🚀 ~ handleClickLogout ~ res:", res);
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+
+         if (res.result.description) res.result.description == null && (res.result.description = "");
+         formikRef?.current?.setFieldValue(
+            "chip_ids",
+            res.result.map((d) => d.id)
+         );
+         // formikRef?.current.setValues(res.result);
+         if (res.alert_text) Toast.Success(res.alert_text);
+         setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
+         setTextBtnSubmit("GUARDAR");
+         setIsEdit(true);
+         setIsLoading(false);
+         setOpenDialog(true);
+      } catch (error) {
+         setOpenDialog(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
+      }
+   }
 
    const handleChangeCheckAdd = (checked) => {
       // console.log("🚀 ~ handleChangeCheckAdd ~ checked:", checked);
@@ -301,6 +332,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                container={"modal"}
             />
          </DialogComponent>
+         <LoteForm container="modal" openDialog={loteFormDialog} setOpenDialog={setLoteFormDialog} refreshSelect={refreshLotes} />
       </>
    );
 };

@@ -277,7 +277,7 @@ export default function Sidebar() {
                      textDecoration: "none"
                   }}
                >
-                  {env.NAME_SYSTEM}
+                  {/* {env.NAME_SYSTEM} */}
                </Typography>
                {/* <Avatar>{auth.username.slice(0, 2).toUpperCase()}</Avatar> */}
                {/* <Typography fontSize={12}>{auth.username}</Typography>

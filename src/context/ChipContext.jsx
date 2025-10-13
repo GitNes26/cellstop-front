@@ -188,11 +188,11 @@ export default function ChipContextProvider({ children }) {
       return res;
    };
 
-   const updatePackageAssignment = async (data) => {
+   const updateLoteAssignment = async (data) => {
       // console.log("🚀 ~ createOrUpdateChip ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
-      const [error, response] = await to(Axios.post(`distribuciones/updatePackageAssignment`, data));
+      const [error, response] = await to(Axios.post(`loteDetails/updateLoteAssignment`, data));
       console.log("🚀 ~ createOrUpdateChip ~ error:", error);
       console.log("🚀 ~ createOrUpdateChip ~ response:", response);
       if (error) {
@@ -244,7 +244,7 @@ export default function ChipContextProvider({ children }) {
             deleteChip,
             disEnableChip,
             importChips,
-            updatePackageAssignment
+            updateLoteAssignment
          }}
       >
          {children}

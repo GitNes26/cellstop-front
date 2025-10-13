@@ -6,25 +6,25 @@ import { useAuthContext } from "./AuthContext";
 import { ROLE_ADMIN } from "./GlobalContext";
 import to from "await-to-js";
 
-const EmployeeContext = createContext();
+const PointOfSaleContext = createContext();
 
 export const formDataInitialState = {
    folio: "",
    active: ""
 };
-const prefixPath = "/employees";
+const prefixPath = "/pointsOfSale";
 
-export default function EmployeeContextProvider({ children }) {
+export default function PointOfSaleContextProvider({ children }) {
    const params = useParams();
-   const singularName = "Empleado", //Escribirlo siempre letra Capital
-      pluralName = "Empleados"; //Escribirlo siempre letra Capital
+   const singularName = "Punto de Venta", //Escribirlo siempre letra Capital
+      pluralName = "Puntos de Venta"; //Escribirlo siempre letra Capital
 
    // const { counters, setCounters } = useGlobalContext();
    const { auth } = useAuthContext();
 
-   const [employee, setEmployee] = useState(null);
-   const [allEmployees, setAllEmployees] = useState([]);
-   const [employeesSelect, setEmployeesSelect] = useState([]);
+   const [pointOfSale, setPointOfSale] = useState(null);
+   const [allPointsOfSale, setAllPointsOfSale] = useState([]);
+   const [pointsOfSaleSelect, setPointsOfSaleSelect] = useState([]);
    const [formTitle, setFormTitle] = useState(`REGISTRAR ${singularName.toUpperCase()}`);
    const [textBtnSubmit, setTextBtnSubmit] = useState("REGISTRAR");
    const [formData, setFormData] = useState(formDataInitialState);
@@ -35,15 +35,15 @@ export default function EmployeeContextProvider({ children }) {
    const [imgFirm, setImgFirm] = useState([]);
 
    //#region CRUD
-   const getAllEmployees = async () => {
+   const getAllPointsOfSale = async () => {
       // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}`));
-      // console.log("🚀 ~ getAllEmployees ~ error:", error);
-      // console.log("🚀 ~ getAllEmployees ~ response:", response);
+      // console.log("🚀 ~ getAllPointsOfSale ~ error:", error);
+      // console.log("🚀 ~ getAllPointsOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getAllEmployees ~ error:", error);
-         const message = error.response.data.message || "getAllEmployees ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getAllPointsOfSale ~ error:", error);
+         const message = error.response.data.message || "getAllPointsOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -51,20 +51,20 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setAllEmployees(res.result);
+      setAllPointsOfSale(res.result);
 
       return res;
    };
 
-   const getSelectIndexEmployees = async () => {
+   const getSelectIndexPointsOfSale = async () => {
       // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
-      // console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
-      // console.log("🚀 ~ getSelectIndexEmployees ~ response:", response);
+      // console.log("🚀 ~ getSelectIndexPointsOfSale ~ error:", error);
+      // console.log("🚀 ~ getSelectIndexPointsOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
-         const message = error.response.data.message || "getSelectIndexEmployees ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getSelectIndexPointsOfSale ~ error:", error);
+         const message = error.response.data.message || "getSelectIndexPointsOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -72,22 +72,22 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setEmployeesSelect(res.result);
+      setPointsOfSaleSelect(res.result);
 
       return res;
    };
 
-   const createOrUpdateEmployee = async (data) => {
-      // console.log("🚀 ~ createOrUpdateEmployee ~ data:", data);
+   const createOrUpdatePointOfSale = async (data) => {
+      // console.log("🚀 ~ createOrUpdatePointOfSale ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
-      // console.log("🚀 ~ createOrUpdateEmployee ~ error:", error);
-      // console.log("🚀 ~ createOrUpdateEmployee ~ response:", response);
+      // console.log("🚀 ~ createOrUpdatePointOfSale ~ error:", error);
+      // console.log("🚀 ~ createOrUpdatePointOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ createOrUpdateEmployee ~ error:", error);
-         const message = error.response.data.message || "createOrUpdateEmployee ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ createOrUpdatePointOfSale ~ error:", error);
+         const message = error.response.data.message || "createOrUpdatePointOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -95,20 +95,20 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllEmployees();
+      await getAllPointsOfSale();
 
       return res;
    };
 
-   const getEmployee = async (id) => {
+   const getPointOfSale = async (id) => {
       // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
-      // console.log("🚀 ~ getEmployee ~ error:", error);
-      // console.log("🚀 ~ getEmployee ~ response:", response);
+      // console.log("🚀 ~ getPointOfSale ~ error:", error);
+      // console.log("🚀 ~ getPointOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getEmployee ~ error:", error);
-         const message = error.response.data.message || "getEmployee ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getPointOfSale ~ error:", error);
+         const message = error.response.data.message || "getPointOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -116,21 +116,21 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setEmployee(res.result);
+      setPointOfSale(res.result);
 
       return res;
    };
 
-   const deleteEmployee = async (id) => {
-      // console.log("🚀 ~ deleteEmployee ~ data:", data);
+   const deletePointOfSale = async (id) => {
+      // console.log("🚀 ~ deletePointOfSale ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
-      // console.log("🚀 ~ deleteEmployee ~ error:", error);
-      // console.log("🚀 ~ deleteEmployee ~ response:", response);
+      // console.log("🚀 ~ deletePointOfSale ~ error:", error);
+      // console.log("🚀 ~ deletePointOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ deleteEmployee ~ error:", error);
-         const message = error.response.data.message || "deleteEmployee ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ deletePointOfSale ~ error:", error);
+         const message = error.response.data.message || "deletePointOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -138,21 +138,21 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllEmployees();
+      await getAllPointsOfSale();
 
       return res;
    };
 
-   const disEnableEmployee = async (id, active) => {
-      // console.log("🚀 ~ disEnableEmployee ~ data:", data);
+   const disEnablePointOfSale = async (id, active) => {
+      // console.log("🚀 ~ disEnablePointOfSale ~ data:", data);
       // await checkLoggedIn();
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
-      // console.log("🚀 ~ disEnableEmployee ~ error:", error);
-      // console.log("🚀 ~ disEnableEmployee ~ response:", response);
+      // console.log("🚀 ~ disEnablePointOfSale ~ error:", error);
+      // console.log("🚀 ~ disEnablePointOfSale ~ response:", response);
       if (error) {
-         console.log("🚀 ~ disEnableEmployee ~ error:", error);
-         const message = error.response.data.message || "disEnableEmployee ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ disEnablePointOfSale ~ error:", error);
+         const message = error.response.data.message || "disEnablePointOfSale ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -160,28 +160,28 @@ export default function EmployeeContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllEmployees();
+      await getAllPointsOfSale();
 
       return res;
    };
    //#endregion CRUD
 
    // useEffect(() => {
-   //    // console.log("el useEffect de EmployeeContext");
-   //    // getEmployee();
+   //    // console.log("el useEffect de PointOfSaleContext");
+   //    // getPointOfSale();
    // });
 
    return (
-      <EmployeeContext.Provider
+      <PointOfSaleContext.Provider
          value={{
             singularName,
             pluralName,
-            employee,
-            setEmployee,
-            allEmployees,
-            setAllEmployees,
-            employeesSelect,
-            setEmployeesSelect,
+            pointOfSale,
+            setPointOfSale,
+            allPointsOfSale,
+            setAllPointsOfSale,
+            pointsOfSaleSelect,
+            setPointsOfSaleSelect,
             formTitle,
             setFormTitle,
             textBtnSubmit,
@@ -197,16 +197,16 @@ export default function EmployeeContextProvider({ children }) {
             setImgAvatar,
             imgFirm,
             setImgFirm,
-            getAllEmployees,
-            getSelectIndexEmployees,
-            createOrUpdateEmployee,
-            getEmployee,
-            deleteEmployee,
-            disEnableEmployee
+            getAllPointsOfSale,
+            getSelectIndexPointsOfSale,
+            createOrUpdatePointOfSale,
+            getPointOfSale,
+            deletePointOfSale,
+            disEnablePointOfSale
          }}
       >
          {children}
-      </EmployeeContext.Provider>
+      </PointOfSaleContext.Provider>
    );
 }
-export const useEmployeeContext = () => useContext(EmployeeContext);
+export const usePointOfSaleContext = () => useContext(PointOfSaleContext);

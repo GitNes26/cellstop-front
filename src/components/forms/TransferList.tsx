@@ -1,5 +1,5 @@
 // import * as React from "react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { useFormikContext, FormikValues } from "formik";
 import { Grid, Card, CardHeader, List, ListItemButton, ListItemText, ListItemIcon, Checkbox, Button, Divider, SxProps } from "@mui/material";
@@ -86,25 +86,42 @@ const TransferList: React.FC<TransferListProps> = ({
    };
 
    // Sincroniza listas con Formik y filtra sólo ids presentes en `data`
-   useEffect(() => {
-      console.log("🚀 ~ TransferList ~ formik.values:", formik.values);
-      console.log("🚀 ~ TransferList ~ data:", data);
-      const availableIds = data.map((d) => d.id);
-      console.log("🚀 ~ TransferList ~ availableIds:", availableIds);
+   // useEffect(() => {
+   //    console.log("🚀 ~ TransferList ~ formik.values:", formik.values);
+   //    console.log("🚀 ~ TransferList ~ data:", data);
+   //    const availableIds = data.map((d) => d.id);
+   //    console.log("🚀 ~ TransferList ~ availableIds:", availableIds);
 
+   //    const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
+   //    // const formLeft = availableIds as number[];
+   //    console.log("🚀 ~ TransferList ~ formLeft:", formLeft);
+   //    const formRight = (formik.values[idNameRight] || []) as number[];
+   //    console.log("🚀 ~ TransferList ~ formRight:", formRight);
+
+   //    setLeft(formLeft.filter((id) => availableIds.includes(id)));
+   //    setRight(formRight.filter((id) => availableIds.includes(id)));
+
+   //    // Inicializa Formik si está vacío
+   //    if (!formik.values[idNameLeft]) formik.setFieldValue(idNameLeft, formLeft);
+   //    if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
+   // }, [formik.values, idNameLeft, idNameRight, data]);
+
+   const initializedRef = useRef(false);
+
+   useEffect(() => {
+      // if (initializedRef.current) return;
+      // if (data.length > 0) if (left.length < 1) initializedRef.current = true;
+
+      const availableIds = data.map((d) => d.id);
       const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
-      // const formLeft = availableIds as number[];
-      console.log("🚀 ~ TransferList ~ formLeft:", formLeft);
       const formRight = (formik.values[idNameRight] || []) as number[];
-      console.log("🚀 ~ TransferList ~ formRight:", formRight);
 
       setLeft(formLeft.filter((id) => availableIds.includes(id)));
       setRight(formRight.filter((id) => availableIds.includes(id)));
 
-      // Inicializa Formik si está vacío
       if (!formik.values[idNameLeft]) formik.setFieldValue(idNameLeft, formLeft);
       if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
-   }, [formik.values, idNameLeft, idNameRight, data]);
+   }, [formik.values, data]);
 
    const customList = (title: string, items: readonly number[]) => (
       <Card sx={{ width: "100%", ...sx }}>
@@ -123,7 +140,7 @@ const TransferList: React.FC<TransferListProps> = ({
             subheader={`${numberOfChecked(items)}/${items.length} seleccionado(s)`}
          />
          <Divider />
-         <List sx={{ width: "100%", height: 300, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
+         <List sx={{ width: "100%", height: 430, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
             {items.map((value) => (
                <ListItemButton key={value} role="listitem" onClick={handleToggle(value)} disabled={disabled}>
                   <ListItemIcon>
