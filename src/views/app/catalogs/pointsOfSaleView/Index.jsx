@@ -1,6 +1,6 @@
+import PointOfSaleForm from "./Form";
 import { useEffect } from "react";
 import PointOfSaleDT from "./DataTable";
-import PointOfSaleForm from "./Form";
 import useFetch from "../../../../hooks/useFetch";
 import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
 import { Typography } from "@mui/material";
@@ -21,7 +21,7 @@ const PointsOfSaleView = ({}) => {
             {pluralName.toUpperCase()}
          </Typography>
          <PointOfSaleDT />
-         <PointOfSaleForm container={"drawer"} refreshSelect={getAllPointsOfSale} openDialog={openDialog} setOpenDialog={setOpenDialog} />
+         <PointOfSaleForm container="drawer" refreshSelect={getAllPointsOfSale} openDialog={openDialog} setOpenDialog={setOpenDialog} />
       </>
    );
 };

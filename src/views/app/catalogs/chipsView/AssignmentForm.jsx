@@ -83,17 +83,20 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const init = () => {
       console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock");
-      // const chipsAsignados = allLoteDetailsByLote.filter((chip) => chip.location_status === "Asignado");
+      console.log("🚀 ~ init ~ chipsEnStock:", chipsEnStock);
+      // const chipsSelected = allLoteDetailsByLote.filter((chip) => chip.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
          "chips_en_stock",
          chipsEnStock.map((d) => d.id)
       );
       // formikRef?.current?.setFieldValue(
       //    "chip_ids",
-      //    chipsAsignados.map((d) => d.id)
+      //    chipsSelected.map((d) => d.id)
       // );
    };
    useEffect(() => {
+      formikRef?.current?.resetForm();
+      formikRef?.current?.setValues(formikRef.current.initialValues);
       init();
    }, [openDialog]);
 
@@ -231,16 +234,20 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    };
 
    async function handleChangeLote(values) {
-      console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
+      // console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
+      console.log("🚀 ~ handleChangeLote ~ chipsSelect:", chipsSelect);
       try {
+         const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock").map((d) => d.id);
+
          if (values.value.id < 1) {
-            formikRef?.current?.setFieldValue("chip_ids", []);
+            formikRef?.current?.setValues(formikRef.current.initialValues);
+            formikRef?.current?.setFieldValue("chips_en_stock", chipsEnStock);
             return Toast.Warning("Selecciona un lote");
          }
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getLoteDetailsByLote(values.value.id);
-         console.log("🚀 ~ handleClickLogout ~ res:", res);
+         console.log("🚀 ~ handleChangeLote ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -254,10 +261,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          }
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         formikRef?.current?.setFieldValue(
-            "chip_ids",
-            res.result.map((d) => d.id)
-         );
+         const chipsSelected = res.result.map((d) => d.chip_id);
+         // const chipsEnStock = formikRef?.current?.values?.chips_en_stock.filter((id) => !chipsSelected.includes(id));
+         console.log("🚀 ~ handleChangeLote ~ chipsEnStock:", chipsEnStock);
+
+         formikRef?.current?.setFieldValue("chips_en_stock", chipsEnStock);
+         formikRef?.current?.setFieldValue("chip_ids", chipsSelected);
          // formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);

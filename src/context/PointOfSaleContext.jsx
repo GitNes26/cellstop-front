@@ -31,8 +31,6 @@ export default function PointOfSaleContextProvider({ children }) {
    const [openDialog, setOpenDialog] = useState(false);
    const formikRef = useRef(null);
    const [isEdit, setIsEdit] = useState(false);
-   const [imgAvatar, setImgAvatar] = useState([]);
-   const [imgFirm, setImgFirm] = useState([]);
 
    //#region CRUD
    const getAllPointsOfSale = async () => {
@@ -193,10 +191,6 @@ export default function PointOfSaleContextProvider({ children }) {
             formikRef,
             isEdit,
             setIsEdit,
-            imgAvatar,
-            setImgAvatar,
-            imgFirm,
-            setImgFirm,
             getAllPointsOfSale,
             getSelectIndexPointsOfSale,
             createOrUpdatePointOfSale,

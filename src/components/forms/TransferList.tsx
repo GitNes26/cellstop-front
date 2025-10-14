@@ -106,7 +106,7 @@ const TransferList: React.FC<TransferListProps> = ({
    //    if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
    // }, [formik.values, idNameLeft, idNameRight, data]);
 
-   const initializedRef = useRef(false);
+   // const initializedRef = useRef(false);
 
    useEffect(() => {
       // if (initializedRef.current) return;

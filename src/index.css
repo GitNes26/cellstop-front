@@ -3,7 +3,8 @@
 @import url(./assets/styles/print.css);
 @import url(./assets/styles/take-pciture.css);
 
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 /* En tu archivo CSS o con sx */
 .MuiDataGrid-root .pinned-column {
@@ -25,13 +26,12 @@
 }
 
 @media (min-width: 600px) {
-  .form-drawer > .MuiDrawer-paper {
-    width: 40%;
-    max-width: 600px;
-    min-width: 35%;
-  }
+   .form-drawer > .MuiDrawer-paper {
+      width: 40%;
+      max-width: 600px;
+      min-width: 35%;
+   }
 }
-
 
 /* .notistack-Snackbar {
    z-index: 999999;

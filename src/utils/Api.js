@@ -44,6 +44,8 @@ Axios.interceptors.request.use(
       config.headers = {
          Authorization: `Bearer ${token}`
       };
+      // Puedes guardar meta info si quieres usarla luego
+      config.meta = { startTime: new Date() };
       return config;
    },
    (error) => {
@@ -58,6 +60,40 @@ Axios.interceptors.request.use(
       } else if (error.response?.status >= 500) {
          console.error("💥 Error del servidor.");
       }
+      return Promise.reject(error);
+   }
+);
+Axios.interceptors.response.use(
+   (response) => {
+      // Calcular tiempo de respuesta (si guardaste el meta)
+      const end = new Date();
+      if (response.config.meta?.startTime) {
+         const diff = end - response.config.meta.startTime;
+         console.log(`⏱️ ${response.config.url} → ${diff}ms`);
+      }
+
+      // Puedes transformar la data si lo deseas
+      if (response.data?.result) {
+         return response.data.result; // devolver solo lo útil
+      }
+
+      return response;
+   },
+   (error) => {
+      const status = error?.response?.status;
+
+      if (status === 401) {
+         console.warn("⚠️ Sesión expirada. Cerrando sesión...");
+         localStorage.removeItem("token");
+         if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+         }
+      } else if (status === 403) {
+         console.warn("🚫 No tienes permisos suficientes.");
+      } else if (status >= 500) {
+         console.error("💥 Error interno del servidor:", error.response?.data);
+      }
+
       return Promise.reject(error);
    }
 );
@@ -80,6 +116,8 @@ AxiosFiles.interceptors.request.use(
          Authorization: `Bearer ${token}`,
          "Content-Type": "multipart/form-data"
       };
+      // Puedes guardar meta info si quieres usarla luego
+      config.meta = { startTime: new Date() };
       return config;
    },
    (error) => {
@@ -95,6 +133,40 @@ AxiosFiles.interceptors.request.use(
       //    console.error("💥 Error del servidor.");
       // }
       // return Promise.reject(error);
+   }
+);
+AxiosFiles.interceptors.response.use(
+   (response) => {
+      // Calcular tiempo de respuesta (si guardaste el meta)
+      const end = new Date();
+      if (response.config.meta?.startTime) {
+         const diff = end - response.config.meta.startTime;
+         console.log(`⏱️ ${response.config.url} → ${diff}ms`);
+      }
+
+      // Puedes transformar la data si lo deseas
+      if (response.data?.result) {
+         return response.data.result; // devolver solo lo útil
+      }
+
+      return response;
+   },
+   (error) => {
+      const status = error?.response?.status;
+
+      if (status === 401) {
+         console.warn("⚠️ Sesión expirada. Cerrando sesión...");
+         localStorage.removeItem("token");
+         if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+         }
+      } else if (status === 403) {
+         console.warn("🚫 No tienes permisos suficientes.");
+      } else if (status >= 500) {
+         console.error("💥 Error interno del servidor:", error.response?.data);
+      }
+
+      return Promise.reject(error);
    }
 );
 

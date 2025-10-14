@@ -194,9 +194,9 @@ export default function Sidebar() {
       setOpenDrawerSidebar(false);
    };
 
-   validateAccessPage();
-
    useEffect(() => {
+      validateAccessPage();
+
       setLoadingMenus(true);
       (async () => {
          const res = await getMenusByRole();
