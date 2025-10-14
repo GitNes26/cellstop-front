@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Axios, Response } from "../utils/Api";
+import { Axios, AxiosFiles, Response } from "../utils/Api";
 import Toast from "../utils/Toast";
 import { useAuthContext } from "./AuthContext";
 import { ROLE_ADMIN } from "./GlobalContext";
@@ -80,7 +80,7 @@ export default function PointOfSaleContextProvider({ children }) {
       // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
-      const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
+      const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
       // console.log("🚀 ~ createOrUpdatePointOfSale ~ error:", error);
       // console.log("🚀 ~ createOrUpdatePointOfSale ~ response:", response);
       if (error) {

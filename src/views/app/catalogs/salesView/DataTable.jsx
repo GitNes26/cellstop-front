@@ -1,68 +1,52 @@
 import React, { useCallback, useEffect } from "react";
-import { Typography, Button, ButtonGroup, Tooltip } from "@mui/material";
 
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
-import { formatDatetime, formatPhone } from "../../../../utils/Formats";
+
+import { formatDatetime, stringAvatar } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { formatPhone } from "../../../../utils/Formats";
+import { setObjImg } from "../../../../components/forms/FileInput";
+import env from "../../../../constant/env";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
-import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
-import { CancelRounded, CheckCircleRounded, MapRounded, PhoneAndroidRounded } from "@mui/icons-material";
+import { useSaleContext } from "../../../../context/SaleContext";
+import { Avatar, Typography } from "@mui/material";
+import { AlternateEmailRounded, AssignmentIndRounded, CancelRounded, CheckCircleRounded, FaxRounded, NumbersRounded, PhoneAndroidRounded } from "@mui/icons-material";
 
-const PointOfSaleDT = () => {
+const SaleDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const {
-      singularName,
-      allPointsOfSale,
-      setFormTitle,
-      setTextBtnSubmit,
-      formikRef,
-      setIsEdit,
-      deletePointOfSale,
-      disEnablePointOfSale,
-      getAllPointsOfSale,
-      getPointOfSale
-   } = usePointOfSaleContext();
+   const { singularName, allSales, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, setImgAvatar, setImgFirm, deleteSale, disEnableSale, getAllSales, getSale } =
+      useSaleContext();
    const mySwal = withReactContent(Swal);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["pointOfSale", "description", "active", "created_at"];
+   const globalFilterFields = ["active", "created_at"];
 
    // #region BodysTemplate
-   const PointOfSaleBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.name}
-      </Typography>
-   );
-   const ContactBodyTemplate = (obj) => (
+   const SaleBodyTemplate = (obj) => (
       <>
          <Typography textAlign={"center"} size={fontSizeTable.text}>
-            {obj.contact_name}
-         </Typography>
-         <Typography textAlign={"center"} size={fontSizeTable.subtext} className="flex items-center justify-center italic">
-            <PhoneAndroidRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
-            <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
-               {formatPhone(obj.contact_phone)}
-            </a>
+            {obj.sale}
          </Typography>
       </>
    );
-   const AddressBodyTemplate = (obj) => (
+   const SellerBodyTemplate = (obj) => (
       <>
-         <Typography
-            textAlign={"center"}
-            size={fontSizeTable.text}
-            component={"a"}
-            href={obj.ubication ?? "#"}
-            target="_blank"
-            className="text-blue-800 hover:underline transition-all"
-         >
-            <MapRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {obj.address}
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
+            {obj.seller.username ?? "Sin asignar"}
+         </Typography>
+      </>
+   );
+   const DescriptionBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text}>
+            {obj.description}
          </Typography>
       </>
    );
@@ -81,35 +65,35 @@ const PointOfSaleDT = () => {
 
    const columns = [
       {
-         field: "name",
-         headerName: "Puesto de trabajo",
+         field: "sale",
+         headerName: "Folio Venta",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <PointOfSaleBodyTemplate {...params.row} key={`name-${params.row.id}`} />,
+         renderCell: (params) => <SaleBodyTemplate {...params.row} key={`sale-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
       {
-         field: "contact_name",
-         headerName: "Contacto",
+         field: "seller",
+         headerName: "Vendedor",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <ContactBodyTemplate {...params.row} key={`contact_name-${params.row.id}`} />,
+         renderCell: (params) => <SellerBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
          filter: true,
          filterField: null
       },
       {
-         field: "address",
-         headerName: "Dirección",
+         field: "description",
+         headerName: "Descripción",
          description: "",
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <AddressBodyTemplate {...params.row} key={`address-${params.row.id}`} />,
+         renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
          filter: true,
          filterField: null
       }
@@ -146,6 +130,8 @@ const PointOfSaleDT = () => {
          if (formikRef.current === null) setOpenDialog(true);
          formikRef?.current?.resetForm();
          formikRef?.current?.setValues(formikRef.current.initialValues);
+         setImgAvatar([]);
+         setImgFirm([]);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
@@ -161,7 +147,7 @@ const PointOfSaleDT = () => {
       try {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
-         const res = await getPointOfSale(id);
+         const res = await getSale(id);
          // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -175,7 +161,9 @@ const PointOfSaleDT = () => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         if (res.result.description) res.result.description == null && (res.result.description = "");
+         // if (res.result.description) res.result.description == null && (res.result.description = "");
+         setObjImg(res.result.avatar, setImgAvatar);
+         setObjImg(res.result.img_firm, setImgFirm);
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -193,10 +181,10 @@ const PointOfSaleDT = () => {
 
    const handleClickDelete = async (id, name) => {
       try {
-         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el departamento de ${name}?`, "CONFIRMAR")).then(async (result) => {
+         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el sale #${name}?`, "CONFIRMAR")).then(async (result) => {
             if (result.isConfirmed) {
                setIsLoading(true);
-               const res = await deletePointOfSale(id);
+               const res = await deleteSale(id);
                // console.log('🚀 ~ handleClickLogout ~ res:', res);
                if (!res) return setIsLoading(false);
                if (res.errors) {
@@ -224,7 +212,7 @@ const PointOfSaleDT = () => {
       try {
          setTimeout(async () => {
             setIsLoading(true);
-            const res = await disEnablePointOfSale(id, !active);
+            const res = await disEnableSale(id, !active);
             // console.log('🚀 ~ handleClickLogout ~ res:', res);
             if (!res) return setIsLoading(false);
             if (res.errors) {
@@ -248,17 +236,18 @@ const PointOfSaleDT = () => {
    };
 
    const data = [];
-   const formatData = async () => {
+
+   async function formatData() {
       try {
-         // console.log("cargar listado", allPointsOfSale);
-         await allPointsOfSale.map((obj, index) => {
+         // console.log("cargar listado", allSales);
+         await allSales.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.pointOfSale} active={obj.active} />;
+            // register.actions = <ButtonsAction id={obj.id} name={obj.sale} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.pointOfSale), color: "red" }
+               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.sale), color: "red" }
             ];
             data.push(register);
          });
@@ -267,9 +256,8 @@ const PointOfSaleDT = () => {
          console.log(error);
          Toast.Error(error);
       }
-   };
+   }
    formatData();
-
    useEffect(() => {}, []);
 
    return (
@@ -286,14 +274,15 @@ const PointOfSaleDT = () => {
          singularName={singularName}
          indexColumnName={0}
          rowEdit={false}
-         refreshTable={getAllPointsOfSale}
-         btnsExport={false}
+         refreshTable={getAllSales}
+         btnsExport={true}
+         fileNameExport="Sales"
          scrollHeight="67vh"
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
-         // pointOfSaleBtnsToolbar="center"
+         // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
          // toolbarContentEnd={toolbarContentEnd}
       />
    );
 };
-export default PointOfSaleDT;
+export default SaleDT;

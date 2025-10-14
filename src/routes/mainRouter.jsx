@@ -14,6 +14,7 @@ const EmployeesView = lazy(() => import("./../views/app/settings/employeesView/I
 const ChipsView = lazy(() => import("../views/app/catalogs/chipsView/Index")); //import ChipView from "./../views/app/settings/chipsView/Index";
 const LotesView = lazy(() => import("../views/app/catalogs/lotesView/Index")); //import LoteView from "./../views/app/settings/lotesView/Index";
 const PointsOfSaleView = lazy(() => import("../views/app/catalogs/pointsOfSaleView/Index"));
+const SalesView = lazy(() => import("../views/app/catalogs/salesView/Index"));
 
 const UsersView = lazy(() => import("./../views/app/settings/usersView/Index")); //import UsersView from "./../views/app/settings/usersView/Index";
 const NotFound = lazy(() => import("./../views/NotFound")); //import NotFound from "./../views/NotFound";
@@ -29,6 +30,7 @@ import MenuContextProvider from "../context/MenuContext";
 import ChipContextProvider from "../context/ChipContext";
 import LoteContextProvider from "../context/LoteContext";
 import PointOfSaleContextProvider from "../context/PointOfSaleContext";
+import SaleContextProvider from "../context/SaleContext";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -175,6 +177,14 @@ const mainRouter = {
                   <PointOfSaleContextProvider>
                      <PointsOfSaleView />
                   </PointOfSaleContextProvider>
+               )
+            },
+            {
+               path: "ventas",
+               element: (
+                  <SaleContextProvider>
+                     <SalesView />
+                  </SaleContextProvider>
                )
             }
          ]

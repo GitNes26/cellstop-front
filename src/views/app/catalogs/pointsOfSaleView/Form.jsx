@@ -193,7 +193,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
       // },
       {
          name: "ubication",
-         input: <LocationButton idNameLat="latitud" idNameLng="longitud" label="Ubicación del establecimiento" mb={2} />,
+         input: <LocationButton idNameLat="lat" idNameLng="lon" idNameUbi="ubication" label="Ubicación del establecimiento" mb={2} />,
          value: "",
          validations: Yup.string().trim().notRequired(),
          validationPage: [],

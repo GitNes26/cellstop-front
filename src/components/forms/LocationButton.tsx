@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, CircularProgress, Grid, Typography, SxProps } from "@mui/material";
 import { MyLocation } from "@mui/icons-material";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -6,7 +6,7 @@ import L from "leaflet";
 import { Theme } from "@mui/system";
 import { useFormikContext, FormikValues } from "formik";
 
-// Ícono personalizado para Leaflet (evita el bug de íconos rotos)
+// Ícono personalizado para Leaflet
 const markerIcon = new L.Icon({
    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
@@ -55,10 +55,20 @@ const LocationButton: React.FC<LocationButtonProps> = ({
 }) => {
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState<string | null>(null);
-   // const error = formik.touched[idName] && formik.errors[idName] ? formik.errors[idName].toString() : null;
-   const isError = Boolean(error);
    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
    const formik = useFormikContext<FormikValues>();
+
+   // 🧠 Detectar si estamos en modo edición
+   const isEditMode = Boolean(formik.values.id);
+
+   // 🧭 Cargar ubicación inicial desde Formik (modo edición)
+   useEffect(() => {
+      const lat = parseFloat(formik.values[idNameLat]);
+      const lng = parseFloat(formik.values[idNameLng]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+         setLocation({ lat, lng });
+      }
+   }, [formik.values[idNameLat], formik.values[idNameLng]]);
 
    const handleGetLocation = () => {
       if (!navigator.geolocation) {
@@ -80,7 +90,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
             // Guardar en Formik (irá a BD)
             formik?.setFieldValue(idNameLat, coords.lat);
             formik?.setFieldValue(idNameLng, coords.lng);
-            formik?.setFieldValue(idNameUbi, `https://www.google.com/maps?q=${location.lat},${location.lng}`);
+            formik?.setFieldValue(idNameUbi, `https://www.google.com/maps?q=${coords.lat},${coords.lng}`);
 
             setLoading(false);
          },
@@ -94,17 +104,9 @@ const LocationButton: React.FC<LocationButtonProps> = ({
 
    return (
       <Grid size={sizeCols} offset={{ xs: xsOffset }} hidden={hidden} mb={mb} sx={sx}>
-         <div className={`flex flex-col w-full items-start  border border-gray-400  rounded-xl shadow-sm p-4 ${className}`}>
-            <Typography
-               mb={0}
-               sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
-               component={"label"}
-               // htmlFor={idName}
-               variant="caption"
-               // color={color}
-            >
-               <span className={`text-sm text-${color} ${isError && "text-error"}`}>{label}</span>
-               {/* <span className={`${isError ? "text-error" : "text-gray-400"}`}>{required ? "Requerido" : "Opcional"}</span> */}
+         <div className={`flex flex-col w-full items-start border border-gray-400 rounded-xl shadow-sm p-4 ${className}`}>
+            <Typography mb={0} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} component={"label"} variant="caption">
+               <span className={`text-sm text-${color} ${error && "text-error"}`}>{label}</span>
             </Typography>
 
             <Button
@@ -117,7 +119,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
                fullWidth={fullWidth}
                className="rounded-xl font-semibold"
             >
-               {loading ? <CircularProgress size={22} color="inherit" /> : "Obtener ubicación"}
+               {loading ? <CircularProgress size={22} color="inherit" /> : isEditMode ? "Actualizar ubicación" : "Obtener ubicación"}
             </Button>
 
             {error && (
@@ -149,16 +151,13 @@ const LocationButton: React.FC<LocationButtonProps> = ({
                      </MapContainer>
                   </div>
 
-                  <Button
-                     variant={"contained"}
-                     color="primary"
-                     // startIcon={!loading && <MyLocation />}
-                     disabled={loading}
-                     size={"small"}
-                     // fullWidth={fullWidth}
-                     className="rounded-xl font-semibold"
-                  >
-                     <a href={`https://www.google.com/maps?q=${location.lat},${location.lng}`} target="_blank" rel="noopener noreferrer" className="">
+                  <Button variant={"contained"} color="primary" size={"small"} className="rounded-xl font-semibold" fullWidth>
+                     <a
+                        href={`https://www.google.com/maps?q=${location.lat},${location.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white no-underline"
+                     >
                         Abrir en Google Maps
                      </a>
                   </Button>

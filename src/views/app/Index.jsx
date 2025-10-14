@@ -7,6 +7,7 @@ import { useGlobalContext } from "../../context/GlobalContext";
 import ClockComponent from "./../../components/ClockComponent";
 import { DataTableComponent } from "../../components";
 import { useNavigate } from "react-router-dom";
+import SaleForm from "./catalogs/salesView/Form";
 
 const Index = ({}) => {
    const navigate = useNavigate();
@@ -29,9 +30,9 @@ const Index = ({}) => {
 
    return (
       <>
-         <Typography>Hola mundo</Typography>
          <ClockComponent color={"initial"} />
          <Button onClick={handleClick}>Click</Button>
+         {/* <SaleForm /> */}
       </>
    );
 };
