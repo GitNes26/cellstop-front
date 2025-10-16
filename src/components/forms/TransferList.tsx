@@ -2,10 +2,30 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { useFormikContext, FormikValues } from "formik";
-import { Grid, Card, CardHeader, List, ListItemButton, ListItemText, ListItemIcon, Checkbox, Button, Divider, SxProps } from "@mui/material";
+import {
+   Grid,
+   Card,
+   CardHeader,
+   List,
+   ListItemButton,
+   ListItemText,
+   ListItemIcon,
+   Checkbox,
+   Button,
+   Divider,
+   SxProps,
+   Box,
+   TextField,
+   InputAdornment
+} from "@mui/material";
 import { Theme } from "@emotion/react";
-import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded } from "@mui/icons-material";
+import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search } from "@mui/icons-material";
 
+interface ChipItem {
+   id: number;
+   label: string;
+   location_status: string;
+}
 interface TransferListProps {
    xsOffset?: number | null;
    col: number;
@@ -16,7 +36,7 @@ interface TransferListProps {
    labelRight: string;
    sx?: SxProps<Theme>;
    disabled?: boolean;
-   data: { id: number; label: string }[];
+   data: ChipItem[];
 }
 
 function not(a: readonly number[], b: readonly number[]) {
@@ -48,6 +68,8 @@ const TransferList: React.FC<TransferListProps> = ({
    // Inicialmente vacíos; se sincronizan con Formik/data en useEffect
    const [left, setLeft] = React.useState<readonly number[]>([]);
    const [right, setRight] = React.useState<readonly number[]>([]);
+   const [searchLeft, setSearchLeft] = useState("");
+   const [searchRight, setSearchRight] = useState("");
 
    const leftChecked = intersection(checked, left);
    const rightChecked = intersection(checked, right);
@@ -83,6 +105,13 @@ const TransferList: React.FC<TransferListProps> = ({
       setChecked(not(checked, rightChecked));
       formik.setFieldValue(idNameLeft, newLeft);
       formik.setFieldValue(idNameRight, newRight);
+   };
+
+   const filterChips = (chips: ChipItem[], search: string) => {
+      console.log("🚀 ~ filterChips ~ search:", search)
+      console.log("🚀 ~ filterChips ~ chips:", chips)
+      if (!search) return chips;
+      return chips.filter((chip) => chip.label.toLowerCase().includes(search.toLowerCase()) || chip.location_status?.toLowerCase().includes(search.toLowerCase()));
    };
 
    // Sincroniza listas con Formik y filtra sólo ids presentes en `data`
@@ -123,40 +152,67 @@ const TransferList: React.FC<TransferListProps> = ({
       if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
    }, [formik.values, data]);
 
-   const customList = (title: string, items: readonly number[]) => (
-      <Card sx={{ width: "100%", ...sx }}>
-         <CardHeader
-            sx={{ px: 2, py: 1 }}
-            avatar={
-               <Checkbox
-                  onClick={handleToggleAll(items)}
-                  checked={numberOfChecked(items) === items.length && items.length !== 0}
-                  indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
-                  disabled={items.length === 0 || disabled}
-                  inputProps={{ "aria-label": "todos los artículos seleccionados" }}
+   const customList = (title: string, items: readonly number[], search: string, setSearch: (value: string) => void) => {
+      console.log("🚀 ~ customList ~ items:", items);
+      const dataItems: ChipItem[] = data.filter((d) => items.includes(d.id));
+      console.log("🚀 ~ customList ~ dataItems:", dataItems);
+      const filteredItems = filterChips(dataItems, search);
+      console.log("🚀 ~ customList ~ filteredItems:", filteredItems);
+
+      return (
+         <Card sx={{ width: "100%", ...sx }}>
+            <CardHeader
+               sx={{ px: 2, py: 1 }}
+               avatar={
+                  <Checkbox
+                     onClick={handleToggleAll(items)}
+                     checked={numberOfChecked(items) === items.length && items.length !== 0}
+                     indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
+                     disabled={items.length === 0 || disabled}
+                     inputProps={{ "aria-label": "todos los artículos seleccionados" }}
+                  />
+               }
+               title={title}
+               subheader={`${numberOfChecked(items)}/${items.length} seleccionado(s)`}
+            />
+            <Box sx={{ px: 2, pt: 0, pb: 1 }}>
+               <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Buscar chips..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  disabled={disabled}
+                  slotProps={{
+                     input: {
+                        startAdornment: (
+                           <InputAdornment position="start">
+                              <Search fontSize="small" />
+                           </InputAdornment>
+                        )
+                     }
+                  }}
                />
-            }
-            title={title}
-            subheader={`${numberOfChecked(items)}/${items.length} seleccionado(s)`}
-         />
-         <Divider />
-         <List sx={{ width: "100%", height: 430, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
-            {items.map((value) => (
-               <ListItemButton key={value} role="listitem" onClick={handleToggle(value)} disabled={disabled}>
-                  <ListItemIcon>
-                     <Checkbox checked={checked.includes(value)} tabIndex={-1} disableRipple />
-                  </ListItemIcon>
-                  <ListItemText primary={data.find((d) => d.id === value)?.label || `Item ${value}`} />
-               </ListItemButton>
-            ))}
-         </List>
-      </Card>
-   );
+            </Box>
+            <Divider />
+            <List sx={{ width: "100%", height: 430, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
+               {items.map((value) => (
+                  <ListItemButton key={value} role="listitem" onClick={handleToggle(value)} disabled={disabled}>
+                     <ListItemIcon>
+                        <Checkbox checked={checked.includes(value)} tabIndex={-1} disableRipple />
+                     </ListItemIcon>
+                     <ListItemText primary={data.find((d) => d.id === value)?.label || `Item ${value}`} />
+                  </ListItemButton>
+               ))}
+            </List>
+         </Card>
+      );
+   };
 
    return (
       <Grid container size={sizeCols} spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
          <Grid size={{ md: 5.5 }} offset={{ xs: xsOffset }} sx={{}}>
-            {customList(labelLeft, left)}
+            {customList(labelLeft, left, searchLeft, setSearchLeft)}
          </Grid>
 
          <Grid>
@@ -170,7 +226,7 @@ const TransferList: React.FC<TransferListProps> = ({
             </Grid>
          </Grid>
 
-         <Grid size={{ md: 5.5 }}>{customList(labelRight, right)}</Grid>
+         <Grid size={{ md: 5.5 }}>{customList(labelRight, right, searchRight, setSearchRight)}</Grid>
       </Grid>
    );
 };

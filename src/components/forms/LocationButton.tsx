@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Button, CircularProgress, Grid, Typography, SxProps } from "@mui/material";
+import { Button, CircularProgress, Grid, Typography, SxProps, FormControl } from "@mui/material";
 import { MyLocation } from "@mui/icons-material";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Theme } from "@mui/system";
-import { useFormikContext, FormikValues } from "formik";
+import { columnGap, Theme } from "@mui/system";
+import { useFormikContext, FormikValues, Field } from "formik";
 
 // Ícono personalizado para Leaflet
 const markerIcon = new L.Icon({
@@ -26,6 +26,7 @@ interface LocationButtonProps {
    idNameLng: string;
    idNameUbi: string;
    label?: string;
+   helperText?: string;
    size?: "small" | "medium";
    color?: string;
    className?: string;
@@ -45,6 +46,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
    idNameLng,
    idNameUbi,
    label = "Obtener ubicación",
+   helperText,
    size = "medium",
    className = "",
    sx,
@@ -54,9 +56,11 @@ const LocationButton: React.FC<LocationButtonProps> = ({
    variant = "outlined"
 }) => {
    const [loading, setLoading] = useState(false);
+   const formik: any = useFormikContext<any>();
+   const errorFormik = formik.touched[idNameUbi] && formik.errors[idNameUbi] ? formik.errors[idNameUbi].toString() : null;
+   const isError = Boolean(errorFormik);
    const [error, setError] = useState<string | null>(null);
    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-   const formik = useFormikContext<FormikValues>();
 
    // 🧠 Detectar si estamos en modo edición
    const isEditMode = Boolean(formik.values.id);
@@ -68,7 +72,7 @@ const LocationButton: React.FC<LocationButtonProps> = ({
       if (!isNaN(lat) && !isNaN(lng)) {
          setLocation({ lat, lng });
       }
-   }, [formik.values[idNameLat], formik.values[idNameLng]]);
+   }, [formik.values[idNameUbi], formik.values[idNameLat], formik.values[idNameLng], isError]);
 
    const handleGetLocation = () => {
       if (!navigator.geolocation) {
@@ -104,11 +108,10 @@ const LocationButton: React.FC<LocationButtonProps> = ({
 
    return (
       <Grid size={sizeCols} offset={{ xs: xsOffset }} hidden={hidden} mb={mb} sx={sx}>
-         <div className={`flex flex-col w-full items-start border border-gray-400 rounded-xl shadow-sm p-4 ${className}`}>
+         <div className={`flex flex-col w-full items-start border border-gray-400 ${(error || isError) && "border-red-600"} rounded-xl shadow-sm p-4 ${className}`}>
             <Typography mb={0} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} component={"label"} variant="caption">
-               <span className={`text-sm text-${color} ${error && "text-error"}`}>{label}</span>
+               <span className={`text-sm text-${color} ${(error || isError) && "text-red-600"}`}>{label}</span>
             </Typography>
-
             <Button
                variant={variant}
                color="primary"
@@ -122,8 +125,9 @@ const LocationButton: React.FC<LocationButtonProps> = ({
                {loading ? <CircularProgress size={22} color="inherit" /> : isEditMode ? "Actualizar ubicación" : "Obtener ubicación"}
             </Button>
 
-            {error && (
-               <Typography variant="body2" className="text-red-600 mt-2">
+            {(error || isError) && (
+               <Typography variant="caption" className="text-red-600" mt={0.5} ml={1}>
+                  {isError ? errorFormik : helperText ? helperText : "."} <br />
                   {error}
                </Typography>
             )}

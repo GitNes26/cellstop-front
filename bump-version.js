@@ -5,13 +5,10 @@ import chalk from "chalk";
 
 const rl = readline.createInterface({
    input: process.stdin,
-   output: process.stdout,
+   output: process.stdout
 });
 
-const ask = (text) =>
-   new Promise((resolve) => {
-      rl.question(text, (answer) => resolve(answer.trim()));
-   });
+const ask = (text) => new Promise((resolve) => rl.question(text, (answer) => resolve(answer.trim())));
 
 const askYesNo = async (text) => {
    const response = await ask(chalk.cyan(text));
@@ -19,39 +16,32 @@ const askYesNo = async (text) => {
 };
 
 const bumpVersion = async () => {
-   const envPath = "./.env";
+   const packagePath = "./package.json";
    const versionsPath = "./versions.md";
 
-   if (!fs.existsSync(envPath)) {
-      console.error(chalk.red("❌ No se encontró el archivo .env"));
+   if (!fs.existsSync(packagePath)) {
+      console.error(chalk.red("❌ No se encontró el archivo package.json"));
       process.exit(1);
    }
 
-   const envFile = fs.readFileSync(envPath, "utf-8");
-   const versionLine = envFile
-      .split("\n")
-      .find((line) => line.trim().startsWith("VITE_VERSION"));
-
-   if (!versionLine) {
-      console.error(chalk.red("❌ No se encontró VITE_VERSION en .env"));
-      process.exit(1);
-   }
-
-   const [key, rawValue] = versionLine.split("=");
-   const versionValue = rawValue.trim();
+   const pkg = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
+   const versionValue = pkg.version || "v0.0.0.0";
    const [version, stage] = versionValue.split(" ");
-   let [major, minor, patch, build] = version
-      .replace("v", "")
-      .split(".")
-      .map(Number);
+   let [major, minor, patch, build] = version.replace("v", "").split(".").map(Number);
 
+   console.log(chalk.yellowBright(`\n📦 Versión actual: ${chalk.green(`v${major}.${minor}.${patch}.${build} ${stage || ""}`)}\n`));
+
+   console.log(chalk.bold.cyan("\n📘 Niveles de versión disponibles:"));
    console.log(
-      chalk.yellowBright(
-         `\n📦 Versión actual: ${chalk.green(`v${major}.${minor}.${patch}.${build} ${stage || ""}`)}\n`,
-      ),
+      chalk.white(`
+  🚀  MAJOR → Cambios grandes o incompatibles (ej. reestructuración, breaking changes)
+  ✨  MINOR → Nuevas funciones o módulos (sin romper compatibilidad)
+  🧩  PATCH → Correcciones menores o bugs
+  🔧  BUILD → Pequeñas optimizaciones o despliegues internos
+  `)
    );
 
-   const bumpMajor = await askYesNo("¿Incrementar versión MAYOR (cambios grandes o ruptura)? (y/n): ");
+   const bumpMajor = await askYesNo("¿Incrementar versión MAYOR (Major)? (y/n): ");
    let changeType = "Build";
 
    if (bumpMajor) {
@@ -61,14 +51,14 @@ const bumpVersion = async () => {
       build = 0;
       changeType = "Major";
    } else {
-      const bumpMinor = await askYesNo("¿Incrementar versión MENOR (nuevas funciones)? (y/n): ");
+      const bumpMinor = await askYesNo("¿Incrementar versión MENOR (Minor)? (y/n): ");
       if (bumpMinor) {
          minor++;
          patch = 0;
          build = 0;
          changeType = "Minor";
       } else {
-         const bumpPatch = await askYesNo("¿Incrementar versión PATCH (correcciones menores)? (y/n): ");
+         const bumpPatch = await askYesNo("¿Incrementar versión PATCH (corrección menor)? (y/n): ");
          if (bumpPatch) {
             patch++;
             build = 0;
@@ -79,7 +69,6 @@ const bumpVersion = async () => {
 
    build++;
 
-   // Estado
    let stageLabel = stage || "";
    const setStage = await askYesNo("¿Cambiar estado (beta/rc/prod)? (y/n): ");
    if (setStage) {
@@ -92,15 +81,11 @@ const bumpVersion = async () => {
    }
 
    const newVersion = `v${major}.${minor}.${patch}.${build}`;
-   const fullVersion = `VITE_VERSION=${newVersion} ${stageLabel}`.trim();
+   const fullVersion = `${newVersion} ${stageLabel}`.trim();
 
    const author = await ask(chalk.cyan("👤 Autor del cambio: "));
 
-   console.log(
-      chalk.magentaBright(
-         "\n📝 Agrega los puntos principales (ENTER vacío para terminar cada sección):",
-      ),
-   );
+   console.log(chalk.magentaBright("\n📝 Agrega los puntos principales (ENTER vacío para terminar cada sección):"));
 
    const categories = ["✨ Mejoras", "🐞 Correcciones", "🧩 Nuevas Funciones", "⚙️ Optimizaciones"];
    const changesByCategory = {};
@@ -130,52 +115,26 @@ const bumpVersion = async () => {
 
    const date = new Date().toLocaleString("es-MX", {
       dateStyle: "long",
-      timeStyle: "short",
+      timeStyle: "short"
    });
 
-   const emojiType =
-      changeType === "Major"
-         ? "🚀"
-         : changeType === "Minor"
-         ? "✨"
-         : changeType === "Patch"
-         ? "🧩"
-         : "🔧";
+   const emojiType = changeType === "Major" ? "🚀" : changeType === "Minor" ? "✨" : changeType === "Patch" ? "🧩" : "🔧";
 
-   const stageEmoji =
-      stageLabel === "beta"
-         ? "🧪 Beta"
-         : stageLabel === "rc"
-         ? "🧱 RC"
-         : "🏁 Producción";
+   const stageEmoji = stageLabel === "beta" ? "🧪 Beta" : stageLabel === "rc" ? "🧱 RC" : "🏁 Producción";
 
-   const headerColor =
-      stageLabel === "beta"
-         ? chalk.hex("#FFA500")
-         : stageLabel === "rc"
-         ? chalk.hex("#00BFFF")
-         : chalk.hex("#32CD32");
+   const headerColor = stageLabel === "beta" ? chalk.hex("#FFA500") : stageLabel === "rc" ? chalk.hex("#00BFFF") : chalk.hex("#32CD32");
 
-   const newEnv = envFile.replace(versionLine, `${key}=${newVersion} ${stageLabel}`);
-   fs.writeFileSync(envPath, newEnv);
+   pkg.version = fullVersion;
+   fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2));
 
    if (!fs.existsSync(versionsPath)) {
-      fs.writeFileSync(
-         versionsPath,
-         `# 🧾 Registro de Versiones\n\n> Documenta los cambios del sistema con detalle.\n\n---\n\n`,
-      );
+      fs.writeFileSync(versionsPath, `# 🧾 Registro de Versiones\n\n> Documenta los cambios del sistema con detalle.\n\n---\n\n`);
    }
 
-   // Construir lista en markdown
    let changeSections = "";
    for (const [cat, arr] of Object.entries(changesByCategory)) {
       if (arr.length === 0) continue;
-      const list = arr
-         .map(
-            (c) =>
-               `- ${c.text}${c.subitems.length ? "\n" + c.subitems.map((s) => `   - ${s}`).join("\n") : ""}`,
-         )
-         .join("\n");
+      const list = arr.map((c) => `- ${c.text}${c.subitems.length ? "\n" + c.subitems.map((s) => `   - ${s}`).join("\n") : ""}`).join("\n");
       changeSections += `**${cat}**\n${list}\n\n`;
    }
 
@@ -191,7 +150,6 @@ ${changeSections || "_Sin cambios registrados._"}
 
 `;
 
-   // Insertar y ordenar versiones
    const versionsFile = fs.readFileSync(versionsPath, "utf-8");
    const entries = versionsFile.split(/^## /m).filter(Boolean);
    const updated = `# 🧾 Registro de Versiones\n\n> Documenta los cambios del sistema con detalle.\n\n---\n\n${newEntry}${entries
@@ -214,14 +172,9 @@ ${changeSections || "_Sin cambios registrados._"}
       .map((v) => "## " + v.trim())
       .join("\n\n");
 
-   fs.writeFileSync(
-      versionsPath,
-      `# 🧾 Registro de Versiones\n\n> Documenta los cambios del sistema con detalle.\n\n---\n\n${sorted}`,
-   );
+   fs.writeFileSync(versionsPath, `# 🧾 Registro de Versiones\n\n> Documenta los cambios del sistema con detalle.\n\n---\n\n${sorted}`);
 
-   console.log(
-      headerColor(`\n✅ Versión actualizada a ${newVersion} (${stageLabel.toUpperCase()})`),
-   );
+   console.log(headerColor(`\n✅ Versión actualizada a ${newVersion} (${stageLabel.toUpperCase()})`));
    console.log(chalk.blueBright("🗒️ Cambios registrados y organizados en versions.md\n"));
 
    rl.close();

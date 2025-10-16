@@ -123,7 +123,7 @@ const SaleForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          name: "ubication",
          input: <LocationButton idNameLat="lat" idNameLng="lon" idNameUbi="ubication" label="Ubicación del comprador" mb={2} />,
          value: "",
-         validations: Yup.string().notRequired(),
+         validations: Yup.string().required("Ubicación requerida"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
