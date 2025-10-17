@@ -20,6 +20,7 @@
       "@mui/x-data-grid": "^8.11.1",
       "@mui/x-date-pickers": "^8.11.1",
       "@tailwindcss/vite": "latest",
+      "@tanstack/react-query": "^4.42.0",
       "await-to-js": "^3.0.0",
       "axios": "^1.11.0",
       "compressorjs": "^1.2.1",

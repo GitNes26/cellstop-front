@@ -12,6 +12,7 @@ import { isMobile } from "react-device-detect";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import echo from "./utils/Notifications";
 
 function Copyright() {
@@ -33,6 +34,15 @@ function Copyright() {
    );
 }
 
+const queryClient = new QueryClient({
+   defaultOptions: {
+      queries: {
+         staleTime: Infinity,
+         gcTime: Infinity
+      }
+   }
+});
+
 export default function App({}) {
    const { isLoading } = useGlobalContext();
 
@@ -44,44 +54,46 @@ export default function App({}) {
 
    return (
       <>
-         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <SnackbarProvider
-               maxSnack={5}
-               anchorOrigin={{ horizontal: isMobile ? "center" : "right", vertical: "bottom" }}
-               preventDuplicate
-               // iconVariant={{
-               //    success: (
-               //       <Paper sx={{ borderRadius: 1000 }}>
-               //          <TaskAltRounded fontSize="large" sx={{ p: 1 }} />
-               //       </Paper>
-               //    ),
-               //    error: (
-               //       <Paper sx={{ borderRadius: 1000 }}>
-               //          <Error fontSize="small" sx={{ mr: 1 }} />
-               //       </Paper>
-               //    ),
-               //    warning: (
-               //       <Paper sx={{ borderRadius: 1000 }}>
-               //          <Warning fontSize="small" sx={{ mr: 1 }} />
-               //       </Paper>
-               //    ),
-               //    info: (
-               //       <Paper sx={{ borderRadius: 1000 }}>
-               //          <Info fontSize="small" sx={{ mr: 1 }} />
-               //       </Paper>
-               //    ),
-               // }}
-               style={{
-                  // color: "white",
-                  borderRadius: 15,
-                  fontWeight: "bold",
-                  zIndex: 11000
-               }}
-            >
-               <Loading open={isLoading} animation="bounce" />
-               <RouterProvider router={router} fallbackElement={<LinearLoading />} />
-            </SnackbarProvider>
-         </LocalizationProvider>
+         <QueryClientProvider client={queryClient}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+               <SnackbarProvider
+                  maxSnack={5}
+                  anchorOrigin={{ horizontal: isMobile ? "center" : "right", vertical: "bottom" }}
+                  preventDuplicate
+                  // iconVariant={{
+                  //    success: (
+                  //       <Paper sx={{ borderRadius: 1000 }}>
+                  //          <TaskAltRounded fontSize="large" sx={{ p: 1 }} />
+                  //       </Paper>
+                  //    ),
+                  //    error: (
+                  //       <Paper sx={{ borderRadius: 1000 }}>
+                  //          <Error fontSize="small" sx={{ mr: 1 }} />
+                  //       </Paper>
+                  //    ),
+                  //    warning: (
+                  //       <Paper sx={{ borderRadius: 1000 }}>
+                  //          <Warning fontSize="small" sx={{ mr: 1 }} />
+                  //       </Paper>
+                  //    ),
+                  //    info: (
+                  //       <Paper sx={{ borderRadius: 1000 }}>
+                  //          <Info fontSize="small" sx={{ mr: 1 }} />
+                  //       </Paper>
+                  //    ),
+                  // }}
+                  style={{
+                     // color: "white",
+                     borderRadius: 15,
+                     fontWeight: "bold",
+                     zIndex: 11000
+                  }}
+               >
+                  <Loading open={isLoading} animation="bounce" />
+                  <RouterProvider router={router} fallbackElement={<LinearLoading />} />
+               </SnackbarProvider>
+            </LocalizationProvider>{" "}
+         </QueryClientProvider>
       </>
    );
 }

@@ -11,11 +11,16 @@ import { DataTableComponent } from "../../../../components";
 import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
 import * as MuiIcons from "@mui/icons-material";
+import useObservable from "../../../../hooks/useObservable";
 
 const MenuDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { singularName, setFormTitle, setTextBtnSubmit, allMenus, setIsItem, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
+   const { ObservableGet } = useObservable();
+   console.log("🚀 ~ MenuDT ~ ObservableGet:", ObservableGet("AllMenus"));
+   const res = ObservableGet("AllMenus") || [];
+   const menus = res.result;
    const mySwal = withReactContent(Swal);
 
    //#region COLUMNAS
@@ -227,7 +232,7 @@ const MenuDT = () => {
    const formatData = async () => {
       try {
          // console.log("cargar listado", allMenus);
-         await allMenus.map((obj, index) => {
+         await menus.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;

@@ -6,14 +6,14 @@ const SuccessRes = {
    alert_title: "",
    alert_text: ""
 };
-const ErrorRes = {
+const ErrorRes = (message) => ({
    status: 500,
    result: null,
-   message: "",
+   message: message || "Ocurrio un error inesperado, intenta de nuevo más tarde.",
    alert_icon: "error",
    alert_title: "",
    alert_text: ""
-};
+});
 const Response = {
    success: SuccessRes,
    error: ErrorRes
@@ -37,6 +37,7 @@ const Axios = axios.create({
    withCredentials: true,
    headers: { Accept: "application/json", "Content-Type": "application/json" }
 });
+
 Axios.interceptors.request.use(
    (config) => {
       // const token = useAuthStore.getState().token;

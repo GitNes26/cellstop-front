@@ -5,15 +5,42 @@ import MenuDT from "./DataTable";
 import useFetch from "../../../../hooks/useFetch";
 import { useMenuContext } from "../../../../context/MenuContext";
 import { Typography } from "@mui/material";
+import * as menuServices from "../../../../services/menuServices";
+import { Axios, GetAxios } from "../../../../utils/Api";
+import { useQueries } from "@tanstack/react-query";
+import useObservable from "../../../../hooks/useObservable";
 
 const MenusView = ({}) => {
+   const { ObservableSet } = useObservable();
+   // const [menus] = useQueries({
+   //    queries: [
+   //       {
+   //          queryKey: ["menus/index"],
+   //          queryFn: () => Axios.get("/menus"),
+   //          refetchOnWindowFocus: true
+   //       }
+
+   //       // Puedes agregar más peticiones aquí
+   //    ]
+   // });
+
    const { pluralName, setAllMenus, setMenusSelect, setHeadersMenus, allMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
+
    useFetch(getAllMenus);
+
    // useFetch(getAllMenus, setMenusSelect);
    useFetch(getSelectMenusToRoles);
    useFetch(getHeadersMenusSelect);
 
-   useEffect(() => {}, [allMenus]);
+   menuServices.GetAllMenus();
+   // useEffect(() => {
+   //    if (menus.isSuccess) {
+   //       ObservableSet("AllMenus", menus.data?.data || []);
+   //    }
+   //    // useObservable().ObservableSet("AllMenus", menus.data?.data || []).finally(() => {{
+   //    //    console.log("🚀 ~ MenusView ~ useEffect ~ menus.data:", menus.data);
+   //    // }});
+   // }, [menus.isSuccess]);
 
    return (
       <>
