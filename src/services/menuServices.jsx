@@ -6,166 +6,82 @@ import Toast from "../utils/Toast";
 import { useAuthContext } from "../context/AuthContext";
 import useObservable from "../hooks/useObservable";
 import { useQueries } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useGlobalContext } from "../context/GlobalContext";
 // import { checkLoggedIn } from "./authService";
 
 const prefixPath = "/menus";
+const key = "menus";
 
-// export const getMenusByRole = async () => {
-//    // const auth = useAuthStore.getState().auth;
-//    const { auth } = useAuthContext();
-//    // if (!(await checkLoggedIn())) return;
+import { useRequest } from "./../hooks/useRequest";
 
-//    const pages_read = auth.read;
-//    const [error, response] = await to(Axios.get(`${prefixPath}/getMenusByRole/${pages_read}`));
-//    // console.log("🚀 ~ getMenusByRole ~ error:", error);
-//    // console.log("🚀 ~ getMenusByRole ~ response:", response);
-//    if (error) {
-//       console.log("🚀 ~ getMenusByRole ~ error:", error);
-//       const message = error.response.data.message || "getMenusByRole ~ Ocurrio algun error, intenta de nuevo :c";
-//       Toast.Error(message);
-//       return;
-//       // throw new Error("que sale aqui?");
-//    }
+export const useMenuServices = () =>
+   useRequest({
+      key: `${key}`,
+      baseUrl: `${prefixPath}`,
+      queries: {
+         index: "",
+         selectIndex: "/selectIndex"
+      }
+   });
 
-//    Response.success = response.data.data;
-//    const res = Response.success;
-
-//    return res;
-// };
-
-// export const getHeadersMenusSelect = async () => {
-//    // // if (!(await checkLoggedIn())) return;
-
-//    const [error, response] = await to(Axios.get(`${prefixPath}/getHeadersMenusSelect`));
-//    // console.log("🚀 ~ getHeadersMenusSelect ~ error:", error);
-//    // console.log("🚀 ~ getHeadersMenusSelect ~ response:", response);
-//    if (error) {
-//       console.log("🚀 ~ getHeadersMenusSelect ~ error:", error);
-//       const message = error.response.data.message || "getHeadersMenusSelect ~ Ocurrio algun error, intenta de nuevo :c";
-//       Toast.Error(message);
-//       return;
-//    }
-
-//    Response.success = response.data.data;
-//    const res = Response.success;
-
-//    return res;
-// };
-
-// export const getSelectMenusToRoles = async () => {
-//    const setMenusSelect = useMenuStore.getState().setMenusSelect;
-//    // // if (!(await checkLoggedIn())) return;
-
-//    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndexToRoles`));
-//    // console.log("🚀 ~ getSelectMenusToRoles ~ error:", error);
-//    // console.log("🚀 ~ getSelectMenusToRoles ~ response:", response);
-//    if (error) {
-//       console.log("🚀 ~ getSelectMenusToRoles ~ error:", error);
-//       const message = error.response.data.message || "getSelectMenusToRoles ~ Ocurrio algun error, intenta de nuevo :c";
-//       Toast.Error(message);
-//       return;
-//    }
-
-//    Response.success = response.data.data;
-//    const res = Response.success;
-//    const Observable = Observable;
-//    await setMenusSelect(res.result);
-
-//    return res;
-// };
-
-//#region CRUD
-// export const getAllMenus = async () => {
-//    const { ObservableSet } = useObservable();
-
-//    // const setAllMenus = useMenuStore.getState().setAllMenus;
-//    // if (!(await checkLoggedIn())) return;
-
-//    const [error, response] = await to(Axios.get(`${prefixPath}`));
-//    // console.log("🚀 ~ getAllMenus ~ error:", error);
-//    // console.log("🚀 ~ getAllMenus ~ response:", response);
-//    if (error) {
-//       console.log("🚀 ~ getAllMenus ~ error:", error);
-//       const message = error.response.data.message || "getAllMenus ~ Ocurrio algun error, intenta de nuevo :c";
-//       Toast.Error(message);
-//       return;
-//       // throw new Error("que sale aqui?");
-//    }
-
-//    Response.success = response.data.data;
-//    // const res = Response.success;
-//    await ObservableSet("AllMenus", Response.success.result).finally((res) => {
-//       console.log("🚀OBSERVABLES ~ getAllMenus ~ res:", res);
-//       // setAllMenus(res.result);
-//    });
-
-//    return res;
-// };
 export const GetAllMenus = async () => {
    const { ObservableSet } = useObservable();
-
-   // const setAllMenus = useMenuStore.getState().setAllMenus;
-   // if (!(await checkLoggedIn())) return;
+   const { setIsLoading, setOpenDialog } = useGlobalContext();
+   const [result, setResult] = useState(null);
+   const [error, setError] = useState(null);
 
    const [menus] = useQueries({
       queries: [
          {
             queryKey: ["menus/index"],
-            queryFn: () => Axios.get("/menus"),
+            queryFn: async () => {
+               setOpenDialog(true);
+               const [err, response] = await to(Axios.get(`${prefixPath}`));
+               setOpenDialog(false);
+
+               if (err) {
+                  console.error("❌ Error en GetAllMenus:", err);
+                  const message = err.response?.data?.message || "Ocurrió un error al obtener los menús.";
+                  Toast?.Error?.(message);
+                  setError(err);
+                  throw err; // react-query necesita que el error se lance para manejar estados correctamente
+               }
+
+               // console.log("🚀 ~ GetAllMenus ~ response:", response);
+               // const res = response?.data?.data || [];
+
+               // await ObservableSet("allMenus", response);
+               // await ObservableSet("allMenus", data);
+               Response.success = response?.data?.data;
+               const res = Response.success;
+               setResult(res);
+               return res;
+            },
             refetchOnWindowFocus: true
          }
-
-         // Puedes agregar más peticiones aquí
       ]
    });
-   console.log("🚀 ~ getAllMenus ~ menus:", menus);
-   // const [error, response] = await to(Axios.get(`${prefixPath}`));
-   // console.log("🚀 ~ getAllMenus ~ error:", error);
-   // console.log("🚀 ~ getAllMenus ~ response:", response);
-   // if (error) {
-   //    console.log("🚀 ~ getAllMenus ~ error:", error);
-   //    const message = error.response.data.message || "getAllMenus ~ Ocurrio algun error, intenta de nuevo :c";
-   //    Toast.Error(message);
-   //    return;
-   //    // throw new Error("que sale aqui?");
-   // }
+   // console.log("🚀 ~ GetAllMenus ~ menus:", menus);
 
-   // Response.success = response.data.data;
-   // const res = Response.success;
-   // await ObservableSet("AllMenus", Response.success.result).finally((res) => {
-   //    console.log("🚀OBSERVABLES ~ getAllMenus ~ res:", res);
-   //    // setAllMenus(res.result);
-   // });
+   // Efecto para observar resultados actualizados (opcional)
    useEffect(() => {
-      if (menus.isSuccess) {
-         ObservableSet("AllMenus", menus.data?.data.data || []);
+      if (menus.isSuccess && menus.data) {
+         setResult(menus.data);
       }
-      // useObservable().ObservableSet("AllMenus", menus.data?.data || []).finally(() => {{
-      //    console.log("🚀 ~ MenusView ~ useEffect ~ menus.data:", menus.data);
-      // }});
-   }, [menus.isSuccess]);
+      if (menus.isError) {
+         setError(menus.error);
+      }
+      ObservableSet("allMenus", menus);
+      // ObservableSet("allMenus", data);
+   }, [menus.isSuccess, menus.isError]);
 
-   // return menus;
-};
-
-export const getAllMenus = async () => {
-   console.log("🚀 ~ getAllMenus ~ menus:", menus);
-   const [error, response] = await to(Axios.get(`${prefixPath}`));
-   console.log("🚀 ~ getAllMenus ~ error:", error);
-   console.log("🚀 ~ getAllMenus ~ response:", response);
-   if (error) {
-      console.log("🚀 ~ getAllMenus ~ error:", error);
-      const message = error.response.data.message || "getAllMenus ~ Ocurrio algun error, intenta de nuevo :c";
-      Toast.Error(message);
-      return Response.error(message);
-      // throw new Error("que sale aqui?");
-   }
-
-   Response.success = response.data.data;
-   const res = Response.success;
-
-   return res;
+   // console.log("🚀 ~ GetAllMenus ~ result:", result);
+   return {
+      result,
+      error,
+      refetch: menus.refetch // puedes reejecutar manualmente
+   };
 };
 
 // export const createOrUpdateMenu = async (data) => {

@@ -11,22 +11,33 @@ import useObservable from "../../../../hooks/useObservable";
 
 const MenusView = ({}) => {
    const { ObservableSet } = useObservable();
+   const [menus] = useQueries({
+      queries: [
+         {
+            queryKey: ["menus/index"],
+            queryFn: () => Axios.get("/menus"),
+            refetchOnWindowFocus: true
+         }
+      ]
+   });
 
-   const { pluralName, setMenusSelect, setHeadersMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
+   const { pluralName, setAllMenus, setMenusSelect, setHeadersMenus, allMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
 
-   // useFetch(getAllMenus);
+   useFetch(getAllMenus);
 
-   // // useFetch(getAllMenus, setMenusSelect);
-   // useFetch(getSelectMenusToRoles);
-   // useFetch(getHeadersMenusSelect);
+   // useFetch(getAllMenus, setMenusSelect);
+   useFetch(getSelectMenusToRoles);
+   useFetch(getHeadersMenusSelect);
 
-   const { get, createOrUpdate, remove, refetchAll } = menuServices.useMenuServices();
-   get("index") || [];
-   get("selectIndex") || [];
-
-   useEffect(() => {
-      refetchAll();
-   }, []);
+   menuServices.GetAllMenus();
+   // useEffect(() => {
+   //    if (menus.isSuccess) {
+   //       ObservableSet("AllMenus", menus.data?.data || []);
+   //    }
+   //    // useObservable().ObservableSet("AllMenus", menus.data?.data || []).finally(() => {{
+   //    //    console.log("🚀 ~ MenusView ~ useEffect ~ menus.data:", menus.data);
+   //    // }});
+   // }, [menus.isSuccess]);
 
    return (
       <>
