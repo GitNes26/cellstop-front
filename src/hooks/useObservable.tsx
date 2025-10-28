@@ -1,25 +1,63 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 
+/* -----------------------------
+ 🧩 ESTRUCTURA ORGANIZADA
+----------------------------- */
+export const ObservableKeysList = {
+   Menu: {
+      item: "menu",
+      all: "allMenus",
+      select: "menusSelect",
+      items: "menuItems",
+      headers: "headersMenus",
+      permissions: "permissionsByMenu",
+      checkMaster: "checkMaster",
+      checkMenus: "checkMenus",
+      isItem: "isItem"
+   },
+   Department: {
+      item: "department",
+      all: "allDepartments",
+      select: "departmentsSelect"
+   }
+} as const;
+
+/* -----------------------------
+ 🧠 TIPO DINÁMICO (Menu.all | Department.select, etc.)
+----------------------------- */
+export type ObservableKeys = {
+   [K in keyof typeof ObservableKeysList]: `${K}.${keyof (typeof ObservableKeysList)[K]}`;
+}[keyof typeof ObservableKeysList];
+
+/* -----------------------------
+ 🪝 HOOK PRINCIPAL
+----------------------------- */
 const useObservable = () => {
    const queryClient = useQueryClient();
-   const keysRef = useRef<Set<string>>(new Set());
+   const keysRef = useRef<Set<ObservableKeys>>(new Set());
 
-   const myKey = "Observable";
+   const prefix = "Observable";
 
+   /* -----------------------------
+   ⚙️ MUTATION SIMULADA (para disparar actualizaciones)
+   ----------------------------- */
    const mutation = useMutation({
-      mutationFn: async ({ key, newData }: { key: string; newData: any }) => newData
+      mutationFn: async ({ key, newData }: { key: ObservableKeys; newData: any }) => newData
    });
 
-   const ObservableSet = async (key: string, data: any) => {
+   /* -----------------------------
+   🟢 SET: Guardar/Actualizar observable
+   ----------------------------- */
+   const ObservableSet = async (key: ObservableKeys, data: any) => {
       keysRef.current.add(key);
       return new Promise((resolve, reject) => {
          mutation.mutate(
             { key, newData: data },
             {
                onSuccess: (data) => {
-                  queryClient.setQueryData([`${myKey}_${key}`], data);
-                  console.log("✅ ObservableSet:", key, data);
+                  queryClient.setQueryData([`${prefix}_${key}`], data);
+                  // console.log(`✅ ObservableSet: ${key}`, data);
                   resolve(data);
                },
                onError: (err) => reject(err)
@@ -28,17 +66,26 @@ const useObservable = () => {
       });
    };
 
-   const ObservableGet = (key: string) => {
-      console.log("📦 ObservableGet:", key);
-      return queryClient.getQueryData([`${myKey}_${key}`]);
+   /* -----------------------------
+   🟣 GET: Obtener observable
+   ----------------------------- */
+   const ObservableGet = (key: ObservableKeys) => {
+      // console.log(`📦 ObservableGet: ${key}`);
+      return queryClient.getQueryData([`${prefix}_${key}`]);
    };
 
-   const ObservableDelete = (key: string) => {
+   /* -----------------------------
+   🔴 DELETE: Eliminar observable
+   ----------------------------- */
+   const ObservableDelete = (key: ObservableKeys) => {
       keysRef.current.delete(key);
-      queryClient.removeQueries({ queryKey: [`${myKey}_${key}`] });
-      console.log("🗑️ ObservableDelete:", key);
+      queryClient.removeQueries({ queryKey: [`${prefix}_${key}`] });
+      // console.log(`🗑️ ObservableDelete: ${key}`);
    };
 
+   /* -----------------------------
+   🧾 GET ALL KEYS: Mostrar observables activos
+   ----------------------------- */
    const getAllKeys = () => Array.from(keysRef.current);
 
    return {

@@ -22,6 +22,9 @@ const Response = {
 import axios from "axios";
 // import { useAuthContext } from "../context/AuthContext";
 import env from "../constant/env";
+import { hasFiles } from "./Formats";
+import Toast from "./Toast";
+import to from "await-to-js";
 // import useAuthStore from "../stores/authStore";
 
 const AxiosAuth = axios.create({
@@ -184,4 +187,23 @@ const AxiosCP = axios.create({
 //    return config;
 // });
 
-export { Response, Axios, AxiosAuth, AxiosFiles, AxiosCP };
+const apiRequest = async (method, url, data = null, setResult = null) => {
+   const useFile = hasFiles(data);
+   const instance = useFile ? AxiosFiles : Axios;
+
+   const [error, response] = data ? await to(instance[method](url, data)) : await to(instance[method](url));
+
+   if (error) {
+      console.error(`❌ Error en ${method.toUpperCase()} ${url}:`, error);
+      Toast.Error(error.response?.data?.message || "Ocurrió un error en la solicitud");
+      Response.error = error.response?.data;
+      return null;
+   }
+
+   Response.success = response.data?.data;
+   const res = response.data?.data?.result || [];
+   setResult(res);
+   return res;
+};
+
+export { Response, Axios, AxiosAuth, AxiosFiles, AxiosCP, apiRequest };

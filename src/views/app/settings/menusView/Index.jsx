@@ -6,13 +6,13 @@ import useFetch from "../../../../hooks/useFetch";
 import { useMenuContext } from "../../../../context/MenuContext";
 import { Typography } from "@mui/material";
 import * as menuServices from "../../../../services/menuServices";
-import { useQueries } from "@tanstack/react-query";
 import useObservable from "../../../../hooks/useObservable";
+import useFetchObservable from "./../../../../hooks/useFetchObservable";
 
 const MenusView = ({}) => {
-   const { ObservableSet } = useObservable();
+   // const { ObservableSet } = useObservable();
 
-   const { pluralName, setMenusSelect, setHeadersMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
+   // const { pluralName, setMenusSelect, setHeadersMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
 
    // useFetch(getAllMenus);
 
@@ -20,13 +20,14 @@ const MenusView = ({}) => {
    // useFetch(getSelectMenusToRoles);
    // useFetch(getHeadersMenusSelect);
 
-   const { get, createOrUpdate, remove, refetchAll } = menuServices.useMenuServices();
-   get("index") || [];
-   get("selectIndex") || [];
+   // const { allMenus, error, refetch } = menuServices.GetAllMenus();
+   // console.log("🚀 ~ MenusView ~ allMenus:", allMenus);
+   const pluralName = menuServices.pluralName;
+   const { data: allMenus, res, error, refetch } = useFetchObservable("Menu.all", menuServices.GetAllMenus, true);
+   useFetchObservable("Menu.select", menuServices.GetSelectMenusToRoles, false);
+   useFetchObservable("Menu.headers", menuServices.GetHeadersMenusSelect, false);
 
-   useEffect(() => {
-      refetchAll();
-   }, []);
+   // useEffect(() => {}, []);
 
    return (
       <>
@@ -38,7 +39,7 @@ const MenusView = ({}) => {
                <MenuForm />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 9 }} sx={{ mb: 3 }}>
-               <MenuDT />
+               <MenuDT refetch={refetch} />
             </Grid>
          </Grid>
       </>

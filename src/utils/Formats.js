@@ -747,3 +747,20 @@ export function excelDateToJSDate(excelDate) {
 
    return null;
 }
+
+/**
+ * Detecta si el payload contiene archivos
+ */
+export const hasFiles = (data) => {
+   if (!data) return false;
+   if (data instanceof FormData) return true;
+
+   return Object.values(data).some((val) => val instanceof File || val instanceof Blob);
+
+   // for (const key in data) {
+   //    const value = data[key];
+   //    if (value instanceof File || value instanceof Blob) return true;
+   // }
+
+   // return false;
+};

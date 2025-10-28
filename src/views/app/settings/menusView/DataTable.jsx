@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useLayoutEffect } from "react";
 import { Button, ButtonGroup, ToggleButton, Tooltip, Typography } from "@mui/material";
 
 import Swal from "sweetalert2";
@@ -12,17 +12,21 @@ import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
 import * as MuiIcons from "@mui/icons-material";
 import useObservable from "../../../../hooks/useObservable";
-import { useMenuServices } from "../../../../services/menuServices";
+import * as menuServices from "../../../../services/menuServices";
 
-const MenuDT = () => {
+const MenuDT = ({ refetch }) => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { singularName, setFormTitle, setTextBtnSubmit, setIsItem, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
-   const { get, createOrUpdate, remove, refetchAll } = useMenuServices.useMenuServices();
-   const allMenus = get("index") || [];
-   const selectMenus = get("selectIndex") || [];
+   // const { get, createOrUpdate, remove, refetchAll } = useMenuServices.useMenuServices();
+   // const allMenus = get("index") || [];
+   // const selectMenus = get("selectIndex") || [];
    // const { ObservableGet } = useObservable();
-   // const allMenus = ObservableGet("allMenus") || [];
+   // const allMenus = ObservableGet("allMenus");
+   // const { allMenus, error, refetch } = menuServices.GetAllMenus();
+   const { ObservableGet } = useObservable();
+   const allMenus = ObservableGet("Menu.all") || [];
+
    // console.log("🚀 ~ MenuDT ~ allMenus:", allMenus);
    const mySwal = withReactContent(Swal);
 
@@ -176,7 +180,7 @@ const MenuDT = () => {
          setIsLoading(true);
          setTextBtnSubmit("GUARDAR");
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
-         const res = await getMenu(id);
+         const res = await menuServices.GetMenu(id);
          // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -206,25 +210,24 @@ const MenuDT = () => {
 
    const handleClickDisEnable = async (id, name, active) => {
       try {
-         setTimeout(async () => {
-            setIsLoading(true);
-            const res = await disEnableMenu(id, !active);
-            // console.log('🚀 ~ handleClickLogout ~ res:', res);
-            if (!res) return setIsLoading(false);
-            if (res.errors) {
-               setIsLoading(false);
-               Object.values(res.errors).forEach((errors) => {
-                  errors.map((error) => Toast.Warning(error));
-               });
-               return;
-            } else if (res.status_code !== 200) {
-               setIsLoading(false);
-               return Toast.Customizable(res.alert_text, res.alert_icon);
-            }
-
-            if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
-            setIsLoading(false);
-         }, 500);
+         // setTimeout(async () => {
+         //    setIsLoading(true);
+         //    const res = await menuServices.DisEnableMenu(id, !active);
+         //    console.log("🚀 ~ handleClickLogout ~ res:", res);
+         //    if (!res) return setIsLoading(false);
+         //    if (res.errors) {
+         //       setIsLoading(false);
+         //       Object.values(res.errors).forEach((errors) => {
+         //          errors.map((error) => Toast.Warning(error));
+         //       });
+         //       return;
+         //    } else if (res.status_code !== 200) {
+         //       setIsLoading(false);
+         //       return Toast.Customizable(res.alert_text, res.alert_icon);
+         //    }
+         //    if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+         //    setIsLoading(false);
+         // }, 500);
       } catch (error) {
          console.log(error);
          Toast.Error(error);
@@ -235,7 +238,7 @@ const MenuDT = () => {
    const formatData = async () => {
       try {
          // console.log("cargar listado", allMenus);
-         await allMenus.data.result.map((obj, index) => {
+         await allMenus.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
@@ -254,7 +257,7 @@ const MenuDT = () => {
    };
    formatData();
 
-   // useEffect(() => {}, []);
+   // useEffect(() => {}, [allMenus]);
 
    return (
       <DataTableComponent
@@ -270,7 +273,7 @@ const MenuDT = () => {
          singularName={singularName}
          indexColumnName={1}
          rowEdit={false}
-         refreshTable={getAllMenus}
+         refreshTable={() => refetch()}
          btnsExport={false}
          scrollHeight="79vh" //56vh
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
