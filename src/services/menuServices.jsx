@@ -1,4 +1,5 @@
 // services/menuServices.js
+import useObservable from "../hooks/useObservable";
 import { Axios, AxiosFiles } from "../utils/Api";
 import { hasFiles } from "../utils/Formats";
 import Toast from "../utils/Toast";
@@ -38,12 +39,12 @@ export const GetMenu = async (id) => {
 
 export const CreateOrUpdateMenu = async (data) => {
    const id = data.id > 0 ? `/${data.id}` : "";
-   return await requestHandler("post", `${prefixPath}/createOrUpdate${id}`, data, GetAllMenus);
+   return await requestHandler("post", `${prefixPath}/createOrUpdate${id}`, data);
 };
 
 export const DisEnableMenu = async (id, active) => {
    const strActive = active ? "reactivar" : "desactivar";
-   return await requestHandler("get", `${prefixPath}/disEnable/${id}/${strActive}`, null, GetAllMenus);
+   return await requestHandler("get", `${prefixPath}/disEnable/${id}/${strActive}`);
 };
 
 /* ----------------------------- AUXILIARES ----------------------------- */

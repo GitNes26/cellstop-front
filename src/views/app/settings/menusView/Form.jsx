@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FormikForm, { DividerComponent, Input, Radio, Select2, Switch, Textarea } from "../../../../components/forms";
 import * as Yup from "yup";
 import useFetch from "../../../../hooks/useFetch";
 import Toast from "../../../../utils/Toast";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useMenuContext } from "../../../../context/MenuContext";
+import * as menuServices from "../../../../services/menuServices";
 import { Card, CardHeader, Typography } from "@mui/material";
+import useFetchObservable from "../../../../hooks/useFetchObservable";
 
 const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, textBtnSubmit, handleCancel, container }) => {
    const initialValues = {};
@@ -36,7 +38,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
          col={12}
          // sizeCols={{}}
          spacing={2}
-         maxHeight={"56vh"}
+         maxHeight={"53vh"}
          // sizeCols={{}}
          container={["drawer", "modal"].includes(container)}
       >
@@ -45,24 +47,32 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const MenuForm = ({ refreshSelect }) => {
+const MenuForm = ({ refetchDataTable, refreshSelect }) => {
    const { setIsLoading } = useGlobalContext();
-   const {
-      menu,
-      headersMenus,
-      isItem,
-      setIsItem,
-      setHeadersMenus,
-      formikRef,
-      formTitle,
-      setFormTitle,
-      textBtnSubmit,
-      setTextBtnSubmit,
-      getHeadersMenusSelect,
-      createOrUpdateMenu
-   } = useMenuContext();
+   const [isItem, setIsItem] = useState(false);
+   const formikRef = useRef(null);
+   const [formTitle, setFormTitle] = useState(`REGISTRAR ${menuServices.pluralName.toUpperCase()}`);
+   const [textBtnSubmit, setTextBtnSubmit] = useState("AGREGAR");
+   const [permissionsByMenu, setPermissionsByMenu] = useState([]);
+   const [checkMaster, setCheckMaster] = useState(false);
+   const [checkMenus, setCheckMenus] = useState([]);
+   // const {
+   //    menu,
+   //    headersMenus,
+   //    isItem,
+   //    setIsItem,
+   //    setHeadersMenus,
+   //    formikRef,
+   //    formTitle,
+   //    setFormTitle,
+   //    textBtnSubmit,
+   //    setTextBtnSubmit,
+   //    getHeadersMenusSelect,
+   //    createOrUpdateMenu
+   // } = useMenuContext();
 
-   const { refetch: refreshHeadersMenus } = useFetch(getHeadersMenusSelect, setHeadersMenus);
+   // const { refetch: refetchHeadersMenus } = useFetch(getHeadersMenusSelect, setHeadersMenus);
+   const { data: headersMenus, refetch: refetchHeadersMenus } = useFetchObservable("Menu.headers", menuServices.GetHeadersMenusSelect, false);
 
    const formData = [
       {
@@ -143,7 +153,7 @@ const MenuForm = ({ refreshSelect }) => {
                      idName="belongs_to"
                      label="Pertenece a"
                      placeholder="NombreDelIcono"
-                     refreshSelect={refreshHeadersMenus}
+                     refreshSelect={refetchHeadersMenus}
                      options={headersMenus || []}
                      required
                   />
@@ -357,7 +367,7 @@ const MenuForm = ({ refreshSelect }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await createOrUpdateMenu(values);
+      const res = await menuServices.CreateOrUpdateMenu(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {
@@ -375,7 +385,7 @@ const MenuForm = ({ refreshSelect }) => {
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
       if (res.alert_text) Toast.Success(res.alert_text);
-
+      // if (refetchDataTable) refetchDataTable();
       setSubmitting(false);
       setIsLoading(false);
       if (refreshSelect) await refreshSelect();
@@ -400,7 +410,8 @@ const MenuForm = ({ refreshSelect }) => {
 
    useEffect(() => {
       // console.log("🚀 useEffect ~ isItem:", isItem);
-   }, [isItem, menu, formikRef]);
+   }, [isItem, formikRef]);
+   // }, [isItem, menu, formikRef]);
 
    return (
       <Card className="p-2 card bg-base-300">

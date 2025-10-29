@@ -36,7 +36,7 @@ const MenusView = ({}) => {
          </Typography>
          <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ mb: 3 }}>
-               <MenuForm />
+               <MenuForm refetchDataTable={refetch} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 9 }} sx={{ mb: 3 }}>
                <MenuDT refetch={refetch} />

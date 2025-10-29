@@ -181,7 +181,7 @@ const MenuDT = ({ refetch }) => {
          setTextBtnSubmit("GUARDAR");
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
          const res = await menuServices.GetMenu(id);
-         // console.log("🚀 ~ handleClickLogout ~ res:", res);
+         // console.log("🚀 ~ handleClickEdit ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -211,22 +211,23 @@ const MenuDT = ({ refetch }) => {
    const handleClickDisEnable = async (id, name, active) => {
       try {
          // setTimeout(async () => {
-         //    setIsLoading(true);
-         //    const res = await menuServices.DisEnableMenu(id, !active);
-         //    console.log("🚀 ~ handleClickLogout ~ res:", res);
-         //    if (!res) return setIsLoading(false);
-         //    if (res.errors) {
-         //       setIsLoading(false);
-         //       Object.values(res.errors).forEach((errors) => {
-         //          errors.map((error) => Toast.Warning(error));
-         //       });
-         //       return;
-         //    } else if (res.status_code !== 200) {
-         //       setIsLoading(false);
-         //       return Toast.Customizable(res.alert_text, res.alert_icon);
-         //    }
-         //    if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
-         //    setIsLoading(false);
+         setIsLoading(true);
+         const res = await menuServices.DisEnableMenu(id, !active);
+         console.log("🚀 ~ handleClickDisEnable ~ res:", res);
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+         refetch();
+         if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+         setIsLoading(false);
          // }, 500);
       } catch (error) {
          console.log(error);
