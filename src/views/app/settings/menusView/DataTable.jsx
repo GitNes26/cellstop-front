@@ -11,21 +11,23 @@ import { DataTableComponent } from "../../../../components";
 import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
 import * as MuiIcons from "@mui/icons-material";
-import useObservable from "../../../../hooks/useObservable";
-import * as menuServices from "../../../../services/menuServices";
+import useObservable, { useObservableValue } from "../../../../hooks/useObservable";
+import * as Menu from "../../../../models/Menu";
 
 const MenuDT = ({ refetch }) => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, setFormTitle, setTextBtnSubmit, setIsItem, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
-   // const { get, createOrUpdate, remove, refetchAll } = useMenuServices.useMenuServices();
+   // const { singularName, setFormTitle, setTextBtnSubmit, Menu.states.isItem.next, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
+
+   // const { get, createOrUpdate, remove, refetchAll } = useMenu.useMenu();
    // const allMenus = get("index") || [];
    // const selectMenus = get("selectIndex") || [];
    // const { ObservableGet } = useObservable();
    // const allMenus = ObservableGet("allMenus");
-   // const { allMenus, error, refetch } = menuServices.GetAllMenus();
+   // const { allMenus, error, refetch } = Menu.GetAllMenus();
    const { ObservableGet } = useObservable();
    const allMenus = ObservableGet("Menu.all") || [];
+   const formikRef = useObservableValue(Menu.states.formikRef);
 
    // console.log("🚀 ~ MenuDT ~ allMenus:", allMenus);
    const mySwal = withReactContent(Swal);
@@ -165,9 +167,9 @@ const MenuDT = ({ refetch }) => {
          formikRef.current.resetForm();
          formikRef.current.setValues(formikRef.current.initialValues);
          // setOpenDialog(true);
-         setTextBtnSubmit("AGREGAR");
-         setIsItem(false);
-         setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
+         Menu.states.textBtnSubmit.next("AGREGAR");
+         Menu.states.isItem.next(false);
+         Menu.states.formTitle.next(`REGISTRAR ${Menu.singularName.toUpperCase()}`);
       } catch (error) {
          // setOpenDialog(false);
          console.log(error);
@@ -178,9 +180,9 @@ const MenuDT = ({ refetch }) => {
    const handleClickEdit = async (id) => {
       try {
          setIsLoading(true);
-         setTextBtnSubmit("GUARDAR");
-         setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
-         const res = await menuServices.GetMenu(id);
+         Menu.states.textBtnSubmit.next("GUARDAR");
+         Menu.states.formTitle.next(`EDITAR ${Menu.singularName.toUpperCase()}`);
+         const res = await Menu.GetMenu(id);
          // console.log("🚀 ~ handleClickEdit ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -194,8 +196,9 @@ const MenuDT = ({ refetch }) => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         setIsItem(res.result.type == "item" ? true : false);
+         Menu.states.isItem.next(res.result.type == "item" ? true : false);
          if (res.result.description) res.result.description == null && (res.result.description = "");
+         console.log("🚀 ~ handleClickEdit ~ res.result:", res.result)
          formikRef.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setIsLoading(false);
@@ -212,8 +215,8 @@ const MenuDT = ({ refetch }) => {
       try {
          // setTimeout(async () => {
          setIsLoading(true);
-         const res = await menuServices.DisEnableMenu(id, !active);
-         console.log("🚀 ~ handleClickDisEnable ~ res:", res);
+         const res = await Menu.DisEnableMenu(id, !active);
+         // console.log("🚀 ~ handleClickDisEnable ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -271,7 +274,7 @@ const MenuDT = ({ refetch }) => {
          handleClickAdd={handleClickAdd}
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
+         singularName={Menu.singularName}
          indexColumnName={1}
          rowEdit={false}
          refreshTable={() => refetch()}

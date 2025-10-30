@@ -5,9 +5,10 @@ import useFetch from "../../../../hooks/useFetch";
 import Toast from "../../../../utils/Toast";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useMenuContext } from "../../../../context/MenuContext";
-import * as menuServices from "../../../../services/menuServices";
+import * as Menu from "../../../../models/Menu";
 import { Card, CardHeader, Typography } from "@mui/material";
 import useFetchObservable from "../../../../hooks/useFetchObservable";
+import useObservable, { useObservableState } from "../../../../hooks/useObservable";
 
 const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, textBtnSubmit, handleCancel, container }) => {
    const initialValues = {};
@@ -48,11 +49,18 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
 };
 
 const MenuForm = ({ refetchDataTable, refreshSelect }) => {
+   // console.log("🚀 ~ MenuForm ~ headersMenus:", headersMenus);
    const { setIsLoading } = useGlobalContext();
-   const [isItem, setIsItem] = useState(false);
+   const { ObservableGet } = useObservable();
+   const headersMenus = ObservableGet("Menu.headers") || [];
+   console.log("🚀 ~ MenuForm ~ headersMenus:", headersMenus);
+
+   const [isItem, setIsItem] = useObservableState(Menu.states.isItem);
+   const [formTitle, setFormTitle] = useObservableState(Menu.states.formTitle);
+   const [textBtnSubmit, setTextBtnSubmit] = useObservableState(Menu.states.textBtnSubmit);
    const formikRef = useRef(null);
-   const [formTitle, setFormTitle] = useState(`REGISTRAR ${menuServices.pluralName.toUpperCase()}`);
-   const [textBtnSubmit, setTextBtnSubmit] = useState("AGREGAR");
+   Menu.states.formikRef.next(formikRef);
+
    const [permissionsByMenu, setPermissionsByMenu] = useState([]);
    const [checkMaster, setCheckMaster] = useState(false);
    const [checkMenus, setCheckMenus] = useState([]);
@@ -72,7 +80,7 @@ const MenuForm = ({ refetchDataTable, refreshSelect }) => {
    // } = useMenuContext();
 
    // const { refetch: refetchHeadersMenus } = useFetch(getHeadersMenusSelect, setHeadersMenus);
-   const { data: headersMenus, refetch: refetchHeadersMenus } = useFetchObservable("Menu.headers", menuServices.GetHeadersMenusSelect, false);
+   // const { data: headersMenus, refetch: refetchHeadersMenus } = useFetchObservable("Menu.headers", Menu.GetHeadersMenusSelect, false);
 
    const formData = [
       {
@@ -153,7 +161,7 @@ const MenuForm = ({ refetchDataTable, refreshSelect }) => {
                      idName="belongs_to"
                      label="Pertenece a"
                      placeholder="NombreDelIcono"
-                     refreshSelect={refetchHeadersMenus}
+                     refreshSelect={refreshSelect}
                      options={headersMenus || []}
                      required
                   />
@@ -367,7 +375,7 @@ const MenuForm = ({ refetchDataTable, refreshSelect }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await menuServices.CreateOrUpdateMenu(values);
+      const res = await Menu.CreateOrUpdateMenu(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /* -----------------------------
  🧩 ESTRUCTURA ORGANIZADA
@@ -95,5 +95,29 @@ const useObservable = () => {
       getAllKeys
    };
 };
-
 export default useObservable;
+
+export interface ObservableLike<T> {
+   value: T;
+   subscribe: (callback: (v: T) => void) => { unsubscribe: () => void };
+   next: (v: T) => void;
+}
+
+export function useObservableState<T>(observable: ObservableLike<T>) {
+   const [value, setValue] = useState<T>(observable.value);
+   useEffect(() => {
+      const sub = observable.subscribe(setValue);
+      return () => sub.unsubscribe();
+   }, [observable]);
+   return [value, (v: T) => observable.next(v)] as [T, (v: T) => void];
+}
+
+export function useObservableValue<T>(observable: ObservableLike<T>) {
+   const [value, setValue] = useState<T>(observable.value);
+   useEffect(() => {
+      const sub = observable.subscribe(setValue);
+      return () => sub.unsubscribe();
+   }, [observable]);
+   return value;
+}
+

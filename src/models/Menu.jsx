@@ -1,13 +1,22 @@
-// services/menuServices.js
+// services/Menu.js
 import useObservable from "../hooks/useObservable";
 import { Axios, AxiosFiles } from "../utils/Api";
 import { hasFiles } from "../utils/Formats";
 import Toast from "../utils/Toast";
 import to from "await-to-js";
+import { BehaviorSubject } from "rxjs";
 
 export const prefixPath = "/menus";
 export const singularName = "Menú", //Escribirlo siempre letra Capital
    pluralName = "Menús"; //Escribirlo siempre letra Capital
+
+export const states = {
+   formikRef: new BehaviorSubject(null),
+   formTitle: new BehaviorSubject(`REGISTRAR ${singularName.toUpperCase()}`),
+   textBtnSubmit: new BehaviorSubject("AGREGAR"),
+   isItem: new BehaviorSubject(false),
+   headersMenus: new BehaviorSubject([])
+};
 
 /**
  * Wrapper general para manejar peticiones con Axios o AxiosFiles según corresponda

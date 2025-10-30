@@ -5,7 +5,7 @@ import MenuDT from "./DataTable";
 import useFetch from "../../../../hooks/useFetch";
 import { useMenuContext } from "../../../../context/MenuContext";
 import { Typography } from "@mui/material";
-import * as menuServices from "../../../../services/menuServices";
+import * as Menu from "../../../../services/Menu";
 import { useQueries } from "@tanstack/react-query";
 import useObservable from "../../../../hooks/useObservable";
 
@@ -29,7 +29,7 @@ const MenusView = ({}) => {
    useFetch(getSelectMenusToRoles);
    useFetch(getHeadersMenusSelect);
 
-   menuServices.GetAllMenus();
+   Menu.GetAllMenus();
    // useEffect(() => {
    //    if (menus.isSuccess) {
    //       ObservableSet("AllMenus", menus.data?.data || []);
