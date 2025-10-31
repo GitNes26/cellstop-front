@@ -280,7 +280,7 @@ const Select2: React.FC<Select2Props> = ({
    }, [options]);
 
    useEffect(() => {
-      console.log("Select2Component ~ UseEffect ~ options", idName, options);
+      // console.log("Select2Component ~ UseEffect ~ options", idName, options);
       setLoading(true);
       const _options = [{ id: 0, label: "Selecciona una opción..." }];
       // console.log(`🚀 ~ Select2 ~ options[${idName}]:`, options);

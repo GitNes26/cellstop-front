@@ -506,6 +506,9 @@ const DataTableComponent = ({
             type: "actions",
             width: 100,
             pinnable: false,
+            // cellClassName: "sticky-col",
+            // headerClassName: "sticky-col-header",
+            // renderCell: (params) => <div style={{ position: "sticky", left: 0, background: "white", zIndex: 1 }}>{params.value}</div>,
             style: {
                position: "sticky",
                left: 0,

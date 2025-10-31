@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FormikForm, { DividerComponent, Input, Radio, Select2, Switch, Textarea } from "../../../../components/forms";
 import * as Yup from "yup";
 import useFetch from "../../../../hooks/useFetch";
 import Toast from "../../../../utils/Toast";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useMenuContext } from "../../../../context/MenuContext";
+import * as Menu from "../../../../models/Menu";
 import { Card, CardHeader, Typography } from "@mui/material";
+import useFetchObservable from "../../../../hooks/useFetchObservable";
+import useObservable, { useObservableState } from "../../../../hooks/useObservable";
 
 const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, textBtnSubmit, handleCancel, container }) => {
    const initialValues = {};
@@ -36,7 +39,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
          col={12}
          // sizeCols={{}}
          spacing={2}
-         maxHeight={"56vh"}
+         maxHeight={"53vh"}
          // sizeCols={{}}
          container={["drawer", "modal"].includes(container)}
       >
@@ -45,24 +48,41 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const MenuForm = ({ refreshSelect }) => {
+const MenuForm = ({ refetchDataTable, refreshSelect }) => {
+   // console.log("🚀 ~ MenuForm ~ headersMenus:", headersMenus);
    const { setIsLoading } = useGlobalContext();
-   const {
-      menu,
-      headersMenus,
-      isItem,
-      setIsItem,
-      setHeadersMenus,
-      formikRef,
-      formTitle,
-      setFormTitle,
-      textBtnSubmit,
-      setTextBtnSubmit,
-      getHeadersMenusSelect,
-      createOrUpdateMenu
-   } = useMenuContext();
+   // const { ObservableGet } = useObservable();
+   // const headersMenus = ObservableGet("Menu.headers") || [];
+   const { data: headersMenus, refetch: refetchHeadersMenus } = useFetchObservable("Menu.headers", Menu.GetHeadersMenusSelect, true);
 
-   const { refetch: refreshHeadersMenus } = useFetch(getHeadersMenusSelect, setHeadersMenus);
+   console.log("🚀 ~ MenuForm ~ headersMenus:", headersMenus);
+
+   const [isItem, setIsItem] = useObservableState(Menu.states.isItem);
+   const [formTitle, setFormTitle] = useObservableState(Menu.states.formTitle);
+   const [textBtnSubmit, setTextBtnSubmit] = useObservableState(Menu.states.textBtnSubmit);
+   const formikRef = useRef(null);
+   Menu.states.formikRef.next(formikRef);
+
+   const [permissionsByMenu, setPermissionsByMenu] = useState([]);
+   const [checkMaster, setCheckMaster] = useState(false);
+   const [checkMenus, setCheckMenus] = useState([]);
+   // const {
+   //    menu,
+   //    headersMenus,
+   //    isItem,
+   //    setIsItem,
+   //    setHeadersMenus,
+   //    formikRef,
+   //    formTitle,
+   //    setFormTitle,
+   //    textBtnSubmit,
+   //    setTextBtnSubmit,
+   //    getHeadersMenusSelect,
+   //    createOrUpdateMenu
+   // } = useMenuContext();
+
+   // const { refetch: refetchHeadersMenus } = useFetch(getHeadersMenusSelect, setHeadersMenus);
+   // const { data: headersMenus, refetch: refetchHeadersMenus } = useFetchObservable("Menu.headers", Menu.GetHeadersMenusSelect, false);
 
    const formData = [
       {
@@ -143,7 +163,7 @@ const MenuForm = ({ refreshSelect }) => {
                      idName="belongs_to"
                      label="Pertenece a"
                      placeholder="NombreDelIcono"
-                     refreshSelect={refreshHeadersMenus}
+                     refreshSelect={refetchHeadersMenus}
                      options={headersMenus || []}
                      required
                   />
@@ -357,7 +377,7 @@ const MenuForm = ({ refreshSelect }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await createOrUpdateMenu(values);
+      const res = await Menu.CreateOrUpdateMenu(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {
@@ -375,7 +395,7 @@ const MenuForm = ({ refreshSelect }) => {
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
       if (res.alert_text) Toast.Success(res.alert_text);
-
+      // if (refetchDataTable) refetchDataTable();
       setSubmitting(false);
       setIsLoading(false);
       if (refreshSelect) await refreshSelect();
@@ -385,7 +405,7 @@ const MenuForm = ({ refreshSelect }) => {
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
       setTextBtnSubmit("AGREGAR");
-      setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
+      setFormTitle(`REGISTRAR ${Menu.singularName.toUpperCase()}`);
    };
 
    function handleChangeType({ idName, value }) {
@@ -398,9 +418,10 @@ const MenuForm = ({ refreshSelect }) => {
    //    setFormikRef(formikRef);
    // }, [setFormikRef]);
 
-   useEffect(() => {
-      // console.log("🚀 useEffect ~ isItem:", isItem);
-   }, [isItem, menu, formikRef]);
+   // useEffect(() => {
+   //    // console.log("🚀 useEffect ~ isItem:", isItem);
+   // }, [isItem, formikRef]);
+   // }, [isItem, menu, formikRef]);
 
    return (
       <Card className="p-2 card bg-base-300">

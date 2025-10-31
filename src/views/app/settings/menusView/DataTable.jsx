@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Button, ButtonGroup, ToggleButton, Tooltip, Typography } from "@mui/material";
 
 import Swal from "sweetalert2";
@@ -11,25 +11,13 @@ import { DataTableComponent } from "../../../../components";
 import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
 import * as MuiIcons from "@mui/icons-material";
-import useObservable, { useObservableValue } from "../../../../hooks/useObservable";
-import * as Menu from "../../../../models/Menu";
+import useObservable from "../../../../hooks/useObservable";
 
-const MenuDT = ({ refetch }) => {
+const MenuDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   // const { singularName, setFormTitle, setTextBtnSubmit, Menu.states.isItem.next, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
+   const { singularName, setFormTitle, setTextBtnSubmit, allMenus, setIsItem, formikRef, deleteMenu, disEnableMenu, getAllMenus, getMenu } = useMenuContext();
 
-   // const { get, createOrUpdate, remove, refetchAll } = useMenu.useMenu();
-   // const allMenus = get("index") || [];
-   // const selectMenus = get("selectIndex") || [];
-   // const { ObservableGet } = useObservable();
-   // const allMenus = ObservableGet("allMenus");
-   // const { allMenus, error, refetch } = Menu.GetAllMenus();
-   const { ObservableGet } = useObservable();
-   const allMenus = ObservableGet("Menu.all") || [];
-   const formikRef = useObservableValue(Menu.states.formikRef);
-
-   // console.log("🚀 ~ MenuDT ~ allMenus:", allMenus);
    const mySwal = withReactContent(Swal);
 
    //#region COLUMNAS
@@ -167,9 +155,9 @@ const MenuDT = ({ refetch }) => {
          formikRef.current.resetForm();
          formikRef.current.setValues(formikRef.current.initialValues);
          // setOpenDialog(true);
-         Menu.states.textBtnSubmit.next("AGREGAR");
-         Menu.states.isItem.next(false);
-         Menu.states.formTitle.next(`REGISTRAR ${Menu.singularName.toUpperCase()}`);
+         setTextBtnSubmit("AGREGAR");
+         setIsItem(false);
+         setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
       } catch (error) {
          // setOpenDialog(false);
          console.log(error);
@@ -180,10 +168,10 @@ const MenuDT = ({ refetch }) => {
    const handleClickEdit = async (id) => {
       try {
          setIsLoading(true);
-         Menu.states.textBtnSubmit.next("GUARDAR");
-         Menu.states.formTitle.next(`EDITAR ${Menu.singularName.toUpperCase()}`);
-         const res = await Menu.GetMenu(id);
-         // console.log("🚀 ~ handleClickEdit ~ res:", res);
+         setTextBtnSubmit("GUARDAR");
+         setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
+         const res = await getMenu(id);
+         // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -196,9 +184,8 @@ const MenuDT = ({ refetch }) => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         Menu.states.isItem.next(res.result.type == "item" ? true : false);
+         setIsItem(res.result.type == "item" ? true : false);
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         console.log("🚀 ~ handleClickEdit ~ res.result:", res.result)
          formikRef.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setIsLoading(false);
@@ -213,25 +200,25 @@ const MenuDT = ({ refetch }) => {
 
    const handleClickDisEnable = async (id, name, active) => {
       try {
-         // setTimeout(async () => {
-         setIsLoading(true);
-         const res = await Menu.DisEnableMenu(id, !active);
-         // console.log("🚀 ~ handleClickDisEnable ~ res:", res);
-         if (!res) return setIsLoading(false);
-         if (res.errors) {
+         setTimeout(async () => {
+            setIsLoading(true);
+            const res = await disEnableMenu(id, !active);
+            // console.log('🚀 ~ handleClickLogout ~ res:', res);
+            if (!res) return setIsLoading(false);
+            if (res.errors) {
+               setIsLoading(false);
+               Object.values(res.errors).forEach((errors) => {
+                  errors.map((error) => Toast.Warning(error));
+               });
+               return;
+            } else if (res.status_code !== 200) {
+               setIsLoading(false);
+               return Toast.Customizable(res.alert_text, res.alert_icon);
+            }
+
+            if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
             setIsLoading(false);
-            Object.values(res.errors).forEach((errors) => {
-               errors.map((error) => Toast.Warning(error));
-            });
-            return;
-         } else if (res.status_code !== 200) {
-            setIsLoading(false);
-            return Toast.Customizable(res.alert_text, res.alert_icon);
-         }
-         refetch();
-         if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
-         setIsLoading(false);
-         // }, 500);
+         }, 500);
       } catch (error) {
          console.log(error);
          Toast.Error(error);
@@ -261,7 +248,7 @@ const MenuDT = ({ refetch }) => {
    };
    formatData();
 
-   // useEffect(() => {}, [allMenus]);
+   useEffect(() => {}, []);
 
    return (
       <DataTableComponent
@@ -274,10 +261,10 @@ const MenuDT = ({ refetch }) => {
          handleClickAdd={handleClickAdd}
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
-         singularName={Menu.singularName}
+         singularName={singularName}
          indexColumnName={1}
          rowEdit={false}
-         refreshTable={() => refetch()}
+         refreshTable={getAllMenus}
          btnsExport={false}
          scrollHeight="79vh" //56vh
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
