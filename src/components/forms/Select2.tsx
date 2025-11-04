@@ -158,7 +158,7 @@ const Select2: React.FC<Select2Props> = ({
    const [loading, setLoading] = useState(false);
 
    const handleChange = (value: any) => {
-      console.log("value:", value); // => {id:0, label:""}
+      // console.log("value:", value); // => {id:0, label:""}
       setValue(value);
       formik.setFieldValue(idName, value === null ? null : value.id);
       // console.log("🚀 ~ handleChange ~ value:", value);

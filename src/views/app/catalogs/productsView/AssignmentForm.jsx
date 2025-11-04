@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { useEffect, useState } from "react";
 import { useGlobalContext } from "../../../../context/GlobalContext";
-import { useChipContext } from "../../../../context/ChipContext";
+import { useProductContext } from "../../../../context/ProductContext";
 import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mui/icons-material";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { useLoteContext } from "./../../../../context/LoteContext";
@@ -59,7 +59,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
    const {
       singularName,
-      chip,
+      product,
       formTitle,
       setFormTitle,
       textBtnSubmit,
@@ -68,30 +68,30 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       isEdit,
       setIsEdit,
       updateLoteAssignment,
-      chipsSelect,
-      setChipsSelect,
-      getSelectIndexChips
-   } = useChipContext();
+      productsSelect,
+      setProductsSelect,
+      getSelectIndexProducts
+   } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [loteFormDialog, setLoteFormDialog] = useState(false);
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
-   const { refetch: refreshChips } = useFetch(getSelectIndexChips, setChipsSelect);
+   const { refetch: refreshProducts } = useFetch(getSelectIndexProducts, setProductsSelect);
 
    const init = () => {
       console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock");
-      console.log("🚀 ~ init ~ chipsEnStock:", chipsEnStock);
-      // const chipsSelected = allLoteDetailsByLote.filter((chip) => chip.location_status === "Asignado");
+      const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock");
+      console.log("🚀 ~ init ~ productosEnStock:", productosEnStock);
+      // const productsSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
-         "chips_en_stock",
-         chipsEnStock.map((d) => d.id)
+         "productos_en_stock",
+         productosEnStock.map((d) => d.id)
       );
       // formikRef?.current?.setFieldValue(
-      //    "chip_ids",
-      //    chipsSelected.map((d) => d.id)
+      //    "product_ids",
+      //    productsSelected.map((d) => d.id)
       // );
    };
    useEffect(() => {
@@ -152,22 +152,22 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       // },
       {
-         name: "chip_ids",
+         name: "product_ids",
          input: (
             <TransferList
-               key={`key-input-chip_ids`}
+               key={`key-input-product_ids`}
                col={12}
-               idNameLeft="chips_en_stock"
-               idNameRight="chip_ids"
+               idNameLeft="productos_en_stock"
+               idNameRight="product_ids"
                label="Motivo Estatus"
                placeholder="Describa el motivo del estatus"
-               labelLeft={"Chips en Stock"}
-               labelRight={"Chips Asignados"}
-               data={chipsSelect}
+               labelLeft={"Productos en Stock"}
+               labelRight={"Productos Asignados"}
+               data={productsSelect}
             />
          ),
          value: "",
-         validations: null, // Yup.array().min(1, "Debe seleccionar al menos un chip.").required("Debe seleccionar al menos un chip."),
+         validations: null, // Yup.array().min(1, "Debe seleccionar al menos un product.").required("Debe seleccionar al menos un product."),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       }
@@ -235,13 +235,13 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    async function handleChangeLote(values) {
       // console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
-      console.log("🚀 ~ handleChangeLote ~ chipsSelect:", chipsSelect);
+      console.log("🚀 ~ handleChangeLote ~ productsSelect:", productsSelect);
       try {
-         const chipsEnStock = chipsSelect.filter((chip) => chip.location_status === "Stock").map((d) => d.id);
+         const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock").map((d) => d.id);
 
          if (values.value.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
-            formikRef?.current?.setFieldValue("chips_en_stock", chipsEnStock);
+            formikRef?.current?.setFieldValue("productos_en_stock", productosEnStock);
             return Toast.Warning("Selecciona un lote");
          }
          setIsLoading(true);
@@ -261,12 +261,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          }
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         const chipsSelected = res.result.map((d) => d.chip_id);
-         // const chipsEnStock = formikRef?.current?.values?.chips_en_stock.filter((id) => !chipsSelected.includes(id));
-         console.log("🚀 ~ handleChangeLote ~ chipsEnStock:", chipsEnStock);
+         const productsSelected = res.result.map((d) => d.product_id);
+         // const productosEnStock = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsSelected.includes(id));
+         console.log("🚀 ~ handleChangeLote ~ productosEnStock:", productosEnStock);
 
-         formikRef?.current?.setFieldValue("chips_en_stock", chipsEnStock);
-         formikRef?.current?.setFieldValue("chip_ids", chipsSelected);
+         formikRef?.current?.setFieldValue("productos_en_stock", productosEnStock);
+         formikRef?.current?.setFieldValue("product_ids", productsSelected);
          // formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -296,12 +296,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
       // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
-   }, [chip, formikRef, isEdit]);
+   }, [product, formikRef, isEdit]);
 
    return (
       <>
          <Button variant="contained" startIcon={<Inventory2Rounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="secondary">
-            Asignar chips a lotes
+            Asignar productos a lotes
          </Button>
 
          <DialogComponent
@@ -310,7 +310,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             modalTitle={
                <Grid display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
                   <Typography className="font-extrabold text-center" variant="h4" fontWeight={"bold"}>
-                     {"Asignar chips a un lote"}
+                     {"Asignar productos a un lote"}
                   </Typography>
 
                   <Tooltip title={"Al estar activo, el formulario no se cerrará al terminar un registro"}>

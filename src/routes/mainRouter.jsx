@@ -11,7 +11,8 @@ const RolesView = lazy(() => import("./../views/app/settings/rolesView/Index"));
 const DepartmentsView = lazy(() => import("./../views/app/settings/departmentsView/Index")); //import DepartmentsView from "./../views/app/settings/departmentsView/Index";
 const PositionsView = lazy(() => import("./../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
 const EmployeesView = lazy(() => import("./../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
-const ChipsView = lazy(() => import("../views/app/catalogs/chipsView/Index")); //import ChipView from "./../views/app/settings/chipsView/Index";
+const ProductTypesView = lazy(() => import("../views/app/catalogs/productTypesView/Index")); //import ProductTypesView from "./../views/app/settings/productTypesView/Index";
+const ProductsView = lazy(() => import("../views/app/catalogs/productsView/Index")); //import ProductView from "./../views/app/settings/productsView/Index";
 const LotesView = lazy(() => import("../views/app/catalogs/lotesView/Index")); //import LoteView from "./../views/app/settings/lotesView/Index";
 const PointsOfSaleView = lazy(() => import("../views/app/catalogs/pointsOfSaleView/Index"));
 const SalesView = lazy(() => import("../views/app/catalogs/salesView/Index"));
@@ -26,11 +27,12 @@ import EmployeeContextProvider from "../context/EmployeeContext";
 import PositionContextProvider from "../context/PositionContext";
 import DepartmentContextProvider from "../context/DepartmentContext";
 import MenuContextProvider from "../context/MenuContext";
-// import ChipsView from "../views/app/catalogs/chipsView/Index";
-import ChipContextProvider from "../context/ChipContext";
+// import ProductsView from "../views/app/catalogs/productsView/Index";
+import ProductContextProvider from "../context/ProductContext";
 import LoteContextProvider from "../context/LoteContext";
 import PointOfSaleContextProvider from "../context/PointOfSaleContext";
 import SaleContextProvider from "../context/SaleContext";
+import ProductTypeContextProvider from "../context/ProductTypeContext";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -134,22 +136,32 @@ const mainRouter = {
          path: "catalogos",
          children: [
             {
-               path: "chips",
+               path: "tipos-de-producto",
+               element: (
+                  <ProductTypeContextProvider>
+                     <ProductTypesView />
+                  </ProductTypeContextProvider>
+               )
+            },
+            {
+               path: "productos",
                element: (
                   <UserContextProvider>
-                     <ChipContextProvider>
-                        <RoleContextProvider>
-                           <EmployeeContextProvider>
-                              <DepartmentContextProvider>
-                                 <PositionContextProvider>
-                                    <LoteContextProvider>
-                                       <ChipsView />
-                                    </LoteContextProvider>
-                                 </PositionContextProvider>
-                              </DepartmentContextProvider>
-                           </EmployeeContextProvider>
-                        </RoleContextProvider>
-                     </ChipContextProvider>
+                     <ProductContextProvider>
+                        <ProductTypeContextProvider>
+                           <RoleContextProvider>
+                              <EmployeeContextProvider>
+                                 <DepartmentContextProvider>
+                                    <PositionContextProvider>
+                                       <LoteContextProvider>
+                                          <ProductsView />
+                                       </LoteContextProvider>
+                                    </PositionContextProvider>
+                                 </DepartmentContextProvider>
+                              </EmployeeContextProvider>
+                           </RoleContextProvider>
+                        </ProductTypeContextProvider>
+                     </ProductContextProvider>
                   </UserContextProvider>
                )
             },

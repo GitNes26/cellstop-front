@@ -10,13 +10,14 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
-import { useChipContext } from "../../../../context/ChipContext";
+import { useProductContext } from "../../../../context/ProductContext";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
 import { env } from "../../../../constant";
 import AssignmentForm from "./AssignmentForm";
+import ImportForm from "./ImportForm";
 
-const columnas = [
+const columnasPrePago = [
    "FILTRO",
    "TELEFONO",
    "IMEI",
@@ -36,7 +37,26 @@ const columnas = [
    "FOLIO FACTURA",
    "FECHA PUBLICACION"
 ];
-
+// Región |||| Celular |||| ICCID |||| IMEI |||| Fecha |||| Trámite |||| Estatus |||| Comentario |||| Fuerza de Venta Prepago |||| Fuerza de Venta Padre |||| Usuario |||| Folio |||| Producto |||| Núm Orden |||| Estatus orden |||| Motivo error |||| Tipo SIM
+const columnas = [
+   "Región",
+   "Celular",
+   "ICCID",
+   "IMEI",
+   "Fecha",
+   "Trámite",
+   "Estatus",
+   "Comentario",
+   "Fuerza de Venta Prepago",
+   "Fuerza de Venta Padre",
+   "Usuario",
+   "Folio",
+   "Producto",
+   "Núm Orden",
+   "Estatus orden",
+   "Motivo error",
+   "Tipo SIM"
+];
 // Validaciones por columna: null = opcional
 const validaciones = {
    FILTRO: () => null,
@@ -61,12 +81,14 @@ const validaciones = {
    "FECHA PUBLICACION": (v) => !v || !isNaN(Date.parse(v))
 };
 
-const ChipDT = () => {
+const ProductDT = ({}) => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip } = useChipContext();
+   const { singularName, allProducts, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteProduct, disEnableProduct, getAllProducts, getProduct } =
+      useProductContext();
    const mySwal = withReactContent(Swal);
 
+   const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
 
    //#region COLUMNAS
@@ -357,7 +379,7 @@ const ChipDT = () => {
       try {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
-         const res = await getChip(id);
+         const res = await getProduct(id);
          console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -371,7 +393,7 @@ const ChipDT = () => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         if (res.result.chip_description) res.result.chip_description == null && (res.result.chip_description = "");
+         if (res.result.product_description) res.result.product_description == null && (res.result.product_description = "");
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -392,7 +414,7 @@ const ChipDT = () => {
          mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el vendedor de ${name}?`, "CONFIRMAR")).then(async (result) => {
             if (result.isConfirmed) {
                setIsLoading(true);
-               const res = await deleteChip(id);
+               const res = await deleteProduct(id);
                // console.log('🚀 ~ handleClickLogout ~ res:', res);
                if (!res) return setIsLoading(false);
                if (res.errors) {
@@ -420,7 +442,7 @@ const ChipDT = () => {
       try {
          setTimeout(async () => {
             setIsLoading(true);
-            const res = await disEnableChip(id, !active);
+            const res = await disEnableProduct(id, !active);
             // console.log('🚀 ~ handleClickLogout ~ res:', res);
             if (!res) return setIsLoading(false);
             if (res.errors) {
@@ -448,15 +470,15 @@ const ChipDT = () => {
    const data = [];
    const formatData = async () => {
       try {
-         // console.log("cargar listado", allChips);
-         await allChips.map((obj, index) => {
+         // console.log("cargar listado", allProducts);
+         await allProducts.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.chip} active={obj.active} />;
+            // register.actions = <ButtonsAction id={obj.id} name={obj.product} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.chip), color: "red" }
+               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.product), color: "red" }
             ];
             data.push(register);
          });
@@ -473,7 +495,16 @@ const ChipDT = () => {
    return (
       <>
          <Stack direction="row" spacing={1} alignItems="center" padding={1}>
-            <ExcelUploader columns={columnas} chunkSize={500} apiEndpoint="chips/import" headerRow={4} dataStartRow={5} onFinish={getAllChips} />
+            {/* <ExcelUploader columns={columnas} chunkSize={1000} apiEndpoint="products/import" headerRow={4} dataStartRow={5} onFinish={getAllProducts} /> */}
+            <ImportForm
+               openDialog={openDialogImportForm}
+               setOpenDialog={setOpenDialogImportForm}
+               columns={columnas}
+               chunkSize={1000}
+               apiEndpoint="products/import"
+               headerRow={4}
+               dataStartRow={5}
+            />
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent
@@ -489,7 +520,7 @@ const ChipDT = () => {
             singularName={singularName}
             indexColumnName={1}
             rowEdit={false}
-            refreshTable={getAllChips}
+            refreshTable={getAllProducts}
             btnsExport={false}
             scrollHeight="75vh"
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
@@ -500,4 +531,4 @@ const ChipDT = () => {
       </>
    );
 };
-export default ChipDT;
+export default ProductDT;

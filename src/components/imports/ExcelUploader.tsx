@@ -28,7 +28,7 @@ interface ExcelUploaderProps {
    onFinish?: () => Promise<void> | null;
 }
 
-const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chunkSize = 500, headerRow = 1, dataStartRow, onFinish }) => {
+const ExcelUploader: React.FC<ExcelUploaderProps> = ({ columns, apiEndpoint, chunkSize = 1000, headerRow = 1, dataStartRow, onFinish }) => {
    const { auth } = useAuthContext();
    const { isLoading, setIsLoading } = useGlobalContext();
    const fileInputRef = useRef(null);

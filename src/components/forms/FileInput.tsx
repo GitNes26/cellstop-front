@@ -400,7 +400,7 @@ const FileInput: React.FC<FileInputProps> = ({
                   {({ field, form }) => (
                      <>
                         <div className={"dropzone-container"} onClick={isMobile && showDialogFileOrPhoto ? handleOpenDialog : undefined}>
-                           <div {...getRootProps({ className: color === "red" ? "dropzone-error" : "dropzone border-primary" })}>
+                           <div {...getRootProps({ className: color === "red" || isError ? "dropzone-error" : "dropzone border-primary" })}>
                               {isMobile && showDialogFileOrPhoto ? (
                                  <input
                                     {...getInputProps()}
@@ -503,7 +503,7 @@ const FileInput: React.FC<FileInputProps> = ({
                            </small>
                         </div>
                         <Typography variant="body1" component="label" htmlFor={idName} ml={1}>
-                           <span className={`label-text-alt ${!isError && !helperText && "text-transparent"} ${isError && "text-error"}`}>
+                           <span className={`label-text-alt ${!isError && !helperText && "text-transparent"} ${isError && "text-red-500 text-xs"}`}>
                               {isError ? error : helperText ? helperText : "."}
                            </span>
                         </Typography>

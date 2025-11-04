@@ -7,6 +7,7 @@ export { default as Switch } from "./Switch";
 export { default as Checkbox } from "./Checkbox";
 export { default as CommunityInputs } from "./CommunityInputs";
 export { default as FileInput } from "./FileInput";
+export { default as FileInputModerno } from "./FileInputModerno";
 export { default as CameraInput } from "./CameraInput";
 export { default as FirmPad } from "./FirmPad";
 export { default as DateTimePicker } from "./DateTimePicker";

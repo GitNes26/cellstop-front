@@ -15,6 +15,7 @@ import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useUserContext } from "../../../../context/UserContext";
 import { useRoleContext } from "../../../../context/RoleContext";
 import { useEmployeeContext } from "../../../../context/EmployeeContext";
+import { generateUsername } from "../../../../utils/Formats";
 // import useSSE from "../../../../hooks/useSSE";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
@@ -121,6 +122,26 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
       {
+         name: "employee_id",
+         value: 0,
+         input: (
+            <Select2
+               KEY={`key-input-employee_id`}
+               col={12}
+               idName="employee_id"
+               label="Empleado"
+               placeholder=""
+               refreshSelect={refreshEmployees}
+               onChangeExtra={handleChangeEmployee}
+               options={allEmployees || []}
+               addRegister={auth.permissions.create ? () => setEmployeeFormDialog(true) : null}
+            />
+         ),
+         validations: Yup.number().min(0, "Esta opción no es valida").notRequired(),
+         validationPage: [],
+         dividerBefore: { show: true, title: "EMPLEADO", orientation: "horizontal", sx: {} }
+      },
+      {
          name: "username",
          value: "",
          input: (
@@ -138,7 +159,7 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          ),
          validations: Yup.string().trim().required("Nombre de usuario requerido"),
          validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+         dividerBefore: { show: true, title: "DATOS DE USUARIO", orientation: "horizontal", sx: {} }
       },
       {
          name: "email",
@@ -166,7 +187,7 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-password`}
-               col={12}
+               col={6}
                idName="password"
                label="Contraseña"
                placeholder="******"
@@ -198,7 +219,7 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          input: (
             <Input
                key={`key-input-confirmPassword`}
-               col={12}
+               col={6}
                idName="confirmPassword"
                label="Confirmar Contraseña"
                placeholder="******"
@@ -241,25 +262,6 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          validations: Yup.number().min(1, "Esta opción no es valida").required("Rol requerido"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
-      {
-         name: "employee_id",
-         value: 0,
-         input: (
-            <Select2
-               KEY={`key-input-employee_id`}
-               col={12}
-               idName="employee_id"
-               label="Empleado"
-               placeholder=""
-               refreshSelect={refreshEmployees}
-               options={allEmployees || []}
-               addRegister={auth.permissions.create ? () => setEmployeeFormDialog(true) : null}
-            />
-         ),
-         validations: Yup.number().min(0, "Esta opción no es valida").notRequired(),
-         validationPage: [],
-         dividerBefore: { show: true, title: "EMPLEADO", orientation: "horizontal", sx: {} }
       }
    ];
    const validations = {};
@@ -323,6 +325,12 @@ const UserForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          Toast.Error(error);
       }
    };
+
+   function handleChangeEmployee(values) {
+      // console.log("🚀 ~ handleChangeEmployee ~ values:", values);
+      if (values.value.id <= 0) return formikRef.current.setFieldValue("username", "");
+      formikRef.current.setFieldValue("username", generateUsername(values.value.label));
+   }
 
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect ~ changePassword:", changePassword);
