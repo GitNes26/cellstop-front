@@ -27,12 +27,31 @@ const Error = (msg) => {
    });
 };
 
-const Info = (msg) => {
+const Info = (msg, useHTML = false) => {
    withReactContent(Swal).fire({
       icon: "info",
-      html: `<h3>${msg}</h3>`,
+      html: useHTML
+         ? `
+         <div
+            style="
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            color: #333;
+            font-family: 'Segoe UI', sans-serif;
+         "
+         >
+            ${msg}
+         </div>`
+         : `<h3>${msg}</h3>`,
       confirmButtonColor: colorPrimaryDark, // "#3e3e3e"
-      confirmButtonText: "<b>OK</b>"
+      confirmButtonText: "<b>OK</b>",
+      customClass: {
+         popup: "swal-wide"
+      }
    });
 };
 

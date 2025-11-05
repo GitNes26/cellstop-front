@@ -304,44 +304,48 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             Asignar productos a lotes
          </Button>
 
-         <DialogComponent
-            open={openDialog}
-            setOpen={setOpenDialog}
-            modalTitle={
-               <Grid display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
-                  <Typography className="font-extrabold text-center" variant="h4" fontWeight={"bold"}>
-                     {"Asignar productos a un lote"}
-                  </Typography>
+         {openDialog && (
+            <>
+               <DialogComponent
+                  open={openDialog}
+                  setOpen={setOpenDialog}
+                  modalTitle={
+                     <Grid display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
+                        <Typography className="font-extrabold text-center" variant="h4" fontWeight={"bold"}>
+                           {"Asignar productos a un lote"}
+                        </Typography>
 
-                  <Tooltip title={"Al estar activo, el formulario no se cerrará al terminar un registro"}>
-                     <FormGroup sx={{}}>
-                        <FormControlLabel
-                           control={<Switch defaultChecked={checkAdd} color="dark" />}
-                           label={"Seguir Agregando"}
-                           sx={{ opacity: checkAdd ? 1 : 0.35 }}
-                           onChange={(e) => handleChangeCheckAdd(e.target.checked)}
-                        />
-                     </FormGroup>
-                  </Tooltip>
-               </Grid>
-            }
-            fullScreen={false}
-            height={undefined}
-            formikRef={undefined}
-            textBtnSubmit={undefined}
-         >
-            <Form
-               formData={formData}
-               validations={validations}
-               formikRef={formikRef}
-               validationSchema={validationSchema}
-               onSubmit={onSubmit}
-               textBtnSubmit={textBtnSubmit}
-               handleCancel={handleCancel}
-               container={"modal"}
-            />
-         </DialogComponent>
-         <LoteForm container="modal" openDialog={loteFormDialog} setOpenDialog={setLoteFormDialog} refreshSelect={refreshLotes} />
+                        <Tooltip title={"Al estar activo, el formulario no se cerrará al terminar un registro"}>
+                           <FormGroup sx={{}}>
+                              <FormControlLabel
+                                 control={<Switch defaultChecked={checkAdd} color="dark" />}
+                                 label={"Seguir Agregando"}
+                                 sx={{ opacity: checkAdd ? 1 : 0.35 }}
+                                 onChange={(e) => handleChangeCheckAdd(e.target.checked)}
+                              />
+                           </FormGroup>
+                        </Tooltip>
+                     </Grid>
+                  }
+                  fullScreen={false}
+                  height={undefined}
+                  formikRef={undefined}
+                  textBtnSubmit={undefined}
+               >
+                  <Form
+                     formData={formData}
+                     validations={validations}
+                     formikRef={formikRef}
+                     validationSchema={validationSchema}
+                     onSubmit={onSubmit}
+                     textBtnSubmit={textBtnSubmit}
+                     handleCancel={handleCancel}
+                     container={"modal"}
+                  />
+               </DialogComponent>
+               <LoteForm container="modal" openDialog={loteFormDialog} setOpenDialog={setLoteFormDialog} refreshSelect={refreshLotes} />
+            </>
+         )}
       </>
    );
 };

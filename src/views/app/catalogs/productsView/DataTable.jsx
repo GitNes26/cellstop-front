@@ -502,8 +502,8 @@ const ProductDT = ({}) => {
                columns={columnas}
                chunkSize={1000}
                apiEndpoint="products/import"
-               headerRow={4}
-               dataStartRow={5}
+               headerRow={1}
+               dataStartRow={2}
             />
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>

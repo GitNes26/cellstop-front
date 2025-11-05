@@ -15,6 +15,7 @@ import { useProductTypeContext } from "../../../../context/ProductTypeContext";
 import useFetch from "../../../../hooks/useFetch";
 import { Response } from "../../../../utils/Api";
 import * as XLSX from "xlsx";
+import sAlert from "../../../../utils/sAlert";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -154,13 +155,13 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                   }
                });
 
-               // Agregar info del archivo
-               row.fileData = {
-                  name: file.name,
-                  size: file.size,
-                  type: file.type,
-                  lastModified: file.lastModified
-               };
+               // // Agregar info del archivo
+               // row.fileData = {
+               //    name: file.name,
+               //    size: file.size,
+               //    type: file.type,
+               //    lastModified: file.lastModified
+               // };
 
                if (filaValida) validos.push(row);
             });
@@ -170,11 +171,21 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                errores.forEach((err) => Toast.Error(err));
             }
 
+            // Agregar info del archivo
+            const fileData = {
+               name: file.name,
+               size: file.size,
+               type: file.type,
+               lastModified: file.lastModified
+            };
+
             // ✅ En lugar de enviar, solo devolvemos los datos válidos
             setIsLoading(false);
-            const msgToast = `Validación completa. Registros válidos: ${validos.length}`;
+            const msgToast = `Validación completa. Registros por registrar: ${validos.length}`;
             Toast.Success(msgToast);
             setHelperTextImgFile(msgToast);
+            formikRef.current.setFieldValue("data", validos);
+            formikRef.current.setFieldValue("fileData", fileData);
 
             // Llamar callback si se proporciona
             // if (onFinish) onFinish(validos);
@@ -211,7 +222,6 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                options={productTypesSelect ?? []}
                refreshSelect={refetchProductTypes}
                addRegister={auth.permissions.create}
-               helperText={helperTextImgFile}
                required
             />
          ),
@@ -235,6 +245,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                   const f = files && files[0].file;
                   if (f) handleFile(f);
                }}
+               helperText={helperTextImgFile}
                setFilePreviews={setImgFile}
                multiple={false}
                accept={".xlsx,.xls,.csv"}
@@ -264,10 +275,9 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      values.file = imgFile.length == 0 ? "" : imgFile[0].file;
-      console.log("🚀 ~ onSubmit ~ values:", values);
-      return;
-      // const res = await handleFile(values);
+      // values.file = imgFile.length == 0 ? "" : imgFile[0].file;
+      // console.log("🚀 ~ onSubmit ~ values:", values);
+      // return setIsLoading(false);
       const res = await importProducts(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
@@ -281,8 +291,101 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
          setIsLoading(false);
          return Toast.Customizable(res.alert_text, res.alert_icon);
       }
+      if (res.duplicados && res.duplicados.length > 0)
+         sAlert.Info(`
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 8px;">
+               <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #e8e8e8;">
+                  <div style="
+                  width: 40px;
+                  height: 40px;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  border-radius: 10px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-size: 18px;
+                  font-weight: bold;
+                  ">!</div>
+                  <div>
+                  <h2 style="margin: 0; color: #2d3748; font-size: 18px; font-weight: 600;">ICCIDs Duplicados</h2>
+                  <p style="margin: 4px 0 0 0; color: #718096; font-size: 14px;">Se encontraron ${res.duplicados.length} elementos repetidos</p>
+                  </div>
+               </div>
+               
+               <div style="
+                  max-height: 300px;
+                  overflow-y: auto;
+                  background: #f8fafc;
+                  border-radius: 12px;
+                  padding: 16px;
+                  border: 1px solid #e2e8f0;
+               ">
+                  <ul style="
+                  margin: 0;
+                  padding: 0;
+                  list-style: none;
+                  display: grid;
+                  gap: 8px;
+                  ">
+                  ${res.duplicados
+                     .map(
+                        (item, index) => `
+                     <li style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 12px 16px;
+                        background: white;
+                        border-radius: 8px;
+                        border: 1px solid #edf2f7;
+                        transition: all 0.2s ease;
+                        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                     " onmouseover="this.style.background='#f7fafc'; this.style.borderColor='#cbd5e0'" 
+                        onmouseout="this.style.background='white'; this.style.borderColor='#edf2f7'">
+                        <span style="
+                        width: 24px;
+                        height: 24px;
+                        background: #fed7d7;
+                        color: #c53030;
+                        border-radius: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 12px;
+                        font-weight: 600;
+                        flex-shrink: 0;
+                        ">${index + 1}</span>
+                        <span style="
+                        color: #4a5568;
+                        font-family: 'Monaco', 'Consolas', monospace;
+                        font-size: 14px;
+                        font-weight: 500;
+                        letter-spacing: 0.5px;
+                        ">${item}</span>
+                     </li>
+                  `
+                     )
+                     .join("")}
+                  </ul>
+               </div>
+               
+               <div style="
+                  margin-top: 20px;
+                  padding: 12px 16px;
+                  background: #ebf8ff;
+                  border-radius: 8px;
+                  border-left: 4px solid #4299e1;
+               ">
+                  <p style="margin: 0; color: #2b6cb0; font-size: 13px; font-weight: 500;">
+                  💡 <strong>Sugerencia:</strong> Revise estos elementos antes de continuar
+                  </p>
+               </div>
+            </div>
+         `);
 
       await resetForm();
+      setImgFile([]);
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
       if (res.alert_text) Toast.Success(res.alert_text);
