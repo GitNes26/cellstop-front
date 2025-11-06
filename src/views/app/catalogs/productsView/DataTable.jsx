@@ -16,6 +16,7 @@ import { CancelRounded } from "@mui/icons-material";
 import { env } from "../../../../constant";
 import AssignmentForm from "./AssignmentForm";
 import ImportForm from "./ImportForm";
+import PreActivationForm from "./PreActivationForm";
 
 const columnasPrePago = [
    "FILTRO",
@@ -89,27 +90,252 @@ const ProductDT = ({}) => {
    const mySwal = withReactContent(Swal);
 
    const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
+   const [openDialogPreActivationForm, setOpenDialogPreActivationForm] = useState(false);
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
 
-   // #region BodysTemplate
-   const FiltroBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.filtro}
-      </Typography>
-   );
+   // // #region BodysTemplate
+   // const FiltroBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.filtro}
+   //    </Typography>
+   // );
 
-   const TelefonoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.telefono}
-      </Typography>
-   );
+   // const TelefonoBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.telefono}
+   //    </Typography>
+   // );
 
-   const ImeiBodyTemplate = (obj) => (
+   // const ImeiBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.imei}
+   //    </Typography>
+   // );
+
+   // const IccidBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text} className="font-black">
+   //       {obj.iccid}
+   //    </Typography>
+   // );
+
+   // const EstatusLinBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.estatus_lin}
+   //    </Typography>
+   // );
+
+   // const MovimientoBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.movimiento}
+   //    </Typography>
+   // );
+
+   // const FechaActivBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.fecha_activ, false)}
+   //    </Typography>
+   // );
+
+   // const FechaPrimLlamBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.fecha_prim_llam, false)}
+   //    </Typography>
+   // );
+
+   // const FechaDolBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.fecha_dol, false)}
+   //    </Typography>
+   // );
+
+   // const EstatusPagoBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.estatus_pago}
+   //    </Typography>
+   // );
+
+   // const MotivoEstatusBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.motivo_estatus}
+   //    </Typography>
+   // );
+
+   // const MontoComBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       ${obj.monto_com ? Number(obj.monto_com).toFixed(2) : "0.00"}
+   //    </Typography>
+   // );
+
+   // const TipoComisionBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.tipo_comision}
+   //    </Typography>
+   // );
+
+   // const EvaluacionBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.evaluacion}
+   //    </Typography>
+   // );
+
+   // const FzaVtaPagoBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.fza_vta_pago}
+   //    </Typography>
+   // );
+
+   // const FechaEvaluacionBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.fecha_evaluacion, false)}
+   //    </Typography>
+   // );
+
+   // const FolioFacturaBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.folio_factura}
+   //    </Typography>
+   // );
+
+   // const FechaPublicacionBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.fecha_publicacion, false)}
+   //    </Typography>
+   // );
+
+   // const LocationStatusBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.location_status}
+   //    </Typography>
+   // );
+
+   // const ActivationStatusBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {obj.activation_status}
+   //    </Typography>
+   // );
+
+   // const ActiveBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" className="flex justify-center">
+   //       {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+   //    </Typography>
+   // );
+
+   // const CreatedAtBodyTemplate = (obj) => (
+   //    <Typography textAlign="center" size={fontSizeTable.text}>
+   //       {formatDatetime(obj.created_at, true)}
+   //    </Typography>
+   // );
+   // // #endregion Body Templates
+
+   // const columns = [
+   //    { field: "filtro", headerName: "Filtro", sortable: true, renderCell: (params) => <FiltroBodyTemplate {...params.row} key={`filtro-${params.row.id}`} /> },
+   //    {
+   //       field: "telefono",
+   //       headerName: "Teléfono",
+   //       sortable: true,
+   //       renderCell: (params) => <TelefonoBodyTemplate {...params.row} key={`telefono-${params.row.id}`} />
+   //    },
+   //    { field: "imei", headerName: "IMEI", sortable: true, renderCell: (params) => <ImeiBodyTemplate {...params.row} key={`imei-${params.row.id}`} /> },
+   //    { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} key={`iccid-${params.row.id}`} /> },
+   //    {
+   //       field: "estatus_lin",
+   //       headerName: "Estatus Línea",
+   //       sortable: true,
+   //       renderCell: (params) => <EstatusLinBodyTemplate {...params.row} key={`estatus-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "movimiento",
+   //       headerName: "Movimiento",
+   //       sortable: true,
+   //       renderCell: (params) => <MovimientoBodyTemplate {...params.row} key={`mov-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "fecha_activ",
+   //       headerName: "Fecha Activación",
+   //       sortable: true,
+   //       renderCell: (params) => <FechaActivBodyTemplate {...params.row} key={`activ-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "fecha_prim_llam",
+   //       headerName: "Fecha 1ra Llamada",
+   //       sortable: true,
+   //       renderCell: (params) => <FechaPrimLlamBodyTemplate {...params.row} key={`prim-${params.row.id}`} />
+   //    },
+   //    { field: "fecha_dol", headerName: "Fecha DOL", sortable: true, renderCell: (params) => <FechaDolBodyTemplate {...params.row} key={`dol-${params.row.id}`} /> },
+   //    {
+   //       field: "estatus_pago",
+   //       headerName: "Estatus Pago",
+   //       sortable: true,
+   //       renderCell: (params) => <EstatusPagoBodyTemplate {...params.row} key={`pago-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "motivo_estatus",
+   //       headerName: "Motivo Estatus",
+   //       sortable: true,
+   //       renderCell: (params) => <MotivoEstatusBodyTemplate {...params.row} key={`motivo-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "monto_com",
+   //       headerName: "Monto Comisión",
+   //       sortable: true,
+   //       renderCell: (params) => <MontoComBodyTemplate {...params.row} key={`monto-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "tipo_comision",
+   //       headerName: "Tipo Comisión",
+   //       sortable: true,
+   //       renderCell: (params) => <TipoComisionBodyTemplate {...params.row} key={`tipo-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "evaluacion",
+   //       headerName: "Evaluación",
+   //       sortable: true,
+   //       renderCell: (params) => <EvaluacionBodyTemplate {...params.row} key={`eval-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "fza_vta_pago",
+   //       headerName: "Fza Vta Pago",
+   //       sortable: true,
+   //       renderCell: (params) => <FzaVtaPagoBodyTemplate {...params.row} key={`fza-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "fecha_evaluacion",
+   //       headerName: "Fecha Evaluación",
+   //       sortable: true,
+   //       renderCell: (params) => <FechaEvaluacionBodyTemplate {...params.row} key={`feval-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "folio_factura",
+   //       headerName: "Folio Factura",
+   //       sortable: true,
+   //       renderCell: (params) => <FolioFacturaBodyTemplate {...params.row} key={`folio-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "fecha_publicacion",
+   //       headerName: "Fecha Publicación",
+   //       sortable: true,
+   //       renderCell: (params) => <FechaPublicacionBodyTemplate {...params.row} key={`fpub-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "location_status",
+   //       headerName: "Ubicación",
+   //       sortable: true,
+   //       renderCell: (params) => <LocationStatusBodyTemplate {...params.row} key={`loc-${params.row.id}`} />
+   //    },
+   //    {
+   //       field: "activation_status",
+   //       headerName: "Estatus Activación",
+   //       sortable: true,
+   //       renderCell: (params) => <ActivationStatusBodyTemplate {...params.row} key={`actst-${params.row.id}`} />
+   //    }
+   // ];
+   // #region Body Templates
+   const TextCenter = ({ children }) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.imei}
+         {children ?? "-"}
       </Typography>
    );
 
@@ -119,99 +345,9 @@ const ProductDT = ({}) => {
       </Typography>
    );
 
-   const EstatusLinBodyTemplate = (obj) => (
+   const FechaBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.estatus_lin}
-      </Typography>
-   );
-
-   const MovimientoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.movimiento}
-      </Typography>
-   );
-
-   const FechaActivBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_activ, false)}
-      </Typography>
-   );
-
-   const FechaPrimLlamBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_prim_llam, false)}
-      </Typography>
-   );
-
-   const FechaDolBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_dol, false)}
-      </Typography>
-   );
-
-   const EstatusPagoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.estatus_pago}
-      </Typography>
-   );
-
-   const MotivoEstatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.motivo_estatus}
-      </Typography>
-   );
-
-   const MontoComBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         ${obj.monto_com ? Number(obj.monto_com).toFixed(2) : "0.00"}
-      </Typography>
-   );
-
-   const TipoComisionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.tipo_comision}
-      </Typography>
-   );
-
-   const EvaluacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.evaluacion}
-      </Typography>
-   );
-
-   const FzaVtaPagoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.fza_vta_pago}
-      </Typography>
-   );
-
-   const FechaEvaluacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_evaluacion, false)}
-      </Typography>
-   );
-
-   const FolioFacturaBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.folio_factura}
-      </Typography>
-   );
-
-   const FechaPublicacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_publicacion, false)}
-      </Typography>
-   );
-
-   const LocationStatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.location_status}
-      </Typography>
-   );
-
-   const ActivationStatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.activation_status}
+         {formatDatetime(obj.fecha, false)}
       </Typography>
    );
 
@@ -226,109 +362,42 @@ const ProductDT = ({}) => {
          {formatDatetime(obj.created_at, true)}
       </Typography>
    );
-   // #endregion Body Templates
+   // #endregion
 
+   // #region Columns
    const columns = [
-      { field: "filtro", headerName: "Filtro", sortable: true, renderCell: (params) => <FiltroBodyTemplate {...params.row} key={`filtro-${params.row.id}`} /> },
-      {
-         field: "telefono",
-         headerName: "Teléfono",
-         sortable: true,
-         renderCell: (params) => <TelefonoBodyTemplate {...params.row} key={`telefono-${params.row.id}`} />
-      },
-      { field: "imei", headerName: "IMEI", sortable: true, renderCell: (params) => <ImeiBodyTemplate {...params.row} key={`imei-${params.row.id}`} /> },
-      { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} key={`iccid-${params.row.id}`} /> },
-      {
-         field: "estatus_lin",
-         headerName: "Estatus Línea",
-         sortable: true,
-         renderCell: (params) => <EstatusLinBodyTemplate {...params.row} key={`estatus-${params.row.id}`} />
-      },
-      {
-         field: "movimiento",
-         headerName: "Movimiento",
-         sortable: true,
-         renderCell: (params) => <MovimientoBodyTemplate {...params.row} key={`mov-${params.row.id}`} />
-      },
-      {
-         field: "fecha_activ",
-         headerName: "Fecha Activación",
-         sortable: true,
-         renderCell: (params) => <FechaActivBodyTemplate {...params.row} key={`activ-${params.row.id}`} />
-      },
-      {
-         field: "fecha_prim_llam",
-         headerName: "Fecha 1ra Llamada",
-         sortable: true,
-         renderCell: (params) => <FechaPrimLlamBodyTemplate {...params.row} key={`prim-${params.row.id}`} />
-      },
-      { field: "fecha_dol", headerName: "Fecha DOL", sortable: true, renderCell: (params) => <FechaDolBodyTemplate {...params.row} key={`dol-${params.row.id}`} /> },
-      {
-         field: "estatus_pago",
-         headerName: "Estatus Pago",
-         sortable: true,
-         renderCell: (params) => <EstatusPagoBodyTemplate {...params.row} key={`pago-${params.row.id}`} />
-      },
-      {
-         field: "motivo_estatus",
-         headerName: "Motivo Estatus",
-         sortable: true,
-         renderCell: (params) => <MotivoEstatusBodyTemplate {...params.row} key={`motivo-${params.row.id}`} />
-      },
-      {
-         field: "monto_com",
-         headerName: "Monto Comisión",
-         sortable: true,
-         renderCell: (params) => <MontoComBodyTemplate {...params.row} key={`monto-${params.row.id}`} />
-      },
-      {
-         field: "tipo_comision",
-         headerName: "Tipo Comisión",
-         sortable: true,
-         renderCell: (params) => <TipoComisionBodyTemplate {...params.row} key={`tipo-${params.row.id}`} />
-      },
-      {
-         field: "evaluacion",
-         headerName: "Evaluación",
-         sortable: true,
-         renderCell: (params) => <EvaluacionBodyTemplate {...params.row} key={`eval-${params.row.id}`} />
-      },
-      {
-         field: "fza_vta_pago",
-         headerName: "Fza Vta Pago",
-         sortable: true,
-         renderCell: (params) => <FzaVtaPagoBodyTemplate {...params.row} key={`fza-${params.row.id}`} />
-      },
-      {
-         field: "fecha_evaluacion",
-         headerName: "Fecha Evaluación",
-         sortable: true,
-         renderCell: (params) => <FechaEvaluacionBodyTemplate {...params.row} key={`feval-${params.row.id}`} />
-      },
-      {
-         field: "folio_factura",
-         headerName: "Folio Factura",
-         sortable: true,
-         renderCell: (params) => <FolioFacturaBodyTemplate {...params.row} key={`folio-${params.row.id}`} />
-      },
-      {
-         field: "fecha_publicacion",
-         headerName: "Fecha Publicación",
-         sortable: true,
-         renderCell: (params) => <FechaPublicacionBodyTemplate {...params.row} key={`fpub-${params.row.id}`} />
-      },
-      {
-         field: "location_status",
-         headerName: "Ubicación",
-         sortable: true,
-         renderCell: (params) => <LocationStatusBodyTemplate {...params.row} key={`loc-${params.row.id}`} />
-      },
+      { field: "region", headerName: "Región", sortable: true, renderCell: (params) => <TextCenter>{params.row.region}</TextCenter> },
+      { field: "celular", headerName: "Celular", sortable: true, renderCell: (params) => <TextCenter>{params.row.celular}</TextCenter> },
+      { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} /> },
+      { field: "imei", headerName: "IMEI", sortable: true, renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter> },
+      { field: "fecha", headerName: "Fecha", sortable: true, renderCell: (params) => <FechaBodyTemplate {...params.row} /> },
+      { field: "tramite", headerName: "Trámite", sortable: true, renderCell: (params) => <TextCenter>{params.row.tramite}</TextCenter> },
+      { field: "estatus", headerName: "Estatus", sortable: true, renderCell: (params) => <TextCenter>{params.row.estatus}</TextCenter> },
+      { field: "comentario", headerName: "Comentario", sortable: true, renderCell: (params) => <TextCenter>{params.row.comentario}</TextCenter> },
+      { field: "fza_vta_prepago", headerName: "Fza Vta Prepago", sortable: true, renderCell: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter> },
+      { field: "fza_vta_padre", headerName: "Fza Vta Padre", sortable: true, renderCell: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter> },
+      { field: "usuario", headerName: "Usuario", sortable: true, renderCell: (params) => <TextCenter>{params.row.usuario}</TextCenter> },
+      { field: "folio", headerName: "Folio", sortable: true, renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter> },
+      { field: "producto", headerName: "Producto", sortable: true, renderCell: (params) => <TextCenter>{params.row.producto}</TextCenter> },
+      { field: "num_orden", headerName: "Núm Orden", sortable: true, renderCell: (params) => <TextCenter>{params.row.num_orden}</TextCenter> },
+      { field: "estatus_orden", headerName: "Estatus Orden", sortable: true, renderCell: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter> },
+      { field: "motivo_error", headerName: "Motivo Error", sortable: true, renderCell: (params) => <TextCenter>{params.row.motivo_error}</TextCenter> },
+      { field: "tipo_sim", headerName: "Tipo SIM", sortable: true, renderCell: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter> },
+      { field: "modelo", headerName: "Modelo", sortable: true, renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter> },
+      { field: "marca", headerName: "Marca", sortable: true, renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter> },
+      { field: "color", headerName: "Color", sortable: true, renderCell: (params) => <TextCenter>{params.row.color}</TextCenter> },
+      { field: "location_status", headerName: "Ubicación", sortable: true, renderCell: (params) => <TextCenter>{params.row.location_status}</TextCenter> },
       {
          field: "activation_status",
          headerName: "Estatus Activación",
          sortable: true,
-         renderCell: (params) => <ActivationStatusBodyTemplate {...params.row} key={`actst-${params.row.id}`} />
-      }
+         renderCell: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
+      },
+      { field: "product_type_id", headerName: "Tipo Producto", sortable: true, renderCell: (params) => <TextCenter>{params.row.product_type_id}</TextCenter> },
+      { field: "import_id", headerName: "Importación", sortable: true, renderCell: (params) => <TextCenter>{params.row.import_id}</TextCenter> },
+      { field: "created_by", headerName: "Creado Por", sortable: true, renderCell: (params) => <TextCenter>{params.row.created_by}</TextCenter> },
+      { field: "active", headerName: "Activo", sortable: true, renderCell: (params) => <ActiveBodyTemplate {...params.row} /> },
+      { field: "created_at", headerName: "Fecha Registro", sortable: true, renderCell: (params) => <CreatedAtBodyTemplate {...params.row} /> }
    ];
    // #endregion COLUMNAS
 
@@ -505,6 +574,7 @@ const ProductDT = ({}) => {
                headerRow={1}
                dataStartRow={2}
             />
+            <PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent

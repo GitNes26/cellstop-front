@@ -1,164 +1,108 @@
 "use client";
 
-// import type React from "react";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Box, Card, CardContent, Typography, TextField, Button, InputAdornment, IconButton, Divider, Stack, Alert } from "@mui/material";
-import {
-   Visibility,
-   VisibilityOff,
-   Mail,
-   Lock,
-   Person,
-   Login,
-   HowToReg,
-   Google,
-   GitHub,
-   ArrowBack,
-   Send,
-   AccountCircleRounded,
-   BlockRounded,
-   EmailRounded
-} from "@mui/icons-material";
+import { Box, Card, CardContent, Typography, Button, Alert } from "@mui/material";
+import { Login, HowToReg, Send, AccountCircle, Email, Lock, Security, Dashboard, Analytics, WorkspacesRounded, ArrowBack } from "@mui/icons-material";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { useAuthContext } from "../../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
-import images from "../../constant/images";
+import { useNavigate } from "react-router-dom";
 
 import * as Yup from "yup";
 import FormikForm, { Input } from "../../components/forms";
 import Toast from "../../utils/Toast";
-
-// type FormState = "login" | "register" | "forgot-password";
+import { env, images } from "../../constant";
 
 export default function LoginForms() {
    const navigate = useNavigate();
    const formikRef = useRef(null);
    const { setIsLoading } = useGlobalContext();
    const { setAuth, login, signup } = useAuthContext();
-   //#region  States Animaciones
+
    const [formState, setFormState] = useState("login");
-   const [showPassword, setShowPassword] = useState(false);
    const [formSubmitted, setFormSubmitted] = useState(false);
    const [resetEmailSent, setResetEmailSent] = useState(false);
-   //#endregion States Animaciones
-
-   //#region Animaciones
-   const getFormTitle = () => {
-      switch (formState) {
-         case "login":
-            return "Bienvenido :)";
-         case "register":
-            return "Crear una cuenta";
-         case "forgot-password":
-            return "Recuperar contraseña";
-         default:
-            return "";
-      }
-   };
-
-   const getFormSubtitle = () => {
-      switch (formState) {
-         case "login":
-            return "Ingresa tus credenciales para acceder a tu cuenta";
-         case "register":
-            return "Completa el formulario para registrarte";
-         case "forgot-password":
-            return "Te enviaremos un enlace para restablecer tu contraseña";
-         default:
-            return "";
-      }
-   };
-
-   const slideVariants = {
-      enter: (direction) => ({
-         x: direction > 0 ? 300 : -300,
-         opacity: 0
-      }),
-      center: {
-         zIndex: 1,
-         x: 0,
-         opacity: 1
-      },
-      exit: (direction) => ({
-         zIndex: 0,
-         x: direction < 0 ? 300 : -300,
-         opacity: 0
-      })
-   };
-
+   const [isHovered, setIsHovered] = useState(false);
    const [direction, setDirection] = useState(0);
 
-   const handleFormChange = (newState) => {
-      const stateOrder = ["login", "register", "forgot-password"];
-      const currentIndex = stateOrder.indexOf(formState);
-      const newIndex = stateOrder.indexOf(newState);
-      setDirection(newIndex > currentIndex ? 1 : -1);
-      setFormState(newState);
-   };
-   //#endregion Animaciones
+   // Features para el lado izquierdo
+   const features = [
+      {
+         icon: <Dashboard sx={{ fontSize: 32 }} />,
+         text: "Dashboard Intuitivo",
+         description: "Interfaz limpia y fácil de usar",
+         delay: 0
+      },
+      {
+         icon: <Analytics sx={{ fontSize: 32 }} />,
+         text: "Analíticas en Tiempo Real",
+         description: "Métricas actualizadas al instante",
+         delay: 0.2
+      },
+      {
+         icon: <WorkspacesRounded sx={{ fontSize: 32 }} />,
+         text: "Gestión de Equipos",
+         description: "Colaboración eficiente",
+         delay: 0.4
+      },
+      {
+         icon: <Security sx={{ fontSize: 32 }} />,
+         text: "Seguridad Enterprise",
+         description: "Protección de nivel empresarial",
+         delay: 0.6
+      }
+   ];
 
-   // ["login", "register"].includes(formState) &&
+   // Configuración de formulario
    const formData = [
       {
          name: "username",
          value: "",
-         input: <Input idName={"username"} label={"Nombre de usuario | Correo | N° de empleado"} required />,
-         validations: Yup.string().trim().required("El nombre de usuario es requerido"),
+         validations: Yup.string().trim().required("El usuario es requerido"),
          validationPage: ["login", "register"]
       },
       {
          name: "email",
          value: "",
-         input: <Input idName={"email"} label={"Correo Electrónico"} type="email" required />,
-         validations: Yup.string().trim().email("Formato de correo invalida").required("El correo electrónico es requerido"),
+         validations: Yup.string().trim().email("Formato de correo inválido").required("El correo es requerido"),
          validationPage: ["register", "forgot-password"]
       },
       {
          name: "password",
          value: "",
-         input: <Input idName={"password"} label={"Contraseña"} type="password" required />,
-         validations: Yup.string().trim().min(6, "Tu contraseña debe tener mínimo 6 caracteres").required("La contraseña es requerida"),
+         validations: Yup.string().trim().min(6, "Mínimo 6 caracteres").required("La contraseña es requerida"),
          validationPage: ["login", "register"]
       },
       {
          name: "password_confirm",
          value: "",
-         input: <Input idName={"password_confirm"} label={"Confirmar Contraseña"} type="password" required />,
          validations: Yup.string()
             .trim()
-            .min(6, "Tu contraseña debe tener mínimo 6 caracteres")
-            .required("La contraseña es requerida")
-            .test("confirmPassword", "Las contraseñas no coinciden", (value) => value.match(formikRef.current.values.password))
-            .required("El nombre de usuario es requerido"),
+            .min(6, "Mínimo 6 caracteres")
+            .required("Confirma tu contraseña")
+            .test("confirmPassword", "Las contraseñas no coinciden", (value) => value === formikRef.current?.values.password),
          validationPage: ["register"]
       }
    ];
+
    const initialValues = {};
-   const validations = {};
-   const inputsForms = [];
    formData.forEach((field) => {
-      inputsForms.push(field.input);
       initialValues[field.name] = field.value;
-      // validations[field.name] = field.validations;
    });
-   // const validationSchema = Yup.object().shape(validations);
+
    const validationSchema = (page) => {
-      // console.log("🚀 ~ validationSchema ~ page:", page);
       const formDataPerPage = formData.filter((item) => item.validationPage.includes(page));
-      // console.log("🚀 ~ validationSchema ~ formDataPerPage:", formDataPerPage);
-      const validationsPerPage = [];
+      const validationsPerPage = {};
       formDataPerPage.forEach((field) => {
          validationsPerPage[field.name] = field.validations;
       });
-      // console.log("🚀 ~ formDataPerPage.forEach ~ validationsPerPage:", validationsPerPage);
       return Yup.object().shape(validationsPerPage);
    };
 
    const onSubmit = async (values, { setSubmitting }) => {
-      // return console.log("🚀 ~ onSubmit ~ values:", values);
-
       setIsLoading(true);
+      setFormSubmitted(true);
+
       let res;
       if (formState === "login") {
          res = await login(values);
@@ -171,26 +115,42 @@ export default function LoginForms() {
             setFormState("login");
          }, 3000);
       }
-      // console.log("🚀 ~ onSubmit ~ res:", res);
-      if (!res) return setIsLoading(false);
+
+      if (!res) {
+         setIsLoading(false);
+         setFormSubmitted(false);
+         return;
+      }
+
       if (res.errors) {
          setIsLoading(false);
+         setFormSubmitted(false);
          Object.values(res.errors).forEach((errors) => {
             errors.map((error) => Toast.Warning(error));
          });
          return;
       } else if (res.status_code !== 200) {
          setIsLoading(false);
+         setFormSubmitted(false);
          return Toast.Customizable(res.alert_text, res.alert_icon);
       }
 
-      // await setAuth(res.result);
       if (res.alert_text) Toast.Success(res.alert_text);
 
       setSubmitting(false);
       setIsLoading(false);
+      setFormSubmitted(false);
+
       if (formState === "login") navigate("/app");
       else handleFormChange("login");
+   };
+
+   const handleFormChange = (newState) => {
+      const stateOrder = ["login", "register", "forgot-password"];
+      const currentIndex = stateOrder.indexOf(formState);
+      const newIndex = stateOrder.indexOf(newState);
+      setDirection(newIndex > currentIndex ? 1 : -1);
+      setFormState(newState);
    };
 
    useLayoutEffect(() => {
@@ -198,237 +158,495 @@ export default function LoginForms() {
    }, []);
 
    return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="flex flex-col gap-5">
-         <img src={images.icon} className="object-contain h-20 self-center" />
-         <Card
-            sx={{
-               width: { xs: "90%", sm: 450 },
-               mx: "auto",
-               borderRadius: 2,
-               overflow: "hidden",
-               // boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-               boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
-               backdropFilter: "blur(20px)",
-               background: "rgba(255, 255, 255, 0.95)",
-               border: "1px solid rgba(255, 255, 255, 0.2)"
-            }}
+      <div className="min-h-screen flex bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+         {/* Partículas animadas de fondo - De la Opción 2 */}
+         <div className="absolute inset-0">
+            {[...Array(25)].map((_, i) => (
+               <motion.div
+                  key={i}
+                  className="absolute w-1 h-1 bg-cyan-400 rounded-full"
+                  style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`
+                  }}
+                  animate={{
+                     y: [0, -150, 0],
+                     opacity: [0, 0.8, 0],
+                     scale: [0, 1, 0]
+                  }}
+                  transition={{
+                     duration: 4 + Math.random() * 3,
+                     repeat: Infinity,
+                     delay: Math.random() * 5
+                  }}
+               />
+            ))}
+            {/* Partículas más grandes */}
+            {[...Array(8)].map((_, i) => (
+               <motion.div
+                  key={`large-${i}`}
+                  className="absolute w-3 h-3 bg-purple-500 rounded-full opacity-30"
+                  style={{
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`
+                  }}
+                  animate={{
+                     y: [0, -80, 0],
+                     x: [0, 20, 0]
+                  }}
+                  transition={{
+                     duration: 6 + Math.random() * 4,
+                     repeat: Infinity,
+                     delay: Math.random() * 3
+                  }}
+               />
+            ))}
+         </div>
+
+         {/* Lado Izquierdo - Ilustración/Features (Split Screen) */}
+         <motion.div
+            className="hidden lg:flex flex-1 relative overflow-hidden"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
          >
-            <Box
-               sx={{
-                  height: 6,
-                  background: "linear-gradient(90deg, #034AAB, #8b5cf6, #d946ef, #034AAB)",
-                  backgroundSize: "200% 100%",
-                  animation: "gradient 3s ease infinite",
-                  "@keyframes gradient": {
-                     "0%": { backgroundPosition: "0% 50%" },
-                     "50%": { backgroundPosition: "100% 50%" },
-                     "100%": { backgroundPosition: "0% 50%" }
-                  }
-               }}
-            />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-purple-600/90 to-indigo-800/90" />
 
-            <CardContent
-               sx={{
-                  p: 4,
-                  position: "relative",
-                  overflow: "hidden"
-               }}
-            >
-               {resetEmailSent && (
-                  <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} style={{ marginBottom: 16 }}>
-                     <Alert severity="success" sx={{ borderRadius: 2 }}>
-                        ¡Correo enviado! Revisa tu bandeja de entrada.
-                     </Alert>
-                  </motion.div>
-               )}
+            {/* Efectos de luz */}
+            <div className="absolute top-1/4 -left-10 w-72 h-72 bg-cyan-400/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 -right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
 
-               <AnimatePresence mode="wait" custom={direction}>
-                  <motion.div
-                     key={formState}
-                     custom={direction}
-                     variants={slideVariants}
-                     initial="enter"
-                     animate="center"
-                     exit="exit"
-                     transition={{
-                        x: { type: "spring", stiffness: 300, damping: 30 },
-                        opacity: { duration: 0.2 }
+            <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+               <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-12">
+                  <Typography variant="h2" fontWeight="800" className="mb-4 leading-tight">
+                     Descubre una Nueva
+                     <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">Experiencia Digital</span>
+                  </Typography>
+                  <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 300, lineHeight: 1.6 }}>
+                     Plataforma todo-en-uno diseñada para maximizar tu productividad y transformar tu forma de trabajar.
+                  </Typography>
+               </motion.div>
+
+               <div className="space-y-8">
+                  {features.map((feature, index) => (
+                     <motion.div
+                        key={index}
+                        initial={{ x: -30, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: feature.delay + 0.5, duration: 0.6 }}
+                        className="flex items-start gap-6 group cursor-pointer"
+                     >
+                        <motion.div
+                           whileHover={{ scale: 1.1, rotate: 5 }}
+                           className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-all duration-300"
+                        >
+                           {feature.icon}
+                        </motion.div>
+                        <div>
+                           <Typography variant="h6" fontWeight="600" className="mb-1">
+                              {feature.text}
+                           </Typography>
+                           <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                              {feature.description}
+                           </Typography>
+                        </div>
+                     </motion.div>
+                  ))}
+               </div>
+
+               {/* Stats del sistema */}
+               <motion.div
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1.2, duration: 0.6 }}
+                  className="flex gap-12 mt-16 pt-8 border-t border-white/20"
+               >
+                  <div className="text-center">
+                     <Typography variant="h3" fontWeight="800" className="text-cyan-300">
+                        50K+
+                     </Typography>
+                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        Usuarios Activos
+                     </Typography>
+                  </div>
+                  <div className="text-center">
+                     <Typography variant="h3" fontWeight="800" className="text-purple-300">
+                        99.9%
+                     </Typography>
+                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        Uptime
+                     </Typography>
+                  </div>
+                  <div className="text-center">
+                     <Typography variant="h3" fontWeight="800" className="text-blue-300">
+                        24/7
+                     </Typography>
+                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                        Soporte Premium
+                     </Typography>
+                  </div>
+               </motion.div>
+            </div>
+         </motion.div>
+
+         {/* Lado Derecho - Formulario Flotante (Combinación) */}
+         <motion.div
+            className="flex-1 flex items-center justify-center p-4 lg:p-8 relative"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+         >
+            <motion.div className="w-full max-w-md relative z-10" onHoverStart={() => setIsHovered(true)} onHoverEnd={() => setIsHovered(false)}>
+               {/* Card Flotante con Glass Effect */}
+               <Card
+                  sx={{
+                     borderRadius: 4,
+                     overflow: "hidden",
+                     background: "rgba(255, 255, 255, 0.1)",
+                     backdropFilter: "blur(20px)",
+                     border: "1px solid rgba(255, 255, 255, 0.2)",
+                     boxShadow: isHovered ? "0 35px 60px -12px rgba(0, 0, 0, 0.5)" : "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+                     transition: "all 0.4s ease",
+                     position: "relative"
+                  }}
+               >
+                  {/* Barra superior con gradiente animado */}
+                  <Box
+                     sx={{
+                        height: 4,
+                        background: "linear-gradient(90deg, #22d3ee, #3b82f6, #8b5cf6, #ec4899)",
+                        backgroundSize: "300% 100%",
+                        animation: "gradientShift 3s ease infinite",
+                        "@keyframes gradientShift": {
+                           "0%": { backgroundPosition: "0% 50%" },
+                           "50%": { backgroundPosition: "100% 50%" },
+                           "100%": { backgroundPosition: "0% 50%" }
+                        }
                      }}
-                  >
-                     {formState === "forgot-password" && (
-                        <Box sx={{ mb: 2 }}>
-                           <Button startIcon={<ArrowBack />} onClick={() => handleFormChange("login")} sx={{ color: "text.secondary", p: 0 }}>
-                              Volver al inicio de sesión
-                           </Button>
-                        </Box>
+                  />
+
+                  <CardContent sx={{ p: 5 }}>
+                     {resetEmailSent && (
+                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+                           <Alert
+                              severity="success"
+                              sx={{
+                                 borderRadius: 3,
+                                 bgcolor: "rgba(34, 197, 94, 0.2)",
+                                 color: "white",
+                                 border: "1px solid rgba(34, 197, 94, 0.3)",
+                                 backdropFilter: "blur(10px)"
+                              }}
+                           >
+                              ¡Correo enviado! Revisa tu bandeja de entrada.
+                           </Alert>
+                        </motion.div>
                      )}
 
-                     <Typography variant="h4" component="h1" fontWeight="bold" mb={1}>
-                        {getFormTitle()}
-                     </Typography>
+                     <AnimatePresence mode="wait" custom={direction}>
+                        <motion.div
+                           key={formState}
+                           custom={direction}
+                           initial={{ opacity: 0, x: direction * 30 }}
+                           animate={{ opacity: 1, x: 0 }}
+                           exit={{ opacity: 0, x: direction * -30 }}
+                           transition={{ duration: 0.3 }}
+                           className="space-y-6"
+                        >
+                           {/* Header del Formulario */}
+                           <div className="text-center space-y-4">
+                              {formState === "forgot-password" && (
+                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start mb-2">
+                                    <Button
+                                       startIcon={<ArrowBack />}
+                                       onClick={() => handleFormChange("login")}
+                                       sx={{
+                                          color: "rgba(255,255,255,0.8)",
+                                          p: 0,
+                                          fontSize: "0.875rem",
+                                          textTransform: "none",
+                                          "&:hover": {
+                                             bgcolor: "transparent",
+                                             color: "white"
+                                          }
+                                       }}
+                                    >
+                                       Volver al inicio
+                                    </Button>
+                                 </motion.div>
+                              )}
 
-                     <Typography variant="body2" color="text.secondary" mb={4}>
-                        {getFormSubtitle()}
-                     </Typography>
+                              <motion.div
+                                 initial={{ scale: 0 }}
+                                 animate={{ scale: 1 }}
+                                 transition={{ type: "spring", stiffness: 200 }}
+                                 className="w-45 h-45 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                              >
+                                 {/* <Security sx={{ fontSize: 32, color: "white" }} /> */}
+                                 <img src={images.icon} className="object-contain h-20 self-center" />
+                              </motion.div>
 
-                     <FormikForm
-                        key={"formikComponent"}
-                        initialValues={initialValues}
-                        validationSchema={validationSchema(formState)}
-                        onSubmit={onSubmit}
-                        showActionButtons={false}
-                        formikRef={formikRef}
-                        handleCancel={null}
-                     >
-                        <Stack spacing={3} width={"100%"}>
-                           {/* {inputsForms.map((input) => input)} */}
+                              <Typography variant="h4" component="h1" fontWeight="700" color="white" sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" } }}>
+                                 {formState === "login" ? "Bienvenido" : formState === "register" ? "Crear Cuenta" : "Recuperar Acceso"}
+                              </Typography>
 
-                           {/* FORMULARIO */}
-                           {formState === "forgot-password" ? (
-                              <Input
-                                 idName={"email"}
-                                 label={"Correo Electrónico"}
-                                 type="email"
-                                 startAdornmentContent={<EmailRounded color="action" />}
-                                 focus
-                                 required
-                              />
-                           ) : (
-                              <>
+                              <Typography
+                                 variant="body1"
+                                 sx={{
+                                    color: "rgba(255,255,255,0.7)",
+                                    fontSize: "0.95rem",
+                                    lineHeight: 1.5
+                                 }}
+                              >
+                                 {formState === "login"
+                                    ? "Ingresa a tu espacio seguro y personalizado"
+                                    : formState === "register"
+                                    ? "Comienza tu journey con nosotros hoy"
+                                    : "Te enviaremos instrucciones para recuperar tu cuenta"}
+                              </Typography>
+                           </div>
+
+                           {/* Formulario */}
+                           <FormikForm
+                              key={`formik-${formState}`}
+                              initialValues={initialValues}
+                              validationSchema={validationSchema(formState)}
+                              onSubmit={onSubmit}
+                              showActionButtons={false}
+                              formikRef={formikRef}
+                              handleCancel={null}
+                              spacing={3}
+                           >
+                              {/* <div className="space-y-5"> */}
+                              {formState === "forgot-password" ? (
                                  <Input
-                                    idName={"username"}
-                                    label={"Usuario | Correo | N° de empleado"}
-                                    type="text"
-                                    startAdornmentContent={<AccountCircleRounded />}
-                                    required
-                                 />
-                                 {formState === "register" && (
-                                    <Input
-                                       idName={"email"}
-                                       label={"Correo Electrónico"}
-                                       type="email"
-                                       startAdornmentContent={<EmailRounded color="action" />}
-                                       required
-                                    />
-                                 )}
-
-                                 <Input
-                                    idName={"password"}
-                                    label={"Contraseña"}
-                                    type="password"
-                                    helperText="Mínimo 6 caracteres"
-                                    minLength={6}
-                                    startAdornmentContent={<Lock color="action" />}
+                                    idName="email"
+                                    label="Correo electrónico"
+                                    type="email"
+                                    startAdornmentContent={<Email sx={{ color: "rgba(255,255,255,0.7)" }} />}
+                                    sx={{
+                                       input: { color: "white" },
+                                       label: { color: "rgba(255,255,255,0.7)" },
+                                       "& .MuiOutlinedInput-root": {
+                                          bgcolor: "rgba(255,255,255,0.1)",
+                                          border: "1px solid rgba(255,255,255,0.2)",
+                                          borderRadius: 2,
+                                          color: "white",
+                                          "&:hover": {
+                                             bgcolor: "rgba(255,255,255,0.15)",
+                                             border: "1px solid rgba(255,255,255,0.3)"
+                                          },
+                                          "&.Mui-focused": {
+                                             bgcolor: "rgba(255,255,255,0.2)",
+                                             border: "2px solid rgba(59, 130, 246, 0.5)"
+                                          }
+                                       }
+                                    }}
                                     focus
                                     required
                                  />
-                                 {formState === "register" && (
+                              ) : (
+                                 <>
                                     <Input
-                                       idName={"password_confirm"}
-                                       label={"Confirmar Contraseña"}
-                                       type="password"
-                                       helperText="Mínimo 6 caracteres"
-                                       minLength={6}
-                                       startAdornmentContent={<Lock color="action" />}
+                                       idName="username"
+                                       label="Usuario o correo"
+                                       type="text"
+                                       startAdornmentContent={<AccountCircle sx={{ color: "rgba(255,255,255,0.7)" }} />}
+                                       sx={{
+                                          input: { color: "white" },
+                                          label: { color: "rgba(255,255,255,0.7)" },
+                                          "& .MuiOutlinedInput-root": {
+                                             bgcolor: "rgba(255,255,255,0.1)",
+                                             border: "1px solid rgba(255,255,255,0.2)",
+                                             borderRadius: 2,
+                                             color: "white",
+                                             "&:hover": {
+                                                bgcolor: "rgba(255,255,255,0.15)",
+                                                border: "1px solid rgba(255,255,255,0.3)"
+                                             }
+                                          }
+                                       }}
                                        required
                                     />
-                                 )}
-                              </>
-                           )}
 
-                           {/* BOTON DE OLVIDASTE TU CONTRASEÑA */}
-                           {formState === "login" && (
-                              <Box sx={{ textAlign: "right" }}>
+                                    {formState === "register" && (
+                                       <Input
+                                          idName="email"
+                                          label="Correo electrónico"
+                                          type="email"
+                                          startAdornmentContent={<Email sx={{ color: "rgba(255,255,255,0.7)" }} />}
+                                          sx={{
+                                             input: { color: "white" },
+                                             label: { color: "rgba(255,255,255,0.7)" },
+                                             "& .MuiOutlinedInput-root": {
+                                                bgcolor: "rgba(255,255,255,0.1)",
+                                                border: "1px solid rgba(255,255,255,0.2)",
+                                                borderRadius: 2,
+                                                color: "white"
+                                             }
+                                          }}
+                                          required
+                                       />
+                                    )}
+
+                                    <Input
+                                       idName="password"
+                                       label="Contraseña"
+                                       type="password"
+                                       startAdornmentContent={<Lock sx={{ color: "rgba(255,255,255,0.7)" }} />}
+                                       sx={{
+                                          input: { color: "white" },
+                                          label: { color: "rgba(255,255,255,0.7)" },
+                                          "& .MuiOutlinedInput-root": {
+                                             bgcolor: "rgba(255,255,255,0.1)",
+                                             border: "1px solid rgba(255,255,255,0.2)",
+                                             borderRadius: 2,
+                                             color: "white"
+                                          }
+                                       }}
+                                       required
+                                    />
+
+                                    {formState === "register" && (
+                                       <Input
+                                          idName="password_confirm"
+                                          label="Confirmar contraseña"
+                                          type="password"
+                                          startAdornmentContent={<Lock sx={{ color: "rgba(255,255,255,0.7)" }} />}
+                                          sx={{
+                                             input: { color: "white" },
+                                             label: { color: "rgba(255,255,255,0.7)" },
+                                             "& .MuiOutlinedInput-root": {
+                                                bgcolor: "rgba(255,255,255,0.1)",
+                                                border: "1px solid rgba(255,255,255,0.2)",
+                                                borderRadius: 2,
+                                                color: "white"
+                                             }
+                                          }}
+                                          required
+                                       />
+                                    )}
+                                 </>
+                              )}
+
+                              {formState === "login" && (
+                                 <div className="text-right">
+                                    <Button
+                                       variant="text"
+                                       onClick={() => handleFormChange("forgot-password")}
+                                       sx={{
+                                          p: 0,
+                                          fontSize: "0.875rem",
+                                          color: "rgba(255,255,255,0.8)",
+                                          textTransform: "none",
+                                          "&:hover": {
+                                             bgcolor: "transparent",
+                                             color: "white",
+                                             textDecoration: "underline"
+                                          }
+                                       }}
+                                    >
+                                       ¿Olvidaste tu contraseña?
+                                    </Button>
+                                 </div>
+                              )}
+
+                              <motion.div
+                                 style={{ width: "100%" }}
+                                 whileHover={{ scale: 1.02 }}
+                                 whileTap={{ scale: 0.98 }}
+                                 transition={{ type: "spring", stiffness: 400 }}
+                              >
+                                 <Button
+                                    type="submit"
+                                    variant="contained"
+                                    size="large"
+                                    fullWidth
+                                    disabled={formSubmitted}
+                                    startIcon={formState === "login" ? <Login /> : formState === "register" ? <HowToReg /> : <Send />}
+                                    sx={{
+                                       py: 1.8,
+                                       borderRadius: 3,
+                                       fontSize: "1rem",
+                                       fontWeight: 600,
+                                       textTransform: "none",
+                                       background: "linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #8b5cf6 100%)",
+                                       backgroundSize: "200% 100%",
+                                       boxShadow: "0 8px 25px rgba(34, 211, 238, 0.3)",
+                                       position: "relative",
+                                       overflow: "hidden",
+                                       "&:hover": {
+                                          background: "linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #8b5cf6 100%)",
+                                          backgroundPosition: "100% 0%",
+                                          boxShadow: "0 12px 35px rgba(34, 211, 238, 0.5)",
+                                          transform: "translateY(-2px)"
+                                       },
+                                       "&:disabled": {
+                                          background: "rgba(255,255,255,0.1)",
+                                          color: "rgba(255,255,255,0.5)",
+                                          transform: "none"
+                                       }
+                                    }}
+                                 >
+                                    {formSubmitted ? (
+                                       <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                                          ⏳
+                                       </motion.span>
+                                    ) : formState === "login" ? (
+                                       "Acceder al Sistema"
+                                    ) : formState === "register" ? (
+                                       "Crear Mi Cuenta"
+                                    ) : (
+                                       "Enviar Instrucciones"
+                                    )}
+                                 </Button>
+                              </motion.div>
+                              {/* </div> */}
+                           </FormikForm>
+
+                           {/* Navegación entre formularios */}
+                           {formState !== "forgot-password" && (
+                              <motion.div
+                                 initial={{ opacity: 0 }}
+                                 animate={{ opacity: 1 }}
+                                 transition={{ delay: 0.3 }}
+                                 className="text-center pt-4 border-t border-white/10"
+                              >
+                                 <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.7)" }} component="span">
+                                    {formState === "login" ? "¿Primera vez en la plataforma? " : "¿Ya tienes una cuenta? "}
+                                 </Typography>
                                  <Button
                                     variant="text"
-                                    onClick={() => handleFormChange("forgot-password")}
+                                    onClick={() => handleFormChange(formState === "login" ? "register" : "login")}
                                     sx={{
                                        p: 0,
-                                       fontWeight: "medium",
                                        fontSize: "0.875rem",
-                                       color: "primary.main",
+                                       fontWeight: 600,
+                                       color: "white",
+                                       textTransform: "none",
                                        "&:hover": {
                                           bgcolor: "transparent",
                                           textDecoration: "underline"
                                        }
                                     }}
                                  >
-                                    ¿Olvidaste tu contraseña?
+                                    {formState === "login" ? "Crear cuenta" : "Iniciar sesión"}
                                  </Button>
-                              </Box>
+                              </motion.div>
                            )}
+                        </motion.div>
+                     </AnimatePresence>
+                  </CardContent>
+               </Card>
 
-                           {/* BOTON SEND */}
-                           <Button
-                              type="submit"
-                              variant="contained"
-                              size="large"
-                              fullWidth
-                              loading={formSubmitted}
-                              disabled={formSubmitted}
-                              startIcon={formState === "login" ? <Login /> : formState === "register" ? <HowToReg /> : <Send />}
-                              sx={{
-                                 py: 1.5,
-                                 color: "whitesmoke",
-                                 background: "linear-gradient(45deg, #034AAB, #8b5cf6)",
-                                 "&:hover": {
-                                    background: "linear-gradient(45deg, #4f46e5, #7c3aed)"
-                                 },
-                                 "&:disabled": {
-                                    background: "rgba(0,0,0,0.12)"
-                                 }
-                              }}
-                           >
-                              {formSubmitted ? (
-                                 <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{
-                                       duration: 1,
-                                       repeat: Number.POSITIVE_INFINITY,
-                                       ease: "easeInOut"
-                                    }}
-                                 >
-                                    ⏳
-                                 </motion.div>
-                              ) : formState === "login" ? (
-                                 "Iniciar sesión"
-                              ) : formState === "register" ? (
-                                 "Registrarse"
-                              ) : (
-                                 "Enviar enlace"
-                              )}
-                           </Button>
-                        </Stack>
-                     </FormikForm>
-
-                     {/* TEXTO INFERIRO PARA CAMBIAR DE FORMULARIO */}
-                     {formState !== "forgot-password" && (
-                        <Box sx={{ mt: 3, textAlign: "center" }}>
-                           <Typography variant="body2" component="span">
-                              {formState === "login" ? "¿No tienes una cuenta? " : "¿Ya tienes una cuenta? "}
-                           </Typography>
-                           <Button
-                              variant="text"
-                              onClick={() => handleFormChange(formState === "login" ? "register" : "login")}
-                              sx={{
-                                 p: 0,
-                                 fontWeight: "medium",
-                                 fontSize: "0.875rem",
-                                 color: "primary.main",
-                                 "&:hover": {
-                                    bgcolor: "transparent",
-                                    textDecoration: "underline"
-                                 }
-                              }}
-                           >
-                              {formState === "login" ? "Regístrate" : "Inicia sesión"}
-                           </Button>
-                        </Box>
-                     )}
-                  </motion.div>
-               </AnimatePresence>
-            </CardContent>
-         </Card>
-      </motion.div>
+               {/* Footer */}
+               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }} className="text-center mt-8">
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.5)" }}>
+                     © 2025 Sistema CellStop • {env.VERSION} • Sistema de autenticación segura
+                  </Typography>
+               </motion.div>
+            </motion.div>
+         </motion.div>
+      </div>
    );
 }

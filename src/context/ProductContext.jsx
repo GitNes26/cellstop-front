@@ -189,6 +189,27 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   const preActivationProducts = async (data) => {
+      // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
+
+      const [error, response] = await to(Axios.post(`${prefixPath}/preActivation`, data));
+      // console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
+      // console.log("🚀 ~ createOrUpdateProduct ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
+         const message = error.response.data.message || "createOrUpdateProduct ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      await getAllProducts();
+
+      return res;
+   };
+
    const updateLoteAssignment = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
@@ -245,7 +266,8 @@ export default function ProductContextProvider({ children }) {
             deleteProduct,
             disEnableProduct,
             importProducts,
-            updateLoteAssignment
+            updateLoteAssignment,
+            preActivationProducts
          }}
       >
          {children}
