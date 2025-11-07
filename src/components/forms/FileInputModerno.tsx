@@ -204,7 +204,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                file: file, // Usamos el archivo original sin comprimir
                dataURL
             };
-            console.log("🚀 ~ handleSetFile ~ preview:", preview);
+            // console.log("🚀 ~ handleSetFile ~ preview:", preview);
 
             setFilePreviews([preview]);
             filePreviews = [preview];

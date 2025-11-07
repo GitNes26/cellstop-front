@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FormikForm, { Input, Textarea, Select2, DateTimePicker, FileInput, FileInputModerno } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent, showDuplicatesAlert } from "../../../../components";
@@ -80,7 +80,8 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
-   const { singularName, product, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, importProducts } = useProductContext();
+   const formikRef = useRef(null);
+   const { singularName, product, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, importProducts } = useProductContext();
    const { productTypesSelect, setProductTypesSelect, getSelectIndexProductTypes } = useProductTypeContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
@@ -89,7 +90,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
    const [imgFile, setImgFile] = useState([]);
    const [helperTextImgFile, setHelperTextImgFile] = useState(null);
 
-   const handleFile = async (file) => {
+   const handleFile = (file) => {
       setIsLoading(true);
       const reader = new FileReader();
 
@@ -186,7 +187,6 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
             setHelperTextImgFile(msgToast);
             formikRef.current.setFieldValue("data", validos);
             formikRef.current.setFieldValue("fileData", fileData);
-
             // Llamar callback si se proporciona
             // if (onFinish) onFinish(validos);
 
@@ -206,6 +206,22 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
       {
          name: "id",
          input: <Input key={`key-input-id`} col={1} idName="id" label="ID" hidden />,
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "data",
+         input: <Input key={`key-input-data`} col={1} idName="data" label="Data" hidden />,
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "fileData",
+         input: <Input key={`key-input-fileData`} col={1} idName="fileData" label="fileData" hidden />,
          value: null,
          validations: null,
          validationPage: [],

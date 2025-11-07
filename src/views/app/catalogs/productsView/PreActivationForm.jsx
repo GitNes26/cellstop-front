@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FormikForm, { Input, Select2, FileInputModerno } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent, showDuplicatesAlert } from "../../../../components";
@@ -30,6 +30,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { useProductTypeContext } from "../../../../context/ProductTypeContext";
 import useFetch from "../../../../hooks/useFetch";
 import * as XLSX from "xlsx";
+import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -256,8 +257,9 @@ const IccidListSection = ({ iccidList, onSelectionChange }) => {
 const PreActivationForm = ({ refetchSelect, openDialog, setOpenDialog }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
-   const { product, formikRef, isEdit, setIsEdit, preActivationProducts } = useProductContext();
+   const { product, isEdit, setIsEdit, preActivationProducts } = useProductContext();
    const { setProductTypesSelect, getSelectIndexProductTypes } = useProductTypeContext();
+   const formikRef = useRef(null);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [iccidList, setIccidList] = useState([]);
@@ -395,7 +397,23 @@ const PreActivationForm = ({ refetchSelect, openDialog, setOpenDialog }) => {
          return Toast.Customizable(res.alert_text, res.alert_icon);
       }
 
-      // if (res.duplicados && res.duplicados.length > 0) showDuplicatesAlert(res.duplicados);
+      if (res.metrics)
+         /* showMetricsAlert(res.metrics); */
+         showFlexibleAlert(res.metrics, {
+            type: ALERT_TYPES.METRICS,
+            title: "Resultado de Pre-Activación",
+            subtitle: "Proceso de pre-activación masiva completado",
+            copyTextGenerator: (data) => {
+               const metrics = data;
+               return (
+                  `RESULTADO PRE-ACTIVACIÓN:\n\n` +
+                  `Solicitados: ${metrics.requested}\n` +
+                  `Actualizados: ${metrics.updated}\n` +
+                  `No encontrados: ${metrics.not_found}\n` +
+                  `Ya activados: ${metrics.already_activated}`
+               );
+            }
+         });
 
       await resetForm();
       setImgFile([]);

@@ -2,7 +2,7 @@ import { Button, FormControlLabel, FormGroup, Grid, Switch, Tooltip, Typography 
 import FormikForm, { DateTimePicker, Input, Select2, Textarea, TransferList } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useProductContext } from "../../../../context/ProductContext";
 import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mui/icons-material";
@@ -64,7 +64,6 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       setFormTitle,
       textBtnSubmit,
       setTextBtnSubmit,
-      formikRef,
       isEdit,
       setIsEdit,
       updateLoteAssignment,
@@ -73,6 +72,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       getSelectIndexProducts
    } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
+   const formikRef = useRef(null);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [loteFormDialog, setLoteFormDialog] = useState(false);
@@ -82,7 +82,8 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    const init = () => {
       console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock");
+      const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado");
+      console.log("🚀 ~ init ~ productsSelect:", productsSelect)
       console.log("🚀 ~ init ~ productosEnStock:", productosEnStock);
       // const productsSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
