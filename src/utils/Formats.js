@@ -558,7 +558,7 @@ export const printContent = (titlePrint, idContent) => {
    printWindow?.document.writeln(`<html><head>
          <title>${titlePrint}</title>
          <!-- Tailwind CSS v3.4.13 -->
-         <script src="https://cdn.tailwindcss.com/3.4.13"></script>
+         <script src="https://cdn.tailwindcss.com/3.4.17"></script>
          <!-- daisyUI v4.12.10 -->
          <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
          <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -746,4 +746,64 @@ export function excelDateToJSDate(excelDate) {
    }
 
    return null;
+}
+
+/**
+ * Detecta si el payload contiene archivos
+ */
+export const hasFiles = (data) => {
+   if (!data) return false;
+   if (data instanceof FormData) return true;
+
+   return Object.values(data).some((val) => val instanceof File || val instanceof Blob);
+
+   // for (const key in data) {
+   //    const value = data[key];
+   //    if (value instanceof File || value instanceof Blob) return true;
+   // }
+
+   // return false;
+};
+
+// 🔤 Elimina acentos y tildes
+export function removeAccents(str) {
+   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// 🧩 Generador de nombre de usuario
+export function generateUsername(valorSelector) {
+   if (!valorSelector) return "";
+
+   // Ejemplo: "1 - RUBEN DEDOR ZOTE"
+   // 1️⃣ Quitar el número y guion
+   const partes = valorSelector.split("-");
+   let nombreCompleto = partes.length > 1 ? partes[1] : partes[0];
+   nombreCompleto = nombreCompleto.trim();
+
+   // 2️⃣ Quitar acentos y limpiar espacios
+   nombreCompleto = removeAccents(nombreCompleto.replace(/\s+/g, " "));
+
+   // 3️⃣ Separar por palabras
+   const palabras = nombreCompleto.split(" ");
+
+   // 4️⃣ Filtrar palabras vacías o conectores como "DE", "DEL", "LA", etc.
+   const nombresFiltrados = palabras.filter((p) => !["DE", "DEL", "LA", "LAS", "LOS"].includes(p.toUpperCase()));
+
+   const primerNombre = nombresFiltrados[0] || "";
+   const apellidoPaterno = nombresFiltrados[1] || "";
+   const apellidoMaterno = nombresFiltrados[2] || "";
+
+   // 5️⃣ Formato: Primer nombre con mayúscula inicial
+   const nombreFormateado = primerNombre.charAt(0).toUpperCase() + primerNombre.slice(1).toLowerCase();
+
+   // 6️⃣ Reglas para iniciales de apellidos
+   let iniciales = "";
+
+   if (apellidoPaterno && apellidoMaterno) {
+      iniciales = apellidoPaterno.charAt(0).toUpperCase() + apellidoMaterno.charAt(0).toUpperCase();
+   } else if (apellidoPaterno) {
+      iniciales = apellidoPaterno.slice(0, 2).toUpperCase();
+   }
+
+   return `${nombreFormateado}${iniciales}`;
 }

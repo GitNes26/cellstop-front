@@ -5,24 +5,17 @@ import MenuDT from "./DataTable";
 import useFetch from "../../../../hooks/useFetch";
 import { useMenuContext } from "../../../../context/MenuContext";
 import { Typography } from "@mui/material";
+import * as Menu from "../../../../models/Menu";
+import useFetchObservable from "../../../../hooks/useFetchObservable";
 
 const MenusView = ({}) => {
-   const { pluralName, setAllMenus, setMenusSelect, setHeadersMenus, allMenus, getAllMenus, getHeadersMenusSelect, getSelectMenusToRoles } = useMenuContext();
+   // const { ObservableSet } = useObservable();
 
-   useFetch(getAllMenus);
+   const pluralName = Menu.pluralName;
+   const { data: allMenus, res, error, refetch } = useFetchObservable("Menu.all", Menu.GetAllMenus, true);
+   useFetchObservable("Menu.select", Menu.GetSelectMenusToRoles, true);
 
-   // useFetch(getAllMenus, setMenusSelect);
-   useFetch(getSelectMenusToRoles);
-   useFetch(getHeadersMenusSelect);
-
-   // useEffect(() => {
-   //    if (menus.isSuccess) {
-   //       ObservableSet("AllMenus", menus.data?.data || []);
-   //    }
-   //    // useObservable().ObservableSet("AllMenus", menus.data?.data || []).finally(() => {{
-   //    //    console.log("🚀 ~ MenusView ~ useEffect ~ menus.data:", menus.data);
-   //    // }});
-   // }, [menus.isSuccess]);
+   // useEffect(() => {}, []);
 
    return (
       <>
@@ -31,10 +24,10 @@ const MenusView = ({}) => {
          </Typography>
          <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }} sx={{ mb: 3 }}>
-               <MenuForm />
+               <MenuForm refetchDataTable={refetch} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 9 }} sx={{ mb: 3 }}>
-               <MenuDT />
+               <MenuDT refetch={refetch} />
             </Grid>
          </Grid>
       </>

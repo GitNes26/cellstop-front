@@ -139,7 +139,8 @@ export const GetAllMenus = async () => {
    // });
    useEffect(() => {
       if (menus.isSuccess) {
-         ObservableSet("AllMenus", menus.data?.data.data || []);
+         ObservableSet("allMenusObj", menus);
+         ObservableSet("allMenus", menus.data?.data.data || []);
       }
       // useObservable().ObservableSet("AllMenus", menus.data?.data || []).finally(() => {{
       //    console.log("🚀 ~ MenusView ~ useEffect ~ menus.data:", menus.data);

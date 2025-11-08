@@ -10,13 +10,15 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
-import { useChipContext } from "../../../../context/ChipContext";
+import { useProductContext } from "../../../../context/ProductContext";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
 import { env } from "../../../../constant";
 import AssignmentForm from "./AssignmentForm";
+import ImportForm from "./ImportForm";
+import PreActivationForm from "./PreActivationForm";
 
-const columnas = [
+const columnasPrePago = [
    "FILTRO",
    "TELEFONO",
    "IMEI",
@@ -36,7 +38,26 @@ const columnas = [
    "FOLIO FACTURA",
    "FECHA PUBLICACION"
 ];
-
+// Región |||| Celular |||| ICCID |||| IMEI |||| Fecha |||| Trámite |||| Estatus |||| Comentario |||| Fuerza de Venta Prepago |||| Fuerza de Venta Padre |||| Usuario |||| Folio |||| Producto |||| Núm Orden |||| Estatus orden |||| Motivo error |||| Tipo SIM
+const columnas = [
+   "Región",
+   "Celular",
+   "ICCID",
+   "IMEI",
+   "Fecha",
+   "Trámite",
+   "Estatus",
+   "Comentario",
+   "Fuerza de Venta Prepago",
+   "Fuerza de Venta Padre",
+   "Usuario",
+   "Folio",
+   "Producto",
+   "Núm Orden",
+   "Estatus orden",
+   "Motivo error",
+   "Tipo SIM"
+];
 // Validaciones por columna: null = opcional
 const validaciones = {
    FILTRO: () => null,
@@ -61,33 +82,24 @@ const validaciones = {
    "FECHA PUBLICACION": (v) => !v || !isNaN(Date.parse(v))
 };
 
-const ChipDT = () => {
+const ProductDT = ({}) => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allChips, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteChip, disEnableChip, getAllChips, getChip } = useChipContext();
+   const { singularName, allProducts, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteProduct, disEnableProduct, getAllProducts, getProduct } =
+      useProductContext();
    const mySwal = withReactContent(Swal);
 
+   const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
+   const [openDialogPreActivationForm, setOpenDialogPreActivationForm] = useState(false);
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
 
-   // #region BodysTemplate
-   const FiltroBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.filtro}
-      </Typography>
-   );
-
-   const TelefonoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.telefono}
-      </Typography>
-   );
-
-   const ImeiBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.imei}
+   // #region Body Templates
+   const TextCenter = ({ children, key }) => (
+      <Typography key={key} textAlign="center" size={fontSizeTable.text}>
+         {children ?? "-"}
       </Typography>
    );
 
@@ -97,99 +109,9 @@ const ChipDT = () => {
       </Typography>
    );
 
-   const EstatusLinBodyTemplate = (obj) => (
+   const FechaBodyTemplate = (obj) => (
       <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.estatus_lin}
-      </Typography>
-   );
-
-   const MovimientoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.movimiento}
-      </Typography>
-   );
-
-   const FechaActivBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_activ, false)}
-      </Typography>
-   );
-
-   const FechaPrimLlamBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_prim_llam, false)}
-      </Typography>
-   );
-
-   const FechaDolBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_dol, false)}
-      </Typography>
-   );
-
-   const EstatusPagoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.estatus_pago}
-      </Typography>
-   );
-
-   const MotivoEstatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.motivo_estatus}
-      </Typography>
-   );
-
-   const MontoComBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         ${obj.monto_com ? Number(obj.monto_com).toFixed(2) : "0.00"}
-      </Typography>
-   );
-
-   const TipoComisionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.tipo_comision}
-      </Typography>
-   );
-
-   const EvaluacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.evaluacion}
-      </Typography>
-   );
-
-   const FzaVtaPagoBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.fza_vta_pago}
-      </Typography>
-   );
-
-   const FechaEvaluacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_evaluacion, false)}
-      </Typography>
-   );
-
-   const FolioFacturaBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.folio_factura}
-      </Typography>
-   );
-
-   const FechaPublicacionBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha_publicacion, false)}
-      </Typography>
-   );
-
-   const LocationStatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.location_status}
-      </Typography>
-   );
-
-   const ActivationStatusBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {obj.activation_status}
+         {formatDatetime(obj.fecha, false)}
       </Typography>
    );
 
@@ -204,108 +126,148 @@ const ChipDT = () => {
          {formatDatetime(obj.created_at, true)}
       </Typography>
    );
-   // #endregion Body Templates
+   // #endregion
 
    const columns = [
-      { field: "filtro", headerName: "Filtro", sortable: true, renderCell: (params) => <FiltroBodyTemplate {...params.row} key={`filtro-${params.row.id}`} /> },
       {
-         field: "telefono",
-         headerName: "Teléfono",
+         field: "region",
+         headerName: "Región",
          sortable: true,
-         renderCell: (params) => <TelefonoBodyTemplate {...params.row} key={`telefono-${params.row.id}`} />
-      },
-      { field: "imei", headerName: "IMEI", sortable: true, renderCell: (params) => <ImeiBodyTemplate {...params.row} key={`imei-${params.row.id}`} /> },
-      { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} key={`iccid-${params.row.id}`} /> },
-      {
-         field: "estatus_lin",
-         headerName: "Estatus Línea",
-         sortable: true,
-         renderCell: (params) => <EstatusLinBodyTemplate {...params.row} key={`estatus-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.region}`}>{params.row.region}</TextCenter>
       },
       {
-         field: "movimiento",
-         headerName: "Movimiento",
+         field: "celular",
+         headerName: "Celular",
          sortable: true,
-         renderCell: (params) => <MovimientoBodyTemplate {...params.row} key={`mov-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.celular}`}>{params.row.celular}</TextCenter>
+      },
+      { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} /> },
+      {
+         field: "imei",
+         headerName: "IMEI",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.imei}`}>{params.row.imei}</TextCenter>
+      },
+      { field: "fecha", headerName: "Fecha", sortable: true, renderCell: (params) => <FechaBodyTemplate {...params.row} /> },
+      {
+         field: "tramite",
+         headerName: "Trámite",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.tramite}`}>{params.row.tramite}</TextCenter>
       },
       {
-         field: "fecha_activ",
-         headerName: "Fecha Activación",
+         field: "estatus",
+         headerName: "Estatus",
          sortable: true,
-         renderCell: (params) => <FechaActivBodyTemplate {...params.row} key={`activ-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.estatus}`}>{params.row.estatus}</TextCenter>
       },
       {
-         field: "fecha_prim_llam",
-         headerName: "Fecha 1ra Llamada",
+         field: "comentario",
+         headerName: "Comentario",
          sortable: true,
-         renderCell: (params) => <FechaPrimLlamBodyTemplate {...params.row} key={`prim-${params.row.id}`} />
-      },
-      { field: "fecha_dol", headerName: "Fecha DOL", sortable: true, renderCell: (params) => <FechaDolBodyTemplate {...params.row} key={`dol-${params.row.id}`} /> },
-      {
-         field: "estatus_pago",
-         headerName: "Estatus Pago",
-         sortable: true,
-         renderCell: (params) => <EstatusPagoBodyTemplate {...params.row} key={`pago-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.comentario}`}>{params.row.comentario}</TextCenter>
       },
       {
-         field: "motivo_estatus",
-         headerName: "Motivo Estatus",
+         field: "fza_vta_prepago",
+         headerName: "Fza Vta Prepago",
          sortable: true,
-         renderCell: (params) => <MotivoEstatusBodyTemplate {...params.row} key={`motivo-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.fza_vta_prepago}`}>{params.row.fza_vta_prepago}</TextCenter>
       },
       {
-         field: "monto_com",
-         headerName: "Monto Comisión",
+         field: "fza_vta_padre",
+         headerName: "Fza Vta Padre",
          sortable: true,
-         renderCell: (params) => <MontoComBodyTemplate {...params.row} key={`monto-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.fza_vta_padre}`}>{params.row.fza_vta_padre}</TextCenter>
       },
       {
-         field: "tipo_comision",
-         headerName: "Tipo Comisión",
+         field: "usuario",
+         headerName: "Usuario",
          sortable: true,
-         renderCell: (params) => <TipoComisionBodyTemplate {...params.row} key={`tipo-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.usuario}`}>{params.row.usuario}</TextCenter>
       },
       {
-         field: "evaluacion",
-         headerName: "Evaluación",
+         field: "folio",
+         headerName: "Folio",
          sortable: true,
-         renderCell: (params) => <EvaluacionBodyTemplate {...params.row} key={`eval-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.folio}`}>{params.row.folio}</TextCenter>
       },
       {
-         field: "fza_vta_pago",
-         headerName: "Fza Vta Pago",
+         field: "producto",
+         headerName: "Producto",
          sortable: true,
-         renderCell: (params) => <FzaVtaPagoBodyTemplate {...params.row} key={`fza-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.producto}`}>{params.row.producto}</TextCenter>
       },
       {
-         field: "fecha_evaluacion",
-         headerName: "Fecha Evaluación",
+         field: "num_orden",
+         headerName: "Núm Orden",
          sortable: true,
-         renderCell: (params) => <FechaEvaluacionBodyTemplate {...params.row} key={`feval-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.num_orden}`}>{params.row.num_orden}</TextCenter>
       },
       {
-         field: "folio_factura",
-         headerName: "Folio Factura",
+         field: "estatus_orden",
+         headerName: "Estatus Orden",
          sortable: true,
-         renderCell: (params) => <FolioFacturaBodyTemplate {...params.row} key={`folio-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.estatus_orden}`}>{params.row.estatus_orden}</TextCenter>
       },
       {
-         field: "fecha_publicacion",
-         headerName: "Fecha Publicación",
+         field: "motivo_error",
+         headerName: "Motivo Error",
          sortable: true,
-         renderCell: (params) => <FechaPublicacionBodyTemplate {...params.row} key={`fpub-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.motivo_error}`}>{params.row.motivo_error}</TextCenter>
+      },
+      {
+         field: "tipo_sim",
+         headerName: "Tipo SIM",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.tipo_sim}`}>{params.row.tipo_sim}</TextCenter>
+      },
+      {
+         field: "modelo",
+         headerName: "Modelo",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.modelo}`}>{params.row.modelo}</TextCenter>
+      },
+      {
+         field: "marca",
+         headerName: "Marca",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.marca}`}>{params.row.marca}</TextCenter>
+      },
+      {
+         field: "color",
+         headerName: "Color",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.color}`}>{params.row.color}</TextCenter>
       },
       {
          field: "location_status",
          headerName: "Ubicación",
          sortable: true,
-         renderCell: (params) => <LocationStatusBodyTemplate {...params.row} key={`loc-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.location_status}`}>{params.row.location_status}</TextCenter>
       },
       {
          field: "activation_status",
          headerName: "Estatus Activación",
          sortable: true,
-         renderCell: (params) => <ActivationStatusBodyTemplate {...params.row} key={`actst-${params.row.id}`} />
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.activation_status}`}>{params.row.activation_status}</TextCenter>
+      },
+      {
+         field: "product_type_id",
+         headerName: "Tipo Producto",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.product_type_id}`}>{params.row.product_type_id}</TextCenter>
+      },
+      {
+         field: "import_id",
+         headerName: "Importación",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import_id}`}>{params.row.import_id}</TextCenter>
+      },
+      {
+         field: "created_by",
+         headerName: "Creado Por",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.created_by}`}>{params.row.created_by}</TextCenter>
       }
    ];
    // #endregion COLUMNAS
@@ -357,7 +319,7 @@ const ChipDT = () => {
       try {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
-         const res = await getChip(id);
+         const res = await getProduct(id);
          console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -371,7 +333,7 @@ const ChipDT = () => {
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
 
-         if (res.result.chip_description) res.result.chip_description == null && (res.result.chip_description = "");
+         if (res.result.product_description) res.result.product_description == null && (res.result.product_description = "");
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -392,7 +354,7 @@ const ChipDT = () => {
          mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el vendedor de ${name}?`, "CONFIRMAR")).then(async (result) => {
             if (result.isConfirmed) {
                setIsLoading(true);
-               const res = await deleteChip(id);
+               const res = await deleteProduct(id);
                // console.log('🚀 ~ handleClickLogout ~ res:', res);
                if (!res) return setIsLoading(false);
                if (res.errors) {
@@ -420,7 +382,7 @@ const ChipDT = () => {
       try {
          setTimeout(async () => {
             setIsLoading(true);
-            const res = await disEnableChip(id, !active);
+            const res = await disEnableProduct(id, !active);
             // console.log('🚀 ~ handleClickLogout ~ res:', res);
             if (!res) return setIsLoading(false);
             if (res.errors) {
@@ -448,15 +410,15 @@ const ChipDT = () => {
    const data = [];
    const formatData = async () => {
       try {
-         // console.log("cargar listado", allChips);
-         await allChips.map((obj, index) => {
+         // console.log("cargar listado", allProducts);
+         await allProducts.map((obj, index) => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.chip} active={obj.active} />;
+            // register.actions = <ButtonsAction id={obj.id} name={obj.product} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.chip), color: "red" }
+               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.product), color: "red" }
             ];
             data.push(register);
          });
@@ -473,7 +435,17 @@ const ChipDT = () => {
    return (
       <>
          <Stack direction="row" spacing={1} alignItems="center" padding={1}>
-            <ExcelUploader columns={columnas} chunkSize={500} apiEndpoint="chips/import" headerRow={4} dataStartRow={5} onFinish={getAllChips} />
+            {/* <ExcelUploader columns={columnas} chunkSize={1000} apiEndpoint="products/import" headerRow={4} dataStartRow={5} onFinish={getAllProducts} /> */}
+            <ImportForm
+               openDialog={openDialogImportForm}
+               setOpenDialog={setOpenDialogImportForm}
+               columns={columnas}
+               chunkSize={1000}
+               apiEndpoint="products/import"
+               headerRow={1}
+               dataStartRow={2}
+            />
+            {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />}
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent
@@ -489,7 +461,7 @@ const ChipDT = () => {
             singularName={singularName}
             indexColumnName={1}
             rowEdit={false}
-            refreshTable={getAllChips}
+            refreshTable={getAllProducts}
             btnsExport={false}
             scrollHeight="75vh"
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
@@ -500,4 +472,4 @@ const ChipDT = () => {
       </>
    );
 };
-export default ChipDT;
+export default ProductDT;

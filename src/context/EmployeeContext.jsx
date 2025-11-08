@@ -62,6 +62,7 @@ export default function EmployeeContextProvider({ children }) {
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
       // console.log("🚀 ~ getSelectIndexEmployees ~ response:", response);
+      
       if (error) {
          console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
          const message = error.response.data.message || "getSelectIndexEmployees ~ Ocurrio algun error, intenta de nuevo :c";

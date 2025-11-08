@@ -6,7 +6,7 @@ import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography } from
 import Toast from "../../../../utils/Toast";
 import Grid from "@mui/material/Grid";
 import { useGlobalContext } from "../../../../context/GlobalContext";
-import { useChipContext } from "../../../../context/ChipContext";
+import { useProductContext } from "../../../../context/ProductContext";
 import { color } from "framer-motion";
 import { icons } from "../../../../constant";
 import { AttachMoneyRounded } from "@mui/icons-material";
@@ -73,11 +73,11 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
  *
  * @returns {React.JSX.Element} El componente FormikForm.
  */
-const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDialog }) => {
+const ProductForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDialog }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
-   const { singularName, chip, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdateChip } = useChipContext();
+   const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdateProduct } = useProductContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
 
@@ -462,7 +462,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
-      const res = await createOrUpdateChip(values);
+      const res = await createOrUpdateProduct(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
       if (res.errors) {
@@ -510,7 +510,7 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
       // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
-   }, [chip, formikRef, isEdit]);
+   }, [product, formikRef, isEdit]);
 
    return (
       <>
@@ -610,4 +610,4 @@ const ChipForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
    );
 };
 
-export default ChipForm;
+export default ProductForm;
