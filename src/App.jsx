@@ -92,7 +92,7 @@ export default function App({}) {
                   <Loading open={isLoading} animation="bounce" />
                   <RouterProvider router={router} fallbackElement={<LinearLoading />} />
                </SnackbarProvider>
-            </LocalizationProvider>{" "}
+            </LocalizationProvider>
          </QueryClientProvider>
       </>
    );
