@@ -4,10 +4,11 @@ import { useLayoutEffect, useRef, useState } from "react";
 import FormikForm, { Checkbox, DateTimePicker, FileInput, FirmPad, Input, Radio, Select2, Switch, Textarea } from "../../components/forms";
 import * as Yup from "yup";
 import { useGlobalContext } from "../../context/GlobalContext";
-import ClockComponent from "./../../components/ClockComponent";
+import ClockComponent from "../../components/ClockComponent";
 import { DataTableComponent } from "../../components";
 import { useNavigate } from "react-router-dom";
 import SaleForm from "./catalogs/salesView/Form";
+import IndexDashboard from "./dashboard/Index";
 
 const Index = ({}) => {
    const navigate = useNavigate();
@@ -30,8 +31,9 @@ const Index = ({}) => {
 
    return (
       <>
-         <ClockComponent color={"initial"} />
-         <Button onClick={handleClick}>Click</Button>
+         {/* <ClockComponent color={"initial"} /> */}
+         {/* <Button onClick={handleClick}>Click</Button> */}
+         <IndexDashboard />
          {/* <SaleForm /> */}
       </>
    );

@@ -34,6 +34,7 @@ interface TransferListProps {
    idNameRight: string;
    labelLeft: string;
    labelRight: string;
+   heightList: number | string | null;
    sx?: SxProps<Theme>;
    disabled?: boolean;
    data: ChipItem[];
@@ -59,6 +60,7 @@ const TransferList: React.FC<TransferListProps> = ({
    idNameRight,
    labelLeft,
    labelRight,
+   heightList = 430,
    sx,
    disabled = false,
    data = []
@@ -108,8 +110,8 @@ const TransferList: React.FC<TransferListProps> = ({
    };
 
    const filterChips = (chips: ChipItem[], search: string) => {
-      console.log("🚀 ~ filterChips ~ search:", search)
-      console.log("🚀 ~ filterChips ~ chips:", chips)
+      console.log("🚀 ~ filterChips ~ search:", search);
+      console.log("🚀 ~ filterChips ~ chips:", chips);
       if (!search) return chips;
       return chips.filter((chip) => chip.label.toLowerCase().includes(search.toLowerCase()) || chip.location_status?.toLowerCase().includes(search.toLowerCase()));
    };
@@ -195,7 +197,7 @@ const TransferList: React.FC<TransferListProps> = ({
                />
             </Box>
             <Divider />
-            <List sx={{ width: "100%", height: 430, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
+            <List sx={{ width: "100%", height: heightList, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
                {items.map((value) => (
                   <ListItemButton key={value} role="listitem" onClick={handleToggle(value)} disabled={disabled}>
                      <ListItemIcon>

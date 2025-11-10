@@ -57,21 +57,10 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
-   const {
-      singularName,
-      product,
-      formTitle,
-      setFormTitle,
-      textBtnSubmit,
-      setTextBtnSubmit,
-      isEdit,
-      setIsEdit,
-      updateLoteAssignment,
-      productsSelect,
-      setProductsSelect,
-      getSelectIndexProducts
-   } = useProductContext();
+   const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, updateLoteAssignment, getSelectIndexProducts } =
+      useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
+   const [productsSelect, setProductsSelect] = useState([]);
    const formikRef = useRef(null);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
@@ -83,7 +72,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const init = () => {
       console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado");
-      console.log("🚀 ~ init ~ productsSelect:", productsSelect)
+      console.log("🚀 ~ init ~ productsSelect:", productsSelect);
       console.log("🚀 ~ init ~ productosEnStock:", productosEnStock);
       // const productsSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
@@ -161,6 +150,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                idNameLeft="productos_en_stock"
                idNameRight="product_ids"
                label="Motivo Estatus"
+               heightList={"43vh"}
                placeholder="Describa el motivo del estatus"
                labelLeft={"Productos en Stock"}
                labelRight={"Productos Asignados"}
@@ -238,7 +228,9 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       // console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
       console.log("🚀 ~ handleChangeLote ~ productsSelect:", productsSelect);
       try {
-         const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock").map((d) => d.id);
+         const productosEnStock = productsSelect
+            .filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado")
+            .map((d) => d.id);
 
          if (values.value.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);

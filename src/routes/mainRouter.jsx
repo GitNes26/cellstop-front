@@ -4,21 +4,23 @@ import ProtectedRouter from "../components/ProtectedRouter"; //const ProtectedRo
 // import MainLayout from "../layouts/MainLayout";
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
 // import Index from "./../views/app/Index";
-const Index = lazy(() => import("./../views/app/Index"));
+const Index = lazy(() => import("../views/app/Index"));
 // import SettingsView from "./../views/app/settings/settingsView/Index"; //const SettingsView = lazy(() => import("./../views/app/settings/settingsView/Index"));
-const MenusView = lazy(() => import("./../views/app/settings/menusView/Index")); //import MenusView from "./../views/app/settings/menusView/Index";
-const RolesView = lazy(() => import("./../views/app/settings/rolesView/Index")); //import RolesView from "./../views/app/settings/rolesView/Index";
-const DepartmentsView = lazy(() => import("./../views/app/settings/departmentsView/Index")); //import DepartmentsView from "./../views/app/settings/departmentsView/Index";
-const PositionsView = lazy(() => import("./../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
-const EmployeesView = lazy(() => import("./../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
+const MenusView = lazy(() => import("../views/app/settings/menusView/Index")); //import MenusView from "./../views/app/settings/menusView/Index";
+const RolesView = lazy(() => import("../views/app/settings/rolesView/Index")); //import RolesView from "./../views/app/settings/rolesView/Index";
+const DepartmentsView = lazy(() => import("../views/app/settings/departmentsView/Index")); //import DepartmentsView from "./../views/app/settings/departmentsView/Index";
+const PositionsView = lazy(() => import("../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
+const EmployeesView = lazy(() => import("../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
 const ProductTypesView = lazy(() => import("../views/app/catalogs/productTypesView/Index")); //import ProductTypesView from "./../views/app/settings/productTypesView/Index";
 const ProductsView = lazy(() => import("../views/app/catalogs/productsView/Index")); //import ProductView from "./../views/app/settings/productsView/Index";
 const LotesView = lazy(() => import("../views/app/catalogs/lotesView/Index")); //import LoteView from "./../views/app/settings/lotesView/Index";
 const PointsOfSaleView = lazy(() => import("../views/app/catalogs/pointsOfSaleView/Index"));
 const SalesView = lazy(() => import("../views/app/catalogs/salesView/Index"));
 
-const UsersView = lazy(() => import("./../views/app/settings/usersView/Index")); //import UsersView from "./../views/app/settings/usersView/Index";
-const NotFound = lazy(() => import("./../views/NotFound")); //import NotFound from "./../views/NotFound";
+const TemplateEditorView = lazy(() => import("../views/app/others/templateEditorView/Index"));
+
+const UsersView = lazy(() => import("../views/app/settings/usersView/Index")); //import UsersView from "./../views/app/settings/usersView/Index";
+const NotFound = lazy(() => import("../views/NotFound")); //import NotFound from "./../views/NotFound";
 
 // import UsersView from "./../views/app/settings/usersView/Index";
 import UserContextProvider from "../context/UserContext";
@@ -197,6 +199,19 @@ const mainRouter = {
                   <SaleContextProvider>
                      <SalesView />
                   </SaleContextProvider>
+               )
+            }
+         ]
+      },
+      {
+         path: "otros",
+         children: [
+            {
+               path: "editor-de-plantilla",
+               element: (
+                  // <ProductTypeContextProvider>
+                  <TemplateEditorView />
+                  // </ProductTypeContextProvider>
                )
             }
          ]
