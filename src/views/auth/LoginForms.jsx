@@ -202,8 +202,8 @@ export default function LoginForms() {
                />
             ))}
          </div>
-
-         {/* Lado Izquierdo - Ilustración/Features (Split Screen) */}
+         
+         {/* Lado Izquierdo - Específico para Distribución de Chips */}
          <motion.div
             className="hidden lg:flex flex-1 relative overflow-hidden"
             initial={{ opacity: 0, x: -50 }}
@@ -219,16 +219,41 @@ export default function LoginForms() {
             <div className="relative z-10 flex flex-col justify-center px-16 text-white">
                <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-12">
                   <Typography variant="h2" fontWeight="800" className="mb-4 leading-tight">
-                     Descubre una Nueva
-                     <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">Experiencia Digital</span>
+                     Sistema de Gestión
+                     <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">CellStop Distribution</span>
                   </Typography>
                   <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 300, lineHeight: 1.6 }}>
-                     Plataforma todo-en-uno diseñada para maximizar tu productividad y transformar tu forma de trabajar.
+                     Plataforma especializada en la gestión y distribución inteligente de chips telefónicos con control total del inventario en tiempo real.
                   </Typography>
                </motion.div>
 
                <div className="space-y-8">
-                  {features.map((feature, index) => (
+                  {[
+                     {
+                        icon: <Dashboard sx={{ fontSize: 32 }} />,
+                        text: "Dashboard de Distribución",
+                        description: "Monitoreo en tiempo real de productos y ventas",
+                        delay: 0
+                     },
+                     {
+                        icon: <Analytics sx={{ fontSize: 32 }} />,
+                        text: "Control de Inventario",
+                        description: "Gestión de chips pre-activados, asignados y distribuidos",
+                        delay: 0.2
+                     },
+                     {
+                        icon: <WorkspacesRounded sx={{ fontSize: 32 }} />,
+                        text: "Reportes Avanzados",
+                        description: "Analíticas detalladas y exportación de datos",
+                        delay: 0.4
+                     },
+                     {
+                        icon: <Security sx={{ fontSize: 32 }} />,
+                        text: "Seguimiento Seguro",
+                        description: "Trazabilidad completa de cada chip",
+                        delay: 0.6
+                     }
+                  ].map((feature, index) => (
                      <motion.div
                         key={index}
                         initial={{ x: -30, opacity: 0 }}
@@ -254,41 +279,52 @@ export default function LoginForms() {
                   ))}
                </div>
 
-               {/* Stats del sistema */}
+               {/* Stats específicos del sistema de distribución */}
                <motion.div
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 1.2, duration: 0.6 }}
-                  className="flex gap-12 mt-16 pt-8 border-t border-white/20"
+                  className="grid grid-cols-3 gap-8 mt-16 pt-8 border-t border-white/20"
                >
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-cyan-300">
-                        50K+
+                        12K+
                      </Typography>
                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Usuarios Activos
+                        Chips Activos
                      </Typography>
                   </div>
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-purple-300">
-                        99.9%
+                        45
                      </Typography>
                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Uptime
+                        Vendedores
                      </Typography>
                   </div>
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-blue-300">
-                        24/7
+                        28
                      </Typography>
                      <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Soporte Premium
+                        Puntos de Venta
                      </Typography>
                   </div>
                </motion.div>
+
+               {/* Información adicional del sistema */}
+               <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.5 }}
+                  className="mt-8 p-4 bg-white/5 rounded-xl border border-white/10"
+               >
+                  <Typography variant="body2" sx={{ opacity: 0.9, fontStyle: "italic" }} className="text-center">
+                     💡 <strong>Tip del sistema:</strong> Usa el reporteador avanzado para generar análisis personalizados de distribución y ventas en tiempo real.
+                  </Typography>
+               </motion.div>
             </div>
          </motion.div>
-
          {/* Lado Derecho - Formulario Flotante (Combinación) */}
          <motion.div
             className="flex-1 flex items-center justify-center p-4 lg:p-8 relative"

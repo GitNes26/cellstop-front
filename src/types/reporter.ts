@@ -1,17 +1,25 @@
-// types/reporter.ts
-export type ChartType = "bar" | "line" | "pie" | "doughnut" | "scatter" | "area" | "radar" | "polar";
+// types/reporter.ts (actualizado)
+export type ChartType = "bar" | "line" | "pie" | "doughnut" | "scatter" | "area" | "radar" | "map";
 
 export type FilterOperator =
    | "equals"
    | "not_equals"
    | "contains"
+   | "not_contains"
    | "starts_with"
    | "ends_with"
    | "greater_than"
+   | "greater_than_equal"
    | "less_than"
+   | "less_than_equal"
    | "between"
+   | "not_between"
+   | "in"
+   | "not_in"
    | "is_empty"
-   | "is_not_empty";
+   | "is_not_empty"
+   | "is_null"
+   | "is_not_null";
 
 export interface DataField {
    id: string;
@@ -25,7 +33,12 @@ export interface FilterCondition {
    field: string;
    operator: FilterOperator;
    value: any;
-   value2?: any; // Para operadores between
+   value2?: any;
+}
+
+export interface DateRange {
+   startDate: string;
+   endDate: string;
 }
 
 export interface ChartConfig {
@@ -39,7 +52,8 @@ export interface ChartConfig {
    colorScheme: string;
    showLegend: boolean;
    showGrid: boolean;
-   stacked: boolean;
+   stacked?: boolean;
+   dateRange?: DateRange;
 }
 
 export interface Report {

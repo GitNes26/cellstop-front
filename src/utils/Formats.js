@@ -83,9 +83,16 @@ export function getAge(birthdate, reference = new Date()) {
    return age;
 }
 
-export function formatDatetimeToSQL(the_date) {
-   let datetime = dayjs(the_date).format("YYYY-MM-DDTh:mm:ss");
-   return datetime;
+export function formatDatetimeToSQL(the_date, dbType = "mysql") {
+   const date = dayjs(the_date);
+
+   if (dbType.toLowerCase() === "sqlserver") {
+      // SQL Server usa el formato con "T"
+      return date.format("YYYY-MM-DDTHH:mm:ss");
+   }
+
+   // MySQL usa el formato con espacio
+   return date.format("YYYY-MM-DD HH:mm:ss");
 }
 //#endregion /** FECHAS - FORMATEADO */
 

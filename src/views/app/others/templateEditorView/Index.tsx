@@ -1,615 +1,411 @@
-// ChipEditor.tsx (actualizado)
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-   Box,
-   Button,
-   Select,
-   MenuItem,
-   FormControl,
-   InputLabel,
-   Typography,
-   Card,
-   IconButton,
-   Chip as MuiChip,
-   Alert,
-   Snackbar,
-   Paper,
-   Divider,
-   Tooltip,
-   ToggleButton,
-   ToggleButtonGroup,
-   Badge,
-   Switch
-} from "@mui/material";
-import { Add, Delete, Visibility, Edit, FileUpload, Download, Print, ContentCopy, PictureAsPdf, GridOn, CheckBox, SelectAll } from "@mui/icons-material";
-import { useGlobalContext } from "../../../../context/GlobalContext";
-import { ChipData, TemplateType, ViewMode } from "../../../../types/types";
+// ChipEditor.tsx
+import React, { useEffect, useRef, useState } from "react";
+import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 import ChipsTemplate from "./ChipsTemplate";
-import { exportToExcelWithDesign, exportToPDF } from "./exportUtils";
+import { ChipData, TemplateType, ViewMode } from "../../../../types/types";
+import { Button, TextField, Box, Typography, IconButton, Badge } from "@mui/material";
+import { Add, Delete, GridOn, Search } from "@mui/icons-material";
+import { useGlobalContext } from "../../../../context/GlobalContext";
+
+/**
+ * Recomendado: ajustar imports y rutas según tu estructura.
+ * Este componente está hecho para Vite + React y carga plantilla desde:
+ * /public/plantillas/plantillas_impresion_chip.xlsx
+ */
+
+const PLANTILLA_PATH = "/plantillas/plantillas_impresion_chip.xlsx";
+
+const configMap = {
+   A4: { columns: 5, rows: 8 },
+   TABLOIDE: { columns: 7, rows: 12 }
+};
 
 const ChipEditor: React.FC = () => {
    const { setIsLoading } = useGlobalContext();
+
+   // -- State principal
    const [chips, setChips] = useState<ChipData[]>([]);
+   const [viewMode, setViewMode] = useState<ViewMode>("selection"); // "edit" | "preview" | "selection"
+   const [query, setQuery] = useState("");
    const [templateType, setTemplateType] = useState<TemplateType>("A4");
-   const [viewMode, setViewMode] = useState<ViewMode>("edit");
-   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
-   const templateRef = useRef<HTMLDivElement>(null);
+   const scanBuffer = useRef<string>("");
+   const scanTimer = useRef<number | null>(null);
 
+   // -- Cargar datos de ejemplo (reemplaza por fetch a backend cuando corresponda)
    useEffect(() => {
-      const initialData: ChipData[] = Array.from({ length: 40 }, (_, index) => ({
-         id: `chip-${index + 1}`,
-         iccid: `8931040610123456789${index.toString().padStart(2, "0")}`,
-         phoneNumber: `+1 555-01${index.toString().padStart(2, "0")}`,
-         preActivationDate: "2024-01-15",
-         status: "Pre-activado",
-         amount: "50",
-         selected: false
-      }));
-      setChips(initialData);
-      setIsLoading(false);
-   }, []);
-
-   const handleChipEdit = (id: string, field: keyof ChipData, value: string) => {
-      setChips((prev) => prev.map((chip) => (chip.id === id ? { ...chip, [field]: value } : chip)));
-   };
-
-   const handleChipToggle = (id: string, selected: boolean) => {
-      setChips((prev) => prev.map((chip) => (chip.id === id ? { ...chip, selected } : chip)));
-   };
-
-   const handleSelectAll = (selected: boolean) => {
-      setChips((prev) => prev.map((chip) => ({ ...chip, selected })));
-   };
-
-   const addChip = () => {
-      const newChip: ChipData = {
-         id: `chip-${Date.now()}`,
-         iccid: "",
-         phoneNumber: "",
-         preActivationDate: new Date().toISOString().split("T")[0],
+      const initial: ChipData[] = Array.from({ length: 40 }, (_, i) => ({
+         id: `chip-${i + 1}`,
+         iccid: `89310406101234567${(i + 1).toString().padStart(2, "0")}`,
+         phoneNumber: `+52 55 000${(1000 + i).toString()}`,
+         preActivationDate: "2025-11-11",
          status: "Pendiente",
          amount: "50",
          selected: false
+      }));
+      setChips(initial);
+      setIsLoading(false);
+   }, []);
+
+   // ------------------------
+   // Sonido (beep) simple
+   // ------------------------
+   const playBeep = (success = true) => {
+      try {
+         const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+         const ctx = new AudioContext();
+         const o = ctx.createOscillator();
+         const g = ctx.createGain();
+         o.type = "sine";
+         o.frequency.value = success ? 1200 : 320; // tonos
+         g.gain.value = 0.07;
+         o.connect(g);
+         g.connect(ctx.destination);
+         o.start();
+         setTimeout(() => {
+            o.stop();
+            ctx.close();
+         }, 120);
+      } catch (e) {
+         // fallback silencioso si no está disponible
+         console.warn("AudioContext no disponible", e);
+      }
+   };
+
+   // ------------------------
+   // Escucha global del lector (simula teclado)
+   // ------------------------
+   useEffect(() => {
+      const resetBuffer = () => {
+         scanBuffer.current = "";
+         if (scanTimer.current) {
+            window.clearTimeout(scanTimer.current);
+            scanTimer.current = null;
+         }
       };
-      setChips((prev) => [...prev, newChip]);
-      showSnackbar("Chip agregado correctamente", "success");
-   };
 
-   const removeChip = (id: string) => {
-      setChips((prev) => prev.filter((chip) => chip.id !== id));
-      showSnackbar("Chip eliminado", "success");
-   };
+      const onKeyDown = (e: KeyboardEvent) => {
+         // ignorar teclas de modificador
+         if (e.key === "Shift" || e.key === "Alt" || e.key === "Control" || e.key === "Meta") return;
 
-   const removeSelectedChips = () => {
-      setChips((prev) => prev.filter((chip) => !chip.selected));
-      showSnackbar("Chips seleccionados eliminados", "success");
-   };
+         // Enter -> final de lectura
+         if (e.key === "Enter") {
+            const scanned = scanBuffer.current.trim();
+            resetBuffer();
+            if (scanned) handleScannedICCID(scanned);
+            return;
+         }
 
-   const duplicateChip = (chip: ChipData) => {
-      const duplicatedChip: ChipData = {
-         ...chip,
-         id: `chip-${Date.now()}`,
-         phoneNumber: `${chip.phoneNumber}-copy`,
-         selected: false
+         // Si es tecla de una sola longitud, agregar al buffer
+         if (e.key.length === 1) {
+            scanBuffer.current += e.key;
+         }
+
+         // Si hay una pausa larga entre teclas, limpiamos buffer (evita mezclar con tipeo manual)
+         if (scanTimer.current) window.clearTimeout(scanTimer.current);
+         scanTimer.current = window.setTimeout(() => {
+            scanBuffer.current = "";
+            scanTimer.current = null;
+         }, 250); // 250ms pausa tolerada entre pulsaciones del lector
       };
-      setChips((prev) => [...prev, duplicatedChip]);
-      showSnackbar("Chip duplicado", "success");
-   };
 
-   const handleExportExcel = () => {
-      const chipsToExport = viewMode === "selection" ? chips.filter((chip) => chip.selected) : chips;
+      window.addEventListener("keydown", onKeyDown);
+      return () => {
+         window.removeEventListener("keydown", onKeyDown);
+         if (scanTimer.current) window.clearTimeout(scanTimer.current);
+      };
+   }, [chips]);
 
-      if (chipsToExport.length === 0) {
-         showSnackbar("No hay chips seleccionados para exportar", "error");
+   // ------------------------
+   // Manejo de una lectura (iccid)
+   // ------------------------
+   const handleScannedICCID = (rawCode: string) => {
+      const code = rawCode.replace(/\s+/g, ""); // quitar espacios
+      // buscar por iccid (ignorando mayúsculas)
+      const idx = chips.findIndex((c) => (c.iccid || "").toLowerCase() === code.toLowerCase());
+      if (idx === -1) {
+         playBeep(false);
+         // opcional: notificar con Swal ligero
+         // Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: `ICCID ${code} no encontrado`, timer: 1500, showConfirmButton: false });
          return;
       }
 
-      exportToExcelWithDesign(chipsToExport, templateType);
-      showSnackbar(`Plantilla exportada a Excel (${chipsToExport.length} chips)`, "success");
+      setChips((prev) => {
+         const found = prev[idx];
+         if (found.selected) {
+            // ignorar si ya seleccionado
+            playBeep(true);
+            return prev;
+         }
+         const copy = [...prev];
+         copy[idx] = { ...found, selected: true };
+         playBeep(true);
+         return copy;
+      });
    };
 
-   const handleExportPDF = () => {
-      const chipsToExport = viewMode === "selection" ? chips.filter((chip) => chip.selected) : chips;
+   // ------------------------
+   // Selección manual / toggle (por mouse)
+   // ------------------------
+   const toggleSelectById = (id: string) => {
+      setChips((prev) => prev.map((c) => (c.id === id ? { ...c, selected: !c.selected } : c)));
+   };
 
-      if (chipsToExport.length === 0) {
-         showSnackbar("No hay chips seleccionados para exportar", "error");
+   const selectAllVisible = (selected: boolean) => {
+      // aplica selección solo a los filtrados por búsqueda
+      setChips((prev) =>
+         prev.map((c) => {
+            if (matchesQuery(c, query)) return { ...c, selected };
+            return c;
+         })
+      );
+   };
+
+   // ------------------------
+   // Buscador
+   // ------------------------
+   const matchesQuery = (chip: ChipData, q: string) => {
+      if (!q) return true;
+      return (chip.iccid || "").toLowerCase().includes(q.toLowerCase());
+   };
+
+   const filtered = chips.filter((c) => matchesQuery(c, query));
+
+   // ------------------------
+   // Export: carga plantilla, sobrescribe la hoja elegida con nuestra distribución y descarga directa
+   // ------------------------
+   const handleExport = async () => {
+      // pedir confirmación formato con SweetAlert2
+      const { value: sheetChoice } = await Swal.fire({
+         title: "Selecciona el formato de impresión",
+         icon: "question",
+         showCancelButton: true,
+         confirmButtonText: "A4",
+         cancelButtonText: "Tabloide",
+         showDenyButton: true,
+         denyButtonText: "Cancelar",
+         allowOutsideClick: false,
+         // Note: usaremos confirm -> A4, cancel -> TABLOIDE, deny -> cancelar
+         didOpen: () => {
+            // ajustar botones: confirm = A4, deny = Cancel, cancel = Tabloide
+         }
+      });
+
+      // El comportamiento por defecto de sweetalert aquí no da ambas opciones con confirm/cancel de forma ideal,
+      // así que usaremos un diálogo custom con botones A4 / Tabloide:
+      const result = await Swal.fire({
+         title: "Elige hoja",
+         text: "¿Qué hoja de la plantilla quieres usar?",
+         showCancelButton: true,
+         showDenyButton: true,
+         confirmButtonText: "A4",
+         denyButtonText: "Tabloide",
+         cancelButtonText: "Cancelar",
+         reverseButtons: true
+      });
+
+      if (result.isDismissed || result.isDenied) {
+         // si canceló
          return;
       }
 
-      if (templateRef.current) {
-         exportToPDF(templateRef.current, templateType);
-         showSnackbar(`Plantilla exportada a PDF (${chipsToExport.length} chips)`, "success");
+      const chosen: TemplateType = result.isConfirmed ? "A4" : "TABLOIDE";
+
+      const seleccionados = chips.filter((c) => c.selected);
+      if (seleccionados.length === 0) {
+         Swal.fire({ icon: "warning", title: "No hay chips seleccionados", toast: true, timer: 1500, position: "top-end", showConfirmButton: false });
+         return;
+      }
+
+      try {
+         // 1) fetch plantilla desde public
+         const resp = await fetch(PLANTILLA_PATH);
+         if (!resp.ok) throw new Error("No se pudo cargar la plantilla desde /public/plantillas/");
+         const arrayBuffer = await resp.arrayBuffer();
+
+         // 2) leer workbook (tipo array)
+         const workbook = XLSX.read(arrayBuffer, { type: "array" });
+
+         // 3) construir datos (AOA) con la misma distribución que usas para impresión
+         const sheetName = chosen === "A4" ? "A4" : "TABLOIDE";
+         const aoa = buildTemplateAOA(seleccionados, chosen);
+
+         // 4) crear hoja desde AOArray y reemplazar hoja en workbook
+         const newSheet = XLSX.utils.aoa_to_sheet(aoa);
+
+         // Si la hoja existe en la plantilla, reemplazar. Si no, añadir.
+         if (workbook.SheetNames.includes(sheetName)) {
+            workbook.Sheets[sheetName] = newSheet;
+         } else {
+            workbook.SheetNames.push(sheetName);
+            workbook.Sheets[sheetName] = newSheet;
+         }
+
+         // 5) (opcional) añadir hoja "Datos" con la lista cruda
+         const datos = seleccionados.map((chip, idx) => ({
+            "#": idx + 1,
+            ICCID: chip.iccid,
+            Teléfono: chip.phoneNumber,
+            Fecha: chip.preActivationDate,
+            Estado: chip.status,
+            Monto: `$${chip.amount}`
+         }));
+         const datosSheet = XLSX.utils.json_to_sheet(datos);
+         if (workbook.SheetNames.includes("Datos")) {
+            workbook.Sheets["Datos"] = datosSheet;
+         } else {
+            workbook.SheetNames.push("Datos");
+            workbook.Sheets["Datos"] = datosSheet;
+         }
+
+         // 6) descarga directa
+         XLSX.writeFile(workbook, `plantilla_impresion_chip_${chosen}_${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.xlsx`);
+         Swal.fire({
+            icon: "success",
+            title: `Descarga lista (${seleccionados.length} chips)`,
+            toast: true,
+            position: "top-end",
+            timer: 1600,
+            showConfirmButton: false
+         });
+      } catch (err) {
+         console.error("Error exportando plantilla:", err);
+         Swal.fire({ icon: "error", title: "No fue posible generar el archivo", text: String(err) });
       }
    };
 
-   const clearAll = () => {
-      setChips([]);
-      showSnackbar("Todos los chips han sido eliminados", "success");
+   // Genera AOAs (matriz) con bloques: [header row -> amount row -> empty row] por cada fila
+   const buildTemplateAOA = (chipsToExport: ChipData[], chosenTemplate: TemplateType) => {
+      const cfg = configMap[chosenTemplate];
+      const { columns, rows } = cfg;
+      const totalSlots = columns * rows;
+
+      // rellenar hasta totalSlots con chipsToExport o nulls
+      const padded = Array.from({ length: totalSlots }, (_, i) => chipsToExport[i] ?? null);
+
+      const data: any[][] = [];
+      for (let r = 0; r < rows; r++) {
+         // fila de "ACTIVA CON $..."
+         const headerRow: any[] = [];
+         for (let c = 0; c < columns; c++) {
+            const index = r * columns + c;
+            const chip = padded[index];
+            headerRow.push(chip ? `ACTIVA CON $${chip.amount}` : "ACTIVA CON $50");
+         }
+         data.push(headerRow);
+
+         // fila de información del chip
+         const infoRow: any[] = [];
+         for (let c = 0; c < columns; c++) {
+            const index = r * columns + c;
+            const chip = padded[index];
+            if (chip) {
+               // usar saltos de línea para que al imprimir quede en la celda
+               const text = `ICCID: ${chip.iccid}\nTEL: ${chip.phoneNumber}\nFECHA: ${chip.preActivationDate}\nEST: ${chip.status}`;
+               infoRow.push(text);
+            } else {
+               infoRow.push("");
+            }
+         }
+         data.push(infoRow);
+
+         // fila separadora (vacía)
+         const emptyRow = Array(columns).fill("");
+         data.push(emptyRow);
+      }
+      return data;
    };
 
-   const showSnackbar = (message: string, severity: "success" | "error") => {
-      setSnackbar({ open: true, message, severity });
-   };
-
-   const selectedCount = chips.filter((chip) => chip.selected).length;
-   const totalCount = chips.length;
-
+   // ------------------------
+   // UI: lista simple + buscador + botones
+   // ------------------------
    return (
-      <Box className="min-h-screen bg-gray-50 p-4">
-         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <Typography variant="h4" className="text-center font-bold text-gray-800 mb-2">
-               📱 Editor de Plantillas de Chips
+      <Box className="p-4">
+         <Box className="flex items-center justify-between mb-4">
+            <Typography variant="h5" className="font-bold">
+               Editor / Impresión de Chips
             </Typography>
-            <Typography variant="subtitle1" className="text-center text-gray-600 mb-6">
-               Diseña y exporta tus plantillas para impresión
-            </Typography>
-         </motion.div>
 
-         {/* Controles principales */}
-         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-            <Card className="p-4 mb-4 rounded-xl shadow-md">
-               <Box className="flex flex-wrap gap-3 items-center justify-between">
-                  <Box className="flex flex-wrap gap-3 items-center">
-                     <FormControl size="small" className="min-w-28">
-                        <InputLabel>Plantilla</InputLabel>
-                        <Select value={templateType} label="Plantilla" onChange={(e) => setTemplateType(e.target.value as TemplateType)}>
-                           <MenuItem value="A4">A4</MenuItem>
-                           <MenuItem value="TABLOIDE">Tabloide</MenuItem>
-                        </Select>
-                     </FormControl>
+            <Box className="flex items-center gap-2">
+               <TextField
+                  size="small"
+                  placeholder="Buscar ICCID..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  InputProps={{
+                     startAdornment: <Search fontSize="small" />
+                  }}
+               />
 
-                     <ToggleButtonGroup value={viewMode} exclusive onChange={(_, newMode) => newMode && setViewMode(newMode)} size="small">
-                        <Tooltip title="Modo edición">
-                           <ToggleButton value="edit">
-                              <Edit className="mr-1" fontSize="small" />
-                              Editar
-                           </ToggleButton>
-                        </Tooltip>
-                        <Tooltip title="Vista previa">
-                           <ToggleButton value="preview">
-                              <Visibility className="mr-1" fontSize="small" />
-                              Vista Previa
-                           </ToggleButton>
-                        </Tooltip>
-                        <Tooltip title="Seleccionar chips">
-                           <Badge badgeContent={selectedCount} color="primary" showZero={false}>
-                              <ToggleButton value="selection">
-                                 <CheckBox className="mr-1" fontSize="small" />
-                                 Seleccionar
-                              </ToggleButton>
-                           </Badge>
-                        </Tooltip>
-                     </ToggleButtonGroup>
-                  </Box>
+               <Badge badgeContent={chips.filter((c) => c.selected).length} color="primary" showZero={false}>
+                  <Button variant="outlined" startIcon={<GridOn />} onClick={() => setViewMode(viewMode === "selection" ? "edit" : "selection")}>
+                     {viewMode === "selection" ? "Ver lista" : "Modo Selección"}
+                  </Button>
+               </Badge>
 
-                  <Box className="flex flex-wrap gap-2">
-                     <Tooltip title="Agregar nuevo chip">
-                        <Button variant="contained" startIcon={<Add />} onClick={addChip} size="small" className="bg-green-600 hover:bg-green-700">
-                           Agregar
-                        </Button>
-                     </Tooltip>
-
-                     {viewMode === "selection" && selectedCount > 0 && (
-                        <Tooltip title="Eliminar chips seleccionados">
-                           <Button variant="outlined" color="error" startIcon={<Delete />} onClick={removeSelectedChips} size="small">
-                              Eliminar ({selectedCount})
-                           </Button>
-                        </Tooltip>
-                     )}
-
-                     <Tooltip title="Eliminar todos los chips">
-                        <Button variant="outlined" color="error" startIcon={<Delete />} onClick={clearAll} size="small">
-                           Limpiar
-                        </Button>
-                     </Tooltip>
-                  </Box>
-               </Box>
-
-               <Divider className="my-3" />
-
-               <Box className="flex flex-wrap gap-2 justify-center items-center">
-                  {viewMode === "selection" && (
-                     <Typography variant="body2" className="text-blue-600 font-semibold mr-2">
-                        {selectedCount} chips seleccionados
-                     </Typography>
-                  )}
-
-                  <Tooltip title="Exportar a Excel">
-                     <Button
-                        variant="outlined"
-                        startIcon={<GridOn />}
-                        onClick={handleExportExcel}
-                        size="small"
-                        className="text-green-600 border-green-600"
-                        disabled={viewMode === "selection" && selectedCount === 0}
-                     >
-                        Excel {viewMode === "selection" && selectedCount > 0 && `(${selectedCount})`}
-                     </Button>
-                  </Tooltip>
-
-                  <Tooltip title="Exportar a PDF">
-                     <Button
-                        variant="outlined"
-                        startIcon={<PictureAsPdf />}
-                        onClick={handleExportPDF}
-                        size="small"
-                        className="text-red-600 border-red-600"
-                        disabled={viewMode === "selection" && selectedCount === 0}
-                     >
-                        PDF {viewMode === "selection" && selectedCount > 0 && `(${selectedCount})`}
-                     </Button>
-                  </Tooltip>
-
-                  <Tooltip title="Imprimir plantilla">
-                     <Button variant="contained" startIcon={<Print />} onClick={() => window.print()} size="small" className="bg-blue-600 hover:bg-blue-700">
-                        Imprimir
-                     </Button>
-                  </Tooltip>
-               </Box>
-            </Card>
-
-            {/* Contenido principal */}
-            <Box className="grid grid-cols-1 xl:grid-cols-4 gap-4">
-               {/* Preview de plantilla */}
-               <Box className="xl:col-span-3">
-                  <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-                     <Card className="p-2 rounded-xl shadow-md" ref={templateRef}>
-                        <ChipsTemplate
-                           data={chips}
-                           templateType={templateType}
-                           viewMode={viewMode}
-                           onChipEdit={viewMode === "edit" ? handleChipEdit : undefined}
-                           onChipToggle={viewMode === "selection" ? handleChipToggle : undefined}
-                           onSelectAll={viewMode === "selection" ? handleSelectAll : undefined}
-                        />
-                     </Card>
-                  </motion.div>
-               </Box>
-
-               {/* Lista de chips */}
-               {(viewMode === "edit" || viewMode === "selection") && (
-                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="xl:col-span-1">
-                     <Card className="p-3 rounded-xl shadow-md h-[500px] flex flex-col">
-                        <Typography variant="h6" className="font-bold text-gray-700 mb-3">
-                           Chips ({chips.length}){viewMode === "selection" && <span className="text-blue-600 ml-2">({selectedCount} seleccionados)</span>}
-                        </Typography>
-
-                        <Box className="flex-1 overflow-y-auto space-y-2">
-                           <AnimatePresence>
-                              {chips.map((chip, index) => (
-                                 <motion.div
-                                    key={chip.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.2 }}
-                                 >
-                                    <Paper
-                                       className={`p-2 rounded-lg hover:shadow-md transition-all duration-200 ${
-                                          chip.selected ? "border-2 border-blue-500 bg-blue-50" : ""
-                                       }`}
-                                    >
-                                       <Box className="flex items-start justify-between mb-1">
-                                          <MuiChip label={`#${index + 1}`} size="small" color={chip.selected ? "primary" : "default"} />
-                                          <Box className="flex gap-0.5">
-                                             <Tooltip title="Duplicar">
-                                                <IconButton size="small" onClick={() => duplicateChip(chip)} className="text-blue-600">
-                                                   <ContentCopy fontSize="small" />
-                                                </IconButton>
-                                             </Tooltip>
-                                             <Tooltip title="Eliminar">
-                                                <IconButton size="small" onClick={() => removeChip(chip.id)} className="text-red-600">
-                                                   <Delete fontSize="small" />
-                                                </IconButton>
-                                             </Tooltip>
-                                          </Box>
-                                       </Box>
-
-                                       <Typography variant="caption" className="block text-gray-600 font-medium text-xs">
-                                          {chip.iccid || "Sin ICCID"}
-                                       </Typography>
-                                       <Typography variant="caption" className="block text-gray-500 text-xs">
-                                          {chip.phoneNumber || "Sin teléfono"}
-                                       </Typography>
-
-                                       {viewMode === "selection" && (
-                                          <Box className="mt-2 flex items-center">
-                                             <Switch
-                                                size="small"
-                                                checked={chip.selected || false}
-                                                onChange={(e) => handleChipToggle(chip.id, e.target.checked)}
-                                                color="primary"
-                                             />
-                                             {/* <Checkbox
-                                                size="small"
-                                                checked={chip.selected || false}
-                                                onChange={(e) => handleChipToggle(chip.id, e.target.checked)}
-                                                color="primary"
-                                             /> */}
-                                             <Typography variant="caption" className="text-gray-600">
-                                                Seleccionar
-                                             </Typography>
-                                          </Box>
-                                       )}
-                                    </Paper>
-                                 </motion.div>
-                              ))}
-                           </AnimatePresence>
-                        </Box>
-                     </Card>
-                  </motion.div>
-               )}
+               <Button variant="contained" color="primary" onClick={handleExport}>
+                  Exportar (Descarga)
+               </Button>
             </Box>
-         </motion.div>
+         </Box>
 
-         <Snackbar
-            open={snackbar.open}
-            autoHideDuration={3000}
-            onClose={() => setSnackbar({ ...snackbar, open: false })}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-         >
-            <Alert severity={snackbar.severity} variant="filled" onClose={() => setSnackbar({ ...snackbar, open: false })}>
-               {snackbar.message}
-            </Alert>
-         </Snackbar>
+         <Box className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Left: Plantilla preview (usa ChipsTemplate) */}
+            <Box className="lg:col-span-2">
+               <ChipsTemplate
+                  data={chips}
+                  templateType={templateType}
+                  viewMode={viewMode}
+                  onChipToggle={(id) => {
+                     // onChipToggle recibe id y boolean selected
+                     // pero aquí en el preview lo llamamos al hacer click (ChipsTemplate lo maneja)
+                     // para consistencia: asumimos toggle manual por switch en template llama a onChipToggle
+                  }}
+                  onSelectAll={(sel) => selectAllVisible(sel)}
+               />
+            </Box>
+
+            {/* Right: Lista filtrada y controls */}
+            <Box className="lg:col-span-1">
+               <Box className="mb-2 flex items-center justify-between">
+                  <Typography variant="subtitle1" className="font-semibold">
+                     Lista de Chips ({filtered.length})
+                  </Typography>
+                  <Button size="small" variant="outlined" color="error" onClick={() => setChips([])} startIcon={<Delete />}>
+                     Limpiar
+                  </Button>
+               </Box>
+
+               <Box className="overflow-auto max-h-[480px] p-2 border rounded">
+                  {filtered.map((c) => (
+                     <Box key={c.id} className={`p-2 mb-2 rounded border ${c.selected ? "bg-blue-50 border-blue-400" : "bg-white border-gray-200"}`}>
+                        <Box className="flex items-center justify-between">
+                           <Box>
+                              <Typography variant="caption" className="font-bold block">
+                                 {c.iccid}
+                              </Typography>
+                              <Typography variant="caption" className="text-gray-600 block">
+                                 {c.phoneNumber}
+                              </Typography>
+                              <Typography variant="caption" className="text-gray-500 block">
+                                 {c.preActivationDate} • {c.status}
+                              </Typography>
+                           </Box>
+
+                           <Box className="flex flex-col items-end gap-2">
+                              <input type="checkbox" checked={!!c.selected} onChange={() => toggleSelectById(c.id)} />
+                              <Typography variant="caption" className="text-xs">
+                                 {c.selected ? "Seleccionado" : ""}
+                              </Typography>
+                           </Box>
+                        </Box>
+                     </Box>
+                  ))}
+               </Box>
+            </Box>
+         </Box>
       </Box>
    );
 };
 
 export default ChipEditor;
-
-// // TemplateEditorView.tsx
-// import React, { useState, useEffect, useRef } from "react";
-// import { motion, AnimatePresence } from "framer-motion";
-// import {
-//    Box,
-//    Button,
-//    Select,
-//    MenuItem,
-//    FormControl,
-//    InputLabel,
-//    Typography,
-//    Card,
-//    IconButton,
-//    Chip as MuiChip,
-//    Alert,
-//    Snackbar,
-//    Paper,
-//    Divider,
-//    Tooltip
-// } from "@mui/material";
-// import { Add, Delete, Visibility, Edit, FileUpload, Download, Print, ContentCopy, PictureAsPdf, GridOn } from "@mui/icons-material";
-// import { ChipData, TemplateType } from "./types";
-// import ChipsTemplate from "./ChipsTemplate";
-// import { exportToExcel, exportToPDF } from "./exportUtils";
-// import { useGlobalContext } from "../../../../context/GlobalContext";
-// import { exportToExcelWithDesign } from "./exportUtils";
-
-// const TemplateEditorView: React.FC = () => {
-//    const { setIsLoading } = useGlobalContext();
-//    const [chips, setChips] = useState<ChipData[]>([]);
-//    const [templateType, setTemplateType] = useState<TemplateType>("A4");
-//    const [editable, setEditable] = useState(true);
-//    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
-//    const templateRef = useRef<HTMLDivElement>(null);
-
-//    useEffect(() => {
-//       const initialData: ChipData[] = Array.from({ length: 40 }, (_, index) => ({
-//          id: `chip-${index + 1}`,
-//          iccid: `8931040610123456789${index.toString().padStart(2, "0")}`,
-//          phoneNumber: `+1 555-01${index.toString().padStart(2, "0")}`,
-//          preActivationDate: "2024-01-15",
-//          status: "Pre-activado",
-//          amount: "50"
-//       }));
-//       setChips(initialData);
-//       setIsLoading(false);
-//    }, []);
-
-//    const handleChipEdit = (id: string, field: keyof ChipData, value: string) => {
-//       setChips((prev) => prev.map((chip) => (chip.id === id ? { ...chip, [field]: value } : chip)));
-//    };
-
-//    const addChip = () => {
-//       const newChip: ChipData = {
-//          id: `chip-${Date.now()}`,
-//          iccid: "",
-//          phoneNumber: "",
-//          preActivationDate: new Date().toISOString().split("T")[0],
-//          status: "Pendiente",
-//          amount: "50"
-//       };
-//       setChips((prev) => [...prev, newChip]);
-//       showSnackbar("Chip agregado correctamente", "success");
-//    };
-
-//    const removeChip = (id: string) => {
-//       setChips((prev) => prev.filter((chip) => chip.id !== id));
-//       showSnackbar("Chip eliminado", "success");
-//    };
-
-//    const duplicateChip = (chip: ChipData) => {
-//       const duplicatedChip: ChipData = {
-//          ...chip,
-//          id: `chip-${Date.now()}`,
-//          phoneNumber: `${chip.phoneNumber}-copy`
-//       };
-//       setChips((prev) => [...prev, duplicatedChip]);
-//       showSnackbar("Chip duplicado", "success");
-//    };
-
-//    const handleExportExcel = () => {
-//       // exportToExcel(chips, templateType);
-//       // showSnackbar("Plantilla exportada a Excel", "success");
-//       exportToExcelWithDesign(chips, templateType);
-//       showSnackbar("Plantilla exportada a Excel con diseño", "success");
-//    };
-
-//    const handleExportPDF = () => {
-//       if (templateRef.current) {
-//          exportToPDF(templateRef.current, templateType);
-//          showSnackbar("Plantilla exportada a PDF", "success");
-//       }
-//    };
-
-//    const clearAll = () => {
-//       setChips([]);
-//       showSnackbar("Todos los chips han sido eliminados", "success");
-//    };
-
-//    const showSnackbar = (message: string, severity: "success" | "error") => {
-//       setSnackbar({ open: true, message, severity });
-//    };
-
-//    return (
-//       <Box className="min-h-screen bg-gray-50 p-4">
-//          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-//             <Typography variant="h4" className="text-center font-bold text-gray-800 mb-2">
-//                📱 Editor de Plantillas de Chips
-//             </Typography>
-//             <Typography variant="subtitle1" className="text-center text-gray-600 mb-6">
-//                Diseña y exporta tus plantillas para impresión
-//             </Typography>
-//          </motion.div>
-
-//          {/* Controles principales */}
-//          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
-//             <Card className="p-4 mb-4 rounded-xl shadow-md">
-//                <Box className="flex flex-wrap gap-3 items-center justify-between">
-//                   <Box className="flex flex-wrap gap-3 items-center">
-//                      <FormControl size="small" className="min-w-28">
-//                         <InputLabel>Plantilla</InputLabel>
-//                         <Select value={templateType} label="Plantilla" onChange={(e) => setTemplateType(e.target.value as TemplateType)}>
-//                            <MenuItem value="A4">A4</MenuItem>
-//                            <MenuItem value="TABLOIDE">Tabloide</MenuItem>
-//                         </Select>
-//                      </FormControl>
-
-//                      <Button variant={editable ? "contained" : "outlined"} startIcon={<Edit />} onClick={() => setEditable(true)} size="small">
-//                         Editar
-//                      </Button>
-
-//                      <Button variant={!editable ? "contained" : "outlined"} startIcon={<Visibility />} onClick={() => setEditable(false)} size="small">
-//                         Vista Previa
-//                      </Button>
-//                   </Box>
-
-//                   <Box className="flex flex-wrap gap-2">
-//                      <Tooltip title="Agregar nuevo chip">
-//                         <Button variant="contained" startIcon={<Add />} onClick={addChip} size="small" className="bg-green-600 hover:bg-green-700">
-//                            Agregar
-//                         </Button>
-//                      </Tooltip>
-
-//                      <Tooltip title="Eliminar todos los chips">
-//                         <Button variant="outlined" color="error" startIcon={<Delete />} onClick={clearAll} size="small">
-//                            Limpiar
-//                         </Button>
-//                      </Tooltip>
-//                   </Box>
-//                </Box>
-
-//                <Divider className="my-3" />
-
-//                <Box className="flex flex-wrap gap-2 justify-center">
-//                   <Tooltip title="Exportar a Excel">
-//                      <Button variant="outlined" startIcon={<GridOn />} onClick={handleExportExcel} size="small" className="text-green-600 border-green-600">
-//                         Excel
-//                      </Button>
-//                   </Tooltip>
-
-//                   <Tooltip title="Exportar a PDF">
-//                      <Button variant="outlined" startIcon={<PictureAsPdf />} onClick={handleExportPDF} size="small" className="text-red-600 border-red-600">
-//                         PDF
-//                      </Button>
-//                   </Tooltip>
-
-//                   <Tooltip title="Imprimir plantilla">
-//                      <Button variant="contained" startIcon={<Print />} onClick={() => window.print()} size="small" className="bg-blue-600 hover:bg-blue-700">
-//                         Imprimir
-//                      </Button>
-//                   </Tooltip>
-//                </Box>
-//             </Card>
-
-//             {/* Contenido principal */}
-//             <Box className="grid grid-cols-1 xl:grid-cols-4 gap-4">
-//                {/* Preview de plantilla */}
-//                <Box className="xl:col-span-3">
-//                   <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
-//                      <Card className="p-2 rounded-xl shadow-md" ref={templateRef}>
-//                         <ChipsTemplate data={chips} templateType={templateType} onChipEdit={editable ? handleChipEdit : undefined} editable={editable} />
-//                      </Card>
-//                   </motion.div>
-//                </Box>
-
-//                {/* Lista de chips */}
-//                {editable && (
-//                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="xl:col-span-1">
-//                      <Card className="p-3 rounded-xl shadow-md h-[500px] flex flex-col">
-//                         <Typography variant="h6" className="font-bold text-gray-700 mb-3">
-//                            Chips ({chips.length})
-//                         </Typography>
-
-//                         <Box className="flex-1 overflow-y-auto space-y-2">
-//                            <AnimatePresence>
-//                               {chips.map((chip, index) => (
-//                                  <motion.div
-//                                     key={chip.id}
-//                                     layout
-//                                     initial={{ opacity: 0, scale: 0.9 }}
-//                                     animate={{ opacity: 1, scale: 1 }}
-//                                     exit={{ opacity: 0, scale: 0.9 }}
-//                                     transition={{ duration: 0.2 }}
-//                                  >
-//                                     <Paper className="p-2 rounded-lg hover:shadow-md transition-all duration-200">
-//                                        <Box className="flex items-start justify-between mb-1">
-//                                           <MuiChip label={`#${index + 1}`} size="small" color="primary" />
-//                                           <Box className="flex gap-0.5">
-//                                              <Tooltip title="Duplicar">
-//                                                 <IconButton size="small" onClick={() => duplicateChip(chip)} className="text-blue-600">
-//                                                    <ContentCopy fontSize="small" />
-//                                                 </IconButton>
-//                                              </Tooltip>
-//                                              <Tooltip title="Eliminar">
-//                                                 <IconButton size="small" onClick={() => removeChip(chip.id)} className="text-red-600">
-//                                                    <Delete fontSize="small" />
-//                                                 </IconButton>
-//                                              </Tooltip>
-//                                           </Box>
-//                                        </Box>
-
-//                                        <Typography variant="caption" className="block text-gray-600 font-medium text-xs">
-//                                           {chip.iccid || "Sin ICCID"}
-//                                        </Typography>
-//                                        <Typography variant="caption" className="block text-gray-500 text-xs">
-//                                           {chip.phoneNumber || "Sin teléfono"}
-//                                        </Typography>
-//                                     </Paper>
-//                                  </motion.div>
-//                               ))}
-//                            </AnimatePresence>
-//                         </Box>
-//                      </Card>
-//                   </motion.div>
-//                )}
-//             </Box>
-//          </motion.div>
-
-//          <Snackbar
-//             open={snackbar.open}
-//             autoHideDuration={3000}
-//             onClose={() => setSnackbar({ ...snackbar, open: false })}
-//             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-//          >
-//             <Alert severity={snackbar.severity} variant="filled" onClose={() => setSnackbar({ ...snackbar, open: false })}>
-//                {snackbar.message}
-//             </Alert>
-//          </Snackbar>
-//       </Box>
-//    );
-// };
-
-// export default TemplateEditorView;

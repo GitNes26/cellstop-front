@@ -383,7 +383,7 @@ const PreActivationForm = ({ refetchSelect, openDialog, setOpenDialog }) => {
       }
 
       const res = await preActivationProducts(values);
-      console.log("🚀 ~ onSubmit ~ res:", res);
+      // console.log("🚀 ~ onSubmit ~ res:", res);
 
       if (!res) return setIsLoading(false);
       if (res.errors) {

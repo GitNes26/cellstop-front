@@ -68,7 +68,7 @@ const mockData = {
    }
 };
 
-const IndexDashboard: React.FC = () => {
+const DashboardView: React.FC = () => {
    const [activeSection, setActiveSection] = useState("stats");
 
    const statsRef = useRef<HTMLDivElement>(null);
@@ -110,4 +110,4 @@ const IndexDashboard: React.FC = () => {
    );
 };
 
-export default IndexDashboard;
+export default DashboardView;
