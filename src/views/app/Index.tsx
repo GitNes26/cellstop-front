@@ -34,6 +34,8 @@ const Index = ({}) => {
          {/* <ClockComponent color={"initial"} /> */}
          {/* <Button onClick={handleClick}>Click</Button> */}
          <IndexDashboard />
+         <p>Crear modulo de visitas...</p>
+         <p>Poner en la pagina principal del vendedor, que desea hacer,, Distribución, Checar Visita, etc... tarjetones de acción rapida UI/UX</p>
          {/* <SaleForm /> */}
       </>
    );
