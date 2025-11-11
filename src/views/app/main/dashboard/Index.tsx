@@ -1,12 +1,12 @@
 // components/dashboard/Dashboard.tsx
 import React, { useState, useRef } from "react";
 import { Box } from "@mui/material";
-import { DashboardLayout } from "../../../components/dashboard/layouts/DashboardLayout";
-import { HeaderStats } from "../../../components/dashboard/sections/HeaderStats";
-import { ProductAnalytics } from "../../../components/dashboard/sections/ProductAnalytics";
-import { SalesPerformance } from "../../../components/dashboard/sections/SalesPerformance";
-import { GeographicDistribution } from "../../../components/dashboard/sections/GeographicDistribution";
-import { NavigationSidebar } from "../../../components/dashboard/sections/NavigationSidebar";
+import { DashboardLayout } from "../../../../components/dashboard/layouts/DashboardLayout";
+import { HeaderStats } from "../../../../components/dashboard/sections/HeaderStats";
+import { ProductAnalytics } from "../../../../components/dashboard/sections/ProductAnalytics";
+import { SalesPerformance } from "../../../../components/dashboard/sections/SalesPerformance";
+import { GeographicDistribution } from "../../../../components/dashboard/sections/GeographicDistribution";
+import { NavigationSidebar } from "../../../../components/dashboard/sections/NavigationSidebar";
 
 // Mock data actualizado
 const mockData = {

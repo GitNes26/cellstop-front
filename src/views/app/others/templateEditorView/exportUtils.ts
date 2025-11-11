@@ -417,18 +417,56 @@ export const exportToPDF = async (element: HTMLElement, templateType: TemplateTy
 };
 
 // Función mejorada para exportar a Excel que prueba ambos métodos
+// export const exportToExcelWithDesign = (chips: ChipData[], templateType: TemplateType) => {
+//    try {
+//       // Intentar con xlsx-js-style si está disponible
+//       if (typeof styleSheet !== "undefined") {
+//          exportToExcelWithStyle(chips, templateType);
+//       } else {
+//          // Fallback a la versión básica
+//          exportToExcel(chips, templateType);
+//       }
+//    } catch (error) {
+//       console.error("Error en exportación Excel:", error);
+//       // Último fallback - exportación básica de datos
+//       const workbook = utils.book_new();
+//       const worksheet = utils.json_to_sheet(
+//          chips.map((chip, index) => ({
+//             "#": index + 1,
+//             ICCID: chip.iccid,
+//             Teléfono: chip.phoneNumber,
+//             Fecha: chip.preActivationDate,
+//             Estado: chip.status,
+//             Monto: `$${chip.amount}`,
+//             Plantilla: `ACTIVA CON $${chip.amount}`
+//          }))
+//       );
+//       utils.book_append_sheet(workbook, worksheet, "Datos de Chips");
+//       writeFile(workbook, `chips_${new Date().getTime()}.xlsx`);
+//    }
+// };
+
+// exportUtils.ts (actualizado para usar solo chips seleccionados)
+// ... (código anterior se mantiene igual)
+
+// Función principal actualizada para usar chips seleccionados
 export const exportToExcelWithDesign = (chips: ChipData[], templateType: TemplateType) => {
    try {
-      // Intentar con xlsx-js-style si está disponible
+      // Filtrar solo chips seleccionados si hay selección
+      const chipsToExport = chips; // Ya viene filtrado desde el componente
+
+      if (chipsToExport.length === 0) {
+         throw new Error("No hay chips para exportar");
+      }
+
       if (typeof styleSheet !== "undefined") {
-         exportToExcelWithStyle(chips, templateType);
+         exportToExcelWithStyle(chipsToExport, templateType);
       } else {
-         // Fallback a la versión básica
-         exportToExcel(chips, templateType);
+         exportToExcel(chipsToExport, templateType);
       }
    } catch (error) {
       console.error("Error en exportación Excel:", error);
-      // Último fallback - exportación básica de datos
+      // Fallback básico
       const workbook = utils.book_new();
       const worksheet = utils.json_to_sheet(
          chips.map((chip, index) => ({
@@ -438,10 +476,10 @@ export const exportToExcelWithDesign = (chips: ChipData[], templateType: Templat
             Fecha: chip.preActivationDate,
             Estado: chip.status,
             Monto: `$${chip.amount}`,
-            Plantilla: `ACTIVA CON $${chip.amount}`
+            Seleccionado: chip.selected ? "SÍ" : "NO"
          }))
       );
       utils.book_append_sheet(workbook, worksheet, "Datos de Chips");
-      writeFile(workbook, `chips_${new Date().getTime()}.xlsx`);
+      writeFile(workbook, `chips_seleccionados_${new Date().getTime()}.xlsx`);
    }
 };

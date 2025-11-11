@@ -5,6 +5,7 @@ import ProtectedRouter from "../components/ProtectedRouter"; //const ProtectedRo
 const MainLayout = lazy(() => import("../layouts/MainLayout"));
 // import Index from "./../views/app/Index";
 const Index = lazy(() => import("../views/app/Index"));
+const ReporterView = lazy(() => import("../views/app/main/reporter/Index"));
 // import SettingsView from "./../views/app/settings/settingsView/Index"; //const SettingsView = lazy(() => import("./../views/app/settings/settingsView/Index"));
 const MenusView = lazy(() => import("../views/app/settings/menusView/Index")); //import MenusView from "./../views/app/settings/menusView/Index";
 const RolesView = lazy(() => import("../views/app/settings/rolesView/Index")); //import RolesView from "./../views/app/settings/rolesView/Index";
@@ -57,6 +58,24 @@ const mainRouter = {
             //             <SituationContextProvider>
             //                <RoleContextProvider>
             <Index />
+            //                </RoleContextProvider>
+            //             </SituationContextProvider>
+            //          </SubcategoryContextProvider>
+            //       </CategoryContextProvider>
+            //    </DepartmentContextProvider>
+            // </RegisterContextProvider>
+         )
+      },
+      {
+         path: "reporteador",
+         element: (
+            // <RegisterContextProvider>
+            //    <DepartmentContextProvider>
+            //       <CategoryContextProvider>
+            //          <SubcategoryContextProvider>
+            //             <SituationContextProvider>
+            //                <RoleContextProvider>
+            <ReporterView />
             //                </RoleContextProvider>
             //             </SituationContextProvider>
             //          </SubcategoryContextProvider>

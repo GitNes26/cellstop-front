@@ -8,7 +8,7 @@ import ClockComponent from "../../components/ClockComponent";
 import { DataTableComponent } from "../../components";
 import { useNavigate } from "react-router-dom";
 import SaleForm from "./catalogs/salesView/Form";
-import IndexDashboard from "./dashboard/Index";
+import IndexDashboard from "./main/dashboard/Index";
 
 const Index = ({}) => {
    const navigate = useNavigate();

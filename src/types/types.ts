@@ -1,4 +1,3 @@
-// types.ts
 export interface ChipData {
    id: string;
    iccid: string;
@@ -6,6 +5,8 @@ export interface ChipData {
    preActivationDate: string;
    status: "Pre-activado" | "Activado" | "Pendiente";
    amount: string;
+   selected?: boolean;
 }
 
 export type TemplateType = "A4" | "TABLOIDE";
+export type ViewMode = "edit" | "preview" | "selection";
