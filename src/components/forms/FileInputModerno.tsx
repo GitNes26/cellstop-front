@@ -5,7 +5,8 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Toast from "../../utils/Toast";
 import { QuestionAlertConfig } from "../../utils/sAlert";
-import { Grid, FormControl, Typography, Box, FormLabel } from "@mui/material";
+import { Grid, FormControl, Typography, Box, FormLabel, Backdrop } from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
 import { isMobile } from "react-device-detect";
 import CameraInput from "./CameraInput";
 import Compressor from "compressorjs";
@@ -100,14 +101,39 @@ const FileInputModerno: React.FC<FileInputProps> = ({
    const error = formik.touched[idName] && formik.errors[idName] ? formik.errors[idName].toString() : null;
    const isError = Boolean(error);
    const [uploadProgress, setUploadProgress] = useState(0);
-   const [ttShow, setTtShow] = useState("");
    const [fileSizeExceeded, setFileSizeExceeded] = useState(fileSizeMax * MB);
    const [confirmRemove, setConfirmRemove] = useState(true);
    const [fileInfo, setFileInfo] = useState(null);
+   const [isDragging, setIsDragging] = useState(false);
+   const [zoomImage, setZoomImage] = useState<{ open: boolean; imageUrl: string; fileName: string }>({
+      open: false,
+      imageUrl: "",
+      fileName: ""
+   });
 
    const inputFileRefMobile: any = useRef<HTMLInputElement | null>(null);
    const [openCameraFile, setOpenCameraFile] = useState(false);
    const [openDialog, setOpenDialog] = useState(false);
+
+   // Animaciones
+   const dropzoneVariants = {
+      initial: { scale: 1, y: 0 },
+      dragEnter: { scale: 1.02, y: -2, borderColor: "#3b82f6" },
+      hover: { scale: 1.01, y: -1 },
+      tap: { scale: 0.99 }
+   };
+
+   const filePreviewVariants = {
+      initial: { opacity: 0, scale: 0.8, y: 20 },
+      animate: { opacity: 1, scale: 1, y: 0 },
+      exit: { opacity: 0, scale: 0.8, y: -20 }
+   };
+
+   const zoomModalVariants = {
+      hidden: { opacity: 0, scale: 0.8 },
+      visible: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 0.8 }
+   };
 
    const validationQuantityImages = () => {
       if (multiple) {
@@ -128,6 +154,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
 
    const onDrop = useCallback(
       (acceptedFiles: File[]) => {
+         setIsDragging(false);
          if (!confirmRemove) return;
          setConfirmRemove(false);
 
@@ -144,37 +171,41 @@ const FileInputModerno: React.FC<FileInputProps> = ({
       [confirmRemove, setFilePreviews]
    );
 
+   const onDragEnter = useCallback(() => {
+      if (!disabled) {
+         setIsDragging(true);
+      }
+   }, [disabled]);
+
+   const onDragLeave = useCallback(() => {
+      setIsDragging(false);
+   }, []);
+
    const readFileAsDataURL = (file: File | Blob | any) => {
       return new Promise((resolve, reject) => {
          const reader = new FileReader();
          reader.onload = () => resolve(reader.result);
          reader.onerror = (error) => reject(error);
 
-         // Para archivos que no son imágenes, podríamos usar URL.createObjectURL como alternativa
          if (!file.type.includes("image")) {
-            // Para archivos grandes o no imágenes, usar object URL puede ser más eficiente
             const objectURL = URL.createObjectURL(file);
             resolve(objectURL);
          } else {
-            // Para imágenes, usar DataURL para preview de calidad
             reader.readAsDataURL(file);
          }
       });
    };
 
    const handleSetFile = async (file: File | Blob | any) => {
-      // Validación inicial de tamaño para todos los archivos
       if (file.size >= fileSizeExceeded) {
          if (filePreviews.length == 0) setConfirmRemove(true);
          Toast.Info(`el archivo pesa más de ${fileSizeMax}MB, su calidad bajara.`);
       }
 
-      // Lógica para archivos de imagen
       if (file.type.includes("image")) {
          try {
             let newFile = file;
 
-            // Comprimir solo si es imagen y excede el tamaño
             if (file.size >= fileSizeExceeded) {
                const fileCompressed = await imageCompress(file);
                newFile = fileCompressed;
@@ -194,17 +225,14 @@ const FileInputModerno: React.FC<FileInputProps> = ({
             console.error("Error al procesar la imagen:", error);
             Toast.Error(`Error al procesar la imagen: ${error}`);
          }
-      }
-      // Lógica para otros tipos de archivos (PDF, documentos, etc.)
-      else {
+      } else {
          try {
             const dataURL = await readFileAsDataURL(file);
             const preview = {
                original: file,
-               file: file, // Usamos el archivo original sin comprimir
+               file: file,
                dataURL
             };
-            // console.log("🚀 ~ handleSetFile ~ preview:", preview);
 
             setFilePreviews([preview]);
             filePreviews = [preview];
@@ -237,7 +265,6 @@ const FileInputModerno: React.FC<FileInputProps> = ({
 
       mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el archivo?`, "CONFIRMAR")).then(async (result) => {
          if (result.isConfirmed) {
-            // Revocar Object URLs si existen para liberar memoria
             filePreviews.forEach((preview) => {
                if (preview.dataURL && preview.dataURL.startsWith("blob:")) {
                   URL.revokeObjectURL(preview.dataURL);
@@ -250,17 +277,27 @@ const FileInputModerno: React.FC<FileInputProps> = ({
       });
    };
 
-   const { getRootProps, getInputProps } = useDropzone({
-      onDrop
+   const handleZoomImage = (imageUrl: string, fileName: string) => {
+      setZoomImage({
+         open: true,
+         imageUrl,
+         fileName
+      });
+   };
+
+   const handleCloseZoom = () => {
+      setZoomImage({
+         open: false,
+         imageUrl: "",
+         fileName: ""
+      });
+   };
+
+   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+      onDrop,
+      onDragEnter,
+      onDragLeave
    });
-
-   const handleMouseEnter = () => {
-      setTtShow("opacity-100 scale-100");
-   };
-
-   const handleMouseLeave = () => {
-      setTtShow("opacity-0 scale-95");
-   };
 
    const handleOpenDialog = () => {
       confirmRemove && setOpenDialog(true);
@@ -287,31 +324,115 @@ const FileInputModerno: React.FC<FileInputProps> = ({
       else setConfirmRemove(false);
    }, [idName, formik.values[idName], filePreviews]);
 
-   // Función para determinar el tipo de archivo
-   const getFileType = (file: File) => {
-      // console.log("🚀 ~ getFileType ~ file.type:", file.type);
+   const getFileType = (file: File | string | { name: string }): string => {
+      // console.log("🚀 ~ getFileType ~ file:", file);
+      // Si es un string (URL), determinar el tipo por la extensión del archivo
+      if (["string", "object"].includes(typeof file)) {
+         let url = typeof file === "object" ? file.name.toLocaleLowerCase() : file.toLowerCase();
+
+         // Extraer la extensión del archivo de la URL
+         const extension = url.split(".").pop()?.split("?")[0]; // Manejar URLs con parámetros
+
+         // Mapeo de extensiones a tipos
+         const extensionMap: { [key: string]: string } = {
+            // Imágenes
+            jpg: "image",
+            jpeg: "image",
+            png: "image",
+            gif: "image",
+            webp: "image",
+            svg: "image",
+            bmp: "image",
+            ico: "image",
+            tiff: "image",
+            tif: "image",
+            avif: "image",
+
+            // PDF
+            pdf: "pdf",
+
+            // Excel/Spreadsheets
+            xls: "excel",
+            xlsx: "excel",
+            xlsm: "excel",
+            xlsb: "excel",
+            csv: "excel",
+            ods: "excel",
+
+            // Word/Documents
+            doc: "document",
+            docx: "document",
+            docm: "document",
+            odt: "document",
+            rtf: "document",
+            txt: "text",
+
+            // Texto
+            text: "text",
+            log: "text",
+            md: "text",
+            json: "text",
+            xml: "text",
+            html: "text",
+            htm: "text",
+            css: "text",
+            js: "text",
+            ts: "text",
+
+            // Archivos comprimidos
+            zip: "archive",
+            rar: "archive",
+            "7z": "archive",
+            tar: "archive",
+            gz: "archive",
+            bz2: "archive"
+         };
+
+         if (extension && extensionMap[extension]) {
+            return extensionMap[extension];
+         }
+
+         // Si no se encuentra por extensión, intentar determinar por patrones en la URL
+         if (url.includes("/images/") || url.includes("/img/") || url.includes("image/")) {
+            return "image";
+         }
+         if (url.includes("/documents/") || url.includes("/docs/")) {
+            return "document";
+         }
+         if (url.includes("/pdf/") || url.includes(".pdf")) {
+            return "pdf";
+         }
+
+         return "other";
+      }
+
+      // Si es un objeto File, usar la lógica original
       if (file.type.includes("image")) return "image";
       if (file.type.includes("pdf")) return "pdf";
       if (file.type.includes("excel") || file.type.includes("csv") || file.type.includes("sheet")) return "excel";
       if (file.type.includes("word") || file.type.includes("document")) return "document";
       if (file.type.includes("text")) return "text";
       if (file.type.includes("zip") || file.type.includes("rar") || file.type.includes("7z")) return "archive";
+
       return "other";
    };
 
-   // Clases base para el dropzone
    const getDropzoneClasses = () => {
       const baseClasses = `
-         relative border-2 border-dashed rounded-lg p-6 transition-all duration-300 ease-in-out
-         cursor-pointer text-center hover:shadow-lg
+         relative border-2 border-dashed rounded-xl p-6 transition-all duration-300 ease-in-out
+         cursor-pointer text-center
          ${disabled ? "opacity-50 cursor-not-allowed bg-gray-100" : "bg-white"}
       `;
+
+      if (isDragActive || isDragging) {
+         return `${baseClasses} border-blue-500 bg-blue-100 shadow-lg scale-105`;
+      }
 
       if (isError || color === "red") {
          return `${baseClasses} border-red-500 bg-red-50 hover:bg-red-100`;
       }
 
-      return `${baseClasses} border-blue-400 bg-blue-50 hover:bg-blue-100`;
+      return `${baseClasses} border-blue-400 bg-blue-50 hover:bg-blue-100 hover:shadow-md`;
    };
 
    return (
@@ -333,11 +454,15 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                   {({ field, form }) => (
                      <>
                         <div className="w-full" onClick={isMobile && showDialogFileOrPhoto ? handleOpenDialog : undefined}>
-                           <div
-                              {...getRootProps({
-                                 className: getDropzoneClasses(),
-                                 style: { pointerEvents: disabled ? "none" : "auto" }
-                              })}
+                           <motion.div
+                              {...getRootProps()}
+                              className={getDropzoneClasses()}
+                              style={{ pointerEvents: disabled ? "none" : "auto" }}
+                              variants={dropzoneVariants}
+                              initial="initial"
+                              whileHover={!disabled ? "hover" : "initial"}
+                              whileTap={!disabled ? "tap" : "initial"}
+                              animate={isDragActive ? "dragEnter" : "initial"}
                            >
                               {isMobile && showDialogFileOrPhoto ? (
                                  <input
@@ -363,10 +488,40 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                                  />
                               )}
 
-                              {/* Contenido del dropzone */}
+                              {/* Indicador de arrastre */}
+                              {isDragActive && (
+                                 <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="absolute inset-0 bg-blue-500 bg-opacity-10 rounded-xl flex items-center justify-center"
+                                 >
+                                    <div className="text-center">
+                                       <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                             <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                             />
+                                          </svg>
+                                       </div>
+                                       <p className="text-blue-600 font-semibold">Suelta los archivos aquí</p>
+                                    </div>
+                                 </motion.div>
+                              )}
+
+                              {/* Contenido normal del dropzone */}
                               <div className="flex flex-col items-center justify-center space-y-4">
                                  {/* Icono de upload */}
-                                 <div className={`p-3 rounded-full ${isError ? "bg-red-100" : "bg-blue-100"}`}>
+                                 <motion.div
+                                    className={`p-3 rounded-full ${isError ? "bg-red-100" : "bg-blue-100"}`}
+                                    animate={{
+                                       scale: isDragActive ? 1.1 : 1,
+                                       rotate: isDragActive ? 5 : 0
+                                    }}
+                                    transition={{ type: "spring", stiffness: 300 }}
+                                 >
                                     <svg className={`w-6 h-6 ${isError ? "text-red-500" : "text-blue-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                        <path
                                           strokeLinecap="round"
@@ -375,7 +530,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                                           d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                        />
                                     </svg>
-                                 </div>
+                                 </motion.div>
 
                                  {/* Texto principal */}
                                  {filePreviews.length === 0 && (
@@ -388,171 +543,188 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                                  )}
 
                                  {/* Vista previa de archivos */}
-                                 {filePreviews.length > 0 && (
-                                    <div className="w-full space-y-4">
-                                       {filePreviews.map((preview) => {
-                                          const fileType = getFileType(preview.file);
-                                          // console.log("🚀 ~ FileInputModerno ~ fileType:", fileType);
+                                 <AnimatePresence>
+                                    {filePreviews.length > 0 && (
+                                       <div className="w-full space-y-4">
+                                          {filePreviews.map((preview, index) => {
+                                             const fileType = getFileType(preview.file);
 
-                                          return (
-                                             <div key={preview.file.name} className="relative group">
-                                                {fileType === "image" ? (
-                                                   // Preview para imágenes
-                                                   <div className="bg-white rounded-lg p-4 shadow-sm border">
-                                                      <div className="flex items-center space-x-3 mb-3">
-                                                         <div className="p-2 bg-green-100 rounded-lg">
-                                                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                               <path
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                                  strokeWidth={2}
-                                                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                               />
-                                                            </svg>
+                                             return (
+                                                <motion.div
+                                                   key={preview.file.name}
+                                                   className="relative group"
+                                                   variants={filePreviewVariants}
+                                                   initial="initial"
+                                                   animate="animate"
+                                                   exit="exit"
+                                                   transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                >
+                                                   {fileType === "image" ? (
+                                                      // Preview para imágenes
+                                                      <div className="bg-white rounded-lg p-4 shadow-sm border">
+                                                         <div className="flex items-center space-x-3 mb-3">
+                                                            <div className="p-2 bg-green-100 rounded-lg">
+                                                               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                  <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                  />
+                                                               </svg>
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                               <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
+                                                               <p className="text-sm text-gray-500">{Math.round(preview.file.size / 1024)} KB</p>
+                                                            </div>
                                                          </div>
-                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
-                                                            <p className="text-sm text-gray-500">{Math.round(preview.file.size / 1024)} KB</p>
-                                                         </div>
-                                                      </div>
-                                                      <div className="relative">
-                                                         <img
-                                                            className="w-full h-64 object-contain rounded-lg border bg-gray-50"
-                                                            src={preview.dataURL}
-                                                            alt={preview.file.name}
-                                                            onMouseEnter={handleMouseEnter}
-                                                            onMouseLeave={handleMouseLeave}
-                                                         />
-                                                         {/* Tooltip para imagen */}
-                                                         <div
-                                                            className={`absolute top-0 ${
-                                                               zoomLeft ? "left-0" : "right-0"
-                                                            } w-96 bg-white shadow-2xl rounded-lg border transition-all duration-300 z-50 ${ttShow}`}
-                                                         >
-                                                            <img src={preview.dataURL} alt={preview.file.name} className="w-full h-96 object-contain rounded-lg" />
-                                                         </div>
-                                                      </div>
-                                                   </div>
-                                                ) : fileType === "pdf" ? (
-                                                   // Preview para PDFs
-                                                   <div className="bg-white rounded-lg p-4 shadow-sm border">
-                                                      <div className="flex items-center space-x-3 mb-3">
-                                                         <div className="p-2 bg-red-100 rounded-lg">
-                                                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                               <path
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                                  strokeWidth={2}
-                                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                               />
-                                                            </svg>
-                                                         </div>
-                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
-                                                            <p className="text-sm text-gray-500">{Math.round(preview.file.size / 1024)} KB</p>
-                                                         </div>
-                                                      </div>
-                                                      <div className="relative">
-                                                         <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-100 rounded border">
-                                                            <svg className="w-16 h-16 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                               <path
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                                  strokeWidth={2}
-                                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                               />
-                                                            </svg>
-                                                            <p className="text-sm text-gray-600">PDF Document</p>
-                                                            <p className="text-xs text-gray-500 mt-1">Haz clic para ver el contenido</p>
-                                                         </div>
-                                                         {/* Tooltip para PDF */}
-                                                         <div
-                                                            className={`absolute top-0 ${
-                                                               zoomLeft ? "left-0" : "right-0"
-                                                            } w-64 bg-white shadow-2xl rounded-lg border transition-all duration-300 z-50 ${ttShow}`}
-                                                         >
-                                                            <embed src={preview.dataURL} type="application/pdf" className="w-full h-96 rounded-lg" />
-                                                         </div>
-                                                      </div>
-                                                   </div>
-                                                ) : (
-                                                   // Preview para otros tipos de archivos
-                                                   <div className="bg-white rounded-lg p-4 shadow-sm border">
-                                                      <div className="flex items-center space-x-3 mb-3">
-                                                         <div className="p-2 bg-blue-100 rounded-lg">
-                                                            <svg
-                                                               className={`w-6 h-6 ${fileType === "excel" ? "text-green-600" : "text-blue-600"}`}
-                                                               fill="none"
-                                                               stroke="currentColor"
-                                                               viewBox="0 0 24 24"
-                                                            >
-                                                               <path
-                                                                  strokeLinecap="round"
-                                                                  strokeLinejoin="round"
-                                                                  strokeWidth={2}
-                                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                               />
-                                                            </svg>
-                                                         </div>
-                                                         <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
-                                                            <p className="text-sm text-gray-500">
-                                                               {Math.round(preview.file.size / 1024)} KB • {fileType.toUpperCase()}
-                                                            </p>
-                                                         </div>
-                                                      </div>
-                                                      <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border">
-                                                         <svg className="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path
-                                                               strokeLinecap="round"
-                                                               strokeLinejoin="round"
-                                                               strokeWidth={2}
-                                                               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                         <div className="relative">
+                                                            <img
+                                                               className="w-full h-64 object-contain rounded-lg border bg-gray-50 cursor-pointer hover:shadow-md transition-shadow duration-300"
+                                                               src={preview.dataURL}
+                                                               alt={preview.file.name}
+                                                               onClick={() => handleZoomImage(preview.dataURL, preview.file.name)}
                                                             />
-                                                         </svg>
-                                                         <p className="text-sm text-gray-600">{fileType.toUpperCase()} File</p>
-                                                         <p className="text-xs text-gray-500 mt-1">No hay preview disponible</p>
+                                                         </div>
                                                       </div>
-                                                   </div>
-                                                )}
+                                                   ) : fileType === "pdf" ? (
+                                                      // Preview para PDFs
+                                                      <div className="bg-white rounded-lg p-4 shadow-sm border">
+                                                         <div className="flex items-center space-x-3 mb-3">
+                                                            <div className="p-2 bg-red-100 rounded-lg">
+                                                               <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                  <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                  />
+                                                               </svg>
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                               <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
+                                                               <p className="text-sm text-gray-500">{Math.round(preview.file.size / 1024)} KB</p>
+                                                            </div>
+                                                         </div>
+                                                         <div className="relative">
+                                                            <div className="w-full h-64 flex flex-col items-center justify-center bg-gray-100 rounded border cursor-pointer hover:bg-gray-200 transition-colors duration-300">
+                                                               <svg className="w-16 h-16 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                  <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                  />
+                                                               </svg>
+                                                               <p className="text-sm text-gray-600">PDF Document</p>
+                                                               <p className="text-xs text-gray-500 mt-1">Haz clic para ver el contenido</p>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   ) : (
+                                                      // Preview para otros tipos de archivos
+                                                      <div className="bg-white rounded-lg p-4 shadow-sm border">
+                                                         <div className="flex items-center space-x-3 mb-3">
+                                                            <div className="p-2 bg-blue-100 rounded-lg">
+                                                               <svg
+                                                                  className={`w-6 h-6 ${fileType === "excel" ? "text-green-600" : "text-blue-600"}`}
+                                                                  fill="none"
+                                                                  stroke="currentColor"
+                                                                  viewBox="0 0 24 24"
+                                                               >
+                                                                  <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                  />
+                                                               </svg>
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                               <p className="text-sm font-medium text-gray-900 truncate">{preview.file.name}</p>
+                                                               <p className="text-sm text-gray-500">
+                                                                  {Math.round(preview.file.size / 1024)} KB • {fileType.toUpperCase()}
+                                                               </p>
+                                                            </div>
+                                                         </div>
+                                                         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-100 rounded border">
+                                                            <svg className="w-12 h-12 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                               <path
+                                                                  strokeLinecap="round"
+                                                                  strokeLinejoin="round"
+                                                                  strokeWidth={2}
+                                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                               />
+                                                            </svg>
+                                                            <p className="text-sm text-gray-600">{fileType.toUpperCase()} File</p>
+                                                            <p className="text-xs text-gray-500 mt-1">No hay preview disponible</p>
+                                                         </div>
+                                                      </div>
+                                                   )}
 
-                                                {/* Botón de eliminar */}
-                                                {!disabled && (
-                                                   <button
-                                                      type="button"
-                                                      onClick={(e) => {
-                                                         e.stopPropagation();
-                                                         handleRemoveImage(preview.file);
-                                                      }}
-                                                      className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                                                      onMouseEnter={handleMouseEnter}
-                                                      onMouseLeave={handleMouseLeave}
-                                                   >
-                                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                      </svg>
-                                                   </button>
-                                                )}
-                                             </div>
-                                          );
-                                       })}
-                                    </div>
-                                 )}
+                                                   {/* Botones de acción */}
+                                                   {!disabled && (
+                                                      <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                         {fileType === "image" && (
+                                                            <motion.button
+                                                               type="button"
+                                                               onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  handleZoomImage(preview.dataURL, preview.file.name);
+                                                               }}
+                                                               className="bg-blue-500 text-white p-1.5 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-200"
+                                                               whileHover={{ scale: 1.1 }}
+                                                               whileTap={{ scale: 0.9 }}
+                                                               title="Ampliar imagen"
+                                                            >
+                                                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                  <path
+                                                                     strokeLinecap="round"
+                                                                     strokeLinejoin="round"
+                                                                     strokeWidth={2}
+                                                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v0"
+                                                                  />
+                                                               </svg>
+                                                            </motion.button>
+                                                         )}
+                                                         <motion.button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                               e.stopPropagation();
+                                                               handleRemoveImage(preview.file);
+                                                            }}
+                                                            className="bg-red-500 text-white p-1.5 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-200"
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            title="Eliminar archivo"
+                                                         >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                         </motion.button>
+                                                      </div>
+                                                   )}
+                                                </motion.div>
+                                             );
+                                          })}
+                                       </div>
+                                    )}
+                                 </AnimatePresence>
                               </div>
-                           </div>
+                           </motion.div>
+                        </div>
 
-                           {/* Información adicional */}
-                           <div className="mt-2 flex flex-col items-center space-y-2">
-                              <p className="text-xs text-gray-500 text-center">
-                                 Tamaño máximo del archivo: <b>{fileSizeMax}MB MAX.</b>
-                              </p>
+                        {/* Información adicional */}
+                        <div className="mt-2 flex flex-col items-center space-y-2">
+                           <p className="text-xs text-gray-500 text-center">
+                              Tamaño máximo del archivo: <b>{fileSizeMax}MB MAX.</b>
+                           </p>
 
-                              {!disabled && showBtnCamera && (
-                                 <div className="flex justify-center">
-                                    <CameraInput getFile={handleGetFileCamera} caputureINE={caputureINE} />
-                                 </div>
-                              )}
-                           </div>
+                           {!disabled && showBtnCamera && (
+                              <div className="flex justify-center">
+                                 <CameraInput getFile={handleGetFileCamera} caputureINE={caputureINE} />
+                              </div>
+                           )}
                         </div>
 
                         {/* Mensaje de error/helper */}
@@ -564,6 +736,71 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                </Field>
             </FormControl>
          </Grid>
+
+         {/* Modal de Zoom para imágenes */}
+         <Backdrop
+            sx={{
+               color: "#fff",
+               zIndex: (theme) => theme.zIndex.drawer + 1,
+               backdropFilter: "blur(12px)",
+               backgroundColor: "rgba(0, 0, 0, 0.8)"
+            }}
+            open={zoomImage.open}
+            onClick={handleCloseZoom}
+         >
+            <motion.div
+               variants={zoomModalVariants}
+               initial="hidden"
+               animate="visible"
+               exit="exit"
+               className="max-w-4xl max-h-[90vh] mx-4"
+               onClick={(e) => e.stopPropagation()}
+            >
+               {/* Header del modal */}
+               <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
+                  <div className="bg-black bg-opacity-50 rounded-lg px-3 py-2">
+                     <p className="text-white font-medium  truncate max-w-md">{zoomImage.fileName}</p>
+                  </div>
+                  <motion.button
+                     onClick={handleCloseZoom}
+                     className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors duration-200"
+                     whileHover={{ scale: 1.1 }}
+                     whileTap={{ scale: 0.9 }}
+                  >
+                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                     </svg>
+                  </motion.button>
+               </div>
+
+               {/* Imagen ampliada */}
+               <div className="bg-white rounded-xl overflow-hidden shadow-2xl">
+                  <img src={zoomImage.imageUrl} alt={zoomImage.fileName} className="w-full h-auto max-h-[80vh] object-contain" />
+               </div>
+
+               {/* Controles de zoom (opcional) */}
+               {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  <motion.button
+                     className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors duration-200"
+                     whileHover={{ scale: 1.05 }}
+                     whileTap={{ scale: 0.95 }}
+                  >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                     </svg>
+                  </motion.button>
+                  <motion.button
+                     className="bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70 transition-colors duration-200"
+                     whileHover={{ scale: 1.05 }}
+                     whileTap={{ scale: 0.95 }}
+                  >
+                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                     </svg>
+                  </motion.button>
+               </div> */}
+            </motion.div>
+         </Backdrop>
 
          {isMobile && showDialogFileOrPhoto && (
             <DialogSelectMode open={openDialog} onClose={handleCloseDialog} onSelectFile={handleSelectFile} onSelectPhoto={handleSelectPhoto} />

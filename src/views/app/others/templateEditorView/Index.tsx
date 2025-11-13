@@ -36,7 +36,7 @@ const ChipEditor: React.FC = () => {
    useEffect(() => {
       const initial: ChipData[] = Array.from({ length: 40 }, (_, i) => ({
          id: `chip-${i + 1}`,
-         iccid: `89310406101234567${(i + 1).toString().padStart(2, "0")}`,
+         iccid: `89520200245338597${(i + 1).toString().padStart(2, "0")}`,
          phoneNumber: `+52 55 000${(1000 + i).toString()}`,
          preActivationDate: "2025-11-11",
          status: "Pendiente",

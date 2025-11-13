@@ -28,6 +28,8 @@ const EmployeeDT = () => {
       setIsEdit,
       setImgAvatar,
       setImgFirm,
+      setIneFront,
+      setIneBack,
       deleteEmployee,
       disEnableEmployee,
       getAllEmployees,
@@ -206,6 +208,8 @@ const EmployeeDT = () => {
          formikRef?.current?.setValues(formikRef.current.initialValues);
          setImgAvatar([]);
          setImgFirm([]);
+         setIneFront([]);
+         setIneBack([]);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
@@ -238,6 +242,8 @@ const EmployeeDT = () => {
          // if (res.result.description) res.result.description == null && (res.result.description = "");
          setObjImg(res.result.avatar, setImgAvatar);
          setObjImg(res.result.img_firm, setImgFirm);
+         setObjImg(res.result.ine_front, setIneFront);
+         setObjImg(res.result.ine_back, setIneBack);
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);

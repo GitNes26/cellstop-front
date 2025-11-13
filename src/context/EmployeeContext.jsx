@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Axios, Response } from "../utils/Api";
+import { Axios, AxiosFiles, Response } from "../utils/Api";
 import Toast from "../utils/Toast";
 import { useAuthContext } from "./AuthContext";
 import { ROLE_ADMIN } from "./GlobalContext";
@@ -33,6 +33,8 @@ export default function EmployeeContextProvider({ children }) {
    const [isEdit, setIsEdit] = useState(false);
    const [imgAvatar, setImgAvatar] = useState([]);
    const [imgFirm, setImgFirm] = useState([]);
+   const [ineFront, setIneFront] = useState([]);
+   const [ineBack, setIneBack] = useState([]);
 
    //#region CRUD
    const getAllEmployees = async () => {
@@ -62,7 +64,7 @@ export default function EmployeeContextProvider({ children }) {
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
       // console.log("🚀 ~ getSelectIndexEmployees ~ response:", response);
-      
+
       if (error) {
          console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
          const message = error.response.data.message || "getSelectIndexEmployees ~ Ocurrio algun error, intenta de nuevo :c";
@@ -83,7 +85,7 @@ export default function EmployeeContextProvider({ children }) {
       // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
-      const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
+      const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
       // console.log("🚀 ~ createOrUpdateEmployee ~ error:", error);
       // console.log("🚀 ~ createOrUpdateEmployee ~ response:", response);
       if (error) {
@@ -197,6 +199,10 @@ export default function EmployeeContextProvider({ children }) {
             imgAvatar,
             setImgAvatar,
             imgFirm,
+            ineFront,
+            setIneFront,
+            ineBack,
+            setIneBack,
             setImgFirm,
             getAllEmployees,
             getSelectIndexEmployees,

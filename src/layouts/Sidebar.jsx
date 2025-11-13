@@ -189,6 +189,7 @@ export default function Sidebar() {
    const { getMenusByRole } = useMenuContext();
    const [menus, setMenus] = useState([]);
    const [loadingMenus, setLoadingMenus] = useState(true);
+   const navigate = useNavigate();
 
    const handleDrawerClose = () => {
       setOpenDrawerSidebar(false);
@@ -259,7 +260,13 @@ export default function Sidebar() {
                <IconButton onClick={handleDrawerClose}>{env.THEME.direction === "rtl" ? <ChevronRightIcon /> : <ChevronLeftIcon />}</IconButton>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", py: 4, justifyItems: "center", alignItems: "center", gap: 0.5 }}>
-               <img src={images.logo} className={`transition-all ${openDrawerSidebar ? "max-w-[200px] w-[100%]" : "max-w-[50px] w-[100%]"}`} />
+               <img
+                  src={images.logo}
+                  className={`hover:scale-105 hover:cursor-pointer hover:opacity-85 transition-all ${
+                     openDrawerSidebar ? "max-w-[200px] w-[100%]" : "max-w-[50px] w-[100%]"
+                  }`}
+                  onClick={() => navigate("/app")}
+               />
                <Typography
                   variant="h5"
                   noWrap

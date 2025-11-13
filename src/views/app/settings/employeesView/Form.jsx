@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormikForm, { DividerComponent, FileInput, FirmPad, Input, Select2 } from "../../../../components/forms";
+import FormikForm, { DividerComponent, FileInput, FileInputModerno, FirmPad, Input, Select2 } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography } from "@mui/material";
@@ -90,6 +90,10 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
       setImgAvatar,
       imgFirm,
       setImgFirm,
+      ineFront,
+      setIneFront,
+      ineBack,
+      setIneBack,
       createOrUpdateEmployee
    } = useEmployeeContext();
    const { allPositions, setAllPositions, getSelectIndexPositions } = usePositionContext();
@@ -114,7 +118,7 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
       {
          name: "avatar",
          input: (
-            <FileInput
+            <FileInputModerno
                key={`key-input-avatar`}
                col={12}
                idName="avatar"
@@ -265,6 +269,53 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
+      {
+         name: "ine_front",
+         input: (
+            <FileInputModerno
+               key={`key-input-ine_front`}
+               col={6}
+               idName="ine_front"
+               label="INE POR ENFRENTE"
+               filePreviews={ineFront}
+               setFilePreviews={setIneFront}
+               multiple={false}
+               accept={"image/*"}
+               // handleUploadingFile={handleUpload}
+               fileSizeMax={3}
+               showBtnCamera={true}
+               // showDialogFileOrFirm={true}
+               required
+            />
+         ),
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "ine_back",
+         input: (
+            <FileInputModerno
+               key={`key-input-ine_back`}
+               col={6}
+               idName="ine_back"
+               label="INE POR DETRAS"
+               filePreviews={ineBack}
+               setFilePreviews={setIneBack}
+               multiple={false}
+               accept={"image/*"}
+               // handleUploadingFile={handleUpload}
+               fileSizeMax={3}
+               showBtnCamera={true}
+               // showDialogFileOrFirm={true}
+            />
+         ),
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
       // {
       //    name: "img_firm",
       //    input: (
@@ -349,6 +400,8 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
 
       values.avatar = imgAvatar.length == 0 ? "" : imgAvatar[0].file;
       values.img_firm = imgFirm.length == 0 ? "" : imgFirm[0].file;
+      values.ine_front = ineFront.length == 0 ? "" : ineFront[0].file;
+      values.ine_back = ineBack.length == 0 ? "" : ineBack[0].file;
       const res = await createOrUpdateEmployee(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
@@ -364,6 +417,7 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
       }
 
       await resetForm();
+      handleCancel();
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
       if (res.alert_text) Toast.Success(res.alert_text);
@@ -381,6 +435,8 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
       setIsEdit(false);
       setImgAvatar([]);
       setImgFirm([]);
+      setIneFront([]);
+      setIneBack([]);
       if (refreshSelect) refreshSelect();
       if (!checkAdd) setOpenDialog(false);
    };

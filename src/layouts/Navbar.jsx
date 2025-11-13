@@ -218,7 +218,7 @@ export default function Navbar() {
             <Box sx={{ flexGrow: 0 }}>
                <Tooltip title="Abrir Opciones">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                     <Avatar {...stringAvatar(`${auth.username}`)} />
+                     <Avatar src={auth.avatar && `${env.API_URL_IMG}/${auth.avatar}`} {...stringAvatar(`${auth.username}`)} />
                   </IconButton>
                </Tooltip>
                <Menu
@@ -265,7 +265,7 @@ export default function Navbar() {
                   }}
                >
                   <MenuItem onClick={handleCloseUserMenu}>
-                     <Avatar /> Mi Perfil
+                     <Avatar /> Mi Perfil:&nbsp; <span className="font-black">{auth.username}</span>
                   </MenuItem>
                   <Divider />
                   <MenuItem onClick={handleClickChangePassword}>
