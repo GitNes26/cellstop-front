@@ -9,7 +9,7 @@ import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mu
 import { useAuthContext } from "../../../../context/AuthContext";
 import { useLoteContext } from "./../../../../context/LoteContext";
 import useFetch from "../../../../hooks/useFetch";
-import LoteForm from "../lotesView/Form";
+import LoteForm from "../../catalogs/lotesView/Form";
 import Toast from "../../../../utils/Toast";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;

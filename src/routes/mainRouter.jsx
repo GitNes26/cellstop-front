@@ -14,7 +14,7 @@ const DepartmentsView = lazy(() => import("../views/app/settings/departmentsView
 const PositionsView = lazy(() => import("../views/app/settings/positionsView/Index")); //import PositionsView from "./../views/app/settings/positionsView/Index";
 const EmployeesView = lazy(() => import("../views/app/settings/employeesView/Index")); //import EmployeesView from "./../views/app/settings/employeesView/Index";
 const ProductTypesView = lazy(() => import("../views/app/catalogs/productTypesView/Index")); //import ProductTypesView from "./../views/app/settings/productTypesView/Index";
-const ProductsView = lazy(() => import("../views/app/catalogs/productsView/Index")); //import ProductView from "./../views/app/settings/productsView/Index";
+const ProductsView = lazy(() => import("../views/app/productFlow/productsView/Index")); //import ProductView from "./../views/app/settings/productsView/Index";
 const LotesView = lazy(() => import("../views/app/catalogs/lotesView/Index")); //import LoteView from "./../views/app/settings/lotesView/Index";
 const PointsOfSaleView = lazy(() => import("../views/app/catalogs/pointsOfSaleView/Index"));
 const SalesView = lazy(() => import("../views/app/catalogs/salesView/Index"));
@@ -184,28 +184,6 @@ const mainRouter = {
                )
             },
             {
-               path: "productos",
-               element: (
-                  <UserContextProvider>
-                     <ProductContextProvider>
-                        <ProductTypeContextProvider>
-                           <RoleContextProvider>
-                              <EmployeeContextProvider>
-                                 <DepartmentContextProvider>
-                                    <PositionContextProvider>
-                                       <LoteContextProvider>
-                                          <ProductsView />
-                                       </LoteContextProvider>
-                                    </PositionContextProvider>
-                                 </DepartmentContextProvider>
-                              </EmployeeContextProvider>
-                           </RoleContextProvider>
-                        </ProductTypeContextProvider>
-                     </ProductContextProvider>
-                  </UserContextProvider>
-               )
-            },
-            {
                path: "lotes",
                element: (
                   <UserContextProvider>
@@ -237,6 +215,34 @@ const mainRouter = {
                   <SaleContextProvider>
                      <SalesView />
                   </SaleContextProvider>
+               )
+            }
+         ]
+      },
+      {
+         path: "productos",
+         children: [
+            {
+               index: true,
+               path: ":status?",
+               element: (
+                  <UserContextProvider>
+                     <ProductContextProvider>
+                        <ProductTypeContextProvider>
+                           <RoleContextProvider>
+                              <EmployeeContextProvider>
+                                 <DepartmentContextProvider>
+                                    <PositionContextProvider>
+                                       <LoteContextProvider>
+                                          <ProductsView />
+                                       </LoteContextProvider>
+                                    </PositionContextProvider>
+                                 </DepartmentContextProvider>
+                              </EmployeeContextProvider>
+                           </RoleContextProvider>
+                        </ProductTypeContextProvider>
+                     </ProductContextProvider>
+                  </UserContextProvider>
                )
             }
          ]
