@@ -25,6 +25,7 @@ interface ChipItem {
    id: number;
    label: string;
    location_status: string;
+   folio: number;
 }
 interface TransferListProps {
    xsOffset?: number | null;
@@ -38,6 +39,8 @@ interface TransferListProps {
    sx?: SxProps<Theme>;
    disabled?: boolean;
    data: ChipItem[];
+   handleClickLeft?: () => void | null;
+   handleClickRight?: () => void | null;
 }
 
 function not(a: readonly number[], b: readonly number[]) {
@@ -63,7 +66,9 @@ const TransferList: React.FC<TransferListProps> = ({
    heightList = 430,
    sx,
    disabled = false,
-   data = []
+   data = [],
+   handleClickLeft = null,
+   handleClickRight = null
 }) => {
    const formik = useFormikContext<FormikValues>();
    const [checked, setChecked] = React.useState<readonly number[]>([]);
@@ -97,6 +102,7 @@ const TransferList: React.FC<TransferListProps> = ({
       setChecked(not(checked, leftChecked));
       formik.setFieldValue(idNameLeft, newLeft);
       formik.setFieldValue(idNameRight, newRight);
+      if (handleClickRight) handleClickRight();
    };
 
    const handleCheckedLeft = () => {
@@ -107,42 +113,17 @@ const TransferList: React.FC<TransferListProps> = ({
       setChecked(not(checked, rightChecked));
       formik.setFieldValue(idNameLeft, newLeft);
       formik.setFieldValue(idNameRight, newRight);
+      if (handleClickLeft) handleClickLeft();
    };
 
    const filterChips = (chips: ChipItem[], search: string) => {
-      console.log("🚀 ~ filterChips ~ search:", search);
-      console.log("🚀 ~ filterChips ~ chips:", chips);
+      // console.log("🚀 ~ filterChips ~ search:", search);
+      // console.log("🚀 ~ filterChips ~ chips:", chips);
       if (!search) return chips;
       return chips.filter((chip) => chip.label.toLowerCase().includes(search.toLowerCase()) || chip.location_status?.toLowerCase().includes(search.toLowerCase()));
    };
 
-   // Sincroniza listas con Formik y filtra sólo ids presentes en `data`
-   // useEffect(() => {
-   //    console.log("🚀 ~ TransferList ~ formik.values:", formik.values);
-   //    console.log("🚀 ~ TransferList ~ data:", data);
-   //    const availableIds = data.map((d) => d.id);
-   //    console.log("🚀 ~ TransferList ~ availableIds:", availableIds);
-
-   //    const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
-   //    // const formLeft = availableIds as number[];
-   //    console.log("🚀 ~ TransferList ~ formLeft:", formLeft);
-   //    const formRight = (formik.values[idNameRight] || []) as number[];
-   //    console.log("🚀 ~ TransferList ~ formRight:", formRight);
-
-   //    setLeft(formLeft.filter((id) => availableIds.includes(id)));
-   //    setRight(formRight.filter((id) => availableIds.includes(id)));
-
-   //    // Inicializa Formik si está vacío
-   //    if (!formik.values[idNameLeft]) formik.setFieldValue(idNameLeft, formLeft);
-   //    if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
-   // }, [formik.values, idNameLeft, idNameRight, data]);
-
-   // const initializedRef = useRef(false);
-
    useEffect(() => {
-      // if (initializedRef.current) return;
-      // if (data.length > 0) if (left.length < 1) initializedRef.current = true;
-
       const availableIds = data.map((d) => d.id);
       const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
       const formRight = (formik.values[idNameRight] || []) as number[];
@@ -155,11 +136,11 @@ const TransferList: React.FC<TransferListProps> = ({
    }, [formik.values, data]);
 
    const customList = (title: string, items: readonly number[], search: string, setSearch: (value: string) => void) => {
-      console.log("🚀 ~ customList ~ items:", items);
+      // console.log("🚀 ~ customList ~ items:", items);
       const dataItems: ChipItem[] = data.filter((d) => items.includes(d.id));
-      console.log("🚀 ~ customList ~ dataItems:", dataItems);
+      // console.log("🚀 ~ customList ~ dataItems:", dataItems);
       const filteredItems = filterChips(dataItems, search);
-      console.log("🚀 ~ customList ~ filteredItems:", filteredItems);
+      // console.log("🚀 ~ customList ~ filteredItems:", filteredItems);
 
       return (
          <Card sx={{ width: "100%", ...sx }}>

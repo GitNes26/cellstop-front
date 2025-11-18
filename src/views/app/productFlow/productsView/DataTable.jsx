@@ -252,22 +252,22 @@ const ProductDT = ({}) => {
          renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.activation_status}`}>{params.row.activation_status}</TextCenter>
       },
       {
-         field: "product_type_id",
+         field: "product_type",
          headerName: "Tipo Producto",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.product_type_id}`}>{params.row.product_type_id}</TextCenter>
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.product_type_id}`}>{params.row.product_type.product_type}</TextCenter>
       },
       {
-         field: "import_id",
+         field: "import",
          headerName: "Importación",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import_id}`}>{params.row.import_id}</TextCenter>
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import_id}`}>{params.row.import.name}</TextCenter>
       },
       {
-         field: "created_by",
+         field: "import.upload_by",
          headerName: "Creado Por",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.created_by}`}>{params.row.created_by}</TextCenter>
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import.upload_by}`}>{params.row.import.upload_by}</TextCenter>
       }
    ];
    // #endregion COLUMNAS
@@ -320,7 +320,7 @@ const ProductDT = ({}) => {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getProduct(id);
-         console.log("🚀 ~ handleClickLogout ~ res:", res);
+         // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -351,7 +351,7 @@ const ProductDT = ({}) => {
 
    const handleClickDelete = async (id, name) => {
       try {
-         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el vendedor de ${name}?`, "CONFIRMAR")).then(async (result) => {
+         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el producto ${name}?`, "CONFIRMAR")).then(async (result) => {
             if (result.isConfirmed) {
                setIsLoading(true);
                const res = await deleteProduct(id);
@@ -445,7 +445,7 @@ const ProductDT = ({}) => {
                headerRow={1}
                dataStartRow={2}
             />
-            {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />}
+            {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent

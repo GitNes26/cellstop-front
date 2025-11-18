@@ -11,6 +11,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useLoteContext } from "../../../../context/LoteContext";
 import { useUserContext } from "../../../../context/UserContext";
+import { useProductContext } from "../../../../context/ProductContext";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -76,11 +77,13 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
    const { setIsLoading } = useGlobalContext();
    const { singularName, lote, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdateLote } = useLoteContext();
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
+   const { foliosSelect, setFoliosSelect, getSelectIndexFolios } = useProductContext();
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [sellerFormDialog, setSellerFormDialog] = useState(false);
 
-   const { refetch: refreshSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
+   const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
+   const { refetch: refetchFolios } = useFetch(() => getSelectIndexFolios(), setFoliosSelect);
 
    const formData = [
       {
@@ -121,7 +124,7 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
                label="Vendedor"
                // options={usersSelect.filter((item) => item.role_id !== 3) || []}
                options={usersSelect || []}
-               refreshSelect={refreshSeller}
+               refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
                required
             />
@@ -149,6 +152,75 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          ),
          value: "",
          validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "folio",
+         input: (
+            <Select2
+               key={`key-input-folio`}
+               col={8}
+               idName="folio"
+               label="Folio"
+               options={foliosSelect || []}
+               refreshSelect={refetchFolios}
+               onChangeExtra={handleChangeFolio}
+               required
+            />
+         ),
+         value: "",
+         validations: Yup.number().min(1, "Esta opción no es valida").required("Folio requerido"),
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "quantity",
+         input: (
+            <Input
+               key={`key-input-quantity`}
+               col={4}
+               idName="quantity"
+               label="Cantidad de productos"
+               placeholder="999"
+               type="number"
+               helperText=""
+               maxLength={3}
+               required
+            />
+         ),
+         value: 500,
+         validations: Yup.number().min(1, "La cantidad minima es 1").required("Cantidad requerido"),
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "lada",
+         input: (
+            <Input key={`key-input-lada`} col={3} idName="lada" label="Lada" placeholder="871" type="text" textStyleCase={true} helperText="" maxLength={3} required />
+         ),
+         value: "",
+         validations: Yup.string().trim().required("Lada requerido"),
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "preactivation_date",
+         input: (
+            <Input
+               key={`key-input-preactivation_date`}
+               col={9}
+               idName="preactivation_date"
+               label="Fecha de Pre-activación"
+               // placeholder="DD/MM/AAAA"
+               type="date"
+               textStyleCase={true}
+               helperText=""
+               required
+            />
+         ),
+         value: "",
+         validations: Yup.string().trim().required("Fecha de Pre-activación requerido"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       }
@@ -214,6 +286,18 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          Toast.Error(error);
       }
    };
+
+   function handleChangeFolio(values) {
+      // console.log("🚀 ~ handleChangeFolio ~ values:", values);
+      const folioSelected = foliosSelect.find((folio) => folio.id == values.value.id);
+      if (folioSelected == undefined) {
+         formikRef.current.setFieldValue("lada", "");
+         formikRef.current.setFieldValue("preactivation_date", "");
+         return;
+      }
+      formikRef.current.setFieldValue("lada", folioSelected.lada);
+      formikRef.current.setFieldValue("preactivation_date", folioSelected.fecha_preactivacion);
+   }
 
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
@@ -314,7 +398,7 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
                container={container}
             />
          )}
-         <UserForm container="modal" openDialog={sellerFormDialog} setOpenDialog={setSellerFormDialog} refreshSelect={refreshSeller} />
+         <UserForm container="modal" openDialog={sellerFormDialog} setOpenDialog={setSellerFormDialog} refreshSelect={refetchSeller} />
       </>
    );
 };

@@ -9,22 +9,20 @@ import { useParams } from "react-router-dom";
 
 const ProductsView = ({}) => {
    const { status } = useParams();
-   console.log("🚀 ~ ProductsView ~ status:", status);
    const { openDialog, setOpenDialog } = useGlobalContext();
    const { pluralName, allProducts, setAllProducts, getAllProducts } = useProductContext();
 
    // CARGA DE LISTADOS
-   useFetch(getAllProducts, setAllProducts);
+   const { refetch: refetchProducts } = useFetch(getAllProducts, setAllProducts);
 
    useEffect(() => {
-      if (status === "en-stock") setAllProducts(allProducts.filter((product) => product.location_status === "Stock"));
-      else if (status === "asignados") setAllProducts(allProducts.filter((product) => product.location_status === "Asignado"));
+      refetchProducts();
    }, [/* allProducts */ status]);
 
    return (
       <>
          <Typography variant="h2" fontWeight={400} className="mb-2 text-center">
-            {pluralName.toUpperCase()}
+            {pluralName.toUpperCase()} {status ? status.toUpperCase() : ""}
          </Typography>
          <ProductDT />
          <ProductForm container={"drawer"} refreshSelect={getAllProducts} openDialog={openDialog} setOpenDialog={setOpenDialog} />

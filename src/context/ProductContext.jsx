@@ -31,12 +31,32 @@ export default function ProductContextProvider({ children }) {
    const [openDialog, setOpenDialog] = useState(false);
    const formikRef = useRef(null);
    const [isEdit, setIsEdit] = useState(false);
+   const [foliosSelect, setFoliosSelect] = useState([]);
+
+   function getFiltersByStatus(statusParam) {
+      switch (statusParam) {
+         case "en-stock":
+            return { location_status: "Stock", activation_status: "Pre-activado" };
+         case "asignados":
+            return { location_status: "Asignado" };
+         case "distribuidos":
+            return { location_status: "Distribuido" };
+         case "activos":
+            return { activation_status: "Activado" };
+         case "portados":
+            return { activation_status: "Portado" };
+         default:
+            return null;
+      }
+   }
 
    //#region CRUD
    const getAllProducts = async () => {
+      // console.log("🚀 ~ getAllProducts ~ status:", params.status);
+      const data = getFiltersByStatus(params.status);
       // if (!(await checkLoggedIn())) return;
 
-      const [error, response] = await to(Axios.get(`${prefixPath}`));
+      const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProducts ~ error:", error);
       // console.log("🚀 ~ getAllProducts ~ response:", response);
       if (error) {
@@ -54,10 +74,10 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
-   const getSelectIndexProducts = async () => {
+   const getSelectIndexProducts = async (data) => {
       // // if (!(await checkLoggedIn())) return;
 
-      const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
+      const [error, response] = data ? await to(Axios.post(`${prefixPath}/selectIndex`, data)) : await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexProducts ~ error:", error);
       // console.log("🚀 ~ getSelectIndexProducts ~ response:", response);
       if (error) {
@@ -189,6 +209,27 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   const getSelectIndexFolios = async () => {
+      // // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.post(`${prefixPath}/getFolios`));
+      // console.log("🚀 ~ getSelectIndexFolios ~ error:", error);
+      // console.log("🚀 ~ getSelectIndexFolios ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getSelectIndexFolios ~ error:", error);
+         const message = error.response.data.message || "getSelectIndexFolios ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setFoliosSelect(res.result);
+
+      return res;
+   };
+
    const preActivationProducts = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
 
@@ -267,7 +308,11 @@ export default function ProductContextProvider({ children }) {
             disEnableProduct,
             importProducts,
             updateLoteAssignment,
-            preActivationProducts
+            preActivationProducts,
+
+            foliosSelect,
+            setFoliosSelect,
+            getSelectIndexFolios
          }}
       >
          {children}

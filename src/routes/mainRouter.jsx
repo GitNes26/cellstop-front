@@ -187,17 +187,19 @@ const mainRouter = {
                path: "lotes",
                element: (
                   <UserContextProvider>
-                     <LoteContextProvider>
-                        <RoleContextProvider>
-                           <EmployeeContextProvider>
-                              <DepartmentContextProvider>
-                                 <PositionContextProvider>
-                                    <LotesView />
-                                 </PositionContextProvider>
-                              </DepartmentContextProvider>
-                           </EmployeeContextProvider>
-                        </RoleContextProvider>
-                     </LoteContextProvider>
+                     <ProductContextProvider>
+                        <LoteContextProvider>
+                           <RoleContextProvider>
+                              <EmployeeContextProvider>
+                                 <DepartmentContextProvider>
+                                    <PositionContextProvider>
+                                       <LotesView />
+                                    </PositionContextProvider>
+                                 </DepartmentContextProvider>
+                              </EmployeeContextProvider>
+                           </RoleContextProvider>
+                        </LoteContextProvider>
+                     </ProductContextProvider>
                   </UserContextProvider>
                )
             },

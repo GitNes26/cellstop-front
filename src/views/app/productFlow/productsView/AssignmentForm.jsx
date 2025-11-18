@@ -60,35 +60,40 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, updateLoteAssignment, getSelectIndexProducts } =
       useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
-   const [productsSelect, setProductsSelect] = useState([]);
+   const [productsInStockSelect, setProductsInStockSelect] = useState([]);
    const formikRef = useRef(null);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [loteFormDialog, setLoteFormDialog] = useState(false);
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
-   const { refetch: refreshProducts } = useFetch(getSelectIndexProducts, setProductsSelect);
+   const { refetch: refetchProductsInStock } = useFetch(
+      () => getSelectIndexProducts({ location_status: "Stock", activation_status: "Pre-activado" }),
+      setProductsInStockSelect
+   );
 
    const init = () => {
       console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      const productosEnStock = productsSelect.filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado");
-      console.log("🚀 ~ init ~ productsSelect:", productsSelect);
-      console.log("🚀 ~ init ~ productosEnStock:", productosEnStock);
-      // const productsSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
+      // const productsInStockSelect = productsInStockSelect.filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado");
+      // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
+      // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
+      // // const productsInStockSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
-         productosEnStock.map((d) => d.id)
+         productsInStockSelect.map((d) => d.id)
       );
       // formikRef?.current?.setFieldValue(
       //    "product_ids",
-      //    productsSelected.map((d) => d.id)
+      //    productsInStockSelected.map((d) => d.id)
       // );
    };
    useEffect(() => {
+      console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
+
       formikRef?.current?.resetForm();
       formikRef?.current?.setValues(formikRef.current.initialValues);
       init();
-   }, [openDialog]);
+   }, [openDialog == true]);
 
    const formData = [
       {
@@ -104,7 +109,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          input: (
             <Select2
                key={`key-input-lote_id`}
-               col={12}
+               col={6}
                idName="lote_id"
                label="Lote"
                options={lotesSelect}
@@ -120,27 +125,59 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
-      // {
-      //    name: "assigned_at",
-      //    input: (
-      //       <DateTimePicker
-      //          key={"key-input-assigned_at"}
-      //          col={3}
-      //          idName="assigned_at"
-      //          label="Fecha de asignación"
-      //          picker={"date"}
-      //          format={"DD/MM/YYYY"}
-      //          // helperText={"DD/MM/AAAA"}
-      //          color="primary"
-      //          disabled
-      //          // startAdornmentContent={<CalendarMonthIcon />}
-      //       />
-      //    ),
-      //    value: "",
-      //    validations: Yup.date().nullable(),
-      //    validationPage: [],
-      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      // },
+      {
+         name: "folio",
+         input: <Input key={`key-input-folio`} col={3} idName="folio" label="Folio" placeholder="" disabled />,
+         value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "lada",
+         input: <Input key={`key-input-lada`} col={1} idName="lada" label="lada" placeholder="" disabled />,
+         value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "quantity",
+         input: <Input key={`key-input-quantity`} col={2} idName="quantity" label="Cantidad" type="number" placeholder="" disabled />,
+         value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "descrption",
+         input: <Textarea key={`key-input-descrption`} col={9} idName="descrption" label="Descripción del lote" placeholder="" rows={1} disabled />,
+         value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "preactivation_date",
+         input: (
+            <DateTimePicker
+               key={"key-input-preactivation_date"}
+               col={3}
+               idName="preactivation_date"
+               label="Fecha de Pre-activación"
+               picker={"date"}
+               format={"DD/MM/YYYY"}
+               // helperText={"DD/MM/AAAA"}
+               color="primary"
+               disabled
+               // startAdornmentContent={<CalendarMonthIcon />}
+            />
+         ),
+         value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
       {
          name: "product_ids",
          input: (
@@ -150,11 +187,13 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                idNameLeft="productos_en_stock"
                idNameRight="product_ids"
                label="Motivo Estatus"
-               heightList={"43vh"}
+               heightList={"33vh"}
                placeholder="Describa el motivo del estatus"
                labelLeft={"Productos en Stock"}
                labelRight={"Productos Asignados"}
-               data={productsSelect}
+               handleClickLeft={handleClickLeftTansfer}
+               handleClickRight={handleClickRightTansfer}
+               data={productsInStockSelect}
             />
          ),
          value: "",
@@ -162,16 +201,6 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       }
-      // {
-      //    name: "motivo_estatus",
-      //    input: (
-      //       <Textarea key={`key-input-motivo_estatus`} col={12} idName="motivo_estatus" label="Motivo Estatus" placeholder="Describa el motivo del estatus" rows={3} />
-      //    ),
-      //    value: "",
-      //    validations: null,
-      //    validationPage: [],
-      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      // }
    ];
 
    const validations = {};
@@ -211,7 +240,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
       setSubmitting(false);
       setIsLoading(false);
-      if (refreshSelect) await refreshSelect();
+      if (refetchProductsInStock) await refetchProductsInStock();
       if (!checkAdd) setOpenDialog(false);
    };
    const handleCancel = () => {
@@ -220,23 +249,26 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
       setTextBtnSubmit("AGREGAR");
       setIsEdit(false);
-      if (refreshSelect) refreshSelect();
+      if (refetchProductsInStock) refetchProductsInStock();
       if (!checkAdd) setOpenDialog(false);
    };
 
    async function handleChangeLote(values) {
-      // console.log("🚀 ~ handleChangeLote ~ values:", values.value.id);
-      console.log("🚀 ~ handleChangeLote ~ productsSelect:", productsSelect);
+      console.log("🚀 ~ handleChangeLote ~ values:", values);
+      console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
       try {
-         const productosEnStock = productsSelect
-            .filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado")
-            .map((d) => d.id);
-
          if (values.value.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
-            formikRef?.current?.setFieldValue("productos_en_stock", productosEnStock);
+            formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
             return Toast.Warning("Selecciona un lote");
          }
+         const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
+         formikRef?.current?.setFieldValue("folio", loteSelected.folio);
+         formikRef?.current?.setFieldValue("lada", loteSelected.lada);
+         formikRef?.current?.setFieldValue("quantity", loteSelected.quantity);
+         formikRef?.current?.setFieldValue("descrption", loteSelected.description);
+         formikRef?.current?.setFieldValue("preactivation_date", loteSelected.preactivation_date);
+
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getLoteDetailsByLote(values.value.id);
@@ -252,14 +284,21 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             setIsLoading(false);
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
+         console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         const productsSelected = res.result.map((d) => d.product_id);
-         // const productosEnStock = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsSelected.includes(id));
-         console.log("🚀 ~ handleChangeLote ~ productosEnStock:", productosEnStock);
+         // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsInStockSelected.includes(id)).map((d) => d.id);
+         console.log(
+            "🚀 ~ handleChangeLote ~ productsInStockSelect:",
+            productsInStockSelect.filter((product) => product.folio === loteSelected.folio)
+         );
+         const productsInStockByFolio = productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0)).map((d) => d.id);
+         console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
+         const productsInStockSelected = res.result.map((d) => d.product_id);
+         console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
 
-         formikRef?.current?.setFieldValue("productos_en_stock", productosEnStock);
-         formikRef?.current?.setFieldValue("product_ids", productsSelected);
+         formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
+         formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
          // formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
@@ -286,6 +325,20 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       }
    };
 
+   function handleClickLeftTansfer() {
+      console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
+      const quantity = formikRef.current.values.quantity;
+      console.log("🚀 ~ handleClickLeftTansfer ~ quantity:", quantity);
+   }
+   function handleClickRightTansfer() {
+      console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
+      const quantity = formikRef.current.values.quantity;
+      if (formikRef.current.values.product_ids.length > quantity) {
+         Toast.Warning("La cantidad de productos asignados no puede ser mayor a la cantidad del lote.");
+      }
+      console.log("🚀 ~ handleClickLeftTansfer ~ quantity:", quantity);
+   }
+
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
       // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
@@ -294,7 +347,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    return (
       <>
          <Button variant="contained" startIcon={<Inventory2Rounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="secondary">
-            Asignar productos a lotes
+            ASIGNAR PRODUCTOS A LOTE
          </Button>
 
          {openDialog && (

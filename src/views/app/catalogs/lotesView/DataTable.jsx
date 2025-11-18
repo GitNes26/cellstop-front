@@ -15,12 +15,12 @@ import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalCo
 import { useLoteContext } from "../../../../context/LoteContext";
 import { Avatar, Typography } from "@mui/material";
 import { AlternateEmailRounded, AssignmentIndRounded, CancelRounded, CheckCircleRounded, FaxRounded, NumbersRounded, PhoneAndroidRounded } from "@mui/icons-material";
+import dayjs from "dayjs";
 
 const LoteDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allLotes, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, setImgAvatar, setImgFirm, deleteLote, disEnableLote, getAllLotes, getLote } =
-      useLoteContext();
+   const { singularName, allLotes, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteLote, disEnableLote, getAllLotes, getLote } = useLoteContext();
    const mySwal = withReactContent(Swal);
 
    //#region COLUMNAS
@@ -49,6 +49,32 @@ const LoteDT = () => {
             {obj.description}
          </Typography>
       </>
+   );
+   const FolioBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            {obj.folio ?? 0}
+         </Typography>
+      </>
+   );
+   const QuantityBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            {obj.quantity ?? 0}
+         </Typography>
+      </>
+   );
+   const LadaBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            {obj.lada ?? "Sin lada"}
+         </Typography>
+      </>
+   );
+   const PreactivationDateBodyTemplate = (obj) => (
+      <Typography textAlign={"center"} size={fontSizeTable.text}>
+         {formatDatetime(obj.preactivation_date, false)}
+      </Typography>
    );
 
    const ActiveBodyTemplate = (obj) => (
@@ -96,6 +122,50 @@ const LoteDT = () => {
          renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
          filter: true,
          filterField: null
+      },
+      {
+         field: "folio",
+         headerName: "Folio",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => <FolioBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
+         filter: true,
+         filterField: null
+      },
+      {
+         field: "quantity",
+         headerName: "Cantidad",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => <QuantityBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
+         filter: true,
+         filterField: null
+      },
+      {
+         field: "lada",
+         headerName: "Lada",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => <LadaBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
+         filter: true,
+         filterField: null
+      },
+      {
+         field: "preactivation_date",
+         headerName: "Fecha de Pre-activación",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => <PreactivationDateBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
+         filter: true,
+         filterField: null
       }
    ];
    auth.role_id === ROLE_SUPER_ADMIN &&
@@ -130,8 +200,6 @@ const LoteDT = () => {
          if (formikRef.current === null) setOpenDialog(true);
          formikRef?.current?.resetForm();
          formikRef?.current?.setValues(formikRef.current.initialValues);
-         setImgAvatar([]);
-         setImgFirm([]);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
@@ -148,6 +216,7 @@ const LoteDT = () => {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getLote(id);
+         res.result.preactivation_date = dayjs(res.result.preactivation_date).format("YYYY-MM-DD");
          // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
@@ -162,8 +231,6 @@ const LoteDT = () => {
          }
 
          // if (res.result.description) res.result.description == null && (res.result.description = "");
-         setObjImg(res.result.avatar, setImgAvatar);
-         setObjImg(res.result.img_firm, setImgFirm);
          formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
