@@ -68,7 +68,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
    const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProducts({ location_status: "Stock", activation_status: "Pre-activado" }),
+      () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
       setProductsInStockSelect
    );
 
