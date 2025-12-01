@@ -1,4 +1,4 @@
-import { ArrowBack, Warning, SearchOff } from "@mui/icons-material";
+import { ArrowBack, Warning, SearchOff, ReplayOutlined } from "@mui/icons-material";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/GlobalContext";
@@ -30,7 +30,7 @@ const NotFound = () => {
          <Container maxWidth="lg">
             <Grid container spacing={6} alignItems="center">
                {/* Ilustración/Animación */}
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 4 }}>
                   <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }} className="flex justify-center">
                      <Box
                         sx={{
@@ -151,7 +151,7 @@ const NotFound = () => {
                </Grid>
 
                {/* Contenido textual */}
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 8 }}>
                   <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
                      <Paper
                         elevation={0}
@@ -281,6 +281,31 @@ const NotFound = () => {
                               Ir a página principal
                            </Button>
                         </Box>
+                        <Button
+                           variant="outlined"
+                           size="large"
+                           startIcon={<ReplayOutlined />}
+                           fullWidth
+                           onClick={() => window.location.reload()}
+                           sx={{
+                              mt: 2,
+                              py: 1.5,
+                              px: 4,
+                              borderRadius: 3,
+                              fontSize: "1rem",
+                              fontWeight: 600,
+                              borderColor: "#667eea",
+                              color: "#667eea",
+                              "&:hover": {
+                                 backgroundColor: "#667eea10",
+                                 borderColor: "#5a6fd8",
+                                 transform: "translateY(-2px)"
+                              },
+                              transition: "all 0.3s ease"
+                           }}
+                        >
+                           Recargar Página
+                        </Button>
 
                         {/* Información adicional */}
                         <Box

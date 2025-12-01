@@ -252,7 +252,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
             <FileInputModerno
                col="12"
                idName="file"
-               label="Cargar Archivo Excel"
+               label="Cargar Archivo Excel: (ListadoTramitesPrepagoGral)"
                filePreviews={imgFile}
                handleUploadingFile={(files) => {
                   // console.log("🚀 ~ ImportForm ~ files:", files);

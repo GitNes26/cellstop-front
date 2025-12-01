@@ -17,8 +17,9 @@ import { env } from "../../../../constant";
 import AssignmentForm from "./AssignmentForm";
 import ImportForm from "./ImportForm";
 import PreActivationForm from "./PreActivationForm";
+import ImportProductDetailsForm from "./ImportProductDetailsForm";
 
-const columnasPrePago = [
+const columnasDetalleProducto = [
    "FILTRO",
    "TELEFONO",
    "IMEI",
@@ -38,7 +39,6 @@ const columnasPrePago = [
    "FOLIO FACTURA",
    "FECHA PUBLICACION"
 ];
-// Región |||| Celular |||| ICCID |||| IMEI |||| Fecha |||| Trámite |||| Estatus |||| Comentario |||| Fuerza de Venta Prepago |||| Fuerza de Venta Padre |||| Usuario |||| Folio |||| Producto |||| Núm Orden |||| Estatus orden |||| Motivo error |||| Tipo SIM
 const columnas = [
    "Región",
    "Celular",
@@ -446,6 +446,7 @@ const ProductDT = ({}) => {
                dataStartRow={2}
             />
             {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
+            {<ImportProductDetailsForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} columns={columnasDetalleProducto} />}
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent

@@ -135,7 +135,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
                key={`key-input-contact_phone`}
                col={4}
                idName="contact_phone"
-               label="Nombre del contacto"
+               label="Teléfono del contacto"
                placeholder={"10 dígitos"}
                type="tel"
                maxLength={10}

@@ -13,6 +13,7 @@ const ProductContext = createContext();
 //    active: ""
 // };
 const prefixPath = "/products";
+const prefixPathDetail = "/productDetails";
 
 export default function ProductContextProvider({ children }) {
    const params = useParams();
@@ -32,6 +33,8 @@ export default function ProductContextProvider({ children }) {
    const formikRef = useRef(null);
    const [isEdit, setIsEdit] = useState(false);
    const [foliosSelect, setFoliosSelect] = useState([]);
+
+   const [allProductDetails, setAllProductDetails] = useState([]);
 
    function getFiltersByStatus(statusParam) {
       switch (statusParam) {
@@ -273,6 +276,54 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   //#region ProductDetails
+   const importProductDetails = async (data) => {
+      // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
+      // // if (!(await checkLoggedIn())) return;
+
+      // const formData = new FormData();
+      // formData.append("file", file);
+      const [error, response] = await to(Axios.post(`${prefixPathDetail}/import`, data));
+      // const [error, response] = await to(AxiosFiles.post(`${prefixPath}/import`, formData, { headers: { "Content-Type": "multipart/form-data" } }));
+      // console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
+      // console.log("🚀 ~ createOrUpdateProduct ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
+         const message = error.response.data.message || "createOrUpdateProduct ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      await getAllProductDetails();
+
+      return res;
+   };
+
+   const getProductDetailsByProduct = async (productId) => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`${prefixPathDetail}/showByProduct/${productId}`));
+      // console.log("🚀 ~ getProductDetailsByProduct ~ error:", error);
+      // console.log("🚀 ~ getProductDetailsByProduct ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getProductDetailsByProduct ~ error:", error);
+         const message = error.response.data.message || "getProductDetailsByProduct ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllProductDetails(res.result);
+
+      return res;
+   };
+   //#endregion ProductDetails
+
    // useEffect(() => {
    //    // console.log("el useEffect de ProductContext");
    //    // getProduct();
@@ -312,7 +363,12 @@ export default function ProductContextProvider({ children }) {
 
             foliosSelect,
             setFoliosSelect,
-            getSelectIndexFolios
+            getSelectIndexFolios,
+
+            allProductDetails,
+            setAllProductDetails,
+            importProductDetails,
+            getProductDetailsByProduct
          }}
       >
          {children}
