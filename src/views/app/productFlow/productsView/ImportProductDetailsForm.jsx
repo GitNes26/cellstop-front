@@ -14,7 +14,7 @@ import {
    TableRow,
    Paper
 } from "@mui/material";
-import FormikForm, { Input } from "../../../../components/forms";
+import FormikForm, { FileInputModerno, Input } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { useEffect, useRef, useState } from "react";
@@ -60,7 +60,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
+const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSize = 1000 }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const { singularName, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, importProductDetails } = useProductContext();
@@ -120,6 +120,15 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
                // Convertir a JSON
                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+               // Agregar info del archivo
+               const fileData = {
+                  name: file.name,
+                  size: file.size,
+                  type: file.type,
+                  lastModified: file.lastModified
+               };
+               formikRef.current.setFieldValue("fileData", fileData);
+
                resolve(jsonData);
             } catch (error) {
                reject(error);
@@ -167,25 +176,112 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
          folioFactura: headerRow.findIndex((col) => col === "FOLIO FACTURA")
       };
 
-      // Procesar las filas de datos (empezando desde la fila 1 después del header)
+      // Función para convertir fechas de Excel a JS Date
+      const excelDateToJSDate = (excelDate) => {
+         try {
+            // Si es una fecha de Excel (número de serie)
+            if (typeof excelDate === "number") {
+               const excelEpoch = new Date(1899, 11, 30);
+               const jsDate = new Date(excelEpoch.getTime() + excelDate * 24 * 60 * 60 * 1000);
+               return jsDate.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+            }
+            // Si ya es una cadena de fecha
+            if (typeof excelDate === "string") {
+               // Intentar parsear diferentes formatos de fecha
+               const dateFormats = [
+                  /(\d{2})\/(\d{2})\/(\d{4})/, // DD/MM/YYYY
+                  /(\d{4})-(\d{2})-(\d{2})/, // YYYY-MM-DD
+                  /(\d{2})-(\d{2})-(\d{4})/ // MM-DD-YYYY o DD-MM-YYYY
+               ];
+
+               for (const format of dateFormats) {
+                  const match = excelDate.match(format);
+                  if (match) {
+                     let day, month, year;
+
+                     if (format === dateFormats[0]) {
+                        // DD/MM/YYYY
+                        day = parseInt(match[1], 10);
+                        month = parseInt(match[2], 10) - 1;
+                        year = parseInt(match[3], 10);
+                     } else if (format === dateFormats[1]) {
+                        // YYYY-MM-DD
+                        year = parseInt(match[1], 10);
+                        month = parseInt(match[2], 10) - 1;
+                        day = parseInt(match[3], 10);
+                     } else {
+                        // Asumir DD-MM-YYYY
+                        day = parseInt(match[1], 10);
+                        month = parseInt(match[2], 10) - 1;
+                        year = parseInt(match[3], 10);
+                     }
+
+                     const date = new Date(year, month, day);
+                     if (!isNaN(date.getTime())) {
+                        return date.toISOString().split("T")[0];
+                     }
+                  }
+               }
+            }
+            return excelDate; // Devolver original si no se puede parsear
+         } catch (error) {
+            console.error("Error convirtiendo fecha:", excelDate, error);
+            return excelDate; // Devolver original en caso de error
+         }
+      };
+
+      // Procesar todas las filas de datos (empezando desde la fila 1 después del header)
+
+      const dataLines = [];
       for (let i = 1; i < lines.length; i++) {
          const line = lines[i];
 
-         formData.data = line;
+         if (!line || line.length === 0) continue; // Saltar filas vacías
 
-         if (line && line[columnIndexes.telefono]) {
-            const telefono = line[columnIndexes.telefono];
-            const imei = line[columnIndexes.imei];
-            const iccid = line[columnIndexes.iccid];
-            const estatusLin = line[columnIndexes.estatusLin];
-            const movimiento = line[columnIndexes.movimiento];
-            const fechaActiv = line[columnIndexes.fechaActiv];
-            const estatusPago = line[columnIndexes.estatusPago];
-            const montoCom = parseFloat(line[columnIndexes.montoCom]) || 0;
-            const tipoComision = line[columnIndexes.tipoComision];
-            const evaluacion = parseInt(line[columnIndexes.evaluacion]) || 0;
-            const folioFactura = line[columnIndexes.folioFactura];
+         // Crear objeto para esta fila con todos los datos formateados
+         const formattedRow = {};
 
+         // Procesar cada columna
+         Object.entries(columns).forEach(([colIndexStr, colName]) => {
+            const colIndex = parseInt(colIndexStr);
+            const rawValue = line[colIndex];
+
+            // Formatear fechas
+            if (colName.toLowerCase().includes("fecha")) {
+               formattedRow[colName] = excelDateToJSDate(rawValue);
+            }
+            // Formatear montos (convertir a número)
+            else if (colName.toLowerCase().includes("monto")) {
+               formattedRow[colName] = parseFloat(rawValue) || 0;
+            }
+            // Formatear evaluaciones (convertir a número)
+            else if (colName.toLowerCase().includes("evaluacion")) {
+               formattedRow[colName] = parseInt(rawValue) || 0;
+            }
+            // Para otros campos, mantener el valor original
+            else {
+               formattedRow[colName] = rawValue !== undefined ? rawValue : null;
+            }
+         });
+
+         // Agregar la fila formateada al array
+         dataLines.push(formattedRow);
+
+         // Extraer datos específicos para estadísticas
+         const telefono = formattedRow["TELEFONO"];
+         const imei = formattedRow["IMEI"];
+         const iccid = formattedRow["ICCID"];
+         const estatusLin = formattedRow["ESTATUS LIN"];
+         const movimiento = formattedRow["MOVIMIENTO"];
+         const fechaActiv = formattedRow["FECHA_ACTIV"];
+         const estatusPago = formattedRow["ESTATUS_PAGO"];
+         const montoCom = parseFloat(formattedRow["MONTO_COM"]) || 0;
+         const tipoComision = formattedRow["TIPO_COMISION"];
+         const evaluacion = parseInt(formattedRow["EVALUACION"]) || 0;
+         const folioFactura = formattedRow["FOLIO FACTURA"];
+
+         // Solo procesar estadísticas si hay datos
+         if (telefono) {
             // Contar por estatus de pago
             switch (estatusPago) {
                case "PAGADA":
@@ -208,6 +304,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
                evaluaciones[evaluacion]++;
             }
 
+            // Agregar a processed con datos formateados
             processed.push({
                id: i,
                telefono,
@@ -221,10 +318,13 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
                tipoComision,
                evaluacion,
                folioFactura,
-               rawData: line
+               rawData: line, // Datos crudos originales
+               formattedData: formattedRow // Datos formateados
             });
          }
       }
+      console.log("🚀 ~ processFileData ~ dataLines:", dataLines);
+      formikRef.current.setFieldValue("data", dataLines);
 
       setProcessedData(processed);
       setSummary({
@@ -238,18 +338,19 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
       });
    };
 
-   const handleFileUpload = async (event) => {
-      setImgFile([]);
-      const file = event.target.files[0];
+   const handleFileUpload = async (file) => {
+      // setImgFile([]);
+      setIsLoading(true);
+
+      // const file = event.target.files[0];
       if (!file) return setIsLoading(false);
 
       // Validar tipo de archivo
       if (!file.name.match(/\.(xls|xlsx)$/)) {
+         setIsLoading(false);
          Toast.Warning("Por favor, seleccione un archivo Excel válido (.xls o .xlsx)");
          return;
       }
-
-      setIsLoading(true);
 
       try {
          const excelData = await processExcelFile(file);
@@ -265,38 +366,54 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
 
    const formData = [
       {
-         name: "archivo",
+         name: "file",
          input: (
-            // <FileInputModerno
-            //                key="key-file"
-            //                col="12"
-            //                idName="file"
-            //                label="Cargar Archivo Excel"
-            //                filePreviews={imgFile}
-            //                handleUploadingFile={(files) => {
-            //                   const f = files && files[0].file;
-            //                   if (f) handleFile(f);
-            //                }}
-            //                helperText={helperTextImgFile}
-            //                setFilePreviews={setImgFile}
-            //                multiple={false}
-            //                accept={".xlsx,.xls,.csv"}
-            //                required
-            //             />
-            <Input
+            <FileInputModerno
                key={`key-input-archivo`}
-               col={12}
-               idName="archivo"
-               label="Archivo Excel de Líneas Prepago"
-               type="file"
-               accept=".xls,.xlsx"
-               onChange={handleFileUpload}
-               startAdornmentContent={<UploadFile />}
+               col="12"
+               idName="file"
+               label="Cargar Archivo Excel: Detalle_Lineas"
+               filePreviews={imgFile}
+               handleUploadingFile={(files) => {
+                  const f = files && files[0].file;
+                  if (f) handleFileUpload(f);
+               }}
+               // helperText={helperTextImgFile}
+               setFilePreviews={setImgFile}
+               multiple={false}
+               accept={".xlsx,.xls,.csv"}
                required
             />
+            // <Input
+            //    key={`key-input-archivo`}
+            //    col={12}
+            //    idName="archivo"
+            //    label="Archivo Excel"
+            //    type="file"
+            //    accept=".xls,.xlsx,.csv"
+            //    onChange={handleFileUpload}
+            //    startAdornmentContent={<UploadFile />}
+            //    required
+            // />
          ),
          value: "",
-         validations: Yup.mixed().required("Archivo requerido"),
+         validations: null, // Yup.mixed().required("Archivo requerido"),
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "data",
+         input: <Input key={`key-input-data`} col={1} idName="data" label="Data" hidden />,
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "fileData",
+         input: <Input key={`key-input-fileData`} col={1} idName="fileData" label="fileData" hidden />,
+         value: null,
+         validations: null,
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
@@ -466,7 +583,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
       try {
          // Usar los ICCIDs seleccionados en lugar de todos
          // values.data = processedData;
-         return console.log("values", values);
+         // return console.log("values", values);
 
          const res = await importProductDetails(values);
 
@@ -520,7 +637,16 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns }) => {
 
    return (
       <>
-         <Button variant="contained" startIcon={<UploadFile />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="primary">
+         <Button
+            variant="contained"
+            startIcon={<UploadFile />}
+            onClick={() => {
+               setImgFile([]);
+               setOpenDialog(true);
+            }}
+            disabled={!auth.permissions.create}
+            color="info"
+         >
             IMPORTAR DETALLES DE PRODUCTOS
          </Button>
 

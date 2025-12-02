@@ -349,7 +349,16 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
 
    return (
       <>
-         <Button variant="contained" startIcon={<UploadFileRounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="primary">
+         <Button
+            variant="contained"
+            startIcon={<UploadFileRounded />}
+            onClick={() => {
+               setImgFile([]);
+               setOpenDialog(true);
+            }}
+            disabled={!auth.permissions.create}
+            color="primary"
+         >
             IMPORTAR (CARGA MASIVA)
          </Button>
 
