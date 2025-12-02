@@ -35,6 +35,7 @@ export default function ProductContextProvider({ children }) {
    const [foliosSelect, setFoliosSelect] = useState([]);
 
    const [allProductDetails, setAllProductDetails] = useState([]);
+   const [allProductDetailsByProduct, setAllProductDetailsByProduct] = useState([]);
 
    function getFiltersByStatus(statusParam) {
       switch (statusParam) {
@@ -297,7 +298,6 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductDetails();
 
       return res;
    };
@@ -305,7 +305,7 @@ export default function ProductContextProvider({ children }) {
    const getProductDetailsByProduct = async (productId) => {
       // if (!(await checkLoggedIn())) return;
 
-      const [error, response] = await to(Axios.get(`${prefixPathDetail}/showByProduct/${productId}`));
+      const [error, response] = await to(Axios.get(`${prefixPathDetail}/product/${productId}`));
       // console.log("🚀 ~ getProductDetailsByProduct ~ error:", error);
       // console.log("🚀 ~ getProductDetailsByProduct ~ response:", response);
       if (error) {
@@ -318,7 +318,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setAllProductDetails(res.result);
+      setAllProductDetailsByProduct(res.result);
 
       return res;
    };
@@ -368,6 +368,8 @@ export default function ProductContextProvider({ children }) {
             allProductDetails,
             setAllProductDetails,
             importProductDetails,
+            allProductDetailsByProduct,
+            setAllProductDetailsByProduct,
             getProductDetailsByProduct
          }}
       >

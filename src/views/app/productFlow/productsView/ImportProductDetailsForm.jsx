@@ -25,6 +25,9 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import Toast from "../../../../utils/Toast";
 import * as XLSX from "xlsx";
 import { formatCurrency } from "../../../../utils/Formats";
+import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert";
+import { SimpleTableDetails } from "./TableDetails";
+// import { TableDetailsData } from "./../../../../types/productDetails";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -506,50 +509,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          ? [
               {
                  name: "detalles",
-                 input: (
-                    <TableContainer component={Paper} key={`key-input-detalles`} sx={{ maxHeight: 350, mb: 2 }}>
-                       <Table stickyHeader size="small">
-                          <TableHead>
-                             <TableRow>
-                                <TableCell>Teléfono</TableCell>
-                                <TableCell>ICCID</TableCell>
-                                <TableCell>Estatus Pago</TableCell>
-                                <TableCell>Monto</TableCell>
-                                <TableCell>Evaluación</TableCell>
-                                <TableCell>Fecha Activación</TableCell>
-                             </TableRow>
-                          </TableHead>
-                          <TableBody>
-                             {processedData.map((line) => (
-                                <TableRow key={line.id}>
-                                   <TableCell>{line.telefono}</TableCell>
-                                   <TableCell>{line.iccid}</TableCell>
-                                   <TableCell>
-                                      <Typography
-                                         variant="body2"
-                                         color={line.estatusPago === "PAGADA" ? "success.main" : line.estatusPago === "RECHAZADA" ? "error.main" : "warning.main"}
-                                      >
-                                         {line.estatusPago}
-                                      </Typography>
-                                   </TableCell>
-                                   <TableCell>${line.montoCom.toFixed(2)}</TableCell>
-                                   <TableCell>{line.evaluacion}</TableCell>
-                                   <TableCell>{line.fechaActiv}</TableCell>
-                                </TableRow>
-                             ))}
-                             {/* {processedData.length > 50 && (
-                                <TableRow>
-                                   <TableCell colSpan={6} align="center">
-                                      <Typography variant="body2" color="text.secondary">
-                                         ... y {processedData.length - 50} líneas más
-                                      </Typography>
-                                   </TableCell>
-                                </TableRow>
-                             )} */}
-                          </TableBody>
-                       </Table>
-                    </TableContainer>
-                 ),
+                 input: <SimpleTableDetails keyName="detalles-procesados" processedData={processedData} />,
                  value: "",
                  validations: null,
                  validationPage: [],
@@ -583,7 +543,6 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
       try {
          // Usar los ICCIDs seleccionados en lugar de todos
          // values.data = processedData;
-         // return console.log("values", values);
 
          const res = await importProductDetails(values);
 
@@ -599,6 +558,17 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
          Toast.Success(`Se procesaron ${processedData.length} líneas prepago correctamente`);
+         if (res.metrics)
+            /* showMetricsAlert(res.metrics); */
+            showFlexibleAlert(res.metrics, {
+               type: ALERT_TYPES.METRICS,
+               title: "Detalles Procesados",
+               subtitle: res.message,
+               copyTextGenerator: (data) => {
+                  const metrics = data;
+                  return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+               }
+            });
 
          if (!checkAdd) {
             setOpenDialog(false);

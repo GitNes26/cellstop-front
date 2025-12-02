@@ -17,7 +17,8 @@ import { env } from "../../../../constant";
 import AssignmentForm from "./AssignmentForm";
 import ImportForm from "./ImportForm";
 import PreActivationForm from "./PreActivationForm";
-import ImportProductDetailsForm from "./ImportProductDetailsForm";
+import ImportProductDetailsForm from "./ImportProductDetailsForm.jsx";
+import ModalTableDetails from "./TableDetails.js";
 
 const columnasDetalleProducto = [
    "FILTRO",
@@ -85,13 +86,27 @@ const validaciones = {
 const ProductDT = ({}) => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allProducts, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteProduct, disEnableProduct, getAllProducts, getProduct } =
-      useProductContext();
+   const {
+      singularName,
+      allProducts,
+      setFormTitle,
+      setTextBtnSubmit,
+      formikRef,
+      setIsEdit,
+      deleteProduct,
+      disEnableProduct,
+      getAllProducts,
+      getProduct,
+      allProductDetailsByProduct,
+      setAllProductDetailsByProduct,
+      getProductDetailsByProduct
+   } = useProductContext();
    const mySwal = withReactContent(Swal);
 
    const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
-   const [openDialogPreActivationForm, setOpenDialogPreActivationForm] = useState(false);
+   const [openDialogImportDetailsForm, setOpenDialogImportDetailsForm] = useState(false);
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
+   const [openDialogTableDetails, setOpenDialogTableDetails] = useState(false);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
@@ -270,7 +285,6 @@ const ProductDT = ({}) => {
          renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import.upload_by}`}>{params.row.import.upload_by}</TextCenter>
       }
    ];
-   // #endregion COLUMNAS
 
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
@@ -349,6 +363,36 @@ const ProductDT = ({}) => {
       }
    };
 
+   const handleClickDetails = async (id) => {
+      try {
+         setIsLoading(true);
+         const res = await getProductDetailsByProduct(id);
+         // console.log("🚀 ~ handleClickLogout ~ res:", res);
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+
+         if (res.result.product_description) res.result.product_description == null && (res.result.product_description = "");
+         // formikRef?.current.setValues(res.result);
+         if (res.alert_text) Toast.Success(res.alert_text);
+         setIsLoading(false);
+         setOpenDialogTableDetails(true);
+      } catch (error) {
+         setOpenDialogTableDetails(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
+      }
+   };
+
    const handleClickDelete = async (id, name) => {
       try {
          mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el producto ${name}?`, "CONFIRMAR")).then(async (result) => {
@@ -418,6 +462,7 @@ const ProductDT = ({}) => {
             // register.actions = <ButtonsAction id={obj.id} name={obj.product} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
+               { label: "Ver detalles", iconName: "ListAltRounded", tooltip: "", handleOnClick: () => handleClickDetails(obj.id), color: "blue" },
                { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.product), color: "red" }
             ];
             data.push(register);
@@ -446,7 +491,7 @@ const ProductDT = ({}) => {
                dataStartRow={2}
             />
             {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
-            {<ImportProductDetailsForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} columns={columnasDetalleProducto} />}
+            {<ImportProductDetailsForm openDialog={openDialogImportDetailsForm} setOpenDialog={setOpenDialogImportDetailsForm} columns={columnasDetalleProducto} />}
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
          </Stack>
          <DataTableComponent
@@ -469,6 +514,13 @@ const ProductDT = ({}) => {
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
             // toolbarContentEnd={toolbarContentEnd}
+         />
+         <ModalTableDetails
+            openDialog={openDialogTableDetails}
+            setOpenDialog={setOpenDialogTableDetails}
+            processedData={allProductDetailsByProduct}
+            heightDialog={"80vh"}
+            maxHeight={"95%"}
          />
       </>
    );
