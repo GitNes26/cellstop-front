@@ -1,0 +1,173 @@
+/* PlantillaChips.css */
+.plantilla-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.selector-plantilla {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.botones-plantilla {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.boton-tipo {
+  padding: 10px 20px;
+  background: #e0e0e0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.boton-tipo.activo {
+  background: #4CAF50;
+  color: white;
+}
+
+.panel-seleccion {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.controles-masivos {
+  display: flex;
+  gap: 10px;
+}
+
+.controles-masivos button {
+  padding: 5px 10px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.lista-elementos {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.elemento-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.elemento-item:hover {
+  background: #f9f9f9;
+}
+
+.elemento-item.seleccionado {
+  background: #e8f5e9;
+  border-left: 4px solid #4CAF50;
+}
+
+.elemento-item input {
+  margin-right: 10px;
+}
+
+.elemento-nombre {
+  font-weight: bold;
+  min-width: 120px;
+}
+
+.elemento-contenido {
+  color: #666;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
+
+.panel-preview {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.preview-container {
+  overflow-x: auto;
+  margin: 15px 0;
+  border: 1px solid #ccc;
+}
+
+.preview-tabla table {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.preview-tabla td {
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+  min-width: 100px;
+  height: 24px;
+  font-size: 12px;
+  text-align: center;
+}
+
+.preview-tabla .con-datos {
+  background: #f0f8ff;
+  font-weight: bold;
+}
+
+.preview-tabla .sin-datos {
+  background: #f9f9f9;
+  color: #ccc;
+}
+
+.estadisticas {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.panel-acciones {
+  text-align: center;
+  padding: 20px;
+}
+
+.boton-exportar {
+  padding: 15px 30px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.boton-exportar:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.boton-exportar:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}

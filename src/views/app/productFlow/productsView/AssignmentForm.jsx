@@ -11,6 +11,7 @@ import { useLoteContext } from "./../../../../context/LoteContext";
 import useFetch from "../../../../hooks/useFetch";
 import LoteForm from "../../catalogs/lotesView/Form";
 import Toast from "../../../../utils/Toast";
+import sAlert from "../../../../utils/sAlert";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -73,11 +74,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    );
 
    const init = () => {
-      console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      // const productsInStockSelect = productsInStockSelect.filter((product) => product.location_status === "Stock" && product.activation_status === "Pre-activado");
-      // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
-      // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
-      // // const productsInStockSelected = allLoteDetailsByLote.filter((product) => product.location_status === "Asignado");
+      // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
          productsInStockSelect.map((d) => d.id)
@@ -88,7 +85,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       // );
    };
    useEffect(() => {
-      console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
+      // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
 
       formikRef?.current?.resetForm();
       formikRef?.current?.setValues(formikRef.current.initialValues);
@@ -219,6 +216,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
+
+      if (values.product_ids.length > values.quantity) {
+         sAlert.Info(`La cantidad de productos asignados (${values.product_ids.length}) supera la cantidad destinada al Lote (${values.quantity})`);
+         return setIsLoading(false);
+      }
+
       const res = await updateLoteAssignment(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
       if (!res) return setIsLoading(false);
@@ -254,8 +257,6 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    };
 
    async function handleChangeLote(values) {
-      console.log("🚀 ~ handleChangeLote ~ values:", values);
-      console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
       try {
          if (values.value.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
@@ -272,7 +273,6 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          setIsLoading(true);
          if (formikRef.current === null) setOpenDialog(true);
          const res = await getLoteDetailsByLote(values.value.id);
-         console.log("🚀 ~ handleChangeLote ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -284,18 +284,11 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             setIsLoading(false);
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
-         console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
          // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsInStockSelected.includes(id)).map((d) => d.id);
-         console.log(
-            "🚀 ~ handleChangeLote ~ productsInStockSelect:",
-            productsInStockSelect.filter((product) => product.folio === loteSelected.folio)
-         );
          const productsInStockByFolio = productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0)).map((d) => d.id);
-         console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
          const productsInStockSelected = res.result.map((d) => d.product_id);
-         console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
          formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
@@ -326,17 +319,13 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    };
 
    function handleClickLeftTansfer() {
-      console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
       const quantity = formikRef.current.values.quantity;
-      console.log("🚀 ~ handleClickLeftTansfer ~ quantity:", quantity);
    }
    function handleClickRightTansfer() {
-      console.log("🚀 ~ handleClickLeftTansfer ~ formikRef.current.values:", formikRef.current.values);
       const quantity = formikRef.current.values.quantity;
       if (formikRef.current.values.product_ids.length > quantity) {
          Toast.Warning("La cantidad de productos asignados no puede ser mayor a la cantidad del lote.");
       }
-      console.log("🚀 ~ handleClickLeftTansfer ~ quantity:", quantity);
    }
 
    useEffect(() => {

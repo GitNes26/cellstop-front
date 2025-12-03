@@ -26,10 +26,30 @@ import Toast from "../../../../utils/Toast";
 import * as XLSX from "xlsx";
 import { formatCurrency } from "../../../../utils/Formats";
 import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert";
-import { SimpleTableDetails } from "./TableDetails";
-// import { TableDetailsData } from "./../../../../types/productDetails";
+import { productHistoryColumns, TableDetails } from "./TableDetails";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
+
+const excelToDbMap = {
+   FILTRO: "filtro",
+   TELEFONO: "telefono",
+   IMEI: "imei",
+   ICCID: "iccid",
+   "ESTATUS LIN": "estatus_lin",
+   MOVIMIENTO: "movimiento",
+   FECHA_ACTIV: "fecha_activ",
+   FECHA_PRIM_LLAM: "fecha_prim_llam",
+   "FECHA DOL": "fecha_dol",
+   ESTATUS_PAGO: "estatus_pago",
+   MOTIVO_ESTATUS: "motivo_estatus",
+   MONTO_COM: "monto_com",
+   TIPO_COMISION: "tipo_comision",
+   EVALUACION: "evaluacion",
+   FZA_VTA_PAGO: "fza_vta_pago",
+   "FECHA EVALUACION": "fecha_evaluacion",
+   "FOLIO FACTURA": "folio_factura",
+   "FECHA PUBLICACION": "fecha_publicacion"
+};
 
 const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, textBtnSubmit, handleCancel, container = "modal" }) => {
    const initialValues = {};
@@ -267,6 +287,17 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
             }
          });
 
+         // 🔥 NORMALIZACIÓN A FORMATO BD 🔥
+         const normalizedRow = {};
+         Object.entries(formattedRow).forEach(([excelKey, value]) => {
+            const keyUpper = excelKey.trim().toUpperCase();
+            const dbKey = excelToDbMap[keyUpper];
+
+            if (dbKey) {
+               normalizedRow[dbKey] = value;
+            }
+         });
+
          // Agregar la fila formateada al array
          dataLines.push(formattedRow);
 
@@ -310,23 +341,12 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
             // Agregar a processed con datos formateados
             processed.push({
                id: i,
-               telefono,
-               imei,
-               iccid,
-               estatusLin,
-               movimiento,
-               fechaActiv,
-               estatusPago,
-               montoCom,
-               tipoComision,
-               evaluacion,
-               folioFactura,
-               rawData: line, // Datos crudos originales
-               formattedData: formattedRow // Datos formateados
+               ...normalizedRow
+               // rawData: line, // Datos crudos originales
+               // formattedData: formattedRow // Datos formateados
             });
          }
       }
-      console.log("🚀 ~ processFileData ~ dataLines:", dataLines);
       formikRef.current.setFieldValue("data", dataLines);
 
       setProcessedData(processed);
@@ -509,7 +529,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          ? [
               {
                  name: "detalles",
-                 input: <SimpleTableDetails keyName="detalles-procesados" processedData={processedData} />,
+                 input: <TableDetails keyName="detalles-procesados" processedData={processedData} visibleColumns={productHistoryColumns.default} />,
                  value: "",
                  validations: null,
                  validationPage: [],

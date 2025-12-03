@@ -1,28 +1,28 @@
 // types/productDetail.ts
 export interface ProductDetailData {
    id: string | number;
-   telefono?: string;
-   iccid: string;
-   imei?: string;
    filtro?: string;
-   estatusLin?: string;
+   telefono?: string;
+   imei?: string;
+   iccid?: string;
+   estatus_lin?: string;
    movimiento?: string;
-   fechaActiv?: string | Date;
-   fechaPrimLlam?: string | Date;
-   fechaDol?: string | Date;
-   estatusPago?: "PAGADA" | "RECHAZADA" | "PENDIENTE" | string;
-   motivoEstatus?: string;
-   montoCom?: number;
-   tipoComision?: string;
+   fecha_activ?: string | Date;
+   fecha_prim_llam?: string | Date;
+   fecha_dol?: string | Date;
+   estatus_pago?: "PAGADA" | "RECHAZADA" | string;
+   motivo_estatus?: string;
+   monto_com?: number;
+   tipo_comision?: string;
    evaluacion?: string | number;
-   fzaVtaPago?: string;
-   fechaEvaluacion?: string | Date;
-   folioFactura?: string;
-   fechaPublicacion?: string | Date;
-   importId?: number;
+   fza_vta_pago?: string;
+   fecha_evaluacion?: string | Date;
+   folio_factura?: string;
+   fecha_publicacion?: string | Date;
+   import_id?: number;
    active?: boolean;
-   createdAt?: string | Date;
-   updatedAt?: string | Date;
+   created_at?: string | Date;
+   updated_at?: string | Date;
 }
 
 export interface ProcessedProductDetail extends ProductDetailData {
