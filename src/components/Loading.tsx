@@ -18,7 +18,7 @@ interface LoadingProps {
  */
 const Loading: React.FC<LoadingProps> = ({ open, animation = "bounce" }): React.JSX.Element => {
    return (
-      <Backdrop sx={{ zIndex: 99999 }} open={open}>
+      <Backdrop sx={{ zIndex: 99999 }} className="cursor-wait" open={open}>
          {animation === "spin" ? (
             <div className="loader-circle-spinner">
                <img src={images.icon || images.logo} alt="logo" className="loader-image" />

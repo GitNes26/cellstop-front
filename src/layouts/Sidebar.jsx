@@ -102,7 +102,7 @@ const CollapseListItems = ({ menus, openDrawerSidebar }) => {
    };
 
    return (
-      <List sx={{ maxHeight: "77vh", overflowY: "scroll", overflowX: "hidden" }}>
+      <List sx={{ maxHeight: "77vh", overflowY: "auto", overflowX: "hidden" }}>
          {menus.map((menu) => (
             <Fragment key={`key-fragment-${menu.id}`}>
                <ListItem disablePadding sx={{ display: "block" }} key={`listItem-${menu.id}`}>

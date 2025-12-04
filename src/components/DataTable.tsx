@@ -36,7 +36,8 @@ import {
    Switch,
    TextField,
    Tooltip,
-   Typography
+   Typography,
+   useColorScheme
 } from "@mui/material";
 import { esES } from "@mui/x-data-grid/locales";
 import { useAuthContext } from "../context/AuthContext";
@@ -412,7 +413,14 @@ const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisE
    };
 
    return (
-      <div>
+      <div className="">
+         {auth.role_id === ROLE_SUPER_ADMIN && (
+            <Tooltip title={active ? "Desactivar" : "Reactivar"} placement="right" arrow>
+               <Button color="primary" onClick={() => handleClickDisEnable(id, objName, active)} sx={{ p: 0 }}>
+                  <Switch checked={Boolean(active)} />
+               </Button>
+            </Tooltip>
+         )}
          <IconButton aria-label="acciones" onClick={handleClick} size="small" hidden={actions.length === 0}>
             <MoreVertRounded />
          </IconButton>
@@ -439,17 +447,11 @@ const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisE
                />
             ))}
          </Menu>
-         {auth.role_id === ROLE_SUPER_ADMIN && (
-            <Tooltip title={active ? "Desactivar" : "Reactivar"} placement="right" arrow>
-               <Button color="primary" onClick={() => handleClickDisEnable(id, objName, active)} sx={{ p: 0 }}>
-                  <Switch checked={Boolean(active)} />
-               </Button>
-            </Tooltip>
-         )}
       </div>
    );
 };
 
+const mode = localStorage.getItem("mui-mode") || "light";
 interface DataTableComponentProps {
    dataColumns: GridColDef[];
    data: any[];
@@ -472,6 +474,7 @@ const DataTableComponent = ({
    indexColumnName,
    scrollHeight = 720
 }: DataTableComponentProps) => {
+   // const { mode, setMode } = useColorScheme();
    const { setLoading } = useGlobalContext();
    const apiRef = useGridApiRef();
    const [anchorElActions, setAnchorElActions] = React.useState<HTMLButtonElement | null>(null);
@@ -499,7 +502,6 @@ const DataTableComponent = ({
 
    const columns: GridColDef[] = React.useMemo(
       () => [
-         ...dataColumns,
          {
             field: "actions",
             headerName: "Acciones",
@@ -530,9 +532,43 @@ const DataTableComponent = ({
                <RowActions params={params} key={params.id} indexColumnName={indexColumnName} handleClickDisEnable={handleClickDisEnable} singularName={singularName} />
             ],
             // Estilos para columna fija (opcional)
-            cellClassName: "pinned-column",
+            cellClassName: `pinned-column px-0 ${mode == "light" ? "bg-[#f8fafc]/98" : "bg-[#0f172a]"}`,
             headerClassName: "pinned-column"
-         }
+         },
+         ...dataColumns
+         // {
+         //    field: "actions",
+         //    headerName: "Acciones",
+         //    type: "actions",
+         //    width: 100,
+         //    pinnable: false,
+         //    // cellClassName: "sticky-col",
+         //    // headerClassName: "sticky-col-header",
+         //    // renderCell: (params) => <div style={{ position: "sticky", left: 0, background: "white", zIndex: 1 }}>{params.value}</div>,
+         //    style: {
+         //       position: "sticky",
+         //       rigth: 0,
+         //       backgroundColor: "#fff", // Fondo blanco para evitar transparencias
+         //       zIndex: 1,
+         //       boxShadow: "2px 0 5px -2px rgba(0,0,0,0.1)" // Sombra para separación visual
+         //    },
+
+         //    // cellClassName: {
+         //    //    position: "sticky",
+         //    //    left: 0,
+         //    //    backgroundColor: "#fff", // Fondo blanco para evitar transparencias
+         //    //    zIndex: 1,
+         //    //    boxShadow: "2px 0 5px -2px rgba(0,0,0,0.1)" // Sombra para separación visual
+         //    // },
+         //    //classes.pinnedColumn, // Fija esta columna
+
+         //    getActions: (params) => [
+         //       <RowActions params={params} key={params.id} indexColumnName={indexColumnName} handleClickDisEnable={handleClickDisEnable} singularName={singularName} />
+         //    ],
+         //    // Estilos para columna fija (opcional)
+         //    cellClassName: "pinned-column",
+         //    headerClassName: "pinned-column"
+         // }
       ],
       []
    );
@@ -634,6 +670,10 @@ const DataTableComponent = ({
          setIsLoading(false);
       }
    }, [data]); //[data, apiRef, autosizeOptions]);
+
+   React.useEffect(() => {
+      // console.log("mode en la DT", mode);
+   }, [mode]);
 
    return (
       <Box sx={{ height: scrollHeight, width: "100%" }}>

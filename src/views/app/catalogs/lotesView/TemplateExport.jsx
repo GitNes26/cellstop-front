@@ -29,6 +29,7 @@ import {
 import { CloudDownload, Preview, SelectAll, Deselect, Info, FormatColorFill, InsertPhoto } from "@mui/icons-material";
 import * as XLSX from "xlsx";
 import { utils, writeFile } from "xlsx-js-style";
+import { formatDatetime } from "../../../../utils/Formats";
 
 const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
    // Estados
@@ -43,7 +44,7 @@ const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
       margen: 2,
       espacioEntreFilas: 2,
       espacioEntreColumnas: 1,
-      colorFondo: "FF2196F3", // Azul Material UI primary
+      colorFondo: "034AAB", // Azul Material UI primary
       colorTexto: "FFFFFFFF", // Blanco
       tamañoFuente: 11,
       fuente: "Arial"
@@ -176,7 +177,7 @@ const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
 
          // Fecha
          matriz[filaInicio + 2][columnaInicio] = {
-            v: `VIG. ${elemento.fecha}`,
+            v: `VIG. ${formatDatetime(elemento.fecha, false, "DD MMM YYYY")}`,
             s: {
                font: { name: "Arial", sz: configuracion.tamañoFuente, italic: true },
                alignment: { vertical: "center", horizontal: "center" },
@@ -195,7 +196,7 @@ const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
             s: {
                font: { name: "Arial", sz: configuracion.tamañoFuente, bold: true, color: { rgb: configuracion.colorTexto } },
                fill: { fgColor: { rgb: configuracion.colorFondo } },
-               alignment: { vertical: "center", horizontal: "center", wrapText: true },
+               alignment: { vertical: "center", horizontal: "center", wrapText: false },
                border: {
                   top: { style: "thin", color: { rgb: "000000" } },
                   bottom: { style: "thin", color: { rgb: "000000" } },
@@ -324,7 +325,7 @@ const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
                         vertical: "center",
                         horizontal: "center",
                         wrapText: true,
-                        textRotation: 90 // Texto vertical
+                        textRotation: 0 // Texto vertical
                      },
                      border: {
                         top: { style: "medium", color: { rgb: "000000" } },
@@ -354,7 +355,7 @@ const TemplateExport = ({ open, onClose, data, plantillaBaseUrl }) => {
             // Aplicar altos de fila
             ws["!rows"] = Array(wsData.length)
                .fill()
-               .map(() => ({ hpx: 40 }));
+               .map(() => ({ hpx: 20 }));
 
             // Agregar margen
             ws["!margin"] = {

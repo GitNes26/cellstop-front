@@ -278,6 +278,13 @@ const env = {
                }
             }
          }
+         // MuiDataGridCell: {
+         //    styleOverrides: {
+         //       root: {
+         //          fontWeight: 500
+         //       }
+         //    }
+         // }
       }
       //  transitions: {
       //     duration: {

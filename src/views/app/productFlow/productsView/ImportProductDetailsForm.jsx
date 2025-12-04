@@ -369,9 +369,9 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
       if (!file) return setIsLoading(false);
 
       // Validar tipo de archivo
-      if (!file.name.match(/\.(xls|xlsx)$/)) {
+      if (!file.name.match(/\.(xls|xlsx|csv)$/)) {
          setIsLoading(false);
-         Toast.Warning("Por favor, seleccione un archivo Excel válido (.xls o .xlsx)");
+         Toast.Warning("Por favor, seleccione un archivo Excel válido (.xls, .xlsx o .csv)");
          return;
       }
 
@@ -565,12 +565,13 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          // values.data = processedData;
 
          const res = await importProductDetails(values);
-
+         console.log("🚀 ~ onSubmit ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
             Object.values(res.errors).forEach((errors) => {
-               errors.map((error) => Toast.Warning(error));
+               if (typeof errors === "string") Toast.Warning(errors);
+               else errors.map((error) => Toast.Warning(error));
             });
             return;
          } else if (res.status_code !== 200) {
