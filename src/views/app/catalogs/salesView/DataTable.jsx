@@ -272,7 +272,7 @@ const SaleDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={0}
+         indexColumnName={1}
          rowEdit={false}
          refreshTable={getAllSales}
          btnsExport={true}

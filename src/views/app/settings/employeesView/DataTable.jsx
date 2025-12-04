@@ -352,7 +352,7 @@ const EmployeeDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={2}
+         indexColumnName={3}
          rowEdit={false}
          refreshTable={getAllEmployees}
          btnsExport={true}

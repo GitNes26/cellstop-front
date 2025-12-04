@@ -269,7 +269,7 @@ const DepartmentDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={1}
+         indexColumnName={2}
          rowEdit={false}
          refreshTable={getAllDepartments}
          btnsExport={false}

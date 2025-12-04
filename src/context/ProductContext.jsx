@@ -55,11 +55,19 @@ export default function ProductContextProvider({ children }) {
    }
 
    //#region CRUD
-   const getAllProducts = async () => {
+   const getAllProducts = async (filters) => {
       // console.log("🚀 ~ getAllProducts ~ status:", params.status);
-      const data = getFiltersByStatus(params.status);
-      // if (!(await checkLoggedIn())) return;
+      let data = getFiltersByStatus(params.status);
+      if (!data) data = {}; // inicializar si viene null
 
+      if (filters) {
+         data = {
+            ...data,
+            ...filters
+         };
+      }
+      // console.log("🚀 ~ getAllProducts ~ data:", data);
+      // if (!(await checkLoggedIn())) return;
       const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProducts ~ error:", error);
       // console.log("🚀 ~ getAllProducts ~ response:", response);

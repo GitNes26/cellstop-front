@@ -275,7 +275,7 @@ const MenuDT = ({ refetch }) => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={Menu.singularName}
-         indexColumnName={1}
+         indexColumnName={2}
          rowEdit={false}
          refreshTable={() => refetch()}
          btnsExport={false}

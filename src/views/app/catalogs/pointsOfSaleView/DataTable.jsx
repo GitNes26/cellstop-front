@@ -284,7 +284,7 @@ const PointOfSaleDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={0}
+         indexColumnName={1}
          rowEdit={false}
          refreshTable={getAllPointsOfSale}
          btnsExport={false}

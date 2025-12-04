@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
@@ -16,7 +16,8 @@ import { useLoteContext } from "../../../../context/LoteContext";
 import { Avatar, Typography } from "@mui/material";
 import { AlternateEmailRounded, AssignmentIndRounded, CancelRounded, CheckCircleRounded, FaxRounded, NumbersRounded, PhoneAndroidRounded } from "@mui/icons-material";
 import dayjs from "dayjs";
-import TemplateExport from "./TemplateExport";
+import { TemplateExport } from "./TemplateExport";
+import { useProductContext } from "../../../../context/ProductContext";
 
 const PLANTILLA_PATH = "/plantillas/plantillas_impresion_chip.xlsx";
 
@@ -24,7 +25,9 @@ const LoteDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { singularName, allLotes, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteLote, disEnableLote, getAllLotes, getLote } = useLoteContext();
+   const { allProducts, getAllProducts } = useProductContext();
    const mySwal = withReactContent(Swal);
+   const [openDialogTemplateExport, setopenDialogTemplateExport] = useState(false);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
@@ -58,7 +61,6 @@ const LoteDT = () => {
          <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
             {obj.folio ?? 0}
          </Typography>
-         <small>hoals</small>
       </>
    );
    const QuantityBodyTemplate = (obj) => (
@@ -250,6 +252,37 @@ const LoteDT = () => {
       }
    };
 
+   const handleClickTemplateExport = async (obj) => {
+      try {
+         setIsLoading(true);
+         // if (formikRef.current === null) setopenDialogTemplateExport(true);
+         const filters = { folio: obj.folio };
+         const res = await getAllProducts(filters);
+         // console.log("🚀 ~ handleClickLogout ~ res:", res);
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+
+         // if (res.result.description) res.result.description == null && (res.result.description = "");
+         if (res.alert_text) Toast.Success(res.alert_text);
+         setIsLoading(false);
+         setopenDialogTemplateExport(true);
+      } catch (error) {
+         setopenDialogTemplateExport(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
+      }
+   };
+
    const handleClickDelete = async (id, name) => {
       try {
          mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el lote #${name}?`, "CONFIRMAR")).then(async (result) => {
@@ -318,7 +351,7 @@ const LoteDT = () => {
             // register.actions = <ButtonsAction id={obj.id} name={obj.lote} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Exportar Plantilla", iconName: "GridOnRounded", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "primary" },
+               { label: "Exportar Plantilla", iconName: "GridOnRounded", tooltip: "", handleOnClick: () => handleClickTemplateExport(obj), color: "primary" },
                { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.lote), color: "red" }
             ];
             data.push(register);
@@ -2177,7 +2210,7 @@ const LoteDT = () => {
 
    return (
       <>
-         <TemplateExport plantillaUrl={PLANTILLA_PATH} data={testData} />
+         <TemplateExport open={openDialogTemplateExport} onClose={() => setopenDialogTemplateExport(false)} plantillaUrl={PLANTILLA_PATH} data={allProducts} />
 
          <DataTableComponent
             dataColumns={columns}
@@ -2190,7 +2223,7 @@ const LoteDT = () => {
             handleClickEdit={handleClickEdit}
             handleClickDisEnable={handleClickDisEnable}
             singularName={singularName}
-            indexColumnName={0}
+            indexColumnName={1}
             rowEdit={false}
             refreshTable={getAllLotes}
             btnsExport={true}
