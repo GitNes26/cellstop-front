@@ -45,7 +45,7 @@ export default function ProductContextProvider({ children }) {
             return { location_status: "Asignado" };
          case "distribuidos":
             return { location_status: "Distribuido" };
-         case "activos":
+         case "activados":
             return { activation_status: "Activado" };
          case "portados":
             return { activation_status: "Portado" };
@@ -268,8 +268,8 @@ export default function ProductContextProvider({ children }) {
       // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.post(`loteDetails/updateLoteAssignment`, data));
-      console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
-      console.log("🚀 ~ createOrUpdateProduct ~ response:", response);
+      // console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
+      // console.log("🚀 ~ createOrUpdateProduct ~ response:", response);
       if (error) {
          console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
          const message = error.response.data.message || "createOrUpdateProduct ~ Ocurrio algun error, intenta de nuevo :c";

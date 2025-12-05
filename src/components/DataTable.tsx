@@ -158,6 +158,7 @@ import { updateManyRows } from "../helpers/updateManyRows";
 import { GridPinnedColumnFields } from "@mui/x-data-grid/internals";
 import { AddCircle, Cancel, ExpandRounded, FileDownload, MoreVertRounded, Search, SyncTwoTone } from "@mui/icons-material";
 import { JSX } from "react/jsx-runtime";
+import { permission } from "process";
 
 type OwnerState = {
    expanded: boolean;
@@ -188,7 +189,7 @@ const StyledTextField = styled(TextField)<{
    transition: theme.transitions.create(["width", "opacity"])
 }));
 
-function CustomToolbar(handleClickAdd: any, handleClickRefresh: () => Promise<void>, StackColumnsAdjust: () => JSX.Element) {
+function CustomToolbar(btnAdd: boolean, handleClickAdd: any, handleClickRefresh: () => Promise<void>, StackColumnsAdjust: () => JSX.Element) {
    const [exportMenuOpen, setExportMenuOpen] = React.useState(false);
    const exportMenuTriggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -343,11 +344,13 @@ function CustomToolbar(handleClickAdd: any, handleClickRefresh: () => Promise<vo
 
          <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
 
-         <Tooltip title="Agregar Registro">
-            <IconButton color="success" size="small" sx={{}} onClick={handleClickAdd}>
-               <AddCircle />
-            </IconButton>
-         </Tooltip>
+         {btnAdd && (
+            <Tooltip title="Agregar Registro">
+               <IconButton color="success" size="small" sx={{}} onClick={handleClickAdd}>
+                  <AddCircle />
+               </IconButton>
+            </Tooltip>
+         )}
       </Toolbar>
    );
 }
@@ -390,10 +393,13 @@ const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisE
       label: string;
       tooltip?: string;
       color?: string;
+      permission: boolean;
       handleOnClick: () => void;
    }
 
-   const MenuItemComponent: React.FC<MenuItemComponentProps> = ({ iconName, label, tooltip, handleOnClick, color }) => {
+   const MenuItemComponent: React.FC<MenuItemComponentProps> = ({ iconName, label, tooltip, handleOnClick, color, permission }) => {
+      if (!permission) return;
+
       const IconComponent = MuiIcons[iconName as keyof typeof MuiIcons];
 
       return (
@@ -436,14 +442,15 @@ const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisE
                </Typography>
             </Tooltip>
             <Divider sx={{ mb: 2 }} />
-            {actions.map((action: { label: string; iconName: string; tooltip: string; handleOnClick: () => void; color: string }) => (
+            {actions.map((action: { label: string; iconName: string; tooltip: string; permission: boolean; handleOnClick: () => void; color: string }) => (
                <MenuItemComponent
                   key={action.label}
-                  label={action.label}
+                  label={action.label || ""}
                   iconName={action.iconName}
                   tooltip={action.tooltip}
                   handleOnClick={action.handleOnClick}
                   color={action.color}
+                  permission={action.permission}
                />
             ))}
          </Menu>
@@ -455,6 +462,7 @@ const mode = localStorage.getItem("mui-mode") || "light";
 interface DataTableComponentProps {
    dataColumns: GridColDef[];
    data: any[];
+   btnAdd?: boolean;
    handleClickAdd: any;
    handleClickEdit?: (params: any) => void;
    handleClickDisEnable?: (params: any) => void;
@@ -466,6 +474,7 @@ interface DataTableComponentProps {
 const DataTableComponent = ({
    dataColumns = [],
    data = [],
+   btnAdd = false,
    handleClickAdd,
    handleClickEdit,
    handleClickDisEnable,
@@ -712,7 +721,7 @@ const DataTableComponent = ({
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
-               toolbar: () => CustomToolbar(handleClickAdd, handleClickRefresh, StackColumnsAdjust)
+               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust)
             }}
          />
       </Box>

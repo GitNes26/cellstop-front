@@ -264,8 +264,15 @@ const UserDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.user} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.username), color: "red" }
+               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Eliminar",
+                  iconName: "Delete",
+                  tooltip: "",
+                  handleOnClick: () => handleClickDelete(obj.id, obj.username),
+                  color: "red",
+                  permission: auth.permissions.delete
+               }
             ];
             // _data.push(register);
             data.push(register);

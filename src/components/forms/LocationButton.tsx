@@ -35,6 +35,7 @@ interface LocationButtonProps {
    mb?: number;
    fullWidth?: boolean;
    variant?: "outlined" | "contained";
+   onChangeExtra?: (value: any) => void;
 }
 
 const LocationButton: React.FC<LocationButtonProps> = ({
@@ -53,7 +54,8 @@ const LocationButton: React.FC<LocationButtonProps> = ({
    hidden = false,
    mb = 0,
    fullWidth = true,
-   variant = "outlined"
+   variant = "outlined",
+   onChangeExtra
 }) => {
    const [loading, setLoading] = useState(false);
    const formik: any = useFormikContext<any>();
@@ -87,14 +89,17 @@ const LocationButton: React.FC<LocationButtonProps> = ({
          (position) => {
             const coords = {
                lat: position.coords.latitude,
-               lng: position.coords.longitude
+               lng: position.coords.longitude,
+               ubi: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`
             };
             setLocation(coords);
 
             // Guardar en Formik (irá a BD)
             formik?.setFieldValue(idNameLat, coords.lat);
             formik?.setFieldValue(idNameLng, coords.lng);
-            formik?.setFieldValue(idNameUbi, `https://www.google.com/maps?q=${coords.lat},${coords.lng}`);
+            formik?.setFieldValue(idNameUbi, coords.ubi); //`https://www.google.com/maps?q=${coords.lat},${coords.lng}`);
+
+            if (onChangeExtra) onChangeExtra({ idNameUbi, coords });
 
             setLoading(false);
          },

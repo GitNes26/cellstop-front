@@ -18,5 +18,5 @@ import authRouter from "./authRouter";
 import mainRouter from "./mainRouter";
 // ====================|| AUTHENTICATION ROUTING ||===================== //
 
-export const router = createBrowserRouter([authRouter, mainRouter]);
-// export const router = createHashRouter([authRouter, mainRouter]);
+// export const router = createBrowserRouter([authRouter, mainRouter]);
+export const router = createHashRouter([authRouter, mainRouter]);

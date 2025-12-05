@@ -37,6 +37,8 @@ import LoteContextProvider from "../context/LoteContext";
 import PointOfSaleContextProvider from "../context/PointOfSaleContext";
 import SaleContextProvider from "../context/SaleContext";
 import ProductTypeContextProvider from "../context/ProductTypeContext";
+import VisitContextProvider from "../context/VisitContext";
+import VisitsView from "../views/app/others/visitsView/Index";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -258,6 +260,32 @@ const mainRouter = {
                   // <ProductTypeContextProvider>
                   <TemplateEditorView />
                   // </ProductTypeContextProvider>
+               )
+            },
+            {
+               path: "visitas",
+               element: (
+                  <UserContextProvider>
+                     <ProductContextProvider>
+                        <ProductTypeContextProvider>
+                           <RoleContextProvider>
+                              <EmployeeContextProvider>
+                                 <DepartmentContextProvider>
+                                    <PositionContextProvider>
+                                       <LoteContextProvider>
+                                          <PointOfSaleContextProvider>
+                                             <VisitContextProvider>
+                                                <VisitsView />
+                                             </VisitContextProvider>
+                                          </PointOfSaleContextProvider>
+                                       </LoteContextProvider>
+                                    </PositionContextProvider>
+                                 </DepartmentContextProvider>
+                              </EmployeeContextProvider>
+                           </RoleContextProvider>
+                        </ProductTypeContextProvider>
+                     </ProductContextProvider>
+                  </UserContextProvider>
                )
             }
          ]

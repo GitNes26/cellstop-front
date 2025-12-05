@@ -198,7 +198,7 @@ const MenuDT = ({ refetch }) => {
 
          Menu.states.isItem.next(res.result.type == "item" ? true : false);
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         console.log("🚀 ~ handleClickEdit ~ res.result:", res.result)
+         console.log("🚀 ~ handleClickEdit ~ res.result:", res.result);
          formikRef.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setIsLoading(false);
@@ -248,7 +248,7 @@ const MenuDT = ({ refetch }) => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.menu} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" }
+               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update }
                // { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.menu) }
             ];
             data.push(register);

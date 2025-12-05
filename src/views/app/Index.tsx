@@ -23,9 +23,11 @@ import { useLayoutEffect, useState } from "react";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
 import DashboardView from "./main/dashboard/Index";
+import { useAuthContext } from "./../../context/AuthContext";
 
 const Index = ({}) => {
    const { setIsLoading } = useGlobalContext();
+   const { auth } = useAuthContext();
 
    const theme = useTheme();
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -154,7 +156,7 @@ const Index = ({}) => {
                      <Box className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <Box>
                            <Typography variant="h3" fontWeight="800" className="mb-2">
-                              ¡Hola, Vendedor! 👋
+                              {`¡Hola, ${auth.full_name || auth.username}! 👋`}
                            </Typography>
                            <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 300 }}>
                               ¿Qué deseas hacer hoy?

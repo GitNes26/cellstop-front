@@ -224,8 +224,15 @@ const ProductTypeDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.product_type} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.product_type), color: "red" }
+               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Eliminar",
+                  iconName: "Delete",
+                  tooltip: "",
+                  handleOnClick: () => handleClickDelete(obj.id, obj.product_type),
+                  color: "red",
+                  permission: auth.permissions.delete
+               }
             ];
             data.push(register);
          });

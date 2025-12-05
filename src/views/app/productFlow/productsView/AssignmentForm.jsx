@@ -74,7 +74,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    );
 
    const init = () => {
-      // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
+      console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
          productsInStockSelect.map((d) => d.id)

@@ -326,8 +326,15 @@ const EmployeeDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.full_name} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.full_name), color: "red" }
+               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Eliminar",
+                  iconName: "Delete",
+                  tooltip: "",
+                  handleOnClick: () => handleClickDelete(obj.id, obj.full_name),
+                  color: "red",
+                  permission: auth.permissions.delete
+               }
             ];
             data.push(register);
          });

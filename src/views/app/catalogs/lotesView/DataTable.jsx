@@ -350,9 +350,16 @@ const LoteDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.lote} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue" },
+               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
                { label: "Exportar Plantilla", iconName: "GridOnRounded", tooltip: "", handleOnClick: () => handleClickTemplateExport(obj), color: "primary" },
-               { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.lote), color: "red" }
+               {
+                  label: "Eliminar",
+                  iconName: "Delete",
+                  tooltip: "",
+                  handleOnClick: () => handleClickDelete(obj.id, obj.lote),
+                  color: "red",
+                  permission: auth.permissions.delete
+               }
             ];
             data.push(register);
          });

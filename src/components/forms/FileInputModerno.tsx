@@ -581,7 +581,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                                                          <div className="relative">
                                                             <img
                                                                className="w-full h-64 object-contain rounded-lg border bg-gray-50 cursor-pointer hover:shadow-md transition-shadow duration-300"
-                                                               src={preview.dataURL}
+                                                               src={preview.dataURL || null}
                                                                alt={preview.file.name}
                                                                onClick={() => handleZoomImage(preview.dataURL, preview.file.name)}
                                                             />
