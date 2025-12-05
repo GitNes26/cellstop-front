@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
    Dialog,
    DialogTitle,
@@ -27,9 +27,10 @@ import {
    CircularProgress,
    Divider
 } from "@mui/material";
-import { CloudDownload, Preview, SelectAll, Deselect, Info, FormatColorFill, InsertPhoto, TextFields, BorderAll, AspectRatio } from "@mui/icons-material";
+import { CloudDownload, Preview, SelectAll, Deselect, Info, FormatColorFill, InsertPhoto, TextFields, BorderAll, AspectRatio, Receipt } from "@mui/icons-material";
 import * as XLSX from "xlsx";
 import { utils, writeFile } from "xlsx-js-style";
+import { useBarcodeScanner } from "../../../../hooks/useBarcodeScanner";
 
 const TemplateExport = ({ open, onClose, data }) => {
    // Estados
@@ -115,6 +116,8 @@ const TemplateExport = ({ open, onClose, data }) => {
 
    // Toggle selección de elemento
    const toggleElemento = (id) => {
+      // setElementos((prev) => prev.map((el) => (el.id === id ? { ...el, seleccionado: !el.seleccionado } : el)));
+
       const nuevosElementos = elementos.map((el) => (el.id === id ? { ...el, seleccionado: !el.seleccionado } : el));
       setElementos(nuevosElementos);
       const seleccionados = nuevosElementos.filter((el) => el.seleccionado);
@@ -429,10 +432,15 @@ const TemplateExport = ({ open, onClose, data }) => {
       return (
          <Box className="border rounded-lg p-4 bg-white">
             <Box className="flex justify-between items-center mb-4">
-               <Typography variant="h6" className="font-bold flex items-center gap-2">
+               {/* <Typography variant="h6" className="font-bold flex items-center gap-2">
                   <AspectRatio className="text-blue-500" />
                   Vista Previa de Etiquetas
+               </Typography> */}
+               <Typography variant="h6" className="font-bold flex items-center gap-2">
+                  <Receipt className="text-blue-500" />
+                  Detalles de la etiqueta
                </Typography>
+
                <Chip label={`${vistaPreviaGenerada.elementos} etiquetas`} color="primary" size="small" />
             </Box>
             {/* Grid de vista previa */}
@@ -443,7 +451,8 @@ const TemplateExport = ({ open, onClose, data }) => {
                   border: "2px solid #d1d5db",
                   p: 2,
                   bgcolor: "#f9fafb",
-                  borderRadius: "12px"
+                  borderRadius: "12px",
+                  display: "none"
                }}
             >
                <Grid container component="div" display="inline-block">
@@ -676,6 +685,46 @@ const TemplateExport = ({ open, onClose, data }) => {
       );
    };
 
+   //#region buscador y lista de Elementos
+   const [search, setSearch] = useState("");
+   const listRef = useRef(null);
+
+   // integrar hook
+   const { inputRef } = useBarcodeScanner({
+      onScan: (code) => handleScan(code)
+   });
+
+   // const toggleElemento = (id) => {
+   //    setElementos((prev) => prev.map((el) => (el.id === id ? { ...el, seleccionado: !el.seleccionado } : el)));
+   // };
+
+   // selección por scanner
+   const handleScan = (code) => {
+      const item = elementos.find((el) => el.id.toString() === code || el.iccid === code || el.celular === code);
+
+      if (!item) return "not_found";
+      if (item.seleccionado) return "duplicate";
+
+      toggleElemento(item.id);
+      scrollToItem(item.id);
+
+      return "ok";
+   };
+
+   const scrollToItem = (id) => {
+      const container = listRef.current;
+      if (!container) return;
+
+      const el = container.querySelector(`#item-${id}`);
+      if (el)
+         if (container) {
+            container.scrollTop = el.offsetTop - 40;
+         }
+   };
+
+   const elementosFiltrados = elementos.filter((e) => `${e.id} ${e.nombre} ${e.iccid} ${e.celular}`.toLowerCase().includes(search.toLowerCase()));
+   //#endregion
+
    return (
       <Dialog
          open={open}
@@ -706,7 +755,7 @@ const TemplateExport = ({ open, onClose, data }) => {
          <DialogContent className="p-0">
             <Grid container className="h-full" paddingTop={0} marginTop={0}>
                {/* Panel izquierdo: Configuración y selección */}
-               <Grid size={{ xs: 12, md: 3 }} className="border-r p-0 px-2">
+               <Grid size={{ xs: 12, md: 4 }} className="border-r p-0 px-2">
                   <Box className="space-y-6">
                      {/* Selector de plantilla */}
                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -763,7 +812,7 @@ const TemplateExport = ({ open, onClose, data }) => {
                      </Box>
 
                      {/* Lista de chips */}
-                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                     {/* <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                         <Box className="flex justify-between items-center">
                            <Typography variant="subtitle1" className="font-bold">
                               Selección de Chips
@@ -820,14 +869,59 @@ const TemplateExport = ({ open, onClose, data }) => {
                               ))}
                            </List>
                         </Box>
+                     </Box> */}
+                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        {/* SEARCH */}
+                        <input
+                           ref={inputRef}
+                           type="text"
+                           className="border border-gray-400 p-2 rounded-xl w-full"
+                           placeholder="Buscar o escanear código..."
+                           onChange={(e) => setSearch(e.target.value)}
+                        />
+
+                        {/* LISTA */}
+                        <Box className="overflow-auto max-h-[260px] border border-gray-400 rounded-lg" ref={listRef}>
+                           <List dense>
+                              {elementosFiltrados.map((elemento) => (
+                                 <ListItem
+                                    id={`item-${elemento.id}`}
+                                    key={elemento.id}
+                                    disablePadding
+                                    secondaryAction={<Checkbox edge="end" checked={elemento.seleccionado} onChange={() => toggleElemento(elemento.id)} size="small" />}
+                                 >
+                                    <ListItemButton onClick={() => toggleElemento(elemento.id)} className="py-2">
+                                       <ListItemIcon>
+                                          <Box className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                             <Typography variant="caption" className="font-bold text-blue-600">
+                                                {elemento.id}
+                                             </Typography>
+                                          </Box>
+                                       </ListItemIcon>
+                                       <ListItemText
+                                          primary={<Typography className="font-medium">{elemento.nombre}</Typography>}
+                                          secondary={
+                                             <Box>
+                                                <Typography variant="caption">{elemento.celular}</Typography>
+                                                <Typography variant="caption" className="block text-gray-500">
+                                                   {elemento.iccid}
+                                                </Typography>
+                                             </Box>
+                                          }
+                                       />
+                                    </ListItemButton>
+                                 </ListItem>
+                              ))}
+                           </List>
+                        </Box>
                      </Box>
                   </Box>
                </Grid>
 
                {/* Panel derecho: Vista previa */}
-               <Grid size={{ xs: 12, md: 9 }} className="p-4">
+               <Grid size={{ xs: 12, md: 8 }} className="p-4">
                   <Box className="h-full flex flex-col">
-                     <Box className="flex justify-between items-center mb-4">
+                     {/* <Box className="flex justify-between items-center mb-4">
                         <Typography variant="h5" className="font-bold">
                            Vista Previa - {plantillas[tipoPlantilla]?.nombre}
                         </Typography>
@@ -839,10 +933,22 @@ const TemplateExport = ({ open, onClose, data }) => {
                         >
                            Actualizar Vista
                         </Button>
-                     </Box>
+                     </Box> */}
 
                      {vistaPreviaGenerada ? (
-                        <VistaPreviaMejorada />
+                        <>
+                           <VistaPreviaMejorada />
+                           {/* BADGES */}
+                           <Box sx={{ border: 1, borderRadius: 1, p: 2, mt: 1, maxHeight: 300, overflow: "auto" }}>
+                              <Box className="flex flex-wrap gap-1">
+                                 {elementos
+                                    .filter((el) => el.seleccionado)
+                                    .map((el) => (
+                                       <Chip key={el.id} label={el.celular} color="primary" size="small" onDelete={() => toggleElemento(el.id)} />
+                                    ))}
+                              </Box>
+                           </Box>
+                        </>
                      ) : (
                         <Paper className="p-12 text-center flex-1 flex flex-col items-center justify-center">
                            <Info className="text-gray-400 text-6xl mb-4" />
