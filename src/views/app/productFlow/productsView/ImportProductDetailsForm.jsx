@@ -25,7 +25,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import Toast from "../../../../utils/Toast";
 import * as XLSX from "xlsx";
 import { formatCurrency } from "../../../../utils/Formats";
-import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert";
+import showFlexibleAlert, { ALERT_TYPES, showMetricsAlert } from "../../../../components/showDuplicatesAlert";
 import { productHistoryColumns, TableDetails } from "./TableDetails";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
@@ -565,7 +565,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          // values.data = processedData;
 
          const res = await importProductDetails(values);
-         console.log("🚀 ~ onSubmit ~ res:", res);
+         // console.log("🚀 ~ onSubmit ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -582,8 +582,8 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          if (res.metrics)
             /* showMetricsAlert(res.metrics); */
             showFlexibleAlert(res.metrics, {
-               type: ALERT_TYPES.METRICS,
-               title: "Detalles Procesados",
+               type: ALERT_TYPES.METRICS_CUSTOM,
+               title: "DETALLES PROCESADOS",
                subtitle: res.message,
                copyTextGenerator: (data) => {
                   const metrics = data;

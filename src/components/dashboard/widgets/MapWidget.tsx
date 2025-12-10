@@ -6,6 +6,10 @@ import { motion } from "framer-motion";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
+// import { MapContainer, TileLayer, Marker, Circle, Popup } from "react-leaflet";
+// import "leaflet/dist/leaflet.css";
+// import L, { LatLngExpression } from "leaflet";
+
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({

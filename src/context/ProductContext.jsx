@@ -14,6 +14,7 @@ const ProductContext = createContext();
 // };
 const prefixPath = "/products";
 const prefixPathDetail = "/productDetails";
+const prefixPathPortabilities = "/portabilities";
 
 export default function ProductContextProvider({ children }) {
    const params = useParams();
@@ -35,7 +36,9 @@ export default function ProductContextProvider({ children }) {
    const [foliosSelect, setFoliosSelect] = useState([]);
 
    const [allProductDetails, setAllProductDetails] = useState([]);
-   const [allProductDetailsByProduct, setAllProductDetailsByProduct] = useState([]);
+   const [productDetailsByProduct, setProductDetailsByProduct] = useState([]);
+   const [allPortabilities, setAllPortabilities] = useState([]);
+   const [portabilitiesByProduct, setPortabilitiesByProduct] = useState([]);
 
    function getFiltersByStatus(statusParam) {
       switch (statusParam) {
@@ -311,6 +314,27 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   const getAllProductDetails = async () => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`${prefixPathDetail}`));
+      // console.log("🚀 ~ getAllProductDetails ~ error:", error);
+      // console.log("🚀 ~ getAllProductDetails ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getAllProductDetails ~ error:", error);
+         const message = error.response.data.message || "getAllProductDetails ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllProductDetails(res.result);
+
+      return res;
+   };
+
    const getProductDetailsByProduct = async (productId) => {
       // if (!(await checkLoggedIn())) return;
 
@@ -327,11 +351,80 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setAllProductDetailsByProduct(res.result);
+      setProductDetailsByProduct(res.result);
 
       return res;
    };
    //#endregion ProductDetails
+
+   //#region Portabilities
+   const importPortabilities = async (data) => {
+      // console.log("🚀 ~ importPortabilities ~ data:", data);
+      // // if (!(await checkLoggedIn())) return;
+
+      // const formData = new FormData();
+      // formData.append("file", file);
+      const [error, response] = await to(Axios.post(`${prefixPathPortabilities}/import`, data));
+      // const [error, response] = await to(AxiosFiles.post(`${prefixPath}/import`, formData, { headers: { "Content-Type": "multipart/form-data" } }));
+      // console.log("🚀 ~ importPortabilities ~ error:", error);
+      // console.log("🚀 ~ importPortabilities ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ importPortabilities ~ error:", error);
+         const message = error.response.data.message || "importPortabilities ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      getAllProducts();
+
+      return res;
+   };
+
+   const getAllPortabilities = async () => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`${prefixPathPortabilities}`));
+      // console.log("🚀 ~ getAllPortabilities ~ error:", error);
+      // console.log("🚀 ~ getAllPortabilities ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getAllPortabilities ~ error:", error);
+         const message = error.response.data.message || "getAllPortabilities ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllPortabilities(res.result);
+
+      return res;
+   };
+
+   const getPortabilitiesByProduct = async (productId) => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`${prefixPathPortabilities}/product/${productId}`));
+      // console.log("🚀 ~ getPortabilitiesByProduct ~ error:", error);
+      // console.log("🚀 ~ getPortabilitiesByProduct ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getPortabilitiesByProduct ~ error:", error);
+         const message = error.response.data.message || "getPortabilitiesByProduct ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      // setPortabilitiesByProduct(res.result);
+
+      return res;
+   };
+   //#endregion Portabilities
 
    // useEffect(() => {
    //    // console.log("el useEffect de ProductContext");
@@ -377,9 +470,18 @@ export default function ProductContextProvider({ children }) {
             allProductDetails,
             setAllProductDetails,
             importProductDetails,
-            allProductDetailsByProduct,
-            setAllProductDetailsByProduct,
-            getProductDetailsByProduct
+            getAllProductDetails,
+            productDetailsByProduct,
+            setProductDetailsByProduct,
+            getProductDetailsByProduct,
+
+            allPortabilities,
+            setAllPortabilities,
+            portabilitiesByProduct,
+            setPortabilitiesByProduct,
+            importPortabilities,
+            getAllPortabilities,
+            getPortabilitiesByProduct
          }}
       >
          {children}

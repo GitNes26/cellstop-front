@@ -286,7 +286,7 @@ const configXaxis = (chart, titles) => {
       case "area":
          return {
             xAxis: {
-               type: "category",
+                type: "category" as const,
                categories: ["", ...titles],
                title: {
                   text: "total",

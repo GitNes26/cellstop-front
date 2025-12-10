@@ -131,6 +131,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                   });
                   return newRow;
                });
+               // console.log("🚀 ~ handleFile ~ jsonData:", jsonData);
             }
 
             // Validación

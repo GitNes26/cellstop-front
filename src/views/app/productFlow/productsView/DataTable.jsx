@@ -19,6 +19,9 @@ import ImportForm from "./ImportForm";
 import PreActivationForm from "./PreActivationForm";
 import ImportProductDetailsForm from "./ImportProductDetailsForm.jsx";
 import ModalTableDetails from "./TableDetails.js";
+import ImportPortabitiesFrom from "./ImportPortabitiesFrom.jsx";
+
+const columnasPortaciones = ["telefono", "fechaActivacion", "fechaPortacion", "FzaVentas", "descripFzaVta"];
 
 const columnasDetalleProducto = [
    "FILTRO",
@@ -97,8 +100,8 @@ const ProductDT = ({}) => {
       disEnableProduct,
       getAllProducts,
       getProduct,
-      allProductDetailsByProduct,
-      setAllProductDetailsByProduct,
+      productDetailsByProduct,
+      setProductDetailsByProduct,
       getProductDetailsByProduct
    } = useProductContext();
    const mySwal = withReactContent(Swal);
@@ -106,6 +109,7 @@ const ProductDT = ({}) => {
    const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
    const [openDialogImportDetailsForm, setOpenDialogImportDetailsForm] = useState(false);
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
+   const [openDialogImportPortabitiesForm, setOpenDialogImportPortabitiesForm] = useState(false);
    const [openDialogTableDetails, setOpenDialogTableDetails] = useState(false);
 
    //#region COLUMNAS
@@ -279,10 +283,16 @@ const ProductDT = ({}) => {
          renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import_id}`}>{params.row.import.name}</TextCenter>
       },
       {
-         field: "import.upload_by",
+         field: "import.uploader.username",
          headerName: "Creado Por",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import.upload_by}`}>{params.row.import.upload_by}</TextCenter>
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import.uploader.username}`}>{params.row.import.uploader.username}</TextCenter>
+      },
+      {
+         field: "evaluations_rejected",
+         headerName: "Evaluaciones",
+         sortable: true,
+         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.evaluations_rejected}`}>{params.row.evaluations_rejected}</TextCenter>
       }
    ];
 
@@ -500,6 +510,7 @@ const ProductDT = ({}) => {
             {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
             {<ImportProductDetailsForm openDialog={openDialogImportDetailsForm} setOpenDialog={setOpenDialogImportDetailsForm} columns={columnasDetalleProducto} />}
             <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
+            <ImportPortabitiesFrom openDialog={openDialogImportPortabitiesForm} setOpenDialog={setOpenDialogImportPortabitiesForm} />
          </Stack>
          <DataTableComponent
             dataColumns={columns}
@@ -525,7 +536,7 @@ const ProductDT = ({}) => {
          <ModalTableDetails
             openDialog={openDialogTableDetails}
             setOpenDialog={setOpenDialogTableDetails}
-            processedData={allProductDetailsByProduct}
+            processedData={productDetailsByProduct}
             heightDialog={"80vh"}
             maxHeight={"95%"}
          />

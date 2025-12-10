@@ -126,7 +126,7 @@ const RealTimeChartBuilder: React.FC = () => {
    const [isFullscreen, setIsFullscreen] = useState(false);
    const [advancedOpen, setAdvancedOpen] = useState(false);
    const [alerts, setAlerts] = useState<string[]>([]);
-   const chartRef = useRef<any>();
+   const chartRef = useRef<any>(null);
 
    const { setIsLoading } = useGlobalContext();
 
@@ -188,8 +188,6 @@ const RealTimeChartBuilder: React.FC = () => {
 
       setAlerts(newAlerts);
    }, [chartConfig]);
-
-   
 
    // Componente de Filtros
    const FilterSection = () => {

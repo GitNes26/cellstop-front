@@ -69,7 +69,7 @@ export class ProductDistributionChart {
             containLabel: true
          },
          xAxis: {
-            type: "category",
+            type: "category" as const,
             data: ["SIM Físico", "E-SIM", "Dispositivos", "Accesorios"]
          },
          yAxis: {

@@ -1,0 +1,11 @@
+declare module "@techstark/opencv-js";
+declare module "react-icons/io";
+declare module "react-pdf-tailwind";
+declare module "react-icons/io";
+declare module "@techstark/opencv-js";
+declare module "react-pdf-tailwind";
+declare module "xlsx-js-style";
+declare module "*.png";
+declare module "*.jpg";
+declare module "*.jpeg";
+declare module "*.svg";

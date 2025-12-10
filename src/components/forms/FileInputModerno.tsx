@@ -473,7 +473,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                                     multiple={multiple}
                                     accept={accept}
                                     disabled={disabled}
-                                    capture={openCameraFile && "environment"}
+                                    capture={openCameraFile ? "environment" : undefined}
                                     className="hidden"
                                  />
                               ) : (

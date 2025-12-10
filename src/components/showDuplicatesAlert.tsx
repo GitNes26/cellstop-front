@@ -6,7 +6,7 @@ import Toast from "../utils/Toast";
 const MySwal = withReactContent(Swal);
 
 // Tipos principales
-export type AlertType = "duplicates" | "metrics" | "custom";
+export type AlertType = "duplicates" | "metrics" | "metrics_custom" | "custom";
 
 export type AlertData = string[] | Record<string, any> | any[];
 
@@ -52,17 +52,35 @@ export interface ShowAlertOptions {
    showCloseButton?: boolean;
 }
 
+// Tipos adicionales que podrías necesitar
+export interface MetricsData {
+   processed: number;
+   errors: any[];
+   duplicates: string[];
+   products_updated: number;
+   products_flagged: number;
+   summary: {
+      total_records: number;
+      successful: number;
+      failed: number;
+      duplicates_found: number;
+      products_to_activate: number;
+      products_with_warnings: number;
+   };
+}
+
 // Tipos de alerta predefinidos
 export const ALERT_TYPES: Record<string, AlertType> = {
    DUPLICATES: "duplicates",
-   METRICS: "metrics",
+   METICS: "metrics",
+   METRICS_CUSTOM: "metrics_custom",
    CUSTOM: "custom"
 } as const;
 
 // Configuraciones por tipo de alerta
 export const ALERT_CONFIGS: Record<AlertType, AlertConfig> = {
-   [ALERT_TYPES.DUPLICATES]: {
-      title: "Elementos Duplicados",
+   duplicates: {
+      title: "ELEMENTOS DUPLICADOS",
       subtitle: (data: AlertData) => `Se encontraron ${(data as string[]).length} elementos repetidos`,
       icon: {
          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -114,8 +132,8 @@ export const ALERT_CONFIGS: Record<AlertType, AlertConfig> = {
       ),
       suggestion: "💡 <strong>Sugerencia:</strong> Revise estos elementos antes de continuar"
    },
-   [ALERT_TYPES.METRICS]: {
-      title: "Resumen del Proceso",
+   metrics: {
+      title: "RESUMEN DEL PROCESO",
       subtitle: () => `Procesamiento completado`,
       icon: {
          background: "linear-gradient(135deg, #4299e1 0%, #38a169 100%)",
@@ -158,7 +176,96 @@ export const ALERT_CONFIGS: Record<AlertType, AlertConfig> = {
       ),
       suggestion: "💡 <strong>Información:</strong> Revise las métricas del proceso"
    },
-   [ALERT_TYPES.CUSTOM]: {
+   metrics_custom: {
+      title: "Resumen del Proceso",
+      subtitle: (data: AlertData) => {
+         const metrics = typeof data === "object" && !Array.isArray(data) ? (data as Record<string, any>).metrics : undefined;
+         if (!metrics) return "Procesamiento completado";
+         return `Procesados: ${metrics.summary?.total_records || 0} registros`;
+      },
+      icon: {
+         background: "linear-gradient(135deg, #4299e1 0%, #38a169 100%)",
+         content: "📊"
+      },
+      itemRenderer: (item: any, key: string) => {
+         // Si es un objeto de métricas complejo
+         if (key === "summary" && typeof item === "object") {
+            return (
+               <div style={{ marginBottom: "12px" }}>
+                  <div
+                     style={{
+                        color: "#4a5568",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        marginBottom: "8px",
+                        textTransform: "capitalize"
+                     }}
+                  >
+                     Resumen:
+                  </div>
+                  {Object.entries(item).map(([subKey, value]) => (
+                     <div
+                        key={subKey}
+                        style={{
+                           display: "flex",
+                           justifyContent: "space-between",
+                           alignItems: "center",
+                           padding: "8px 12px",
+                           background: "white",
+                           borderRadius: "6px",
+                           border: "1px solid #e2e8f0",
+                           marginBottom: "6px",
+                           fontSize: "13px"
+                        }}
+                     >
+                        <span style={{ color: "#718096", textTransform: "capitalize" }}>{subKey.replace(/_/g, " ")}:</span>
+                        <span style={{ color: "#2d3748", fontWeight: 600 }}>{String(value)}</span>
+                     </div>
+                  ))}
+               </div>
+            );
+         }
+
+         // Para otros valores simples
+         return (
+            <div
+               style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px 16px",
+                  background: "white",
+                  borderRadius: "8px",
+                  border: "1px solid #e2e8f0",
+                  marginBottom: "8px"
+               }}
+            >
+               <span
+                  style={{
+                     color: "#4a5568",
+                     fontSize: "14px",
+                     fontWeight: 500,
+                     textTransform: "capitalize"
+                  }}
+               >
+                  {key.replace(/_/g, " ")}:
+               </span>
+               <span
+                  style={{
+                     color: "#2d3748",
+                     fontSize: "14px",
+                     fontWeight: 600,
+                     fontFamily: "'Monaco', 'Consolas', monospace"
+                  }}
+               >
+                  {typeof item === "object" ? JSON.stringify(item) : String(item)}
+               </span>
+            </div>
+         );
+      },
+      suggestion: "💡 <strong>Información:</strong> Revise las métricas del proceso"
+   },
+   custom: {
       title: "Información",
       subtitle: () => "Detalles del proceso",
       icon: {
@@ -199,11 +306,11 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
    const config = ALERT_CONFIGS[type] || ALERT_CONFIGS[ALERT_TYPES.CUSTOM];
 
    // Usar configuraciones proporcionadas o las predeterminadas
-   const finalTitle = title || config.title;
-   const finalSubtitle = typeof subtitle === "function" ? subtitle(data) : subtitle || config.subtitle(data);
-   const finalIcon = icon || config.icon;
-   const finalItemRenderer = itemRenderer || config.itemRenderer;
-   const finalSuggestion = suggestion || config.suggestion;
+   const finalTitle = title || config?.title;
+   const finalSubtitle = typeof subtitle === "function" ? subtitle(data) : subtitle || config?.subtitle(data);
+   const finalIcon = icon || config?.icon;
+   const finalItemRenderer = itemRenderer || config?.itemRenderer;
+   const finalSuggestion = suggestion || config?.suggestion;
 
    const handleCopyList = async (): Promise<void> => {
       if (onCopy) {
@@ -283,7 +390,7 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
    };
 
    // Determinar qué datos mostrar
-   const displayData = type === ALERT_TYPES.METRICS ? Object.entries(data as Record<string, any>) : (data as any[]);
+   const displayData = [ALERT_TYPES.METRICS, ALERT_TYPES.METRICS_CUSTOM].includes(type) ? Object.entries(data as Record<string, any>) : (data as any[]);
 
    return (
       <div style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "8px" }}>
@@ -293,7 +400,7 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
                style={{
                   width: "40px",
                   height: "40px",
-                  background: finalIcon.background,
+                  background: finalIcon?.background || "bg-primary",
                   borderRadius: "10px",
                   display: "flex",
                   alignItems: "center",
@@ -303,7 +410,7 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
                   fontWeight: "bold"
                }}
             >
-               {finalIcon.content}
+               {finalIcon?.content || ""}
             </div>
             <div>
                <h2 style={{ margin: 0, color: "#2d3748", fontSize: "18px", fontWeight: 600 }}>{finalTitle}</h2>
@@ -329,8 +436,8 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
                   cursor: "pointer",
                   transition: "all 0.2s ease"
                }}
-               onMouseOver={(e) => (e.target.style.background = "#3182ce")}
-               onMouseOut={(e) => (e.target.style.background = "#4299e1")}
+               onMouseOver={(e) => ((e.currentTarget as HTMLElement).style.background = "#3182ce")}
+               onMouseOut={(e) => ((e.currentTarget as HTMLElement).style.background = "#4299e1")}
             >
                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -353,8 +460,8 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
                   cursor: "pointer",
                   transition: "all 0.2s ease"
                }}
-               onMouseOver={(e) => (e.target.style.background = "#2f855a")}
-               onMouseOut={(e) => (e.target.style.background = "#38a169")}
+               onMouseOver={(e) => ((e.currentTarget as HTMLElement).style.background = "#2f855a")}
+               onMouseOut={(e) => ((e.currentTarget as HTMLElement).style.background = "#38a169")}
             >
                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -374,7 +481,19 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
                border: "1px solid #e2e8f0"
             }}
          >
-            {type === ALERT_TYPES.METRICS ? (
+            {type === ALERT_TYPES.METRICS_CUSTOM ? (
+               <div style={{ display: "grid", gap: "8px" }}>
+                  {Object.entries((displayData as unknown as MetricsData) || {})
+                     .map(([key, value], index) => {
+                        // Filtrar propiedades si es necesario
+                        if (key === "errors" && Array.isArray(value) && value.length === 0) return null;
+                        if (key === "duplicates" && Array.isArray(value) && value.length === 0) return null;
+
+                        return <div key={key}>{finalItemRenderer(value, key, index)}</div>;
+                     })
+                     .filter(Boolean)}
+               </div>
+            ) : type === ALERT_TYPES.METRICS ? (
                <div style={{ display: "grid", gap: "8px" }}>
                   {(displayData as [string, any][]).map(([key, value], index) => (
                      <div key={key}>{finalItemRenderer(value, key, index)}</div>
@@ -474,7 +593,7 @@ export const showCustomAlert = (data: AlertData, customOptions: Omit<ShowAlertOp
 };
 
 // Exportar tipos y configuraciones para uso externo
-export type { AlertType, AlertData, AlertIcon, AlertConfig, FlexibleAlertProps, ShowAlertOptions };
+// export type { AlertType, AlertData, AlertIcon, AlertConfig, FlexibleAlertProps, ShowAlertOptions };
 
 export default showFlexibleAlert;
 

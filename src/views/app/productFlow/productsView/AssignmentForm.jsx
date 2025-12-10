@@ -74,7 +74,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    );
 
    const init = () => {
-      console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
+      // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
          productsInStockSelect.map((d) => d.id)
@@ -191,6 +191,8 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                handleClickLeft={handleClickLeftTansfer}
                handleClickRight={handleClickRightTansfer}
                data={productsInStockSelect}
+               onRefetch={refetchProductsInStock}
+               // isLoading={}
             />
          ),
          value: "",
@@ -336,7 +338,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    return (
       <>
          <Button variant="contained" startIcon={<Inventory2Rounded />} onClick={() => setOpenDialog(true)} disabled={!auth.permissions.create} color="secondary">
-            ASIGNAR PRODUCTOS A LOTE
+            ASIGNAR PRODUCTOS
          </Button>
 
          {openDialog && (

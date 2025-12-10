@@ -3,7 +3,7 @@ import React from "react";
 import { Grid, Typography, Box } from "@mui/material";
 import { MapWidget } from "../widgets/MapWidget";
 import { ChartWidget } from "../widgets/ChartWidget";
-import { ProgressWidget } from "../widgets/ProgressWidget";
+import { ProgressItem, ProgressWidget } from "../widgets/ProgressWidget";
 
 export interface GeographicDistributionProps {
    pointsOfSale: Array<{
@@ -30,15 +30,15 @@ export const GeographicDistribution: React.FC<GeographicDistributionProps> = ({ 
       label: region.region,
       value: region.distributed,
       total: region.target,
-      color: region.distributed >= region.target ? "success" : "warning",
+      color: region.distributed >= region.target ? ("success" as const) : ("warning" as const),
       description: `${region.activated} activados (${Math.round((region.activated / region.distributed) * 100)}% eficiencia)`
    }));
 
    const regionalChartOption = {
       tooltip: {
-         trigger: "axis",
+         trigger: "axis" as const,
          axisPointer: {
-            type: "shadow"
+            type: "shadow" as const
          }
       },
       legend: {
@@ -51,34 +51,34 @@ export const GeographicDistribution: React.FC<GeographicDistributionProps> = ({ 
          containLabel: true
       },
       xAxis: {
-         type: "category",
+         type: "category" as const,
          data: regionalData.map((r) => r.region)
       },
       yAxis: {
-         type: "value"
+         type: "value" as const
       },
       series: [
          {
             name: "Productos Totales",
-            type: "bar",
+            type: "bar" as const,
             data: regionalData.map((r) => r.totalProducts),
             itemStyle: { color: "#cbd5e0" }
          },
          {
             name: "Distribuidos",
-            type: "bar",
+            type: "bar" as const,
             data: regionalData.map((r) => r.distributed),
             itemStyle: { color: "#4299e1" }
          },
          {
             name: "Activados",
-            type: "bar",
+            type: "bar" as const,
             data: regionalData.map((r) => r.activated),
             itemStyle: { color: "#38a169" }
          },
          {
             name: "Meta",
-            type: "line",
+            type: "line" as const,
             data: regionalData.map((r) => r.target),
             symbol: "circle",
             symbolSize: 8,

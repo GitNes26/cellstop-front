@@ -21,6 +21,7 @@ const optionsDemo = [
  * Props para el componente Select2.
  */
 interface Option {
+   [x: string]: any;
    id?: number;
    value?: any;
    label: any;
@@ -407,10 +408,9 @@ const Select2: React.FC<Select2Props> = ({
                <Tooltip title={`Actualizar ${pluralName}`} placement="top">
                   <IconButton
                      type="button"
-                     loading={loading}
                      color="primary"
                      sx={{ borderRadius: "12px", mr: 0, mt: 0 }}
-                     onClick={handleClickRefresh}
+                     onClick={() => handleClickRefresh()}
                      disabled={disabled || loading}
                      className="transition-all duration-1000 rotate-0 hover:rotate-12 active:transition-all active:rotate-90"
                   >
@@ -422,10 +422,9 @@ const Select2: React.FC<Select2Props> = ({
                <Tooltip title={`Agregar ${singularName}`} placement="right">
                   <IconButton
                      type="button"
-                     loading={loading}
                      color="success"
                      sx={{ borderRadius: "12px", mr: 0, mt: 0 }}
-                     onClick={handleClickAddRegister}
+                     onClick={() => handleClickAddRegister()}
                      disabled={disabled || loading}
                      className="transition-all duration-500 scale-100 hover:scale-95 active:transition-all active:scale-110"
                   >

@@ -128,7 +128,7 @@ export class SalesTrendChart {
             containLabel: true
          },
          xAxis: {
-            type: "value"
+            type: "value" as const
          },
          yAxis: {
             type: "category",
