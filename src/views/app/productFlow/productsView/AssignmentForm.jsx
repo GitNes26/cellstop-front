@@ -258,8 +258,103 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       if (!checkAdd) setOpenDialog(false);
    };
 
+   // async function handleChangeLote(values) {
+   //    try {
+   //       console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
+
+   //       if (values.value.id < 1) {
+   //          formikRef?.current?.setValues(formikRef.current.initialValues);
+   //          formikRef?.current?.setFieldValue("productos_en_stock", []);
+   //          return Toast.Warning("Selecciona un lote");
+   //       }
+
+   //       const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
+
+   //       // Actualizar campos del formulario
+   //       formikRef?.current?.setFieldValue("folio", loteSelected.folio);
+   //       formikRef?.current?.setFieldValue("lada", loteSelected.lada);
+   //       formikRef?.current?.setFieldValue("quantity", loteSelected.quantity);
+   //       formikRef?.current?.setFieldValue("descrption", loteSelected.description);
+   //       formikRef?.current?.setFieldValue("preactivation_date", loteSelected.preactivation_date);
+
+   //       setIsLoading(true);
+
+   //       const res = await getLoteDetailsByLote(values.value.id);
+
+   //       if (!res) {
+   //          setIsLoading(false);
+   //          return;
+   //       }
+
+   //       if (res.errors) {
+   //          setIsLoading(false);
+   //          Object.values(res.errors).forEach((errors) => {
+   //             errors.map((error) => Toast.Warning(error));
+   //          });
+   //          return;
+   //       } else if (res.status_code !== 200) {
+   //          setIsLoading(false);
+   //          return Toast.Customizable(res.alert_text, res.alert_icon);
+   //       }
+
+   //       // Procesar productos del detalle
+   //       const productsFromDetail = res.result.map((d) => ({
+   //          ...d.product,
+   //          product_id: d.product_id || d.product?.id,
+   //          lote_id: values.value.id,
+   //          folio: loteSelected.folio
+   //       }));
+
+   //       console.log("🚀 ~ handleChangeLote ~ productsFromDetail:", productsFromDetail);
+
+   //       // **STRATEGY: Agregar productos del lote actual**
+   //       // 1. Eliminar productos del mismo lote anterior (si los hay)
+   //       const productsWithoutCurrentLote = productsInStockSelect.filter((product) => product.lote_id !== values.value.id);
+
+   //       // 2. Combinar con los nuevos productos del lote actual
+   //       const updatedProducts = [...productsWithoutCurrentLote, ...productsFromDetail];
+
+   //       // 3. Eliminar duplicados (por id)
+   //       const uniqueProducts = updatedProducts.reduce((acc, current) => {
+   //          const exists = acc.find((item) => item.id === current.id || item.product_id === current.product_id);
+   //          if (!exists) {
+   //             acc.push(current);
+   //          }
+   //          return acc;
+   //       }, []);
+   //       console.log("🚀 ~ handleChangeLote ~ uniqueProducts:", uniqueProducts)
+
+   //       setProductsInStockSelect(uniqueProducts);
+
+   //       // 4. Preparar IDs para el formulario
+   //       const productIdsFromDetail = productsFromDetail.map((product) => product.id || product.product_id);
+
+   //       // 5. Obtener productos del folio actual para el campo "productos_en_stock"
+   //       const productsInCurrentFolio = uniqueProducts
+   //          .filter((product) => Number(product.folio) === Number(loteSelected.folio))
+   //          .map((product) => product.id || product.product_id);
+
+   //       // Actualizar campos del formulario
+   //       formikRef?.current?.setFieldValue("productos_en_stock", productsInCurrentFolio);
+   //       formikRef?.current?.setFieldValue("product_ids", productIdsFromDetail);
+
+   //       if (res.alert_text) Toast.Success(res.alert_text);
+
+   //       setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
+   //       setTextBtnSubmit("GUARDAR");
+   //       setIsEdit(true);
+   //       setIsLoading(false);
+   //       setOpenDialog(true);
+   //    } catch (error) {
+   //       setOpenDialog(false);
+   //       setIsLoading(false);
+   //       console.log(error);
+   //       Toast.Error(error);
+   //    }
+   // }
    async function handleChangeLote(values) {
       try {
+         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
          if (values.value.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
             formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
@@ -289,8 +384,28 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
          // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsInStockSelected.includes(id)).map((d) => d.id);
-         const productsInStockByFolio = productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0)).map((d) => d.id);
+         const productsInStockByFolio = productsInStockSelect
+            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
+            .map((d) => d.id);
+         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+         const productsSelected = res.result.map((d) => ({
+            activation_status: d.product.activation_status,
+            folio: d.product.folio,
+            id: d.product.id,
+            label: `${d.product.iccid} - ${d.product.celular} - ${d.product.fecha ?? ""}`,
+            location_status: d.product.location_status
+         }));
+         // console.log("🚀 ~ handleChangeLote ~ productsSelected:", productsSelected);
+         setProductsInStockSelect((prev) => {
+            const merged = [...prev, ...productsSelected];
+
+            const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+
+            return unique;
+         });
+
          const productsInStockSelected = res.result.map((d) => d.product_id);
+         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
          formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);

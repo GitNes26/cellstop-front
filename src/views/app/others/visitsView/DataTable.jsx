@@ -190,7 +190,9 @@ const VisitDT = () => {
       try {
          if (formikRef.current === null) setOpenDialog(true);
          formikRef?.current?.resetForm();
+         // formikRef.current.initialValues.seller_id = auth.role_id;
          formikRef?.current?.setValues(formikRef.current.initialValues);
+         //if(auth.role_id===3) formikRef?.current?.setFieldValue("seller_id", auth.role_id);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
@@ -358,7 +360,7 @@ const VisitDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={1}
+         indexColumnName={3}
          rowEdit={false}
          refreshTable={getAllVisits}
          btnsExport={true}

@@ -313,6 +313,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                options={usersSelect || []}
                refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
+               // disabled={auth.role_id === 3}
                required
             />
          ),
@@ -528,11 +529,12 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                      label="Motivo Estatus"
                      heightList={"45vh"}
                      placeholder="Describa el motivo del estatus"
-                     labelLeft={"Productos en Stock"}
+                     labelLeft={"Productos en Asignados"}
                      labelRight={"Productos a Distribuir"}
                      handleClickLeft={handleClickLeftTansfer}
                      handleClickRight={handleClickRightTansfer}
                      data={productsInStockSelect}
+                     onRefetch={refetchProductsInStock}
                   />
                   {/* )} */}
                </Box>

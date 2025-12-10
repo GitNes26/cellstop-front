@@ -245,6 +245,27 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   const getAvailableFoliosForLote = async () => {
+      // // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.post(`${prefixPath}/getAvailableFoliosForLote`));
+      // console.log("🚀 ~ getAvailableFoliosForLote ~ error:", error);
+      // console.log("🚀 ~ getAvailableFoliosForLote ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getAvailableFoliosForLote ~ error:", error);
+         const message = error.response.data.message || "getAvailableFoliosForLote ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setFoliosSelect(res.result);
+
+      return res;
+   };
+
    const preActivationProducts = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
 
@@ -284,6 +305,27 @@ export default function ProductContextProvider({ children }) {
       Response.success = response.data.data;
       const res = Response.success;
       await getAllProducts();
+
+      return res;
+   };
+
+   const getMovementsByProduct = async (id) => {
+      // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.get(`${prefixPath}/${id}/movements`));
+      // console.log("🚀 ~ getMovementsByProduct ~ error:", error);
+      // console.log("🚀 ~ getMovementsByProduct ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getMovementsByProduct ~ error:", error);
+         const message = error.response.data.message || "getMovementsByProduct ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllProductDetails(res.result);
 
       return res;
    };
@@ -463,9 +505,12 @@ export default function ProductContextProvider({ children }) {
             updateLoteAssignment,
             preActivationProducts,
 
+            getMovementsByProduct,
+
             foliosSelect,
             setFoliosSelect,
             getSelectIndexFolios,
+            getAvailableFoliosForLote,
 
             allProductDetails,
             setAllProductDetails,

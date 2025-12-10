@@ -244,7 +244,7 @@ export default function AuthContextProvider({ children }) {
    };
 
    const logout = async (status = null) => {
-      console.log("🚀 ~ logout ~ status:", status);
+      // console.log("🚀 ~ logout ~ status:", status);
       try {
          if (status === 401) {
             localStorage.removeItem("token");
@@ -253,9 +253,10 @@ export default function AuthContextProvider({ children }) {
             Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
             setIsAuth(false);
             setAuth(null);
-            location.hash = "/login";
+            location.hash = "#/login";
             return;
          }
+         // console.log("🚀 ~ logout ~ location.hash:", location.hash);
          const [error, response] = await to(Axios.get(`/logout`));
          // console.log("🚀 ~ login ~ error:", error);
          // console.log("🚀 ~ login ~ response:", response);
@@ -272,7 +273,7 @@ export default function AuthContextProvider({ children }) {
          Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
          setIsAuth(false);
          setAuth(null);
-         location.hash = "/login";
+         location.hash = "#/login";
 
          Response.success = response.data.data;
          const res = Response.success;
@@ -286,7 +287,7 @@ export default function AuthContextProvider({ children }) {
          Axios.defaults.headers.common.Authorization = `Bearer ${token}`;
          setIsAuth(false);
          setAuth(null);
-         location.hash = "/login";
+         location.hash = "#/login";
       }
    };
 
@@ -378,7 +379,7 @@ export default function AuthContextProvider({ children }) {
          if (auth === null) {
             // console.log("al login");
             setIsAuth(false);
-            window.location.hash = "/login";
+            window.location.hash = "#/login";
             return;
          }
          if (updateAuth) await updatePermissionsAuth(auth.id);

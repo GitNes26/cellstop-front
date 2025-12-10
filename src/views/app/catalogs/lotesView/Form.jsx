@@ -77,13 +77,14 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
    const { setIsLoading } = useGlobalContext();
    const { singularName, lote, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdateLote } = useLoteContext();
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
-   const { foliosSelect, setFoliosSelect, getSelectIndexFolios } = useProductContext();
+   const { foliosSelect, setFoliosSelect, getAvailableFoliosForLote } = useProductContext();
+   const [helperTextFolio, setHelperTextFolio] = useState("");
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [sellerFormDialog, setSellerFormDialog] = useState(false);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
-   const { refetch: refetchFolios } = useFetch(() => getSelectIndexFolios(), setFoliosSelect);
+   const { refetch: refetchFolios } = useFetch(() => getAvailableFoliosForLote(), setFoliosSelect);
 
    const formData = [
       {
@@ -166,6 +167,7 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
                options={foliosSelect || []}
                refreshSelect={refetchFolios}
                onChangeExtra={handleChangeFolio}
+               helperText={helperTextFolio}
                required
             />
          ),
@@ -286,17 +288,19 @@ const LoteForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
          Toast.Error(error);
       }
    };
-
    function handleChangeFolio(values) {
       // console.log("🚀 ~ handleChangeFolio ~ values:", values);
       const folioSelected = foliosSelect.find((folio) => folio.id == values.value.id);
+      // console.log("🚀 ~ handleChangeFolio ~ foliosSelect:", folioSelected);
       if (folioSelected == undefined) {
          formikRef.current.setFieldValue("lada", "");
          formikRef.current.setFieldValue("preactivation_date", "");
+         setHelperTextFolio("");
          return;
       }
       formikRef.current.setFieldValue("lada", folioSelected.lada);
       formikRef.current.setFieldValue("preactivation_date", folioSelected.fecha_preactivacion);
+      setHelperTextFolio(`Productos totales: ${folioSelected.total_productos} | Restan por asignar: ${folioSelected.disponibles_por_asignar}`);
    }
 
    useEffect(() => {

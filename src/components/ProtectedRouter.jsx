@@ -19,7 +19,7 @@ const ProtectedRouter = ({ children, invert = false, redirectTo = "/" }) => {
 
    useEffect(() => {
       const verifyAuth = async () => {
-         console.log("🚀 ~ isAuth:", isAuth);
+         // console.log("🚀 ~ isAuth:", isAuth);
          await checkLoggedIn();
       };
 

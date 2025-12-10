@@ -673,7 +673,7 @@ const ModalTableDetails: React.FC<ModalTableDetailsProps> = ({
                </Typography>
             </Grid>
          }
-         maxWidth="xl"
+         maxWidth={false}
          fullScreen={fullScreen}
          height={heightDialog}
          formikRef={undefined}

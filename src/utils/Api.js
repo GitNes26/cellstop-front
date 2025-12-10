@@ -58,7 +58,7 @@ Axios.interceptors.request.use(
          console.warn("⚠️ No autenticado, redirigiendo a login o cerrando sesión...");
          localStorage.removeItem("token"); // o dispatch logout, etc.
          // Redireccionar si aplica
-         window.location.href = "/login";
+         window.location.href = "#/login";
       } else if (error.response?.status === 403) {
          console.warn("❌ No tienes permisos suficientes.");
       } else if (error.response?.status >= 500) {
@@ -89,8 +89,8 @@ Axios.interceptors.response.use(
       if (status === 401) {
          console.warn("⚠️ Sesión expirada. Cerrando sesión...");
          localStorage.removeItem("token");
-         if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
+         if (window.location.pathname !== "#/login") {
+            window.location.href = "#/login";
          }
       } else if (status === 403) {
          console.warn("🚫 No tienes permisos suficientes.");
@@ -161,8 +161,8 @@ AxiosFiles.interceptors.response.use(
       if (status === 401) {
          console.warn("⚠️ Sesión expirada. Cerrando sesión...");
          localStorage.removeItem("token");
-         if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
+         if (window.location.pathname !== "#/login") {
+            window.location.href = "#/login";
          }
       } else if (status === 403) {
          console.warn("🚫 No tienes permisos suficientes.");

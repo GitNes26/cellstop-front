@@ -16,7 +16,8 @@ import {
    Speed,
    LocationOn,
    CheckCircle,
-   Schedule
+   Schedule,
+   Storefront
 } from "@mui/icons-material";
 import Toast from "../../utils/Toast";
 import { useLayoutEffect, useState } from "react";
@@ -96,25 +97,25 @@ const Index = ({}) => {
          stats: "15 reportes",
          badge: "3 nuevos",
          route: "/app"
-      },
-      {
-         id: "qr-scanner",
-         title: "Escanear QR",
-         description: "Escaneo rápido de productos",
-         icon: <QrCode sx={{ fontSize: 32 }} />,
-         color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-         stats: "45 escaneos hoy",
-         badge: "Listo",
-         route: "/app"
       }
+      // {
+      //    id: "qr-scanner",
+      //    title: "Escanear QR",
+      //    description: "Escaneo rápido de productos",
+      //    icon: <QrCode sx={{ fontSize: 32 }} />,
+      //    color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+      //    stats: "45 escaneos hoy",
+      //    badge: "Listo",
+      //    route: "/app"
+      // }
    ];
 
    // Métricas rápidas
    const quickMetrics = [
-      { label: "Chips por asignar", value: "8,430", change: "+12%", icon: <Inventory color="primary" /> },
-      { label: "Visitas hoy", value: "15", change: "+3", icon: <CheckCircle color="success" /> },
-      { label: "Ventas del día", value: "234", change: "+18%", icon: <TrendingUp color="warning" /> },
-      { label: "Pendientes", value: "7", change: "-2", icon: <Schedule color="error" /> }
+      { label: "Chips Asignados", value: "0", change: "0%", icon: <Inventory color="primary" /> },
+      { label: "Visitas Diarias", value: "0", change: "0", icon: <CheckCircle color="success" /> },
+      { label: "Chips Distribuidos", value: "0", change: "0%", icon: <Storefront color="warning" /> },
+      { label: "Puntos de Venta", value: "0", change: "0", icon: <Schedule color="error" /> }
    ];
 
    const handleCardClick = (action: (typeof quickActions)[0]) => {
@@ -309,7 +310,7 @@ const Index = ({}) => {
             </motion.div>
 
             {/* Acciones Adicionales */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="mt-8">
+            {/* <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }} className="mt-8">
                <Paper className="p-6 rounded-2xl shadow-sm border-0">
                   <Box className="flex flex-col md:flex-row justify-between items-center gap-4">
                      <Box>
@@ -340,7 +341,7 @@ const Index = ({}) => {
                      </Box>
                   </Box>
                </Paper>
-            </motion.div>
+            </motion.div> */}
 
             {/* Footer de Estado */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1 }} className="mt-8 text-center">

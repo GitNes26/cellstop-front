@@ -1,25 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Stack, Typography } from "@mui/material";
 
-import Toast from "../../../../utils/Toast";
-import { DataTableComponent, ExcelUploader } from "../../../../components";
+import Toast from "../../../../utils/Toast.js";
+import { DataTableComponent, ExcelUploader } from "../../../../components/index.js";
 
-import { formatDatetime } from "../../../../utils/Formats";
-import { QuestionAlertConfig } from "../../../../utils/sAlert";
+import { formatDatetime, includesInArray } from "../../../../utils/Formats.js";
+import { QuestionAlertConfig } from "../../../../utils/sAlert.js";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { useAuthContext } from "../../../../context/AuthContext";
-import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
-import { useProductContext } from "../../../../context/ProductContext";
+import { useAuthContext } from "../../../../context/AuthContext.jsx";
+import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext.jsx";
+import { useProductContext } from "../../../../context/ProductContext.jsx";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
-import { env } from "../../../../constant";
-import AssignmentForm from "./AssignmentForm";
-import ImportForm from "./ImportForm";
-import PreActivationForm from "./PreActivationForm";
+import { env } from "../../../../constant/index.js";
+import AssignmentForm from "./AssignmentForm.jsx";
+import ImportForm from "./ImportForm.jsx";
+import PreActivationForm from "./PreActivationForm.jsx";
 import ImportProductDetailsForm from "./ImportProductDetailsForm.jsx";
 import ModalTableDetails from "./TableDetails.js";
 import ImportPortabitiesFrom from "./ImportPortabitiesFrom.jsx";
+import { ProductMovementsModal } from "./TableMovements.js";
 
 const columnasPortaciones = ["telefono", "fechaActivacion", "fechaPortacion", "FzaVentas", "descripFzaVta"];
 
@@ -102,7 +103,9 @@ const ProductDT = ({}) => {
       getProduct,
       productDetailsByProduct,
       setProductDetailsByProduct,
-      getProductDetailsByProduct
+      getProductDetailsByProduct,
+      allProductDetails,
+      getMovementsByProduct
    } = useProductContext();
    const mySwal = withReactContent(Swal);
 
@@ -111,6 +114,12 @@ const ProductDT = ({}) => {
    const [openDialogAssignmentForm, setOpenDialogAssignmentForm] = useState(false);
    const [openDialogImportPortabitiesForm, setOpenDialogImportPortabitiesForm] = useState(false);
    const [openDialogTableDetails, setOpenDialogTableDetails] = useState(false);
+   const [openDialogTableMovements, setOpenDialogTableMovements] = useState(false);
+   const [productInfoSelected, setProductInfoSelected] = useState({
+      iccid: "8952020525331075016",
+      imei: "123456789012345",
+      phone: "8722957088"
+   });
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
@@ -403,6 +412,41 @@ const ProductDT = ({}) => {
       }
    };
 
+   const handleClickMovements = async (obj) => {
+      try {
+         setIsLoading(true);
+         const res = await getMovementsByProduct(obj.id);
+         console.log("🚀 ~ handleClickLogout ~ res:", res);
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+
+         if (res.result.product_description) res.result.product_description == null && (res.result.product_description = "");
+         setProductInfoSelected({
+            iccid: obj.iccid,
+            imei: obj.imei,
+            phone: obj.celular
+         });
+         // formikRef?.current.setValues(res.result);
+         if (res.alert_text) Toast.Success(res.alert_text);
+         setIsLoading(false);
+         setOpenDialogTableMovements(true);
+      } catch (error) {
+         setOpenDialogTableMovements(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
+      }
+   };
+
    const handleClickDelete = async (id, name) => {
       try {
          mySwal.fire(QuestionAlertConfig(`¿Estas seguro de eliminar el producto ${name}?`, "CONFIRMAR")).then(async (result) => {
@@ -474,6 +518,15 @@ const ProductDT = ({}) => {
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
                { label: "Ver detalles", iconName: "ListAltRounded", tooltip: "", handleOnClick: () => handleClickDetails(obj.id), color: "primary", permission: true },
                {
+                  label: "Ver movimientos",
+                  iconName: "HistoryRounded",
+                  tooltip: "",
+                  handleOnClick: () => handleClickMovements(obj),
+                  color: "primary",
+                  permission: true
+               },
+
+               {
                   label: "Eliminar",
                   iconName: "Delete",
                   tooltip: "",
@@ -496,21 +549,29 @@ const ProductDT = ({}) => {
 
    return (
       <>
-         <Stack direction="row" spacing={1} alignItems="center" padding={1}>
+         <Stack direction="row" spacing={1} justifyContent={"center"} alignItems="center" padding={1}>
             {/* <ExcelUploader columns={columnas} chunkSize={1000} apiEndpoint="products/import" headerRow={4} dataStartRow={5} onFinish={getAllProducts} /> */}
-            <ImportForm
-               openDialog={openDialogImportForm}
-               setOpenDialog={setOpenDialogImportForm}
-               columns={columnas}
-               chunkSize={1000}
-               apiEndpoint="products/import"
-               headerRow={1}
-               dataStartRow={2}
-            />
+            {includesInArray(auth.permissions.more_permissions, ["todas", "Carga Masiva"]) && (
+               <ImportForm
+                  openDialog={openDialogImportForm}
+                  setOpenDialog={setOpenDialogImportForm}
+                  columns={columnas}
+                  chunkSize={1000}
+                  apiEndpoint="products/import"
+                  headerRow={1}
+                  dataStartRow={2}
+               />
+            )}
             {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
-            {<ImportProductDetailsForm openDialog={openDialogImportDetailsForm} setOpenDialog={setOpenDialogImportDetailsForm} columns={columnasDetalleProducto} />}
-            <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
-            <ImportPortabitiesFrom openDialog={openDialogImportPortabitiesForm} setOpenDialog={setOpenDialogImportPortabitiesForm} />
+            {includesInArray(auth.permissions.more_permissions, ["todas", "Importar Detalles"]) && (
+               <ImportProductDetailsForm openDialog={openDialogImportDetailsForm} setOpenDialog={setOpenDialogImportDetailsForm} columns={columnasDetalleProducto} />
+            )}
+            {includesInArray(auth.permissions.more_permissions, ["todas", "Asignar Productos"]) && (
+               <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
+            )}
+            {includesInArray(auth.permissions.more_permissions, ["todas", "Importa Portaciones"]) && (
+               <ImportPortabitiesFrom openDialog={openDialogImportPortabitiesForm} setOpenDialog={setOpenDialogImportPortabitiesForm} />
+            )}
          </Stack>
          <DataTableComponent
             dataColumns={columns}
@@ -539,6 +600,14 @@ const ProductDT = ({}) => {
             processedData={productDetailsByProduct}
             heightDialog={"80vh"}
             maxHeight={"95%"}
+         />
+         <ProductMovementsModal
+            open={openDialogTableMovements}
+            onClose={() => setOpenDialogTableMovements(false)}
+            movements={allProductDetails}
+            productInfo={productInfoSelected}
+            title="Historial del Producto"
+            maxHeight={700}
          />
       </>
    );

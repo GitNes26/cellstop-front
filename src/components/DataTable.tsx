@@ -366,7 +366,7 @@ function CustomToolbar(btnAdd: boolean, handleClickAdd: any, handleClickRefresh:
 //    }
 // });
 
-const RowActions = ({ params, singularName, indexColumnName = 1, handleClickDisEnable }) => {
+const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisEnable }) => {
    // console.log("🚀 ~ RowActions ~ params:", params.row);
    // console.log("🚀 ~ RowActions ~ params.columns:", params.columns);
    const { auth } = useAuthContext();
