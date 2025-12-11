@@ -731,7 +731,8 @@ export const sleep = (ms) => {
    });
 };
 
-export function excelDateToJSDate(excelDate) {
+export function excelDateToJSDate(excelDate, dbType = "mysql") {
+   console.log("🚀 ~ excelDateToJSDate ~ excelDate:", excelDate);
    if (!excelDate) return null;
 
    // Caso 1: número serial
@@ -741,16 +742,17 @@ export function excelDateToJSDate(excelDate) {
    }
 
    // Caso 2: string (dd/mm/yyyy o similar)
-   if (typeof excelDate === "string") {
-      const parts = excelDate.split(/[\/\-]/); // divide por / o -
-      if (parts.length === 3) {
-         const [day, month, year] = parts.map((p) => parseInt(p, 10));
-         if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-            const date = new Date(year, month - 1, day);
-            return date.toISOString().split("T")[0];
-         }
-      }
-   }
+   return formatDatetimeToSQL(excelDate, dbType);
+   // if (typeof excelDate === "string") {
+   //    const parts = excelDate.split(/[\/\-]/); // divide por / o -
+   //    if (parts.length === 3) {
+   //       const [day, month, year] = parts.map((p) => parseInt(p, 10));
+   //       if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+   //          const date = new Date(year, month - 1, day);
+   //          return date.toISOString().split("T")[0];
+   //       }
+   //    }
+   // }
 
    return null;
 }

@@ -17,7 +17,7 @@ import { env } from "../../../../constant/index.js";
 import AssignmentForm from "./AssignmentForm.jsx";
 import ImportForm from "./ImportForm.jsx";
 import PreActivationForm from "./PreActivationForm.jsx";
-import ImportProductDetailsForm from "./ImportProductDetailsForm.jsx";
+import ImportProductDetailsForm from "./ImportProductDetailsForm.js";
 import ModalTableDetails from "./TableDetails.js";
 import ImportPortabitiesFrom from "./ImportPortabitiesFrom.jsx";
 import { ProductMovementsModal } from "./TableMovements.js";
@@ -161,147 +161,163 @@ const ProductDT = ({}) => {
          field: "region",
          headerName: "Región",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.region}`}>{params.row.region}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.region}</TextCenter>
       },
       {
          field: "celular",
          headerName: "Celular",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.celular}`}>{params.row.celular}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.celular}</TextCenter>
       },
-      { field: "iccid", headerName: "ICCID", sortable: true, renderCell: (params) => <IccidBodyTemplate {...params.row} /> },
+      {
+         field: "iccid",
+         headerName: "ICCID",
+         sortable: true,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <IccidBodyTemplate {...obj} />;
+         }
+      },
       {
          field: "imei",
          headerName: "IMEI",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.imei}`}>{params.row.imei}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
       },
-      { field: "fecha", headerName: "Fecha", sortable: true, renderCell: (params) => <FechaBodyTemplate {...params.row} /> },
+      {
+         field: "fecha",
+         headerName: "Fecha",
+         sortable: true,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <FechaBodyTemplate {...obj} />;
+         }
+      },
       {
          field: "tramite",
          headerName: "Trámite",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.tramite}`}>{params.row.tramite}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.tramite}</TextCenter>
       },
       {
          field: "estatus",
          headerName: "Estatus",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.estatus}`}>{params.row.estatus}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.estatus}</TextCenter>
       },
       {
          field: "comentario",
          headerName: "Comentario",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.comentario}`}>{params.row.comentario}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.comentario}</TextCenter>
       },
       {
          field: "fza_vta_prepago",
          headerName: "Fza Vta Prepago",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.fza_vta_prepago}`}>{params.row.fza_vta_prepago}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
       },
       {
          field: "fza_vta_padre",
          headerName: "Fza Vta Padre",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.fza_vta_padre}`}>{params.row.fza_vta_padre}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
       },
       {
          field: "usuario",
          headerName: "Usuario",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.usuario}`}>{params.row.usuario}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.usuario}</TextCenter>
       },
       {
          field: "folio",
          headerName: "Folio",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.folio}`}>{params.row.folio}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
       },
       {
          field: "producto",
          headerName: "Producto",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.producto}`}>{params.row.producto}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.producto}</TextCenter>
       },
       {
          field: "num_orden",
          headerName: "Núm Orden",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.num_orden}`}>{params.row.num_orden}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
       },
       {
          field: "estatus_orden",
          headerName: "Estatus Orden",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.estatus_orden}`}>{params.row.estatus_orden}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
       },
       {
          field: "motivo_error",
          headerName: "Motivo Error",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.motivo_error}`}>{params.row.motivo_error}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
       },
       {
          field: "tipo_sim",
          headerName: "Tipo SIM",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.tipo_sim}`}>{params.row.tipo_sim}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
       },
       {
          field: "modelo",
          headerName: "Modelo",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.modelo}`}>{params.row.modelo}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
       },
       {
          field: "marca",
          headerName: "Marca",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.marca}`}>{params.row.marca}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
       },
       {
          field: "color",
          headerName: "Color",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.color}`}>{params.row.color}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
       },
       {
          field: "location_status",
          headerName: "Ubicación",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.location_status}`}>{params.row.location_status}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.location_status}</TextCenter>
       },
       {
          field: "activation_status",
          headerName: "Estatus Activación",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.activation_status}`}>{params.row.activation_status}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
       },
       {
          field: "product_type",
          headerName: "Tipo Producto",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.product_type_id}`}>{params.row.product_type.product_type}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.product_type.product_type}</TextCenter>
       },
       {
          field: "import",
          headerName: "Importación",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import_id}`}>{params.row.import.name}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.import.name}</TextCenter>
       },
       {
          field: "import.uploader.username",
          headerName: "Creado Por",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.import.uploader.username}`}>{params.row.import.uploader.username}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.import.uploader.username}</TextCenter>
       },
       {
          field: "evaluations_rejected",
          headerName: "Evaluaciones",
          sortable: true,
-         renderCell: (params) => <TextCenter key={`key-${params.row.id}-${params.row.evaluations_rejected}`}>{params.row.evaluations_rejected}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
       }
    ];
 
@@ -314,7 +330,10 @@ const ProductDT = ({}) => {
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <ActiveBodyTemplate {...obj} key={`active-${params.row.id}`} />;
+            },
             filter: false,
             filterField: null
          },
@@ -325,7 +344,10 @@ const ProductDT = ({}) => {
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created-at-${params.row.id}`} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <CreatedAtBodyTemplate {...obj} key={`created-at-${params.row.id}`} />;
+            },
             filter: false,
             filterField: null
          }
@@ -416,7 +438,7 @@ const ProductDT = ({}) => {
       try {
          setIsLoading(true);
          const res = await getMovementsByProduct(obj.id);
-         console.log("🚀 ~ handleClickLogout ~ res:", res);
+         // console.log("🚀 ~ handleClickLogout ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);

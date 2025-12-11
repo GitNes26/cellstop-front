@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
 
-import { formatDatetime, stringAvatar } from "../../../../utils/Formats";
+import { formatDatetime, includesInArray, stringAvatar } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -351,7 +351,14 @@ const LoteDT = () => {
             // register.actions = <ButtonsAction id={obj.id} name={obj.lote} active={obj.active} />;
             register.actions = [
                { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
-               { label: "Exportar Plantilla", iconName: "GridOnRounded", tooltip: "", handleOnClick: () => handleClickTemplateExport(obj), color: "primary" },
+               {
+                  label: "Exportar Plantilla",
+                  iconName: "GridOnRounded",
+                  tooltip: "",
+                  handleOnClick: () => handleClickTemplateExport(obj),
+                  color: "primary",
+                  permission: includesInArray(auth.permission.more_permissions, ["todas", "Exportar Plantilla"])
+               },
                {
                   label: "Eliminar",
                   iconName: "Delete",

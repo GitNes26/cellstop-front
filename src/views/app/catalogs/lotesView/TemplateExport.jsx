@@ -31,6 +31,7 @@ import { CloudDownload, Preview, SelectAll, Deselect, Info, FormatColorFill, Ins
 import * as XLSX from "xlsx";
 import { utils, writeFile } from "xlsx-js-style";
 import { useBarcodeScanner } from "../../../../hooks/useBarcodeScanner";
+import dayjs from "dayjs";
 
 const TemplateExport = ({ open, onClose, data }) => {
    // Estados
@@ -104,7 +105,7 @@ const TemplateExport = ({ open, onClose, data }) => {
             nombre: item.nombre || `Chip ${index + 1}`,
             celular: item.celular,
             iccid: item.iccid,
-            fecha: item.fecha || "S/F",
+            fecha: dayjs(item.fecha).add(1,"year") || "S/F",
             seleccionado: true
          }));
 

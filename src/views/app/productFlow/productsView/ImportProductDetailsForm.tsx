@@ -584,6 +584,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
             showFlexibleAlert(res.metrics, {
                type: ALERT_TYPES.METRICS_CUSTOM,
                title: "DETALLES PROCESADOS",
+               // itemRenderer: MetricsData,
                subtitle: res.message,
                copyTextGenerator: (data) => {
                   const metrics = data;

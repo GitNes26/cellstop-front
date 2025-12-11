@@ -224,44 +224,64 @@ export const ALERT_CONFIGS: Record<AlertType, AlertConfig> = {
                   ))}
                </div>
             );
+         } else if (typeof item === "object") {
+            return (
+               <div
+                  key={`item-${item.key}`}
+                  style={{
+                     display: "flex",
+                     justifyContent: "space-between",
+                     alignItems: "center",
+                     padding: "8px 12px",
+                     background: "white",
+                     borderRadius: "6px",
+                     border: "1px solid #e2e8f0",
+                     marginBottom: "6px",
+                     fontSize: "13px"
+                  }}
+               >
+                  <span style={{ color: "#718096", textTransform: "capitalize" }}>{item.key.replace(/_/g, " ")}:</span>
+                  <span style={{ color: "#2d3748", fontWeight: 600 }}>{String(item.value)}</span>
+               </div>
+            );
          }
 
          // Para otros valores simples
-         return (
-            <div
-               style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px 16px",
-                  background: "white",
-                  borderRadius: "8px",
-                  border: "1px solid #e2e8f0",
-                  marginBottom: "8px"
-               }}
-            >
-               <span
-                  style={{
-                     color: "#4a5568",
-                     fontSize: "14px",
-                     fontWeight: 500,
-                     textTransform: "capitalize"
-                  }}
-               >
-                  {key.replace(/_/g, " ")}:
-               </span>
-               <span
-                  style={{
-                     color: "#2d3748",
-                     fontSize: "14px",
-                     fontWeight: 600,
-                     fontFamily: "'Monaco', 'Consolas', monospace"
-                  }}
-               >
-                  {typeof item === "object" ? JSON.stringify(item) : String(item)}
-               </span>
-            </div>
-         );
+         // return (
+         //    <div
+         //       style={{
+         //          display: "flex",
+         //          justifyContent: "space-between",
+         //          alignItems: "center",
+         //          padding: "10px 16px",
+         //          background: "white",
+         //          borderRadius: "8px",
+         //          border: "1px solid #e2e8f0",
+         //          marginBottom: "8px"
+         //       }}
+         //    >
+         //       <span
+         //          style={{
+         //             color: "#4a5568",
+         //             fontSize: "14px",
+         //             fontWeight: 500,
+         //             textTransform: "capitalize"
+         //          }}
+         //       >
+         //          {key.replace(/_/g, " ")}:
+         //       </span>
+         //       <span
+         //          style={{
+         //             color: "#2d3748",
+         //             fontSize: "14px",
+         //             fontWeight: 600,
+         //             fontFamily: "'Monaco', 'Consolas', monospace"
+         //          }}
+         //       >
+         //          {typeof item === "object" ? JSON.stringify(item) : String(item)}
+         //       </span>
+         //    </div>
+         // );
       },
       suggestion: "💡 <strong>Información:</strong> Revise las métricas del proceso"
    },
@@ -318,6 +338,7 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
          return;
       }
 
+      console.log("🚀 ~ handleCopyList ~ type:", type);
       let textToCopy: string;
       if (copyTextGenerator) {
          textToCopy = copyTextGenerator(data);
@@ -325,7 +346,8 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
          const duplicates = data as string[];
          textToCopy = duplicates.map((item, index) => `${index + 1}. ${item}`).join("\n");
          textToCopy = `ELEMENTOS DUPLICADOS (${duplicates.length} elementos):\n\n${textToCopy}`;
-      } else if (type === ALERT_TYPES.METRICS) {
+      } else if ([ALERT_TYPES.METRICS, ALERT_TYPES.METRICS_CUSTOM].includes(type)) {
+         console.log("🚀 ~ handleCopyList ~ type:", type);
          const metrics = data as Record<string, any>;
          textToCopy = Object.entries(metrics)
             .map(([key, value]) => `${key.replace(/_/g, " ").toUpperCase()}: ${value}`)
@@ -361,7 +383,7 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
          const headers = ["Número", "Elemento", "Estado"];
          csvData = duplicates.map((item, index) => [(index + 1).toString(), `"${item}"`, "DUPLICADO"]);
          filename = `elementos-duplicados-${new Date().toISOString().split("T")[0]}`;
-      } else if (type === ALERT_TYPES.METRICS) {
+      } else if ([ALERT_TYPES.METRICS, ALERT_TYPES.METRICS_CUSTOM].includes(type)) {
          const metrics = data as Record<string, any>;
          const headers = ["Métrica", "Valor"];
          csvData = Object.entries(metrics).map(([key, value]) => [key, value]);
@@ -483,15 +505,17 @@ const FlexibleAlert: React.FC<FlexibleAlertProps> = ({
          >
             {type === ALERT_TYPES.METRICS_CUSTOM ? (
                <div style={{ display: "grid", gap: "8px" }}>
-                  {Object.entries((displayData as unknown as MetricsData) || {})
-                     .map(([key, value], index) => {
-                        // Filtrar propiedades si es necesario
-                        if (key === "errors" && Array.isArray(value) && value.length === 0) return null;
-                        if (key === "duplicates" && Array.isArray(value) && value.length === 0) return null;
+                  {/* {Object.entries((displayData as unknown as MetricsData) || {}) */}
+                  {displayData.map(([key, value], index) => {
+                     // Filtrar propiedades si es necesario
+                     if (key === "errors" && Array.isArray(value) && value.length === 0) return null;
+                     if (key === "duplicates" && Array.isArray(value) && value.length === 0) return null;
+                     // console.log("🚀 ~ FlexibleAlert ~ key:", key);
+                     // console.log("🚀 ~ FlexibleAlert ~ value:", value);
+                     // console.log("🚀 ~ FlexibleAlert ~ index:", index);
 
-                        return <div key={key}>{finalItemRenderer(value, key, index)}</div>;
-                     })
-                     .filter(Boolean)}
+                     return <div key={key}>{finalItemRenderer({ key, value }, key, index)}</div>;
+                  })}
                </div>
             ) : type === ALERT_TYPES.METRICS ? (
                <div style={{ display: "grid", gap: "8px" }}>

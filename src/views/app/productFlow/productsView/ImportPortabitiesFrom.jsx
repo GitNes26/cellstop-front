@@ -734,7 +734,7 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
          name: "resumen",
          input: (
             <>
-               {renderColumnMappingInfo()}
+               {/* {renderColumnMappingInfo()} */}
                {renderValidationSummary()}
             </>
          ),
@@ -820,7 +820,7 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
          if (res.metrics)
             /* showMetricsAlert(res.metrics); */
             showFlexibleAlert(res.metrics, {
-               type: ALERT_TYPES.METRICS,
+               type: ALERT_TYPES.METRICS_CUSTOM,
                title: "PORTACIONES",
                subtitle: res.message,
                copyTextGenerator: (data) => {
