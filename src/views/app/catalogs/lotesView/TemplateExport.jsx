@@ -105,7 +105,7 @@ const TemplateExport = ({ open, onClose, data }) => {
             nombre: item.nombre || `Chip ${index + 1}`,
             celular: item.celular,
             iccid: item.iccid,
-            fecha: dayjs(item.fecha).add(1,"year") || "S/F",
+            fecha: dayjs(item.fecha).add(1, "year").format("DD MMM YYYY").toString() || "S/F",
             seleccionado: true
          }));
 

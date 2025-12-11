@@ -357,7 +357,7 @@ const LoteDT = () => {
                   tooltip: "",
                   handleOnClick: () => handleClickTemplateExport(obj),
                   color: "primary",
-                  permission: includesInArray(auth.permission.more_permissions, ["todas", "Exportar Plantilla"])
+                  permission: includesInArray(auth.permissions.more_permissions, ["todas", "Exportar Plantilla"])
                },
                {
                   label: "Eliminar",
