@@ -1,110 +1,466 @@
-// components/dashboard/Dashboard.tsx
-import React, { useState, useRef } from "react";
-import { Box } from "@mui/material";
+// src/pages/DashboardView.tsx
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Box, Container, Grid, Paper, CircularProgress, Alert, Button, Typography, Snackbar, Chip, Stack, IconButton, Tooltip } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import DownloadIcon from "@mui/icons-material/Download";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import axios from "axios";
 import { DashboardLayout } from "../../../../components/dashboard/layouts/DashboardLayout";
-import { HeaderStats } from "../../../../components/dashboard/sections/HeaderStats";
-import { ProductAnalytics } from "../../../../components/dashboard/sections/ProductAnalytics";
-import { SalesPerformance } from "../../../../components/dashboard/sections/SalesPerformance";
-import { GeographicDistribution } from "../../../../components/dashboard/sections/GeographicDistribution";
 import { NavigationSidebar } from "../../../../components/dashboard/sections/NavigationSidebar";
+import FiltersPanel from "../../../../components/dashboard/FiltersPanel";
+import { HeaderStats } from "../../../../components/dashboard/sections/HeaderStats";
+import PointsOfSaleMap from "../../../../components/dashboard/PointsOfSaleMap";
+import { useDashboardData } from "../../../../hooks/useDashboardData";
+import { useAuthContext } from "../../../../context/AuthContext";
+import { useGlobalContext } from "../../../../context/GlobalContext";
+import PortabilityChart from "../../../../components/dashboard/PortabilityChart";
+import TopSellersChart from "../../../../components/dashboard/TopSellersChart";
+import StatusDistributionChart from "../../../../components/dashboard/StatusDistributionChart";
+import { useUserContext } from "../../../../context/UserContext";
+import useFetch from "../../../../hooks/useFetch";
 
-// Mock data actualizado
-const mockData = {
-   stats: {
-      totalProducts: 12540,
-      preActivated: 8430,
-      assigned: 3120,
-      distributed: 1890,
-      activated: 760,
-      totalSellers: 45,
-      activePointsOfSale: 28,
-      inTransit: 990
-   },
-   pointsOfSale: [
-      { id: 1, name: "Punto Centro", latitude: 19.4326, longitude: -99.1332, salesCount: 150, productsCount: 45, type: "high", region: "Centro" },
-      { id: 2, name: "Punto Norte", latitude: 19.4902, longitude: -99.1235, salesCount: 85, productsCount: 32, type: "medium", region: "Norte" },
-      { id: 3, name: "Punto Sur", latitude: 19.3556, longitude: -99.1619, salesCount: 45, productsCount: 18, type: "low", region: "Sur" },
-      { id: 4, name: "Punto Este", latitude: 19.42, longitude: -99.05, salesCount: 120, productsCount: 38, type: "high", region: "Este" },
-      { id: 5, name: "Punto Oeste", latitude: 19.39, longitude: -99.2, salesCount: 65, productsCount: 25, type: "medium", region: "Oeste" }
-   ],
-   regionalData: [
-      { region: "Centro", totalProducts: 4500, distributed: 850, activated: 320, target: 1000 },
-      { region: "Norte", totalProducts: 3200, distributed: 420, activated: 180, target: 600 },
-      { region: "Sur", totalProducts: 2800, distributed: 280, activated: 120, target: 500 },
-      { region: "Este", totalProducts: 1500, distributed: 220, activated: 90, target: 300 },
-      { region: "Oeste", totalProducts: 540, distributed: 120, activated: 50, target: 200 }
-   ],
-   productAnalytics: {
-      productTypes: [
-         { name: "SIM Físico", count: 6540, percentage: 52 },
-         { name: "E-SIM", count: 3210, percentage: 26 },
-         { name: "Dispositivos", count: 1980, percentage: 16 },
-         { name: "Accesorios", count: 650, percentage: 5 },
-         { name: "Otros", count: 160, percentage: 1 }
-      ],
-      inventoryStatus: [
-         { location: "Stock Central", count: 6540, total: 12540 },
-         { location: "Zona Norte", count: 2200, total: 3200 },
-         { location: "Zona Sur", count: 1800, total: 2800 },
-         { location: "Zona Este", count: 1200, total: 1500 },
-         { location: "Zona Oeste", count: 480, total: 540 }
-      ]
-   },
-   salesPerformance: {
-      topSellers: [
-         { id: 1, name: "Juan Pérez", activations: 145, distributed: 320, efficiency: 45, region: "Centro" },
-         { id: 2, name: "María García", activations: 132, distributed: 280, efficiency: 47, region: "Norte" },
-         { id: 3, name: "Carlos López", activations: 101, distributed: 240, efficiency: 42, region: "Sur" },
-         { id: 4, name: "Ana Martínez", activations: 98, distributed: 210, efficiency: 47, region: "Este" },
-         { id: 5, name: "Pedro Rodríguez", activations: 76, distributed: 180, efficiency: 42, region: "Oeste" }
-      ],
-      recentSales: [
-         { id: 1, product: "SIM Físico", seller: "Juan Pérez", pointOfSale: "Punto Centro", date: "2024-01-15", status: "Activado" },
-         { id: 2, product: "E-SIM", seller: "María García", pointOfSale: "Punto Norte", date: "2024-01-15", status: "Distribuido" },
-         { id: 3, product: "Dispositivo", seller: "Carlos López", pointOfSale: "Punto Sur", date: "2024-01-14", status: "Activado" },
-         { id: 4, product: "SIM Físico", seller: "Ana Martínez", pointOfSale: "Punto Este", date: "2024-01-14", status: "Distribuido" },
-         { id: 5, product: "E-SIM", seller: "Pedro Rodríguez", pointOfSale: "Punto Oeste", date: "2024-01-13", status: "Activado" }
-      ]
-   }
-};
+// Interfaces para los tipos
+interface DashboardFilters {
+   startDate: Date | null;
+   endDate: Date | null;
+   sellerIds: number[];
+   locationStatus: string | null;
+   activationStatus: string | null;
+   productTypeId: number | null;
+   searchText: string;
+}
+
+export interface Seller {
+   id: number;
+   label: string;
+   color?: string;
+}
+
+export interface ProductType {
+   id: number;
+   label: string;
+}
 
 const DashboardView: React.FC = () => {
+   const { auth } = useAuthContext();
+   const { setIsLoading, setOpenDialog } = useGlobalContext();
+
+   const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
+
+   const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
+
    const [activeSection, setActiveSection] = useState("stats");
+   const [showFilters, setShowFilters] = useState(true);
+   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
+   const [snackbar, setSnackbar] = useState({
+      open: false,
+      message: "",
+      severity: "success" as "success" | "error" | "info" | "warning"
+   });
 
+   // Estado para datos de filtros
+   const [sellers, setSellers] = useState<Seller[]>(usersSelect || []);
+   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+
+   // Filtros iniciales
+   const [filters, setFilters] = useState<DashboardFilters>({
+      startDate: null,
+      endDate: new Date(),
+      sellerIds: [],
+      locationStatus: null,
+      activationStatus: null,
+      productTypeId: null,
+      searchText: ""
+   });
+
+   // Referencias para scroll
    const statsRef = useRef<HTMLDivElement>(null);
-   const productsRef = useRef<HTMLDivElement>(null);
-   const salesRef = useRef<HTMLDivElement>(null);
-   const geographyRef = useRef<HTMLDivElement>(null);
+   const chartsRef = useRef<HTMLDivElement>(null);
+   const mapRef = useRef<HTMLDivElement>(null);
+   const tableRef = useRef<HTMLDivElement>(null);
 
-   const handleStatClick = (statKey: string) => {
-      console.log(`Stat clicked: ${statKey}`);
-      // Aquí puedes implementar navegación o filtros
-   };
+   // Hook para datos del dashboard
+   const { data, loading, error, refresh, exportData } = useDashboardData(filters);
 
+   // Cargar datos para filtros
+   useEffect(() => {
+      const loadFilterData = async () => {
+         try {
+            // const [sellersRes, typesRes] = await Promise.all([axios.get("/api/employees/sellers"), axios.get("/api/product-types")]);
+            // setSellers(sellersRes.data);
+            // setProductTypes(typesRes.data);
+         } catch (error) {
+            console.error("Error loading filter data:", error);
+            setSnackbar({
+               open: true,
+               message: "Error al cargar datos de filtros",
+               severity: "error"
+            });
+         }
+      };
+
+      loadFilterData();
+   }, []);
+
+   // Calcular cantidad de filtros activos
+   useEffect(() => {
+      let count = 0;
+      if (filters.startDate) count++;
+      if (filters.endDate && filters.endDate !== new Date()) count++;
+      if (filters.sellerIds.length > 0) count++;
+      if (filters.locationStatus) count++;
+      if (filters.activationStatus) count++;
+      if (filters.productTypeId) count++;
+      if (filters.searchText) count++;
+
+      setActiveFiltersCount(count);
+   }, [filters]);
+
+   // Manejo de cambio de sección
    const handleSectionChange = (section: string) => {
       setActiveSection(section);
+      const refs: Record<string, React.RefObject<HTMLDivElement>> = {
+         stats: statsRef,
+         charts: chartsRef,
+         map: mapRef,
+         table: tableRef
+      };
+      refs[section]?.current?.scrollIntoView({ behavior: "smooth" });
    };
 
+   // Manejo de cambio de filtros
+   const handleFilterChange = useCallback((newFilters: Partial<DashboardFilters>) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+
+      // Mostrar mensaje si se aplicó un filtro importante
+      if (newFilters.activationStatus === "Portado" || newFilters.sellerIds?.length) {
+         setSnackbar({
+            open: true,
+            message: "Filtros aplicados correctamente",
+            severity: "success"
+         });
+      }
+   }, []);
+
+   // Limpiar todos los filtros
+   const handleClearFilters = () => {
+      setFilters({
+         startDate: null,
+         endDate: new Date(),
+         sellerIds: [],
+         locationStatus: null,
+         activationStatus: null,
+         productTypeId: null,
+         searchText: ""
+      });
+      setSnackbar({
+         open: true,
+         message: "Filtros limpiados",
+         severity: "info"
+      });
+   };
+
+   // Refrescar datos
+   const handleRefresh = () => {
+      refresh();
+      setSnackbar({
+         open: true,
+         message: "Datos actualizados",
+         severity: "info"
+      });
+   };
+
+   // Exportar datos
+   // const handleExport = async (type: "excel" | "pdf") => {
+   //    try {
+   //       await exportData(type);
+   //       setSnackbar({
+   //          open: true,
+   //          message: `Exportado como ${type.toUpperCase()}`,
+   //          severity: "success"
+   //       });
+   //    } catch (error) {
+   //       setSnackbar({
+   //          open: true,
+   //          message: "Error al exportar",
+   //          severity: "error"
+   //       });
+   //    }
+   // };
+
+   // Cerrar snackbar
+   const handleCloseSnackbar = () => {
+      setSnackbar((prev) => ({ ...prev, open: false }));
+   };
+
+   if (loading && !data) {
+      return (
+         <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+            <CircularProgress />
+            <Typography variant="body1" sx={{ ml: 2 }}>
+               Cargando dashboard...
+            </Typography>
+         </Box>
+      );
+   }
+
+   if (error) {
+      return (
+         <Container>
+            <Alert severity="error" sx={{ mt: 4 }}>
+               Error al cargar los datos: {error.message}
+               <Button sx={{ ml: 2 }} onClick={refresh}>
+                  Reintentar
+               </Button>
+            </Alert>
+         </Container>
+      );
+   }
+
+   useEffect(() => {
+      document.title = "Dashboard CellStop";
+      setIsLoading(false);
+   }, []);
+
    return (
-      <DashboardLayout navigation={<NavigationSidebar onSectionChange={handleSectionChange} activeSection={activeSection} />}>
-         {/* Header Stats */}
+      <DashboardLayout>
+         {/* <DashboardLayout navigation={<NavigationSidebar onSectionChange={handleSectionChange} activeSection={activeSection} />}> */}
+         {/* Snackbar para notificaciones */}
+         <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+               {snackbar.message}
+            </Alert>
+         </Snackbar>
+
+         {/* Header del Dashboard */}
+         <Box sx={{ mb: 4 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+               <Stack direction="row" spacing={2}>
+                  {/* Contador de filtros activos */}
+                  {activeFiltersCount > 0 && <Chip label={`${activeFiltersCount} filtro(s) activo(s)`} color="primary" size="small" onDelete={handleClearFilters} />}
+
+                  <Tooltip title="Mostrar/Ocultar filtros">
+                     <IconButton onClick={() => setShowFilters(!showFilters)} color={showFilters ? "primary" : "default"}>
+                        <FilterListIcon />
+                     </IconButton>
+                  </Tooltip>
+
+                  <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => console.log("handleExport excel")}>
+                     Exportar
+                  </Button>
+
+                  <Button variant="contained" startIcon={<RefreshIcon />} onClick={handleRefresh} disabled={loading}>
+                     {loading ? "Actualizando..." : "Actualizar"}
+                  </Button>
+               </Stack>
+            </Box>
+
+            {/* Panel de Filtros */}
+            {showFilters && (
+               <FiltersPanel filters={filters} onFilterChange={handleFilterChange} sellers={sellers} productTypes={productTypes} onClearFilters={handleClearFilters} />
+            )}
+         </Box>
+
+         {/* Estadísticas Principales */}
          <Box id="stats" ref={statsRef} sx={{ mb: 6 }}>
-            <HeaderStats stats={mockData.stats} onStatClick={handleStatClick} />
+            <HeaderStats
+               stats={data?.stats}
+               loading={loading}
+               onStatClick={(statKey) => {
+                  // Navegación automática basada en stat clickeado
+                  if (statKey === "total_portados") {
+                     handleFilterChange({ activationStatus: "Portado" });
+                     handleSectionChange("table");
+                  } else if (statKey === "total_activated") {
+                     handleFilterChange({ activationStatus: "Activado" });
+                  } else if (statKey === "portability_rate") {
+                     handleSectionChange("charts");
+                  }
+               }}
+            />
          </Box>
 
-         {/* Product Analytics */}
-         <Box id="products" ref={productsRef} sx={{ mb: 6 }}>
-            <ProductAnalytics data={mockData.productAnalytics} />
+         {/* Sección de Gráficos */}
+         <Box id="charts" ref={chartsRef} sx={{ mb: 6 }}>
+            <Typography variant="h5" sx={{ mb: 3, display: "flex", alignItems: "center" }}>
+               📊 Análisis de Portabilidad (EN ACTUALIZACION)
+               {filters.activationStatus === "Portado" && (
+                  <Chip label="Filtrado: Portados" size="small" color="primary" sx={{ ml: 2 }} onDelete={() => handleFilterChange({ activationStatus: null })} />
+               )}
+            </Typography>
+
+            <Grid container spacing={3}>
+               {/* <Grid size={{ xs: 12, md: 6 }}>
+                  <Paper
+                     elevation={2}
+                     sx={{
+                        p: 3,
+                        height: "400px",
+                        borderRadius: 2,
+                        "&:hover": { boxShadow: 4 }
+                     }}
+                  >
+                     <PortabilityChart data={data?.portability_by_month} loading={loading} />
+                  </Paper>
+               </Grid> */}
+
+               {/* <Grid size={{ xs: 12, md: 6 }}>
+                  <Paper
+                     elevation={2}
+                     sx={{
+                        p: 3,
+                        height: "400px",
+                        borderRadius: 2,
+                        "&:hover": { boxShadow: 4 }
+                     }}
+                  >
+                     <TopSellersChart
+                        data={data?.top_sellers}
+                        loading={loading}
+                        onSellerClick={(sellerId) => {
+                           handleFilterChange({ sellerIds: [sellerId] });
+                        }}
+                     />
+                  </Paper>
+               </Grid> */}
+
+               {/* <Grid size={{ xs: 12, md: 4 }}>
+                  <Paper
+                     elevation={2}
+                     sx={{
+                        p: 3,
+                        height: "350px",
+                        borderRadius: 2,
+                        "&:hover": { boxShadow: 4 }
+                     }}
+                  >
+                     <StatusDistributionChart
+                        data={data?.status_distribution}
+                        loading={loading}
+                        onStatusClick={(status) => {
+                           handleFilterChange({ activationStatus: status });
+                        }}
+                     />
+                  </Paper>
+               </Grid> */}
+
+               {/* <Grid size={{ xs: 12, md: 8 }}>
+                  <Paper
+                     elevation={2}
+                     sx={{
+                        p: 3,
+                        height: "350px",
+                        borderRadius: 2,
+                        "&:hover": { boxShadow: 4 }
+                     }}
+                  >
+                     <ProductsPortabilityChart
+                        data={data?.top_products}
+                        loading={loading}
+                        onProductClick={(productName) => {
+                           // Aquí podrías filtrar por producto si tuvieras el ID
+                           setSnackbar({
+                              open: true,
+                              message: `Producto: ${productName}`,
+                              severity: "info"
+                           });
+                        }}
+                     />
+                  </Paper>
+               </Grid> */}
+            </Grid>
          </Box>
 
-         {/* Sales Performance */}
-         <Box id="sales" ref={salesRef} sx={{ mb: 6 }}>
-            <SalesPerformance data={mockData.salesPerformance} />
+         {/* Mapa de Puntos de Venta */}
+         <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
+            <Typography variant="h5" sx={{ mb: 3 }}>
+               🗺️ Distribución Geográfica
+               {filters.locationStatus && (
+                  <Chip
+                     label={`Locación: ${filters.locationStatus}`}
+                     size="small"
+                     color="secondary"
+                     sx={{ ml: 2 }}
+                     onDelete={() => handleFilterChange({ locationStatus: null })}
+                  />
+               )}
+            </Typography>
+
+            <Paper
+               elevation={2}
+               sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  "&:hover": { boxShadow: 4 }
+               }}
+            >
+               <PointsOfSaleMap
+                  points={data?.points_of_sale || []}
+                  // loading={loading}
+                  onPointClick={(point) => {
+                     console.log("Punto clickeado:", point);
+                     // Aquí puedes abrir un modal con detalles
+                     setSnackbar({
+                        open: true,
+                        message: `${point.name}: ${point.inventory_count} chips`,
+                        severity: "info"
+                     });
+                  }}
+               />
+            </Paper>
          </Box>
 
-         {/* Geographic Distribution */}
-         <Box id="geography" ref={geographyRef} sx={{ mb: 6 }}>
-            <GeographicDistribution pointsOfSale={mockData.pointsOfSale} regionalData={mockData.regionalData} />
+         {/* Tabla de Números Portados */}
+         <Box id="table" ref={tableRef} sx={{ mb: 6 }}>
+            <Typography variant="h5" sx={{ mb: 3 }}>
+               📋 Números Portados ({data?.ported_numbers?.length || 0})
+               <Button
+                  size="small"
+                  sx={{ ml: 2 }}
+                  onClick={() => {
+                     // Exportar solo esta tabla
+                     console.log("handleExport excel");
+                  }}
+               >
+                  Exportar lista
+               </Button>
+            </Typography>
+
+            <Paper
+               elevation={2}
+               sx={{
+                  p: 3,
+                  borderRadius: 2,
+                  "&:hover": { boxShadow: 4 }
+               }}
+            >
+               {/* <PortedNumbersTable
+                  data={data?.ported_numbers || []}
+                  loading={loading}
+                  sellers={sellers}
+                  onRowClick={(row) => {
+                     console.log("Fila clickeada:", row);
+                     // Navegar a detalles del producto
+                     setSnackbar({
+                        open: true,
+                        message: `Ver detalles de ${row.celular}`,
+                        severity: "info"
+                     });
+                  }}
+                  onAssignSeller={(row, sellerId) => {
+                     // Lógica para asignar vendedor
+                     console.log("Asignar vendedor", row.id, sellerId);
+                  }}
+               /> */}
+            </Paper>
+         </Box>
+
+         {/* Pie de página con resumen */}
+         <Box sx={{ mt: 6, pt: 3, borderTop: 1, borderColor: "divider" }}>
+            <Typography variant="body2" color="text.secondary" align="center">
+               Última actualización: {new Date().toLocaleString()} | Total productos en sistema: {data?.stats?.stats.total_products || 0} | Datos sujetos a
+               actualización en tiempo real
+            </Typography>
          </Box>
       </DashboardLayout>
    );

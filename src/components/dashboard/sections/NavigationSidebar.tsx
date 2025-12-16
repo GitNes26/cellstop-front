@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Box, Paper, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, IconButton, Tooltip, Collapse } from "@mui/material";
 import { Dashboard, Analytics, TrendingUp, Map, Inventory2, PointOfSale, KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { env } from "../../../constant";
 
 interface NavigationItem {
    id: string;
@@ -159,7 +160,7 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ onSectionC
                         }}
                      >
                         <Typography variant="caption" color="text.secondary">
-                           Dashboard v1.0
+                           Dashboard v{env.VERSION}
                         </Typography>
                      </Box>
                   </motion.div>

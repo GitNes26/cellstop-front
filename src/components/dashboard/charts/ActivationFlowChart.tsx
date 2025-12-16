@@ -43,7 +43,7 @@ export class ActivationFlowChart {
             {
                name: "Cantidad",
                type: "bar",
-               data: [stats.totalProducts, stats.preActivated, stats.assigned, stats.distributed, stats.activated],
+               data: [stats.total_products, stats.total_activated, stats.assigned, stats.distributed, stats.activated],
                itemStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                      { offset: 0, color: "#667eea" },
@@ -57,10 +57,10 @@ export class ActivationFlowChart {
                yAxisIndex: 1,
                data: [
                   100,
-                  Math.round((stats.preActivated / stats.totalProducts) * 100),
-                  Math.round((stats.assigned / stats.totalProducts) * 100),
-                  Math.round((stats.distributed / stats.totalProducts) * 100),
-                  Math.round((stats.activated / stats.totalProducts) * 100)
+                  Math.round((stats.total_activated / stats.total_products) * 100),
+                  Math.round((stats.assigned / stats.total_products) * 100),
+                  Math.round((stats.distributed / stats.total_products) * 100),
+                  Math.round((stats.activated / stats.total_products) * 100)
                ],
                symbol: "circle",
                symbolSize: 8,

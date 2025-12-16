@@ -72,19 +72,27 @@ const mainRouter = {
       {
          path: "tablero",
          element: (
-            // <RegisterContextProvider>
-            //    <DepartmentContextProvider>
-            //       <CategoryContextProvider>
-            //          <SubcategoryContextProvider>
-            //             <SituationContextProvider>
-            //                <RoleContextProvider>
-            <DashboardView />
-            //                </RoleContextProvider>
-            //             </SituationContextProvider>
-            //          </SubcategoryContextProvider>
-            //       </CategoryContextProvider>
-            //    </DepartmentContextProvider>
-            // </RegisterContextProvider>
+            <UserContextProvider>
+               <ProductContextProvider>
+                  <ProductTypeContextProvider>
+                     <RoleContextProvider>
+                        <EmployeeContextProvider>
+                           <DepartmentContextProvider>
+                              <PositionContextProvider>
+                                 <LoteContextProvider>
+                                    <PointOfSaleContextProvider>
+                                       <VisitContextProvider>
+                                          <DashboardView />
+                                       </VisitContextProvider>
+                                    </PointOfSaleContextProvider>
+                                 </LoteContextProvider>
+                              </PositionContextProvider>
+                           </DepartmentContextProvider>
+                        </EmployeeContextProvider>
+                     </RoleContextProvider>
+                  </ProductTypeContextProvider>
+               </ProductContextProvider>
+            </UserContextProvider>
          )
       },
       {

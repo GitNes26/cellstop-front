@@ -29,7 +29,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
          }}
       >
          {/* Navigation Sidebar */}
-         {navigation}
+         {navigation && navigation}
 
          <Container maxWidth={false} sx={{ position: "relative", zIndex: 1 }}>
             {/* Header */}

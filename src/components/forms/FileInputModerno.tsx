@@ -757,20 +757,20 @@ const FileInputModerno: React.FC<FileInputProps> = ({
                onClick={(e) => e.stopPropagation()}
             >
                {/* Header del modal */}
-               <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
+               <div className="relative top-2 left-4 right-4 z-10 flex justify-between items-center">
                   <div className="bg-black bg-opacity-50 rounded-lg px-3 py-2">
                      <p className="text-white font-medium  truncate max-w-md">{zoomImage.fileName}</p>
                   </div>
-                  <motion.button
+                  <motion.div
                      onClick={handleCloseZoom}
-                     className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors duration-200"
+                     className="bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors duration-200 hover:cursor-pointer"
                      whileHover={{ scale: 1.1 }}
                      whileTap={{ scale: 0.9 }}
                   >
                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                      </svg>
-                  </motion.button>
+                  </motion.div>
                </div>
 
                {/* Imagen ampliada */}

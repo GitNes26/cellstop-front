@@ -23,7 +23,7 @@ import Toast from "../../utils/Toast";
 import { useLayoutEffect, useState } from "react";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
-import DashboardView from "./main/dashboard/Index";
+import DashboardView from "./main/dashboard/Index.js";
 import { useAuthContext } from "./../../context/AuthContext";
 
 const Index = ({}) => {
