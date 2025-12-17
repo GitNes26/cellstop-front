@@ -13,6 +13,7 @@ import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useEmployeeContext } from "../../../../context/EmployeeContext";
 import { usePositionContext } from "../../../../context/PositionContext";
 import { useDepartmentContext } from "../../../../context/DepartmentContext";
+import { LocationOnRounded } from "@mui/icons-material";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -105,6 +106,8 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
 
    const { refetch: refreshPositions } = useFetch(getSelectIndexPositions, setAllPositions);
    const { refetch: refreshDepartments } = useFetch(getSelectIndexDepartments, setAllDepartments);
+
+   const [pinColor, setPinColor] = useState(null);
 
    const formData = [
       {
@@ -313,6 +316,38 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
          ),
          value: null,
          validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "pin_color",
+         input: (
+            <Grid container width={"100%"} direction="row" alignItems="center" justifyContent="center">
+               <Grid size={{ xs: 10 }} mb={1}>
+                  <Input
+                     key={`key-input-pin_color`}
+                     col={12}
+                     idName={"pin_color"}
+                     label={"Color del PIN de ubicación"}
+                     placeholder={"Seleccionar color"}
+                     type={"color"}
+                     // onChange={() => {
+                     //    //cambiar el color del icono de ubicacion con el valor seleccionado a traves del state setPinColor
+                     //    setPinColor(formikRef?.current?.values?.pin_color);
+                     // }}
+                     onChangeExtra={(e) => {
+                        setPinColor(e.target.value);
+                     }}
+                     helperText={(currentValue) => `Color seleccionado: ${currentValue}`}
+                  />
+               </Grid>
+               <Grid size={{ xs: 2 }}>
+                  <LocationOnRounded style={{ color: pinColor || "#000000", fontSize: 50, marginTop: -10 }} />
+               </Grid>
+            </Grid>
+         ),
+         value: "",
+         validations: null, //Yup.string().required("Selecciona un color"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },

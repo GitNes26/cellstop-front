@@ -22,7 +22,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <Box
          sx={{
             flexGrow: 1,
-            minHeight: "100vh",
+            maxHeight: "10vh",
+            width: "100%",
+            m: 0,
             // background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
             p: 0,
             position: "relative"
@@ -33,8 +35,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
          <Container maxWidth={false} sx={{ position: "relative", zIndex: 1 }}>
             {/* Header */}
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-               <Box sx={{ mb: 4 }}>
+            <motion.div
+               initial={{ opacity: 0, y: -20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.6 }}
+               // style={{
+               //    padding: 0,
+               //    margin: 0
+               // }}
+            >
+               <Box sx={{ mb: 2 }}>
                   <Typography
                      variant="h3"
                      fontWeight="800"

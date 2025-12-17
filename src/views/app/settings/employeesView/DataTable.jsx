@@ -14,7 +14,16 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useEmployeeContext } from "../../../../context/EmployeeContext";
 import { Avatar, Typography } from "@mui/material";
-import { AlternateEmailRounded, AssignmentIndRounded, CancelRounded, CheckCircleRounded, FaxRounded, NumbersRounded, PhoneAndroidRounded } from "@mui/icons-material";
+import {
+   AlternateEmailRounded,
+   AssignmentIndRounded,
+   CancelRounded,
+   CheckCircleRounded,
+   FaxRounded,
+   LocationOnRounded,
+   NumbersRounded,
+   PhoneAndroidRounded
+} from "@mui/icons-material";
 
 const EmployeeDT = () => {
    const { auth } = useAuthContext();
@@ -90,6 +99,14 @@ const EmployeeDT = () => {
          <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
             <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
             {obj.username ?? "Sin asignar"}
+         </Typography>
+      </>
+   );
+   const PinColorBodyTemplate = (obj) => (
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            <LocationOnRounded style={{ color: obj.pin_color || "#000000", fontSize: 50, marginTop: 0 }} />
+            {obj.pin_color ? obj.pin_color : "Sin asignar"}
          </Typography>
       </>
    );
@@ -170,6 +187,17 @@ const EmployeeDT = () => {
          sortable: true,
          functionEdit: null,
          renderCell: (params) => <UserBodyTemplate {...params.row} key={`user-${params.row.id}`} />,
+         filter: true,
+         filterField: null
+      },
+      {
+         field: "pin_color",
+         headerName: "Color del PIN de ubicación",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => <PinColorBodyTemplate {...params.row} key={`pin_color-${params.row.id}`} />,
          filter: true,
          filterField: null
       }
