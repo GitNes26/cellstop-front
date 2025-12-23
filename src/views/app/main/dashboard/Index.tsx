@@ -13,34 +13,31 @@ import {
    Chip,
    Stack,
    IconButton,
-   Tooltip,
-   Drawer,
-   Divider,
    useMediaQuery,
    Theme,
    AppBar,
    Toolbar
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import DownloadIcon from "@mui/icons-material/Download";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
+// import Refresh from "@mui/icons-material/Refresh";
+// import Download from "@mui/icons-material/Download";
+// import Menu from "@mui/icons-material/Menu";
+// import Close from "@mui/icons-material/Close";
 import axios from "axios";
 import { DashboardLayout } from "../../../../components/dashboard/layouts/DashboardLayout";
-import { NavigationSidebar } from "../../../../components/dashboard/sections/NavigationSidebar";
 import FiltersPanel from "../../../../components/dashboard/FiltersPanel";
 import { HeaderStats } from "../../../../components/dashboard/sections/HeaderStats";
 import PointsOfSaleMap from "../../../../components/dashboard/PointsOfSaleMap";
 import { useDashboardData } from "../../../../hooks/useDashboardData";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { useGlobalContext } from "../../../../context/GlobalContext";
-import PortabilityChart from "../../../../components/dashboard/PortabilityChart";
-import TopSellersChart from "../../../../components/dashboard/TopSellersChart";
-import StatusDistributionChart from "../../../../components/dashboard/StatusDistributionChart";
 import { useUserContext } from "../../../../context/UserContext";
+import { useProductTypeContext } from "../../../../context/ProductTypeContext.jsx";
 import useFetch from "../../../../hooks/useFetch";
 import ChartComponent from "../../../../components/charts/ChartComponent";
+import { Dashboard, Refresh, Download, Menu, Close, Circle } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import Loading from "../../../../components/Loading.js";
+import { images } from "../../../../constant/index.js";
 // import ChartComponent from "../../../../components/dashboard/charts/ChartComponent";
 // import PortedNumbersTable from "../../../../components/dashboard/PortedNumbersTable";
 
@@ -73,7 +70,9 @@ const DashboardView: React.FC = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
+   const { productTypesSelect, setProductTypesSelect, getSelectIndexProductTypes } = useProductTypeContext();
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
+   const { refetch: refetchProductTypes } = useFetch(() => getSelectIndexProductTypes(), setProductTypesSelect);
 
    // Estados
    const [activeSection, setActiveSection] = useState("stats");
@@ -90,7 +89,7 @@ const DashboardView: React.FC = () => {
 
    // Estado para datos de filtros
    const [sellers, setSellers] = useState<Seller[]>(usersSelect || []);
-   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+   const [productTypes, setProductTypes] = useState<ProductType[]>(productTypesSelect || []);
 
    // Filtros iniciales
    const [filters, setFilters] = useState<DashboardFilters>({
@@ -111,6 +110,7 @@ const DashboardView: React.FC = () => {
 
    // Hook para datos del dashboard
    const { data, loading, error, refresh, exportData } = useDashboardData(filters);
+   console.log("🚀 ~ DashboardView ~ data:", data);
 
    // Cargar tipos de producto
    useEffect(() => {
@@ -122,7 +122,7 @@ const DashboardView: React.FC = () => {
             console.error("Error loading product types:", error);
          }
       };
-      loadProductTypes();
+      // loadProductTypes();
    }, []);
 
    // Actualizar sellers cuando usersSelect cambie
@@ -130,7 +130,10 @@ const DashboardView: React.FC = () => {
       if (usersSelect && usersSelect.length > 0) {
          setSellers(usersSelect);
       }
-   }, [usersSelect]);
+      if (productTypesSelect && productTypesSelect.length > 0) {
+         setProductTypes(productTypesSelect);
+      }
+   }, [usersSelect, productTypesSelect]);
 
    // Calcular cantidad de filtros activos
    useEffect(() => {
@@ -160,7 +163,8 @@ const DashboardView: React.FC = () => {
 
    // Manejo de cambio de filtros
    const handleFilterChange = useCallback(
-      (newFilters: Partial<DashboardFilters>) => {
+      async (newFilters: Partial<DashboardFilters>) => {
+         
          setFilters((prev) => ({ ...prev, ...newFilters }));
 
          // Mostrar mensaje si se aplicó un filtro importante
@@ -239,13 +243,13 @@ const DashboardView: React.FC = () => {
    useEffect(() => {
       document.title = "Dashboard CellStop";
       setIsLoading(false);
-   }, []);
+   }, [data]);
 
    // Preparar datos para gráficos
    const preparePortabilityChartData = () => {
       if (!data?.portability_by_month) return [];
 
-      return Object.entries(data.portability_by_month).map(([month, count]) => ({
+      return Object.entries(data?.portability_by_month).map(([month, count]) => ({
          name: month,
          value: count
       }));
@@ -254,7 +258,7 @@ const DashboardView: React.FC = () => {
    const prepareTopSellersData = () => {
       if (!data?.top_sellers) return [];
 
-      return data.top_sellers.map((seller) => ({
+      return data?.top_sellers.map((seller) => ({
          name: seller.name,
          value: seller.port_count,
          sellerId: seller.id,
@@ -265,7 +269,7 @@ const DashboardView: React.FC = () => {
    const prepareStatusDistributionData = () => {
       if (!data?.status_distribution) return [];
 
-      return Object.entries(data.status_distribution).map(([status, count]) => ({
+      return Object.entries(data?.status_distribution).map(([status, count]) => ({
          name: status,
          value: count
       }));
@@ -281,7 +285,7 @@ const DashboardView: React.FC = () => {
             </Typography>
             {isMobile && (
                <IconButton onClick={handleDrawerToggle}>
-                  <CloseIcon />
+                  <Close />
                </IconButton>
             )}
          </Box>
@@ -292,7 +296,7 @@ const DashboardView: React.FC = () => {
             <Typography variant="body2" color="text.secondary">
                <strong>Filtros activos:</strong> {activeFiltersCount}
             </Typography>
-            <Button fullWidth variant="contained" onClick={handleRefresh} disabled={loading} sx={{ mt: 2 }} startIcon={<RefreshIcon />}>
+            <Button fullWidth variant="contained" onClick={handleRefresh} disabled={loading} sx={{ mt: 2 }} startIcon={<Refresh />}>
                {loading ? "Actualizando..." : "Aplicar Filtros"}
             </Button>
          </Box>
@@ -300,13 +304,269 @@ const DashboardView: React.FC = () => {
       // </Box>
    );
 
+   // if (loading && !data) {
+   //    // setIsLoading(true);
+   //    return (
+   //       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+   //          <CircularProgress />
+   //          <Typography variant="body1" sx={{ ml: 2 }}>
+   //             Cargando dashboard...
+   //          </Typography>
+   //       </Box>
+   //    );
+   // }
+
    if (loading && !data) {
       return (
-         <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-            <CircularProgress />
-            <Typography variant="body1" sx={{ ml: 2 }}>
-               Cargando dashboard...
-            </Typography>
+         <Box
+            sx={{
+               minHeight: "100vh",
+               display: "flex",
+               flexDirection: "column",
+               alignItems: "center",
+               justifyContent: "center",
+               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+               color: "white",
+               position: "relative",
+               overflow: "hidden"
+            }}
+         >
+            {/* Fondo animado */}
+            <Box
+               sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)",
+                  animation: "pulse 2s ease-in-out infinite alternate"
+               }}
+            />
+
+            {/* Partículas flotantes */}
+            {[...Array(8)].map((_, i) => (
+               <Box
+                  key={i}
+                  sx={{
+                     position: "absolute",
+                     width: Math.random() * 100 + 50,
+                     height: Math.random() * 100 + 50,
+                     background: `rgba(255, 255, 255, ${Math.random() * 0.1 + 0.05})`,
+                     borderRadius: "50%",
+                     filter: "blur(20px)",
+                     animation: `float ${Math.random() * 10 + 10}s ease-in-out infinite`,
+                     animationDelay: `${Math.random() * 5}s`,
+                     left: `${Math.random() * 100}%`,
+                     top: `${Math.random() * 100}%`
+                  }}
+               />
+            ))}
+
+            {/* Contenido principal */}
+            <motion.div className="text-center">
+               {/* Logo o ícono */}
+               <motion.div
+                  // animate={{
+                  //    rotate: 360,
+                  //    scale: [1, 1.1, 1]
+                  // }}
+                  // transition={{
+                  //    rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+                  //    scale: { duration: 2, repeat: Infinity }
+                  // }}
+                  className="-mb-20"
+               >
+                  {/* <Box
+                     sx={{
+                        // width: 120,
+                        height: "auto",
+                        background: "rgba(255, 255, 255, 0.2)",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backdropFilter: "blur(10px)",
+                        border: "2px solid rgba(255, 255, 255, 0.3)",
+                        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)"
+                     }}
+                  > */}
+                  <span className="relative flex items-center justify-center text-center">
+                     <div className="icon-loader inline-flex animate-[pulse_2s_infinite] ease-in-out opacity-5">
+                        <img src={images.icon || images.logo} alt="logo" className="loader-image" />
+                     </div>
+                     <img src={images.icon || images.logo} alt="logo" className="relative inline-flex loader-image animate-[ping_2s_infinite] ease-in-out" />
+                  </span>
+                  {/* <Dashboard sx={{ fontSize: 60, color: "white" }} /> */}
+                  {/* </Box> */}
+               </motion.div>
+
+               {/* Texto principal */}
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                  <Typography
+                     variant="h3"
+                     fontWeight="800"
+                     sx={{
+                        mb: 2,
+                        background: "linear-gradient(135deg, #ffffff 0%, #d4d4d4 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        letterSpacing: "1px"
+                     }}
+                  >
+                     Preparando Dashboard
+                  </Typography>
+
+                  <Typography
+                     variant="h6"
+                     sx={{
+                        mb: 4,
+                        opacity: 0.9,
+                        fontWeight: 300,
+                        maxWidth: "600px",
+                        lineHeight: 1.6
+                     }}
+                  >
+                     Estamos organizando toda la información para que tengas la mejor experiencia
+                  </Typography>
+               </motion.div>
+
+               {/* Indicador de progreso */}
+               <Box sx={{ position: "relative", width: 300, mx: "auto", mb: 4 }}>
+                  {/* Barra de fondo */}
+                  <Box
+                     sx={{
+                        width: "100%",
+                        height: 4,
+                        background: "rgba(255, 255, 255, 0.2)",
+                        borderRadius: 2,
+                        overflow: "hidden"
+                     }}
+                  >
+                     {/* Barra animada */}
+                     <motion.div
+                        style={{
+                           width: "100%",
+                           height: "100%",
+                           background: "linear-gradient(90deg, #22d3ee 0%, #3b82f6 50%, #8b5cf6 100%)",
+                           backgroundSize: "200% 100%"
+                        }}
+                        animate={{
+                           backgroundPosition: ["0% 0%", "100% 0%"]
+                        }}
+                        transition={{
+                           duration: 2,
+                           repeat: Infinity,
+                           ease: "linear"
+                        }}
+                     />
+                  </Box>
+
+                  {/* Puntos de progreso */}
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                     {["Cargando datos", "Procesando métricas", "Configurando widgets", "Preparando vista"].map((step, index) => (
+                        <motion.div key={step} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.2 + 0.5 }}>
+                           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                              <motion.div
+                                 animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.5, 1, 0.5]
+                                 }}
+                                 transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: index * 0.3
+                                 }}
+                              >
+                                 <Circle
+                                    sx={{
+                                       fontSize: 12,
+                                       color: index === 0 ? "#22d3ee" : index === 1 ? "#3b82f6" : index === 2 ? "#8b5cf6" : "#ec4899"
+                                    }}
+                                 />
+                              </motion.div>
+                              <Typography
+                                 variant="caption"
+                                 sx={{
+                                    mt: 0.5,
+                                    fontSize: "0.7rem",
+                                    opacity: 0.8,
+                                    textAlign: "center"
+                                 }}
+                              >
+                                 {step}
+                              </Typography>
+                           </Box>
+                        </motion.div>
+                     ))}
+                  </Box>
+               </Box>
+
+               {/* Spinner principal */}
+               <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="mb-6">
+                  <CircularProgress
+                     size={60}
+                     thickness={4}
+                     sx={{
+                        color: "white",
+                        filter: "drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))"
+                     }}
+                  />
+               </motion.div>
+
+               {/* Contador animado */}
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}>
+                  <Typography
+                     variant="caption"
+                     sx={{
+                        display: "block",
+                        letterSpacing: "2px",
+                        textTransform: "uppercase",
+                        opacity: 0.7,
+                        fontSize: "0.75rem"
+                     }}
+                  >
+                     Optimizando tu experiencia
+                  </Typography>
+               </motion.div>
+            </motion.div>
+
+            {/* Footer */}
+            <Box
+               sx={{
+                  position: "absolute",
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  textAlign: "center"
+               }}
+            >
+               <Typography
+                  variant="caption"
+                  sx={{
+                     opacity: 0.6,
+                     fontSize: "0.7rem",
+                     letterSpacing: "0.5px"
+                  }}
+               >
+                  Sistema CellStop • Dashboard de Distribución
+               </Typography>
+            </Box>
+
+            {/* Definición de animaciones CSS */}
+            <style>
+               {`
+               @keyframes float {
+                  0%, 100% { transform: translateY(0) rotate(0deg); }
+                  50% { transform: translateY(-20px) rotate(180deg); }
+               }
+               
+               @keyframes pulse {
+                  0% { opacity: 0.3; }
+                  100% { opacity: 0.6; }
+               }
+            `}
+            </style>
          </Box>
       );
    }
@@ -331,21 +591,21 @@ const DashboardView: React.FC = () => {
             <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
                <Toolbar>
                   <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
-                     <MenuIcon />
+                     <Menu />
                   </IconButton>
                   <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                      Dashboard CellStop
                   </Typography>
                   {activeFiltersCount > 0 && <Chip label={`${activeFiltersCount}`} color="secondary" size="small" sx={{ color: "white", mr: 1 }} />}
                   <IconButton color="inherit" onClick={handleRefresh}>
-                     <RefreshIcon />
+                     <Refresh />
                   </IconButton>
                </Toolbar>
             </AppBar>
          )}
          <Grid container spacing={2} maxHeight={"90%"} sx={{ mt: isMobile ? 8 : 0 }}>
             {/* Drawer de filtros */}
-            <Grid size={{ xs: 3 /* md: FILTERS_DRAWER_WIDTH */ }}>
+            <Grid size={{ xs: 2 /* md: FILTERS_DRAWER_WIDTH */ }}>
                <Paper
                   // variant={isMobile ? "temporary" : "permanent"}
                   // open={isMobile ? mobileOpen : true}
@@ -367,7 +627,7 @@ const DashboardView: React.FC = () => {
             </Grid>
 
             {/* Contenido principal */}
-            <Grid size={{ xs: 9 /* md: `calc(100% - ${FILTERS_DRAWER_WIDTH}px)` */ }} sx={{ maxHeight: "100%" }}>
+            <Grid size={{ xs: 10 /* md: `calc(100% - ${FILTERS_DRAWER_WIDTH}px)` */ }} sx={{ maxHeight: "100%" }}>
                <Box
                   component="main"
                   sx={{
@@ -405,11 +665,11 @@ const DashboardView: React.FC = () => {
                                  <Chip label={`${activeFiltersCount} filtro(s) activo(s)`} color="primary" size="small" onDelete={handleClearFilters} />
                               )}
 
-                              <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => handleExport("excel")}>
+                              <Button variant="outlined" startIcon={<Download />} onClick={() => handleExport("excel")}>
                                  Exportar
                               </Button>
 
-                              <Button variant="contained" startIcon={<RefreshIcon />} onClick={handleRefresh} disabled={loading}>
+                              <Button variant="contained" startIcon={<Refresh />} onClick={handleRefresh} disabled={loading}>
                                  {loading ? "Actualizando..." : "Actualizar"}
                               </Button>
                            </Stack>
@@ -420,12 +680,12 @@ const DashboardView: React.FC = () => {
                   {/* Estadísticas Principales */}
                   <Box id="stats" ref={statsRef} sx={{ mb: 6 }}>
                      <HeaderStats
-                        stats={data?.stats}
+                        stats={data ? data?.stats : null}
                         // loading={loading}
                         onStatClick={(statKey) => {
-                           if (statKey === "total_portados") {
+                           if (statKey === "portados") {
                               handleFilterChange({ activationStatus: "Portado" });
-                           } else if (statKey === "total_activated") {
+                           } else if (statKey === "activated") {
                               handleFilterChange({ activationStatus: "Activado" });
                            }
                         }}
@@ -488,7 +748,7 @@ const DashboardView: React.FC = () => {
                               }}
                               onClick={(params: any) => {
                                  if (params.data?.sellerId) {
-                                    handleFilterChange({ sellerIds: [params.data.sellerId] });
+                                    handleFilterChange({ sellerIds: [params.data?.sellerId] });
                                  }
                               }}
                            />
@@ -517,17 +777,17 @@ const DashboardView: React.FC = () => {
 
                         {/* Gráfico de Productos Más Portados */}
                         <Grid size={{ xs: 12, md: 8 }}>
-                           {data?.top_products && data.top_products.length > 0 && (
+                           {data?.top_products && data?.top_products.length > 0 && (
                               <ChartComponent
                                  title="Productos Más Portados"
                                  type="bar"
-                                 data={data.top_products.map((p) => ({ name: p.producto, value: p.count }))}
+                                 data={data?.top_products.map((p) => ({ name: p.producto, value: p.count }))}
                                  height={300}
                                  loading={loading}
                                  colors={["#673ab7"]}
                                  xAxis={{
                                     type: "category",
-                                    data: data.top_products.map((p) => p.producto),
+                                    data: data?.top_products.map((p) => p.producto),
                                     axisLabel: { rotate: 45 }
                                  }}
                                  yAxis={{
@@ -544,21 +804,21 @@ const DashboardView: React.FC = () => {
                   </Box>
 
                   {/* Mapa de Puntos de Venta */}
-                  {data?.points_of_sale && data.points_of_sale.length > 0 && (
+                  {data?.points_of_sale && data?.points_of_sale.length > 0 && (
                      <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
                         <Typography variant="h5" sx={{ mb: 3 }}>
-                           🗺️ Distribución Geográfica ({data.points_of_sale.length} puntos)
+                           🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
                         </Typography>
 
                         <PointsOfSaleMap
-                           points={data.points_of_sale}
+                           points={data?.points_of_sale}
                            //   loading={loading}
                            onPointClick={(point) => {
                               console.log("Punto clickeado:", point);
                               setSnackbar({
                                  open: true,
                                  message: `${point.name}: ${point.inventory_count || 0} chips`,
-                                 // message: `${point.name}: ${point?.inventory?.total_products || 0} chips`,
+                                 // message: `${point.name}: ${point?.inventory?.products || 0} chips`,
                                  severity: "info"
                               });
                            }}
@@ -567,17 +827,17 @@ const DashboardView: React.FC = () => {
                   )}
 
                   {/* Tabla de Números Portados */}
-                  {data?.ported_numbers && data.ported_numbers.length > 0 && (
+                  {data?.ported_numbers && data?.ported_numbers.length > 0 && (
                      <Box id="table" ref={tableRef} sx={{ mb: 6 }}>
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                           <Typography variant="h5">📋 Números Portados ({data.ported_numbers.length})</Typography>
-                           <Button size="small" onClick={() => handleExport("excel")} startIcon={<DownloadIcon />}>
+                           <Typography variant="h5">📋 Números Portados ({data?.ported_numbers.length})</Typography>
+                           <Button size="small" onClick={() => handleExport("excel")} startIcon={<Download />}>
                               Exportar lista
                            </Button>
                         </Box>
 
                         {/* <PortedNumbersTable
-              data={data.ported_numbers}
+              data={data?.ported_numbers}
               loading={loading}
               onRowClick={(row) => {
                 console.log('Fila clickeada:', row);
@@ -592,14 +852,14 @@ const DashboardView: React.FC = () => {
                   )}
 
                   {/* Información de Rendimiento de Vendedores */}
-                  {data?.sellers_performance && data.sellers_performance.length > 0 && (
+                  {data?.sellers_performance && data?.sellers_performance.length > 0 && (
                      <Box sx={{ mb: 6 }}>
                         <Typography variant="h5" sx={{ mb: 3 }}>
                            👥 Rendimiento de Vendedores
                         </Typography>
 
                         <Grid container spacing={3}>
-                           {data.sellers_performance.slice(0, 3).map((seller, index) => (
+                           {data?.sellers_performance.slice(0, 3).map((seller, index) => (
                               <Grid size={{ xs: 12, md: 4 }} key={seller.seller_id}>
                                  <Paper sx={{ p: 3, borderRadius: 2 }}>
                                     <Box display="flex" alignItems="center" mb={2}>
@@ -663,14 +923,14 @@ const DashboardView: React.FC = () => {
                   )}
 
                   {/* Resumen de Visitas */}
-                  {data?.visits_summary && Object.keys(data.visits_summary).length > 0 && (
+                  {data?.visits_summary && Object.keys(data?.visits_summary).length > 0 && (
                      <Box sx={{ mb: 6 }}>
                         <Typography variant="h5" sx={{ mb: 3 }}>
                            📋 Resumen de Visitas
                         </Typography>
 
                         <Grid container spacing={3}>
-                           {Object.entries(data.visits_summary).map(([type, stats]) => (
+                           {Object.entries(data?.visits_summary).map(([type, stats]) => (
                               <Grid size={{ xs: 12, md: 6 }} key={type}>
                                  <Paper sx={{ p: 3, borderRadius: 2 }}>
                                     <Typography variant="h6" sx={{ mb: 2 }}>
@@ -682,7 +942,7 @@ const DashboardView: React.FC = () => {
                                           <Typography variant="body2" color="text.secondary">
                                              Visitas
                                           </Typography>
-                                          <Typography variant="h5">{stats.total_visits || 0}</Typography>
+                                          <Typography variant="h5">{stats.visits || 0}</Typography>
                                        </Grid>
                                        <Grid size={{ xs: 4 }}>
                                           <Typography variant="body2" color="text.secondary">
@@ -717,8 +977,8 @@ const DashboardView: React.FC = () => {
                   {/* Pie de página */}
                   <Box sx={{ mt: 6, pt: 3, borderTop: 1, borderColor: "divider" }}>
                      <Typography variant="body2" color="text.secondary" align="center">
-                        Última actualización: {new Date().toLocaleString()} | Total productos en sistema: {data?.stats?.total_products || 0} | Vendedores activos:{" "}
-                        {data?.stats?.active_sellers || 0} | Datos sujetos a actualización en tiempo real
+                        Última actualización: {new Date().toLocaleString()} | Total productos en sistema: {data?.stats.products || 0} | Vendedores activos:{" "}
+                        {data?.stats.sellers || 0} | Datos sujetos a actualización en tiempo real
                      </Typography>
                   </Box>
                </Box>

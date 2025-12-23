@@ -101,20 +101,20 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"
             }}
          >
-            <Box display="flex" alignItems="center" mb={3}>
-               <SearchIcon sx={{ mr: 1, color: "primary.main" }} />
-               <Typography variant="h6" fontWeight="bold">
+            <Box display="flex" alignItems="center" mb={1}>
+               {/* <SearchIcon sx={{ mr: 1, color: "primary.main" }} /> */}
+               {/* <Typography variant="h6" fontWeight="bold">
                   Filtros Avanzados
-               </Typography>
+               </Typography> */}
                <Button size="small" onClick={onClearFilters} sx={{ ml: "auto" }} startIcon={<ClearIcon />} variant="outlined" color="secondary">
                   Limpiar Todo
                </Button>
             </Box>
 
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{ mb: 1 }} />
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <DatePicker
                      label="Fecha inicio"
                      value={filters.startDate}
@@ -130,7 +130,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   />
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <DatePicker
                      label="Fecha fin"
                      value={filters.endDate}
@@ -146,20 +146,22 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   />
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <TextField
                      fullWidth
                      size="small"
                      variant="outlined"
-                     label="Buscar por número, ICCID o IMEI"
+                     label="Número, ICCID o IMEI"
                      value={filters.searchText}
                      onChange={handleSearchChange}
-                     InputProps={{
-                        endAdornment: (
-                           <IconButton onClick={handleSearchSubmit}>
-                              <SearchIcon />
-                           </IconButton>
-                        )
+                     slotProps={{
+                        input: {
+                           endAdornment: (
+                              <IconButton onClick={handleSearchSubmit}>
+                                 <SearchIcon />
+                              </IconButton>
+                           )
+                        }
                      }}
                      placeholder="Ej: 5512345678 o 8914800000000000000"
                   />
@@ -167,7 +169,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
             </Grid>
 
             <Grid container spacing={2}>
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <FormControl fullWidth size="small" variant="outlined">
                      <InputLabel>Vendedores</InputLabel>
                      {loading ? (
@@ -221,7 +223,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   </FormControl>
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <FormControl fullWidth size="small" variant="outlined">
                      <InputLabel>Locación</InputLabel>
                      <Select value={filters.locationStatus || ""} onChange={(e) => onFilterChange({ locationStatus: e.target.value || null })} label="Locación">
@@ -234,7 +236,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   </FormControl>
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <FormControl fullWidth size="small" variant="outlined">
                      <InputLabel>Estatus Activación</InputLabel>
                      <Select
@@ -251,7 +253,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   </FormControl>
                </Grid>
 
-               <Grid size={{ xs: 12, md: 6 }}>
+               <Grid size={{ xs: 12, md: 12 }}>
                   <FormControl fullWidth size="small" variant="outlined">
                      <InputLabel>Tipo Producto</InputLabel>
                      <Select value={filters.productTypeId || ""} onChange={(e) => onFilterChange({ productTypeId: e.target.value || null })} label="Tipo Producto">
@@ -300,6 +302,18 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                      onClick={() =>
                         onFilterChange({
                            locationStatus: filters.locationStatus === "Distribuido" ? null : "Distribuido"
+                        })
+                     }
+                     variant={filters.locationStatus === "Distribuido" ? "filled" : "outlined"}
+                  />
+                  
+                  <Chip
+                     label="Portados"
+                     size="small"
+                     color={filters.locationStatus === "Distribuido" ? "secondary" : "default"}
+                     onClick={() =>
+                        onFilterChange({
+                           locationStatus: filters.activationStatus === "Portado" ? null : "Portado"
                         })
                      }
                      variant={filters.locationStatus === "Distribuido" ? "filled" : "outlined"}

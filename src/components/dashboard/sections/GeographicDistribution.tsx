@@ -18,7 +18,7 @@ export interface GeographicDistributionProps {
    }>;
    regionalData: Array<{
       region: string;
-      total_products: number;
+      products: number;
       distributed: number;
       activated: number;
       target: number;
@@ -61,7 +61,7 @@ export const GeographicDistribution: React.FC<GeographicDistributionProps> = ({ 
          {
             name: "Productos Totales",
             type: "bar" as const,
-            data: regionalData.map((r) => r.total_products),
+            data: regionalData.map((r) => r.products),
             itemStyle: { color: "#cbd5e0" }
          },
          {

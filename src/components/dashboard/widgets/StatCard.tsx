@@ -346,6 +346,7 @@ export const StatCardGrid: React.FC<StatCardGridProps> = ({ children, columns = 
       <Box
          sx={{
             display: "grid",
+            direction: "ltr",
             gap: gap,
             gridTemplateColumns: {
                xs: `repeat(${columns.xs}, 1fr)`,

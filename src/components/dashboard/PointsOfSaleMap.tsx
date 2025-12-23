@@ -26,7 +26,7 @@ interface PointOfSale {
    last_visit: string | null;
    last_seller: string | null;
    seller_color: string;
-   total_visits: number;
+   visits: number;
 }
 
 interface PointsOfSaleMapProps {
@@ -91,7 +91,7 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ points, onPointClick 
                            <strong>Vendedor:</strong> {point.last_seller || "N/A"}
                         </Typography>
                         <Typography variant="body2">
-                           <strong>Total visitas:</strong> {point.total_visits}
+                           <strong>Total visitas:</strong> {point.visits}
                         </Typography>
                      </Box>
                   </Popup>

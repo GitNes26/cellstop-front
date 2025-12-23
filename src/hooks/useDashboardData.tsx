@@ -13,18 +13,22 @@ interface DashboardFilters {
    searchText: string;
 }
 
-interface DashboardData {
+export interface DashboardData {
    stats: {
-      total_products: number;
-      total_activated: number;
-      total_portados: number;
-      total_distribuidos: number;
-      portability_rate: number;
       activation_rate: number;
-      active_sellers: number;
-      active_points_of_sale: number;
-      total_visits: number;
+      points_of_sale: number;
+      sellers: number;
       avg_products_per_seller: number;
+      portability_rate: number;
+      distributed: number;
+      portados: number;
+      products: number;
+      activated: number;
+      visits: number;
+
+      assigned?: number;
+      in_transit?: number;
+      [key: string]: number | undefined;
    };
    portability_by_month: Record<string, number>;
    top_sellers: Array<{ id: number; name: string; port_count: number; color: string }>;
@@ -35,9 +39,20 @@ interface DashboardData {
    sellers_performance: Array<any>;
    visits_summary: Record<string, any>;
 }
+interface ObjRes {
+   alert_icon: string;
+   alert_text: string;
+   alert_title: string;
+   message: string;
+   result: DashboardData;
+   status: boolean;
+   status_code: number;
+   toast: boolean;
+}
 
 export const useDashboardData = (filters: DashboardFilters) => {
    const [data, setData] = useState<DashboardData | null>(null);
+   const [response, setResponse] = useState<ObjRes | null>(null);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState<Error | null>(null);
    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -87,7 +102,9 @@ export const useDashboardData = (filters: DashboardFilters) => {
          // const response = await axios.get("/api/dashboard/stats", { params });
          const response = await Axios.get("/dashboard/stats", { params });
 
-         setData(response.data);
+         console.log("🚀 ~ useDashboardData ~ response.data:", response.data);
+         setData(response.data.data.result);
+         setResponse(response.data.data);
          setLastUpdated(new Date());
       } catch (err) {
          setError(err as Error);
@@ -144,6 +161,7 @@ export const useDashboardData = (filters: DashboardFilters) => {
 
    return {
       data,
+      response,
       loading,
       error,
       refresh,

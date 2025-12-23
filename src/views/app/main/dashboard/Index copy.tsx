@@ -268,10 +268,10 @@ const DashboardView: React.FC = () => {
                // loading={loading}
                onStatClick={(statKey) => {
                   // Navegación automática basada en stat clickeado
-                  if (statKey === "total_portados") {
+                  if (statKey === "portados") {
                      handleFilterChange({ activationStatus: "Portado" });
                      handleSectionChange("table");
-                  } else if (statKey === "total_activated") {
+                  } else if (statKey === "activated") {
                      handleFilterChange({ activationStatus: "Activado" });
                   } else if (statKey === "portability_rate") {
                      handleSectionChange("charts");
@@ -458,8 +458,8 @@ const DashboardView: React.FC = () => {
          {/* Pie de página con resumen */}
          <Box sx={{ mt: 6, pt: 3, borderTop: 1, borderColor: "divider" }}>
             <Typography variant="body2" color="text.secondary" align="center">
-               Última actualización: {new Date().toLocaleString()} | Total productos en sistema: {data?.stats?.stats.total_products || 0} | Datos sujetos a
-               actualización en tiempo real
+               Última actualización: {new Date().toLocaleString()} | Total productos en sistema: {data?.stats?.products || 0} | Datos sujetos a actualización en
+               tiempo real
             </Typography>
          </Box>
       </DashboardLayout>

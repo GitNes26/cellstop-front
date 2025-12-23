@@ -12,13 +12,13 @@ import FiltersPanel from "../../../../components/dashboard/FiltersPanel";
 // Mock data actualizado
 const mockData = {
    stats: {
-      total_products: 12540,
-      total_activated: 8430,
+      products: 12540,
+      activated: 8430,
       assigned: 3120,
       distributed: 1890,
       activated: 760,
-      total_sellers: 45,
-      total_points_of_sale: 28,
+      sellers: 45,
+      points_of_sale: 28,
       in_transit: 990
    },
    pointsOfSale: [
@@ -29,11 +29,11 @@ const mockData = {
       { id: 5, name: "Punto Oeste", latitude: 19.39, longitude: -99.2, salesCount: 65, productsCount: 25, type: "medium", region: "Oeste" }
    ],
    regionalData: [
-      { region: "Centro", total_products: 4500, distributed: 850, activated: 320, target: 1000 },
-      { region: "Norte", total_products: 3200, distributed: 420, activated: 180, target: 600 },
-      { region: "Sur", total_products: 2800, distributed: 280, activated: 120, target: 500 },
-      { region: "Este", total_products: 1500, distributed: 220, activated: 90, target: 300 },
-      { region: "Oeste", total_products: 540, distributed: 120, activated: 50, target: 200 }
+      { region: "Centro", products: 4500, distributed: 850, activated: 320, target: 1000 },
+      { region: "Norte", products: 3200, distributed: 420, activated: 180, target: 600 },
+      { region: "Sur", products: 2800, distributed: 280, activated: 120, target: 500 },
+      { region: "Este", products: 1500, distributed: 220, activated: 90, target: 300 },
+      { region: "Oeste", products: 540, distributed: 120, activated: 50, target: 200 }
    ],
    productAnalytics: {
       productTypes: [

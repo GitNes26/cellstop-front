@@ -1,5 +1,9 @@
 {
    "recommendations": [
-      "aryansrao.deekseek-extension"
+      "aryansrao.deekseek-extension",
+      "matthewnespor.vscode-color-identifiers-mode",
+      "fredu.color-conversion",
+      "lennardv.set-window-color-name",
+      "davidbwaters.macos-modern-theme"
    ]
 }

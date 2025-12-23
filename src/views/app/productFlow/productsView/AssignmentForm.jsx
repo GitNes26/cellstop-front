@@ -353,9 +353,10 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    //    }
    // }
    async function handleChangeLote(values) {
+      // console.log("🚀 ~ handleChangeLote ~ values:", values);
       try {
          // console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
-         if (values.value.id < 1) {
+         if (values.value == null || values.value?.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
             formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
             return Toast.Warning("Selecciona un lote");
