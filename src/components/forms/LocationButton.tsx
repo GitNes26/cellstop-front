@@ -85,8 +85,10 @@ const LocationButton: React.FC<LocationButtonProps> = ({
       setLoading(true);
       setError(null);
 
+      // console.log("🚀 ~ handleGetLocation ~ navigator.geolocation:", navigator.geolocation.getCurrentPosition);
       navigator.geolocation.getCurrentPosition(
          (position) => {
+            // console.log("🚀 ~ handleGetLocation ~ position:", position)
             const coords = {
                lat: position.coords.latitude,
                lng: position.coords.longitude,

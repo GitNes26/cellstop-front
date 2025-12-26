@@ -38,6 +38,8 @@ export interface DashboardData {
    points_of_sale: Array<any>;
    sellers_performance: Array<any>;
    visits_summary: Record<string, any>;
+   ported_products: any;
+   get_portability_by_seller_report: any;
 }
 interface ObjRes {
    alert_icon: string;

@@ -193,10 +193,10 @@ export default function VisitContextProvider({ children }) {
 
    // Función para calcular distancia en kilómetros
    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      console.log("🚀 ~ calculateDistance ~ lon1:", lon1);
-      console.log("🚀 ~ calculateDistance ~ lat1:", lat1);
-      console.log("🚀 ~ calculateDistance ~ lon2:", lon2);
-      console.log("🚀 ~ calculateDistance ~ lat2:", lat2);
+      // console.log("🚀 ~ calculateDistance ~ lon1:", lon1);
+      // console.log("🚀 ~ calculateDistance ~ lat1:", lat1);
+      // console.log("🚀 ~ calculateDistance ~ lon2:", lon2);
+      // console.log("🚀 ~ calculateDistance ~ lat2:", lat2);
       const R = 6371; // Radio de la Tierra en km
       const dLat = ((lat2 - lat1) * Math.PI) / 180;
       const dLon = ((lon2 - lon1) * Math.PI) / 180;

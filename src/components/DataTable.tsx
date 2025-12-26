@@ -369,6 +369,7 @@ function CustomToolbar(btnAdd: boolean, handleClickAdd: any, handleClickRefresh:
 const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisEnable }) => {
    // console.log("🚀 ~ RowActions ~ params:", params.row);
    // console.log("🚀 ~ RowActions ~ params.columns:", params.columns);
+   // console.log("🚀 ~ RowActions ~ params.columns[indexColumnName].field:", params.columns[indexColumnName].field);
    const { auth } = useAuthContext();
 
    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -376,6 +377,7 @@ const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisE
    const objName = params.columns[indexColumnName].field;
    const id = params.row.id;
    const active = params.row.active;
+   // console.log("🚀 ~ RowActions ~ objName:", objName);
    // console.log("🚀 ~ RowActions ~ active:", active)
    const actions = params.row.actions || [];
 

@@ -164,7 +164,6 @@ const DashboardView: React.FC = () => {
    // Manejo de cambio de filtros
    const handleFilterChange = useCallback(
       async (newFilters: Partial<DashboardFilters>) => {
-         
          setFilters((prev) => ({ ...prev, ...newFilters }));
 
          // Mostrar mensaje si se aplicó un filtro importante
@@ -880,7 +879,7 @@ const DashboardView: React.FC = () => {
                                           {seller.seller_info?.name?.charAt(0) || "V"}
                                        </Box>
                                        <Box>
-                                          <Typography variant="h6">{seller.seller_info?.name}</Typography>
+                                          <Typography variant="h6">{seller.seller_info?.full_name}</Typography>
                                           <Typography variant="body2" color="text.secondary">
                                              Portabilidad: {seller.products_stats?.portability_rate || 0}%
                                           </Typography>
@@ -902,13 +901,19 @@ const DashboardView: React.FC = () => {
                                              {seller.products_stats?.total_ported || 0}
                                           </Typography>
                                        </Grid>
-                                       <Grid size={{ xs: 6 }}>
+                                       <Grid size={{ xs: 4 }}>
                                           <Typography variant="body2" color="text.secondary">
-                                             Puntos:
+                                             Ptos de Venta:
                                           </Typography>
                                           <Typography variant="h6">{seller.points_of_sale?.total || 0}</Typography>
                                        </Grid>
-                                       <Grid size={{ xs: 6 }}>
+                                       <Grid size={{ xs: 4 }}>
+                                          <Typography variant="body2" color="text.secondary">
+                                             Distribuidos:
+                                          </Typography>
+                                          <Typography variant="h6">{seller.points_of_sale?.total || 0}</Typography>
+                                       </Grid>
+                                       <Grid size={{ xs: 4 }}>
                                           <Typography variant="body2" color="text.secondary">
                                              Visitas:
                                           </Typography>

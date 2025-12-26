@@ -41,6 +41,7 @@ const PointOfSaleDT = () => {
    );
    const ContactBodyTemplate = (obj) => (
       <>
+      
          <Typography textAlign={"center"} size={fontSizeTable.text}>
             {obj.contact_name}
          </Typography>

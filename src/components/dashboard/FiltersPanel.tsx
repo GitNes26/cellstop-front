@@ -274,7 +274,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                </Typography>
                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   <Chip
-                     label="Ver solo Portados"
+                     label="Portados"
                      size="small"
                      color={filters.activationStatus === "Portado" ? "primary" : "default"}
                      onClick={() =>
@@ -285,7 +285,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                      variant={filters.activationStatus === "Portado" ? "filled" : "outlined"}
                   />
                   <Chip
-                     label="Ver solo Activados"
+                     label="Activados"
                      size="small"
                      color={filters.activationStatus === "Activado" ? "success" : "default"}
                      onClick={() =>
@@ -306,8 +306,8 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                      }
                      variant={filters.locationStatus === "Distribuido" ? "filled" : "outlined"}
                   />
-                  
-                  <Chip
+
+                  {/* <Chip
                      label="Portados"
                      size="small"
                      color={filters.locationStatus === "Distribuido" ? "secondary" : "default"}
@@ -317,7 +317,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                         })
                      }
                      variant={filters.locationStatus === "Distribuido" ? "filled" : "outlined"}
-                  />
+                  /> */}
                   <Chip
                      label="Últimos 7 días"
                      size="small"

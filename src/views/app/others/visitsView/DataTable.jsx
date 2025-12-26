@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
-import { formatDatetime } from "../../../../utils/Formats";
+import { formatDatetime, formatPhone } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -10,7 +10,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useVisitContext } from "../../../../context/VisitContext";
 import { Typography } from "@mui/material";
-import { CheckCircleRounded, CancelRounded, LocationOn, Person, Phone, Store, Category } from "@mui/icons-material";
+import { CheckCircleRounded, CancelRounded, LocationOn, Person, Phone, Store, Category, MapRounded, PhoneAndroidRounded } from "@mui/icons-material";
 
 const VisitDT = () => {
    const { auth } = useAuthContext();
@@ -29,12 +29,14 @@ const VisitDT = () => {
       </Typography>
    );
 
-   const SellerBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-         <Person fontSize={"small"} className="mr-1" />
-         {obj.seller?.username || "Sin vendedor"}
-      </Typography>
-   );
+   const SellerBodyTemplate = (obj) => {
+      return (
+         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
+            <Person fontSize={"small"} className="mr-1" />
+            {obj.seller?.username || "Sin vendedor"}
+         </Typography>
+      );
+   };
 
    const POSBodyTemplate = (obj) => (
       <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
@@ -44,7 +46,17 @@ const VisitDT = () => {
    );
 
    const ContactBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
+      <>
+         <Typography textAlign={"center"} size={fontSizeTable.text}>
+            {obj.contact_name}
+         </Typography>
+         <Typography textAlign={"center"} size={fontSizeTable.subtext} className="flex items-center justify-center italic">
+            <PhoneAndroidRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
+            <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
+               {formatPhone(obj.contact_phone)}
+            </a>
+         </Typography>
+         {/* <Typography textAlign={"center"} size={fontSizeTable.text}>
          {obj.contact_name ? (
             <div className="flex items-center justify-center">
                <Person fontSize={"small"} className="mr-1" />
@@ -59,7 +71,8 @@ const VisitDT = () => {
          ) : (
             "No aplica"
          )}
-      </Typography>
+      </Typography> */}
+      </>
    );
 
    const ProductsBodyTemplate = (obj) => (
@@ -67,7 +80,7 @@ const VisitDT = () => {
          {obj.visit_type === "Distribución" ? (
             <div className="flex items-center justify-center">
                <Category fontSize={"small"} className="mr-1" />
-               {obj.product_ids?.length || 0} productos
+               {obj.products?.length || 0} productos
             </div>
          ) : (
             "No aplica"
@@ -76,7 +89,18 @@ const VisitDT = () => {
    );
 
    const LocationBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
+      <>
+         <Typography
+            textAlign={"center"}
+            size={fontSizeTable.text}
+            component={"a"}
+            href={obj.ubication ?? "#"}
+            target="_blank"
+            className="text-blue-800 hover:underline transition-all"
+         >
+            <MapRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {obj.ubication ? "Ver ubicación" : "Sin ubicación"}
+         </Typography>
+         {/* <Typography textAlign={"center"} size={fontSizeTable.text}>
          {obj.lat && obj.lon ? (
             <div className="flex items-center justify-center">
                <LocationOn fontSize={"small"} className="mr-1" />
@@ -85,7 +109,8 @@ const VisitDT = () => {
          ) : (
             "Sin verificar"
          )}
-      </Typography>
+      </Typography> */}
+      </>
    );
 
    const ChipsInfoBodyTemplate = (obj) => (
@@ -119,49 +144,70 @@ const VisitDT = () => {
          field: "visit_type",
          headerName: "Tipo",
          sortable: true,
-         renderCell: (params) => <VisitTypeBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <VisitTypeBodyTemplate {...obj} />;
+         },
          filter: true
       },
       {
          field: "seller",
          headerName: "Vendedor",
          sortable: true,
-         renderCell: (params) => <SellerBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <SellerBodyTemplate {...obj} />;
+         },
          filter: true
       },
       {
          field: "point_of_sale",
          headerName: "Punto de Venta",
          sortable: true,
-         renderCell: (params) => <POSBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <POSBodyTemplate {...obj} />;
+         },
          filter: true
       },
       {
          field: "contact",
          headerName: "Contacto",
          sortable: false,
-         renderCell: (params) => <ContactBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <ContactBodyTemplate {...obj} />;
+         },
          filter: false
       },
       {
          field: "products",
          headerName: "Productos",
          sortable: false,
-         renderCell: (params) => <ProductsBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <ProductsBodyTemplate {...obj} />;
+         },
          filter: false
       },
       {
          field: "location",
          headerName: "Ubicación",
          sortable: false,
-         renderCell: (params) => <LocationBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <LocationBodyTemplate {...obj} />;
+         },
          filter: false
       },
       {
          field: "chips_info",
          headerName: "Seguimiento",
          sortable: false,
-         renderCell: (params) => <ChipsInfoBodyTemplate {...params.row} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <ChipsInfoBodyTemplate {...obj} />;
+         },
          filter: false
       }
    ];
@@ -172,14 +218,20 @@ const VisitDT = () => {
             field: "active",
             headerName: "Activo",
             sortable: true,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <ActiveBodyTemplate {...obj} />;
+            },
             filter: false
          },
          {
             field: "created_at",
             headerName: "Fecha",
             sortable: true,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <CreatedAtBodyTemplate {...obj} />;
+            },
             filter: false
          }
       );
@@ -360,7 +412,7 @@ const VisitDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={3}
+         indexColumnName={1}
          rowEdit={false}
          refreshTable={getAllVisits}
          btnsExport={true}

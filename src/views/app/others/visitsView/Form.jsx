@@ -106,7 +106,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const [pointOfSaleFormDialog, setPointOfSaleFormDialog] = useState(false);
 
    const [locationVerified, setLocationVerified] = useState(false);
-   const [selectedProducts, setSelectedProducts] = useState([]);
+   const [selectedProducts, setSelectedPxzzroducts] = useState([]);
    const [isGettingLocation, setIsGettingLocation] = useState(false);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
@@ -166,56 +166,75 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
    // Verificar ubicación contra punto de venta
    const handleChangeUbication = async (values) => {
-      console.log("🚀 ~ handleChangeUbication ~ values:", values);
-      const currentLocation = values.coords;
-      const pos = pointsOfSaleSelect.find((item) => item.id === formikRef.current?.values.pos_id);
-      console.log("🚀 ~ handleChangeUbication ~ pos:", pos);
-      if (!currentLocation || !pos) return false;
+      try {
+         if (values.value == null || values.value?.id < 1) {
+            formikRef?.current?.setValues(formikRef.current.initialValues);
+            formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
+            return Toast.Warning("Selecciona un lote");
+         }
+         //Asignar valores al ListTrasnfer
+         const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
 
-      setIsLoading(true);
-      const result = await verifyLocation(pos, currentLocation.lat, currentLocation.lng);
-      console.log("🚀 ~ handleChangeUbication ~ result:", result);
-      setIsLoading(false);
 
-      if (result.valid) {
-         setLocationVerified(true);
-         Toast.Success(result.message);
 
-         // Actualizar campos en el formulario
-         formikRef.current.setFieldValue("lat", currentLocation.lat);
-         formikRef.current.setFieldValue("lon", currentLocation.lon);
-         formikRef.current.setFieldValue("ubication", `Lat: ${currentLocation.lat}, Lon: ${currentLocation.lon}`);
+         // Verificar ubicación y asignando valores de ubicacion
+         console.log("🚀 ~ handleChangeUbication ~ values:", values);
+         const currentLocation = values.coords;
+         const pos = pointsOfSaleSelect.find((item) => item.id === formikRef.current?.values.pos_id);
+         console.log("🚀 ~ handleChangeUbication ~ pos:", pos);
+         if (!currentLocation || !pos) return false;
 
-         return true;
-      } else {
-         setLocationVerified(false);
-         Toast.Error(result.message);
-         return false;
+         setIsLoading(true);
+         const result = await verifyLocation(pos, currentLocation.lat, currentLocation.lng);
+         console.log("🚀 ~ handleChangeUbication ~ result:", result);
+         setIsLoading(false);
+
+         if (result.valid) {
+            setLocationVerified(true);
+            Toast.Success(result.message);
+
+            // Actualizar campos en el formulario
+            formikRef.current.setFieldValue("lat", currentLocation.lat);
+            formikRef.current.setFieldValue("lon", currentLocation.lng);
+            formikRef.current.setFieldValue("ubication", currentLocation.ubi);
+            // formikRef.current.setFieldValue("ubication", `Lat: ${currentLocation.lat}, Lon: ${currentLocation.lng}`);
+
+            return true;
+         } else {
+            setLocationVerified(false);
+            Toast.Error(result.message);
+            return false;
+         }
+      } catch (error) {
+         setOpenDialog(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
       }
    };
-   const verifyLocationForPOS = async (posId) => {
-      if (!currentLocation || !posId) return false;
+   // const verifyLocationForPOS = async (posId) => {
+   //    if (!currentLocation || !posId) return false;
 
-      setIsLoading(true);
-      const result = await verifyLocation(posId, currentLocation.lat, currentLocation.lon);
-      setIsLoading(false);
+   //    setIsLoading(true);
+   //    const result = await verifyLocation(posId, currentLocation.lat, currentLocation.lon);
+   //    setIsLoading(false);
 
-      if (result.valid) {
-         setLocationVerified(true);
-         Toast.Success(result.message);
+   //    if (result.valid) {
+   //       setLocationVerified(true);
+   //       Toast.Success(result.message);
 
-         // Actualizar campos en el formulario
-         formikRef.current.setFieldValue("lat", currentLocation.lat);
-         formikRef.current.setFieldValue("lon", currentLocation.lon);
-         formikRef.current.setFieldValue("ubication", `Lat: ${currentLocation.lat}, Lon: ${currentLocation.lon}`);
+   //       // Actualizar campos en el formulario
+   //       formikRef.current.setFieldValue("lat", currentLocation.lat);
+   //       formikRef.current.setFieldValue("lon", currentLocation.lon);
+   //       formikRef.current.setFieldValue("ubication", `Lat: ${currentLocation.lat}, Lon: ${currentLocation.lon}`);
 
-         return true;
-      } else {
-         setLocationVerified(false);
-         Toast.Error(result.message);
-         return false;
-      }
-   };
+   //       return true;
+   //    } else {
+   //       setLocationVerified(false);
+   //       Toast.Error(result.message);
+   //       return false;
+   //    }
+   // };
 
    // Manejar cambio de tipo de visita
    const handleVisitTypeChange = (values) => {
@@ -590,7 +609,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
       // Validar que esté en el rango
       if (values.lat && values.lon && values.pos_id) {
-         const result = await verifyLocation(values.pos_id, values.lat, values.lon);
+         const result = await verifyLocation(values.point_of_sale, values.lat, values.lon);
          if (!result.valid) {
             Toast.Error(result.message);
             setSubmitting(false);
