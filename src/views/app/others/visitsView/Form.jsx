@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography, Grid, Chip, Box, Alert } from "@mui/material";
 import Toast from "../../../../utils/Toast";
 import { useAuthContext } from "../../../../context/AuthContext";
-import { useGlobalContext } from "../../../../context/GlobalContext";
+import { ROLE_SELLER, useGlobalContext } from "../../../../context/GlobalContext";
 import { useVisitContext } from "../../../../context/VisitContext";
 import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -18,6 +18,7 @@ import UserForm from "../../settings/usersView/Form";
 import PointOfSaleForm from "../../catalogs/pointsOfSaleView/Form";
 import EvidenceCapture from "../../../../components/forms/EvidenceCapture";
 import { useProductContext } from "../../../../context/ProductContext";
+import { useLoteContext } from "../../../../context/LoteContext";
 
 const checkAddInitialState = localStorage.getItem("checkAddVisits") == "true" ? true : false || false;
 
@@ -75,7 +76,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
  * @returns {React.JSX.Element} El componente FormikForm.
  */
 const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDialog }) => {
-   const { auth } = useAuthContext();
+   const { auth, theUserIs } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const {
       singularName,
@@ -95,10 +96,12 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       setLocationError,
       availableProducts
    } = useVisitContext();
-   const { product, updateLoteAssignment, getSelectIndexProducts } = useProductContext();
+   const { product, updateLoteAssignment, getSelectIndexProducts, getAllProducts } = useProductContext();
 
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
    const { pointsOfSaleSelect, setPointsOfSaleSelect, getSelectIndexPointsOfSale } = usePointOfSaleContext();
+   const { allLotes, setAllLotes, getAllLotes } = useLoteContext();
+
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
@@ -106,15 +109,27 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const [pointOfSaleFormDialog, setPointOfSaleFormDialog] = useState(false);
 
    const [locationVerified, setLocationVerified] = useState(false);
-   const [selectedProducts, setSelectedPxzzroducts] = useState([]);
+   const [selectedProducts, setSelectedProducts] = useState([]);
    const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+   const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes({ seller_id: 2 /* auth.id */ }), setAllLotes);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
-   const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProducts({ location_status: ["Asignado"], activation_status: "Pre-activado" }),
-      setProductsInStockSelect
-   );
+   console.log("🚀 ~ VisitForm ~ formikRef.current?.values.product_ids:", formikRef.current?.values.product_ids);
+   const { refetch: refetchProductsInStock } = useFetch(() => {
+      return getSelectIndexProducts({
+         folio: allLotes.map((item) => item.folio)
+         // location_status: ["Asignado"],
+         // activation_status: "Pre-activado",
+         // id: [229, 228, 227, 226, 225, 224, 223, 222]
+         // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
+      });
+   }, setProductsInStockSelect);
+   // const { refetch: refetchProductsDistributed } = useFetch(
+   //    () => getAllProducts({ id: ["Asignado"]}),
+   //    setProductsInStockSelect
+   // );
 
    // Obtener ubicación actual
    const getCurrentLocation = () => {
@@ -167,16 +182,6 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    // Verificar ubicación contra punto de venta
    const handleChangeUbication = async (values) => {
       try {
-         if (values.value == null || values.value?.id < 1) {
-            formikRef?.current?.setValues(formikRef.current.initialValues);
-            formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
-            return Toast.Warning("Selecciona un lote");
-         }
-         //Asignar valores al ListTrasnfer
-         const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
-
-
-
          // Verificar ubicación y asignando valores de ubicacion
          console.log("🚀 ~ handleChangeUbication ~ values:", values);
          const currentLocation = values.coords;
@@ -282,6 +287,10 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       // }
    }
    const init = () => {
+      // si el usuario es de rol_id === 3 (vendedor) seleccionar el id y poner disabled el Select2
+      if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.role_id);
+      else console.log("no lo soy");
+
       // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
@@ -292,12 +301,12 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       //    productsInStockSelected.map((d) => d.id)
       // );
    };
-   // useEffect(() => {
-   //    // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
-   //    // formikRef?.current?.resetForm();
-   //    // formikRef?.current?.setValues(formikRef.current.initialValues);
-   //    // init();
-   // }, [openDialog == true]);
+   useEffect(() => {
+      // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
+      // formikRef?.current?.resetForm();
+      // formikRef?.current?.setValues(formikRef.current.initialValues);
+      init();
+   }, [openDialog == true]);
 
    // Cargar productos disponibles cuando cambia el vendedor
    // useEffect(() => {
@@ -332,7 +341,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                options={usersSelect || []}
                refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
-               // disabled={auth.role_id === 3}
+               disabled={theUserIs([ROLE_SELLER])}
                required
             />
          ),

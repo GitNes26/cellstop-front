@@ -36,10 +36,10 @@ export default function LoteContextProvider({ children }) {
    const [allLoteDetailsByLote, setAllLoteDetailsByLote] = useState([]);
 
    //#region CRUD
-   const getAllLotes = async () => {
+   const getAllLotes = async (data) => {
       // if (!(await checkLoggedIn())) return;
 
-      const [error, response] = await to(Axios.get(`${prefixPath}`));
+      const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllLotes ~ error:", error);
       // console.log("🚀 ~ getAllLotes ~ response:", response);
       if (error) {

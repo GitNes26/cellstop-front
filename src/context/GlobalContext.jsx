@@ -16,7 +16,7 @@ export const colorSecondaryLight = "#fdf3f1";
 
 export const ROLE_SUPER_ADMIN = 1;
 export const ROLE_ADMIN = 2;
-// export const ROLE_CIUDADANO = 3;
+export const ROLE_SELLER = 3;
 
 export const GlobalContext = createContext();
 

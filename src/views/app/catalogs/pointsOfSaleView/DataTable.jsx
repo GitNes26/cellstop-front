@@ -41,7 +41,6 @@ const PointOfSaleDT = () => {
    );
    const ContactBodyTemplate = (obj) => (
       <>
-      
          <Typography textAlign={"center"} size={fontSizeTable.text}>
             {obj.contact_name}
          </Typography>
@@ -88,7 +87,10 @@ const PointOfSaleDT = () => {
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <PointOfSaleBodyTemplate {...params.row} key={`name-${params.row.id}`} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <PointOfSaleBodyTemplate {...obj} key={`name-${params.row.id}`} />;
+         },
          filter: true,
          filterField: null
       },
@@ -99,7 +101,10 @@ const PointOfSaleDT = () => {
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <ContactBodyTemplate {...params.row} key={`contact_name-${params.row.id}`} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <ContactBodyTemplate {...obj} key={`contact_name-${params.row.id}`} />;
+         },
          filter: true,
          filterField: null
       },
@@ -110,7 +115,10 @@ const PointOfSaleDT = () => {
          // width: 90,
          sortable: true,
          functionEdit: null,
-         renderCell: (params) => <AddressBodyTemplate {...params.row} key={`address-${params.row.id}`} />,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <AddressBodyTemplate {...obj} key={`address-${params.row.id}`} />;
+         },
          filter: true,
          filterField: null
       }
@@ -124,7 +132,10 @@ const PointOfSaleDT = () => {
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <ActiveBodyTemplate {...obj} key={`active-${params.row.id}`} />;
+            },
             filter: false,
             filterField: null
          },
@@ -135,7 +146,10 @@ const PointOfSaleDT = () => {
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
+            renderCell: (params) => {
+               const { key, ...obj } = params.row;
+               return <CreatedAtBodyTemplate {...obj} key={`created_at-${params.row.id}`} />;
+            },
             filter: false,
             filterField: null
          }

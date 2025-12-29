@@ -556,6 +556,15 @@ export default function AuthContextProvider({ children }) {
       }
    };
 
+   /**
+    *
+    * @param {Array} roles_id Array de ids para indicar si el usuario es alguno de ellos
+    * @returns boolean
+    */
+   const theUserIs = (roles_id) => {
+      return roles_id.includes(auth.role_id);
+   };
+
    useEffect(() => {
       // console.log("el useEffect de AuthContext");
       // validateAccessPage();
@@ -578,7 +587,8 @@ export default function AuthContextProvider({ children }) {
             permissionRead,
             validateAccessPage,
             changePasswordAuth,
-            counterOfMenus
+            counterOfMenus,
+            theUserIs
          }}
       >
          {children}
