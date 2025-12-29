@@ -216,9 +216,19 @@ const mainRouter = {
             {
                path: "puntos-de-venta",
                element: (
-                  <PointOfSaleContextProvider>
-                     <PointsOfSaleView />
-                  </PointOfSaleContextProvider>
+                  <UserContextProvider>
+                     <RoleContextProvider>
+                        <EmployeeContextProvider>
+                           <DepartmentContextProvider>
+                              <PositionContextProvider>
+                                 <PointOfSaleContextProvider>
+                                    <PointsOfSaleView />
+                                 </PointOfSaleContextProvider>
+                              </PositionContextProvider>
+                           </DepartmentContextProvider>
+                        </EmployeeContextProvider>
+                     </RoleContextProvider>
+                  </UserContextProvider>
                )
             },
             {

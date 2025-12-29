@@ -287,24 +287,72 @@ const TransferList: React.FC<TransferListProps> = ({
    }, [onRefetch, isRefetching]);
 
    // Efecto para sincronización
+   // useEffect(() => {
+   //    const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
+   //    const formRight = (formik.values[idNameRight] || []) as number[];
+
+   //    const validLeft = formLeft.filter((id) => availableIds.includes(id));
+   //    const validRight = formRight.filter((id) => availableIds.includes(id));
+
+   //    setLeft(validLeft);
+   //    setRight(validRight);
+
+   //    // Solo actualizar Formik si hay cambios
+   //    if (JSON.stringify(formik.values[idNameLeft]) !== JSON.stringify(validLeft)) {
+   //       formik.setFieldValue(idNameLeft, validLeft);
+   //    }
+   //    if (JSON.stringify(formik.values[idNameRight]) !== JSON.stringify(validRight)) {
+   //       formik.setFieldValue(idNameRight, validRight);
+   //    }
+   // }, [formik.values, data, idNameLeft, idNameRight, availableIds]);
+   // Efecto para sincronización - VERSIÓN CORREGIDA
    useEffect(() => {
-      const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
-      const formRight = (formik.values[idNameRight] || []) as number[];
+      const availableIds = data.map((d) => d.id);
 
-      const validLeft = formLeft.filter((id) => availableIds.includes(id));
-      const validRight = formRight.filter((id) => availableIds.includes(id));
+      // Valores actuales de Formik
+      const currentFormLeft = (formik.values[idNameLeft] || []) as number[];
+      const currentFormRight = (formik.values[idNameRight] || []) as number[];
 
-      setLeft(validLeft);
-      setRight(validRight);
+      // Filtrar solo IDs válidos
+      const validLeft = currentFormLeft.filter((id) => availableIds.includes(id));
+      const validRight = currentFormRight.filter((id) => availableIds.includes(id));
 
-      // Solo actualizar Formik si hay cambios
-      if (JSON.stringify(formik.values[idNameLeft]) !== JSON.stringify(validLeft)) {
-         formik.setFieldValue(idNameLeft, validLeft);
+      // Determinar si necesitamos inicializar con todos los chips
+      const shouldUseAllChips = validLeft.length === 0 && validRight.length === 0 && availableIds.length > 0;
+
+      const finalLeft = shouldUseAllChips ? availableIds : validLeft;
+      const finalRight = shouldUseAllChips ? [] : validRight;
+
+      // Actualizar estado local
+      if (JSON.stringify(left) !== JSON.stringify(finalLeft)) {
+         setLeft(finalLeft);
       }
-      if (JSON.stringify(formik.values[idNameRight]) !== JSON.stringify(validRight)) {
-         formik.setFieldValue(idNameRight, validRight);
+      if (JSON.stringify(right) !== JSON.stringify(finalRight)) {
+         setRight(finalRight);
       }
-   }, [formik.values, data, idNameLeft, idNameRight, availableIds]);
+
+      // Sincronizar con Formik si hay diferencias
+      if (JSON.stringify(currentFormLeft) !== JSON.stringify(finalLeft)) {
+         formik.setFieldValue(idNameLeft, finalLeft);
+      }
+      if (JSON.stringify(currentFormRight) !== JSON.stringify(finalRight)) {
+         formik.setFieldValue(idNameRight, finalRight);
+      }
+   }, [data, formik.values, idNameLeft, idNameRight]);
+
+   // useEffect(() => {
+   //    console.log("Data recibida:", data);
+   //    console.log(
+   //       "IDs disponibles:",
+   //       data.map((d) => d.id)
+   //    );
+   //    console.log("Formik left:", formik.values[idNameLeft]);
+   //    console.log("Formik right:", formik.values[idNameRight]);
+   //    console.log("Estado left:", left);
+   //    console.log("Estado right:", right);
+
+   //    // ... resto del código
+   // }, [data, formik.values, left, right]);
 
    return (
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center", width: "100%", px: 0, mx: 0 }} size={sizeCols}>
