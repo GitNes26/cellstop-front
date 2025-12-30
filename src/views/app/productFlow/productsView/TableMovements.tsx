@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, Chip, Avatar, Grid, Divider } from "@mui/material";
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from "@mui/lab";
-import { Person, Timeline as TimelineIcon, ArrowRightAlt, CheckCircle, Error, Warning, Info, History } from "@mui/icons-material";
+import { Person, Timeline as TimelineIcon, ArrowRightAlt, CheckCircle, Error, Warning, Info, History, AssignmentIndRounded } from "@mui/icons-material";
 import { DialogComponent } from "../../../../components";
 import { formatDatetime } from "../../../../utils/Formats";
 
@@ -58,22 +58,38 @@ interface TableMovementsProps {
    viewMode?: "table" | "timeline" | "both";
 }
 
+const getBageColor = (action: string): string => {
+   const actionLower = action.toLowerCase();
+   if (actionLower.includes("portado")) return "error";
+   if (actionLower.includes("activ")) return "success";
+   if (actionLower.includes("alert")) return "warning";
+   if (actionLower.includes("asig")) return "info";
+   if (actionLower.includes("import")) return "primary";
+   if (actionLower.includes("error") || actionLower.includes("fallo")) return "error";
+   if (actionLower.includes("cancel")) return "info";
+   return "grey.600";
+};
+
 // Componente para el timeline
 const MovementTimeline: React.FC<{ movements: ProductMovement[] }> = ({ movements }) => {
    const getActionColor = (action: string): string => {
       const actionLower = action.toLowerCase();
+      if (actionLower.includes("portado")) return "error.main";
       if (actionLower.includes("activ")) return "success.main";
-      if (actionLower.includes("port")) return "info.main";
+      if (actionLower.includes("alert")) return "warning.main";
+      if (actionLower.includes("asig")) return "info.main";
       if (actionLower.includes("import")) return "primary.main";
       if (actionLower.includes("error") || actionLower.includes("fallo")) return "error.main";
-      if (actionLower.includes("cancel")) return "warning.main";
+      if (actionLower.includes("cancel")) return "info.main";
       return "grey.600";
    };
 
    const getActionIcon = (action: string): React.ReactNode => {
       const actionLower = action.toLowerCase();
+      if (actionLower.includes("portado")) return <ArrowRightAlt fontSize="small" />;
       if (actionLower.includes("activ")) return <CheckCircle fontSize="small" />;
-      if (actionLower.includes("port")) return <ArrowRightAlt fontSize="small" />;
+      if (actionLower.includes("alert")) return <Warning fontSize="small" />;
+      if (actionLower.includes("asig")) return <AssignmentIndRounded fontSize="small" />;
       if (actionLower.includes("import")) return <History fontSize="small" />;
       if (actionLower.includes("error")) return <Error fontSize="small" />;
       if (actionLower.includes("cancel")) return <Warning fontSize="small" />;
@@ -136,8 +152,10 @@ export const TableMovements: React.FC<TableMovementsProps> = ({ movements, produ
                   fontWeight: 600,
                   backgroundColor: (() => {
                      const actionLower = value.toLowerCase();
+                     if (actionLower.includes("portado")) return "danger.light";
                      if (actionLower.includes("activ")) return "success.light";
-                     if (actionLower.includes("port")) return "info.light";
+                     if (actionLower.includes("alert")) return "warning.light";
+                     if (actionLower.includes("asig")) return "info.light";
                      if (actionLower.includes("import")) return "primary.light";
                      if (actionLower.includes("error")) return "error.light";
                      if (actionLower.includes("cancel")) return "warning.light";
@@ -145,8 +163,10 @@ export const TableMovements: React.FC<TableMovementsProps> = ({ movements, produ
                   })(),
                   color: (() => {
                      const actionLower = value.toLowerCase();
+                     if (actionLower.includes("portado")) return "danger.dark";
                      if (actionLower.includes("activ")) return "success.dark";
-                     if (actionLower.includes("port")) return "info.dark";
+                     if (actionLower.includes("alert")) return "warning.dark";
+                     if (actionLower.includes("asig")) return "info.dark";
                      if (actionLower.includes("import")) return "primary.dark";
                      if (actionLower.includes("error")) return "error.dark";
                      if (actionLower.includes("cancel")) return "warning.dark";
@@ -491,8 +511,9 @@ export const TableMovements: React.FC<TableMovementsProps> = ({ movements, produ
          {/* Resumen de estado actual */}
          {stats.lastMovement && (
             <Paper sx={{ p: 2, mt: 2, backgroundColor: "info.50" }}>
-               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  Estado Actual
+               <Typography variant="subtitle1" fontWeight="bold" gap={2} gutterBottom>
+                  Estado Actual &nbsp;
+                  <Chip label={sortedMovements[0].destination} color={getBageColor(sortedMovements[0].destination)} size="small" sx={{ mr: 1 }} />
                </Typography>
                <Grid container spacing={2}>
                   <Grid size={{ xs: 12, md: 6 }}>

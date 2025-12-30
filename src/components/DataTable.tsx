@@ -423,7 +423,7 @@ const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisE
    return (
       <div className="">
          {auth.role_id === ROLE_SUPER_ADMIN && (
-            <Tooltip title={active ? "Desactivar" : "Reactivar"} placement="right" arrow>
+            <Tooltip title={active ? "Desactivar" : "Reactivar"} placement="left" arrow>
                <Button color="primary" onClick={() => handleClickDisEnable(id, objName, active)} sx={{ p: 0 }}>
                   <Switch checked={Boolean(active)} />
                </Button>
@@ -547,39 +547,6 @@ const DataTableComponent = ({
             headerClassName: "pinned-column"
          },
          ...dataColumns
-         // {
-         //    field: "actions",
-         //    headerName: "Acciones",
-         //    type: "actions",
-         //    width: 100,
-         //    pinnable: false,
-         //    // cellClassName: "sticky-col",
-         //    // headerClassName: "sticky-col-header",
-         //    // renderCell: (params) => <div style={{ position: "sticky", left: 0, background: "white", zIndex: 1 }}>{params.value}</div>,
-         //    style: {
-         //       position: "sticky",
-         //       rigth: 0,
-         //       backgroundColor: "#fff", // Fondo blanco para evitar transparencias
-         //       zIndex: 1,
-         //       boxShadow: "2px 0 5px -2px rgba(0,0,0,0.1)" // Sombra para separación visual
-         //    },
-
-         //    // cellClassName: {
-         //    //    position: "sticky",
-         //    //    left: 0,
-         //    //    backgroundColor: "#fff", // Fondo blanco para evitar transparencias
-         //    //    zIndex: 1,
-         //    //    boxShadow: "2px 0 5px -2px rgba(0,0,0,0.1)" // Sombra para separación visual
-         //    // },
-         //    //classes.pinnedColumn, // Fija esta columna
-
-         //    getActions: (params) => [
-         //       <RowActions params={params} key={params.id} indexColumnName={indexColumnName} handleClickDisEnable={handleClickDisEnable} singularName={singularName} />
-         //    ],
-         //    // Estilos para columna fija (opcional)
-         //    cellClassName: "pinned-column",
-         //    headerClassName: "pinned-column"
-         // }
       ],
       []
    );
@@ -689,8 +656,28 @@ const DataTableComponent = ({
    return (
       <Box sx={{ height: scrollHeight, width: "100%" }}>
          <DataGrid
-            sx={{ border: 1, backgroundColor: "" }}
+            sx={(theme) => ({
+               border: 1,
+               backgroundColor: "",
+               '& .row-advertencia': {
+                  backgroundColor: theme.palette.warning.light + ' !important'
+               },
+               '& .row-peligro': {
+                  backgroundColor: theme.palette.warning.dark + ' !important',
+                  color: theme.palette.getContrastText(theme.palette.warning.dark) + ' !important'
+               }
+            })}
             apiRef={apiRef}
+            getRowClassName={(params) => {
+               try {
+                  const val = String(params.row?.evaluations_rejected || "").toLowerCase();
+                  if (val.includes("peligro")) return "row-peligro";
+                  if (val.includes("advertencia")) return "row-advertencia";
+               } catch (e) {
+                  // ignore
+               }
+               return "";
+            }}
             autosizeOptions={autosizeOptions}
             // scrollbarSize={1}
             showToolbar

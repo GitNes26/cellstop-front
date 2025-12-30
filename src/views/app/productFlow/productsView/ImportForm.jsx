@@ -119,7 +119,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
       errores: []
    });
 
-   const [showSummary, setShowSummary] = useState(false);
+   const [showSummary, setShowSummary] = useState(true);
 
    // Función para extraer folios del archivo
    const extractFoliosFromData = (data) => {
@@ -208,7 +208,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                         try {
                            const raw = newRow[col];
                            newRow[col] = raw !== null && raw !== "" && raw !== undefined ? excelDateToJSDate(raw) : null;
-                           console.log("🚀 ~ handleFile ~ newRow[col]:", newRow[col])
+                           // console.log("🚀 ~ handleFile ~ newRow[col]:", newRow[col]);
                         } catch {
                            newRow[col] = null;
                         }
@@ -287,7 +287,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
             formikRef.current.setFieldValue("data", validos);
             formikRef.current.setFieldValue("fileData", fileData);
 
-            console.log("Resumen del archivo:", summary);
+            // console.log("Resumen del archivo:", summary);
             return validos;
          } catch (error) {
             console.error("Error procesando archivo Excel:", error);

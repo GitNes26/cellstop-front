@@ -684,3 +684,7 @@ const ModalTableDetails: React.FC<ModalTableDetailsProps> = ({
    );
 };
 export default ModalTableDetails;
+
+
+
+

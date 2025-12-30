@@ -80,6 +80,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const { setIsLoading } = useGlobalContext();
    const {
       singularName,
+      visit,
       formTitle,
       setFormTitle,
       textBtnSubmit,
@@ -99,6 +100,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const { product, updateLoteAssignment, getSelectIndexProducts, getAllProducts } = useProductContext();
 
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
+   console.log("🚀 ~ VisitForm ~ usersSelect:", usersSelect);
    const { pointsOfSaleSelect, setPointsOfSaleSelect, getSelectIndexPointsOfSale } = usePointOfSaleContext();
    const { allLotes, setAllLotes, getAllLotes } = useLoteContext();
 
@@ -112,7 +114,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const [selectedProducts, setSelectedProducts] = useState([]);
    const [isGettingLocation, setIsGettingLocation] = useState(false);
 
-   const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes({ seller_id: 2 /* auth.id */ }), setAllLotes);
+   const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes(theUserIs([ROLE_SELLER]) ? { seller_id: auth.id } : {}), setAllLotes);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
@@ -286,27 +288,6 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       //    Toast.Warning("La cantidad de productos asignados no puede ser mayor a la cantidad del lote.");
       // }
    }
-   const init = () => {
-      // si el usuario es de rol_id === 3 (vendedor) seleccionar el id y poner disabled el Select2
-      if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.role_id);
-      else console.log("no lo soy");
-
-      // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      formikRef?.current?.setFieldValue(
-         "productos_en_stock",
-         productsInStockSelect.map((d) => d.id)
-      );
-      // formikRef?.current?.setFieldValue(
-      //    "product_ids",
-      //    productsInStockSelected.map((d) => d.id)
-      // );
-   };
-   useEffect(() => {
-      // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
-      // formikRef?.current?.resetForm();
-      // formikRef?.current?.setValues(formikRef.current.initialValues);
-      init();
-   }, [openDialog == true]);
 
    // Cargar productos disponibles cuando cambia el vendedor
    // useEffect(() => {
@@ -515,7 +496,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                <Box className={`border rounded-lg w-full ${formikRef.current?.values?.visit_type === "Distribución" ? "bg-blue-50 p-2" : "bg-gray-50"}`}>
                   {/* {formikRef.current?.values?.visit_type === "Distribución" ? (
                      <> */}
-                  <Typography variant="h6" className="mb-4">
+                  <Typography variant="h6" className="mb-4 pl-2 pt-2">
                      Información de Monitoreo
                   </Typography>
 
@@ -693,6 +674,35 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       }
    };
 
+   const init = () => {
+      // si el usuario es de rol_id === 3 (vendedor) seleccionar el id y poner disabled el Select2
+      console.log("🚀 ~ init ~ theUserIs([ROLE_SELLER]):", theUserIs([ROLE_SELLER]));
+      if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.id);
+      else console.log("no lo soy");
+      console.log("🚀 ~ init ~ formikRef?.current:", formikRef?.current);
+      console.log("🚀 ~ init ~ auth.role_id:", auth.id);
+
+      // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
+      formikRef?.current?.setFieldValue(
+         "productos_en_stock",
+         productsInStockSelect.map((d) => d.id)
+      );
+      // formikRef?.current?.setFieldValue(
+      //    "product_ids",
+      //    productsInStockSelected.map((d) => d.id)
+      // );
+   };
+   useEffect(() => {
+      // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
+      // formikRef?.current?.resetForm();
+      // formikRef?.current?.setValues(formikRef.current.initialValues);
+      init();
+   }, [openDialog == true]);
+
+   useEffect(() => {
+      // console.log("🚀 Form ~ useEffect :");
+      // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
+   }, [visit, formikRef, isEdit]);
    // useEffect(() => {
    //    // Si hay un vendedor logueado, cargar sus productos disponibles
    //    if (auth.user?.id) {

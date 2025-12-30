@@ -290,7 +290,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
 
    const init = () => {
       // si el usuario es de rol_id === 3 (vendedor) seleccionar el id y poner disabled el Select2
-      if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.role_id);
+      if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.id);
       else console.log("no lo soy");
    };
    useEffect(() => {

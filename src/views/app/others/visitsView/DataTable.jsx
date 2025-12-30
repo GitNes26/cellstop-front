@@ -244,7 +244,7 @@ const VisitDT = () => {
          formikRef?.current?.resetForm();
          // formikRef.current.initialValues.seller_id = auth.role_id;
          formikRef?.current?.setValues(formikRef.current.initialValues);
-         //if(auth.role_id===3) formikRef?.current?.setFieldValue("seller_id", auth.role_id);
+         //if(auth.role_id===3) formikRef?.current?.setFieldValue("seller_id", auth.id);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);

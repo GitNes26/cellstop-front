@@ -14,7 +14,7 @@ import {
    TableRow,
    Paper
 } from "@mui/material";
-import FormikForm, { FileInputModerno, Input } from "../../../../components/forms";
+import FormikForm, { DividerComponent, FileInputModerno, Input } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { useEffect, useRef, useState } from "react";
@@ -685,22 +685,5 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
       </>
    );
 };
-
-// Componente Divider auxiliar si no existe
-const DividerComponent = ({ title, orientation, sx }) => (
-   <Grid item xs={12} sx={sx}>
-      <Typography
-         variant="h6"
-         component={orientation === "horizontal" ? "b" : "div"}
-         sx={{
-            border: orientation === "horizontal" ? "1px solid #e0e0e0" : "none",
-            width: "100%",
-            my: 2
-         }}
-      >
-         {title}
-      </Typography>
-   </Grid>
-);
 
 export default ImportProductDetailsForm;

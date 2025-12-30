@@ -732,7 +732,6 @@ export const sleep = (ms) => {
 };
 
 export function excelDateToJSDate(excelDate, dbType = "mysql") {
-   console.log("🚀 ~ excelDateToJSDate ~ excelDate:", excelDate);
    if (!excelDate) return null;
 
    // Caso 1: número serial
