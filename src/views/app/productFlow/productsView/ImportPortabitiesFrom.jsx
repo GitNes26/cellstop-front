@@ -28,6 +28,9 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import Toast from "../../../../utils/Toast";
 import * as XLSX from "xlsx";
 import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+import { QuestionAlertConfig } from "../../../../utils/sAlert";
 
 const checkAddInitialState = localStorage.getItem("checkAddPortaciones") == "true" ? true : false || false;
 
@@ -128,6 +131,7 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
    });
    const [validationErrors, setValidationErrors] = useState([]);
    const [columnMapping, setColumnMapping] = useState(null);
+   const mySwal = withReactContent(Swal);
 
    const init = () => {
       setFileData(null);
@@ -785,61 +789,93 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
       }
 
       if (validationResults.invalidRows > 0) {
-         const confirm = window.confirm(
-            `Hay ${validationResults.invalidRows} registros con errores. ¿Desea continuar importando solo los ${validationResults.validRows} válidos?`
-         );
-         if (!confirm) {
-            setSubmitting(false);
-            return;
-         }
-      }
+         mySwal
+            .fire(
+               QuestionAlertConfig(
+                  `Hay ${validationResults.invalidRows} registros con errores. ¿Desea continuar importando solo los ${validationResults.validRows} válidos?`,
+                  "CONFIRMAR"
+               )
+            )
+            .then(async (result) => {
+               if (!result.isConfirmed) {
+                  setIsLoading(true);
 
-      setIsLoading(true);
+                  try {
+                     const res = await importPortabilities(values);
 
-      try {
-         const res = await importPortabilities(values);
+                     if (!res) {
+                        setIsLoading(false);
+                        return;
+                     }
 
-         if (!res) {
-            setIsLoading(false);
-            return;
-         }
+                     if (res.errors) {
+                        setIsLoading(false);
+                        Object.values(res.errors).forEach((errors) => {
+                           if (typeof errors === "string") Toast.Warning(errors);
+                           else errors.map((error) => Toast.Warning(error));
+                        });
+                        return;
+                     } else if (res.status_code !== 200) {
+                        setIsLoading(false);
+                        return Toast.Customizable(res.alert_text, res.alert_icon);
+                     }
 
-         if (res.errors) {
-            setIsLoading(false);
-            Object.values(res.errors).forEach((errors) => {
-               if (typeof errors === "string") Toast.Warning(errors);
-               else errors.map((error) => Toast.Warning(error));
-            });
-            return;
-         } else if (res.status_code !== 200) {
-            setIsLoading(false);
-            return Toast.Customizable(res.alert_text, res.alert_icon);
-         }
+                     Toast.Success(`Se importaron ${processedData.length} portaciones correctamente`);
+                     if (res.metrics)
+                        /* showMetricsAlert(res.metrics); */
+                        showFlexibleAlert(res.metrics, {
+                           type: ALERT_TYPES.METRICS_CUSTOM,
+                           title: "PORTACIONES",
+                           subtitle: res.message,
+                           copyTextGenerator: (data) => {
+                              const metrics = data;
+                              return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                           }
+                        });
 
-         Toast.Success(`Se importaron ${processedData.length} portaciones correctamente`);
-         if (res.metrics)
-            /* showMetricsAlert(res.metrics); */
-            showFlexibleAlert(res.metrics, {
-               type: ALERT_TYPES.METRICS_CUSTOM,
-               title: "PORTACIONES",
-               subtitle: res.message,
-               copyTextGenerator: (data) => {
-                  const metrics = data;
-                  return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                     if (!checkAdd) {
+                        setOpenDialog(false);
+                        resetForm();
+                        init();
+                     }
+                  } catch (error) {
+                     console.error("Error importando portaciones:", error);
+                     Toast.Error("Error al importar las portaciones");
+                  } finally {
+                     setIsLoading(false);
+                     setSubmitting(false);
+                  }
+
+                  // setIsLoading(true);
+                  // const res = await deleteProduct(id);
+                  // // console.log('🚀 ~ handleClickLogout ~ res:', res);
+                  // if (!res) return setIsLoading(false);
+                  // if (res.errors) {
+                  //    setIsLoading(false);
+                  //    Object.values(res.errors).forEach((errors) => {
+                  //       errors.map((error) => Toast.Warning(error));
+                  //    });
+                  //    return;
+                  // } else if (res.status_code !== 200) {
+                  //    setIsLoading(false);
+                  //    return Toast.Customizable(res.alert_text, res.alert_icon);
+                  // }
+
+                  // if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+                  // setIsLoading(false);
+               } else {
+                  setSubmitting(false);
+                  return;
                }
             });
 
-         if (!checkAdd) {
-            setOpenDialog(false);
-            resetForm();
-            init();
-         }
-      } catch (error) {
-         console.error("Error importando portaciones:", error);
-         Toast.Error("Error al importar las portaciones");
-      } finally {
-         setIsLoading(false);
-         setSubmitting(false);
+         // const confirm = window.confirm(
+         //    `Hay ${validationResults.invalidRows} registros con errores. ¿Desea continuar importando solo los ${validationResults.validRows} válidos?`
+         // );
+         // if (!confirm) {
+         //    setSubmitting(false);
+         //    return;
+         // }
       }
    };
 

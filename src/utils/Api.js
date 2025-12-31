@@ -70,11 +70,11 @@ Axios.interceptors.request.use(
 Axios.interceptors.response.use(
    (response) => {
       // Calcular tiempo de respuesta (si guardaste el meta)
-      const end = new Date();
-      if (response.config.meta?.startTime) {
-         const diff = end - response.config.meta.startTime;
-         console.log(`⏱️ ${response.config.url} → ${diff}ms`);
-      }
+      // const end = new Date();
+      // if (response.config.meta?.startTime) {
+      //    const diff = end - response.config.meta.startTime;
+      //    console.log(`⏱️ ${response.config.url} → ${diff}ms`);
+      // }
 
       // Puedes transformar la data si lo deseas
       if (response.data?.result) {
@@ -142,11 +142,11 @@ AxiosFiles.interceptors.request.use(
 AxiosFiles.interceptors.response.use(
    (response) => {
       // Calcular tiempo de respuesta (si guardaste el meta)
-      const end = new Date();
-      if (response.config.meta?.startTime) {
-         const diff = end - response.config.meta.startTime;
-         console.log(`⏱️ ${response.config.url} → ${diff}ms`);
-      }
+      // const end = new Date();
+      // if (response.config.meta?.startTime) {
+      //    const diff = end - response.config.meta.startTime;
+      //    console.log(`⏱️ ${response.config.url} → ${diff}ms`);
+      // }
 
       // Puedes transformar la data si lo deseas
       if (response.data?.result) {

@@ -568,6 +568,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          // console.log("🚀 ~ onSubmit ~ res:", res);
          if (!res) return setIsLoading(false);
          if (res.errors) {
+            // console.log("🚀 ~ onSubmit ~ res.errors:", res.errors)
             setIsLoading(false);
             Object.values(res.errors).forEach((errors) => {
                if (typeof errors === "string") Toast.Warning(errors);
@@ -580,6 +581,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          }
          Toast.Success(`Se procesaron ${processedData.length} líneas prepago correctamente`);
          if (res.metrics)
+            // console.log("🚀 ~ onSubmit ~ res.metrics:", res.metrics)
             /* showMetricsAlert(res.metrics); */
             showFlexibleAlert(res.metrics, {
                type: ALERT_TYPES.METRICS_CUSTOM,
