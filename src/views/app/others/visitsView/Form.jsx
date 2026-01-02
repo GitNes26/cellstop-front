@@ -97,7 +97,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       setLocationError,
       availableProducts
    } = useVisitContext();
-   const { product, updateLoteAssignment, getSelectIndexProducts, getAllProducts } = useProductContext();
+   const { product, updateLoteAssignment, selectIndexProductForVisit, getAllProducts } = useProductContext();
 
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
    console.log("🚀 ~ VisitForm ~ usersSelect:", usersSelect);
@@ -118,10 +118,9 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
-   console.log("🚀 ~ VisitForm ~ formikRef.current?.values.product_ids:", formikRef.current?.values.product_ids);
+   // console.log("🚀 ~ VisitForm ~ formikRef.current?.values.product_ids:", formikRef.current?.values.product_ids);
    const { refetch: refetchProductsInStock } = useFetch(() => {
-      return getSelectIndexProducts({
-         folio: allLotes.map((item) => item.folio)
+      return selectIndexProductForVisit({
          // location_status: ["Asignado"],
          // activation_status: "Pre-activado",
          // id: [229, 228, 227, 226, 225, 224, 223, 222]

@@ -330,6 +330,27 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
+   const selectIndexProductForVisit = async (data = {}) => {
+      // // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.post(`${prefixPath}/selectIndexProductForVisit`, data));
+      // console.log("🚀 ~ selectIndexProductForVisit ~ error:", error);
+      // console.log("🚀 ~ selectIndexProductForVisit ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ selectIndexProductForVisit ~ error:", error);
+         const message = error.response.data.message || "selectIndexProductForVisit ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setProductsSelect(res.result);
+
+      return res;
+   };
+
    //#region ProductDetails
    const importProductDetails = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
@@ -506,6 +527,7 @@ export default function ProductContextProvider({ children }) {
             preActivationProducts,
 
             getMovementsByProduct,
+            selectIndexProductForVisit,
 
             foliosSelect,
             setFoliosSelect,

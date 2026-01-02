@@ -3,6 +3,7 @@ import {
    DataGrid,
    DEFAULT_GRID_AUTOSIZE_OPTIONS,
    GridColDef,
+   GridSelectionModel,
    useGridApiRef,
    QuickFilter,
    QuickFilterControl,
@@ -37,7 +38,8 @@ import {
    TextField,
    Tooltip,
    Typography,
-   useColorScheme
+   useColorScheme,
+   Grid
 } from "@mui/material";
 import { esES } from "@mui/x-data-grid/locales";
 import { useAuthContext } from "../context/AuthContext";
@@ -189,7 +191,15 @@ const StyledTextField = styled(TextField)<{
    transition: theme.transitions.create(["width", "opacity"])
 }));
 
-function CustomToolbar(btnAdd: boolean, handleClickAdd: any, handleClickRefresh: () => Promise<void>, StackColumnsAdjust: () => JSX.Element) {
+function CustomToolbar(
+   btnAdd: boolean,
+   handleClickAdd: any,
+   handleClickRefresh: () => Promise<void>,
+   StackColumnsAdjust: () => JSX.Element,
+   selectedCount: GridSelectionModel,
+   onDeleteSelected: () => void
+) {
+   console.log("🚀 ~ CustomToolbar ~ selectedCount:", selectedCount);
    const [exportMenuOpen, setExportMenuOpen] = React.useState(false);
    const exportMenuTriggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -208,149 +218,171 @@ function CustomToolbar(btnAdd: boolean, handleClickAdd: any, handleClickRefresh:
 
    return (
       <Toolbar style={{}}>
-         <Tooltip title="Refrescar información">
-            <IconButton color="info" size="small" sx={{}} onClick={handleClickRefresh}>
-               <SyncTwoTone />
-            </IconButton>
-         </Tooltip>
+         <Grid container width={"100%"} alignItems="center" justifyContent="space-between">
+            <Grid size={{ xs: 2 }}>
+               {/* {selectedCount > 0 && ( */}
+               <Tooltip title={`Eliminar ${selectedCount?.ids?.size ?? 0} seleccionados`}>
+                  <Button
+                     hidden
+                     color="error"
+                     size="small"
+                     sx={{ mr: 1 }}
+                     onClick={onDeleteSelected}
+                     startIcon={<MuiIcons.Delete fontSize="small" />}
+                     disabled={selectedCount?.type === "include" ? selectedCount?.ids?.size === 0 : selectedCount?.ids?.size === "exclude" ? false : true}
+                  >
+                     Eliminar ({selectedCount?.ids?.size ?? 0})
+                  </Button>
+               </Tooltip>
+               {/* )} */}
+            </Grid>
 
-         <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+            <Grid container justifyContent="flex-end" alignItems="center">
+               <Tooltip title="Refrescar información">
+                  <IconButton color="info" size="small" sx={{}} onClick={handleClickRefresh}>
+                     <SyncTwoTone />
+                  </IconButton>
+               </Tooltip>
 
-         <Tooltip title="Ajustar Columnas">
-            <IconButton aria-describedby={id} onClick={handleClickColumnAdjust}>
-               <ExpandRounded rotate={"90deg"} fontSize="small" />
-            </IconButton>
-         </Tooltip>
-         <Popover
-            id={id}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            disableRestoreFocus
-            disableEscapeKeyDown={true}
-            anchorOrigin={{
-               vertical: "bottom",
-               horizontal: "right"
-            }}
-            transformOrigin={{
-               vertical: "top",
-               horizontal: "right"
-            }}
-         >
-            <StackColumnsAdjust />
-         </Popover>
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
 
-         <Tooltip title="Columnas">
-            <ColumnsPanelTrigger render={<ToolbarButton />}>
-               <GridViewColumnIcon fontSize="small" />
-            </ColumnsPanelTrigger>
-         </Tooltip>
+               <Tooltip title="Ajustar Columnas">
+                  <IconButton aria-describedby={id} onClick={handleClickColumnAdjust}>
+                     <ExpandRounded rotate={"90deg"} fontSize="small" />
+                  </IconButton>
+               </Tooltip>
+               <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  disableRestoreFocus
+                  disableEscapeKeyDown={true}
+                  anchorOrigin={{
+                     vertical: "bottom",
+                     horizontal: "right"
+                  }}
+                  transformOrigin={{
+                     vertical: "top",
+                     horizontal: "right"
+                  }}
+               >
+                  <StackColumnsAdjust />
+               </Popover>
 
-         <Tooltip title="Filtros">
-            <FilterPanelTrigger
-               render={(props, state) => (
-                  <ToolbarButton {...props} color="default">
-                     <Badge badgeContent={state.filterCount} color="primary" variant="dot">
-                        <GridFilterListIcon fontSize="small" />
-                     </Badge>
+               <Tooltip title="Columnas">
+                  <ColumnsPanelTrigger render={<ToolbarButton />}>
+                     <GridViewColumnIcon fontSize="small" />
+                  </ColumnsPanelTrigger>
+               </Tooltip>
+
+               <Tooltip title="Filtros">
+                  <FilterPanelTrigger
+                     render={(props, state) => (
+                        <ToolbarButton {...props} color="default">
+                           <Badge badgeContent={state.filterCount} color="primary" variant="dot">
+                              <GridFilterListIcon fontSize="small" />
+                           </Badge>
+                        </ToolbarButton>
+                     )}
+                  />
+               </Tooltip>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               <Tooltip title="Exportar">
+                  <ToolbarButton
+                     ref={exportMenuTriggerRef}
+                     id="export-menu-trigger"
+                     aria-controls="export-menu"
+                     aria-haspopup="true"
+                     aria-expanded={exportMenuOpen ? "true" : undefined}
+                     onClick={() => setExportMenuOpen(true)}
+                  >
+                     <FileDownload fontSize="small" />
                   </ToolbarButton>
-               )}
-            />
-         </Tooltip>
+               </Tooltip>
 
-         <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
 
-         <Tooltip title="Exportar">
-            <ToolbarButton
-               ref={exportMenuTriggerRef}
-               id="export-menu-trigger"
-               aria-controls="export-menu"
-               aria-haspopup="true"
-               aria-expanded={exportMenuOpen ? "true" : undefined}
-               onClick={() => setExportMenuOpen(true)}
-            >
-               <FileDownload fontSize="small" />
-            </ToolbarButton>
-         </Tooltip>
-
-         <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
-
-         <Menu
-            id="export-menu"
-            anchorEl={exportMenuTriggerRef.current}
-            open={exportMenuOpen}
-            onClose={() => setExportMenuOpen(false)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            slotProps={{
-               list: {
-                  "aria-labelledby": "export-menu-trigger"
-               }
-            }}
-         >
-            <ExportPrint render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
-               Imprimir
-            </ExportPrint>
-            <ExportCsv render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
-               Descargar como CSV
-            </ExportCsv>
-            {/* Available to MUI X Premium users */}
-            {/* <ExportExcel render={<MenuItem />}>
+               <Menu
+                  id="export-menu"
+                  anchorEl={exportMenuTriggerRef.current}
+                  open={exportMenuOpen}
+                  onClose={() => setExportMenuOpen(false)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  slotProps={{
+                     list: {
+                        "aria-labelledby": "export-menu-trigger"
+                     }
+                  }}
+               >
+                  <ExportPrint render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
+                     Imprimir
+                  </ExportPrint>
+                  <ExportCsv render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
+                     Descargar como CSV
+                  </ExportCsv>
+                  {/* Available to MUI X Premium users */}
+                  {/* <ExportExcel render={<MenuItem />}>
           Download as Excel
         </ExportExcel> */}
-         </Menu>
+               </Menu>
 
-         <StyledQuickFilter>
-            <QuickFilterTrigger
-               render={(triggerProps, state) => (
-                  <Tooltip title="Buscar" enterDelay={0}>
-                     <StyledToolbarButton {...triggerProps} ownerState={{ expanded: state.expanded }} color="default" aria-disabled={state.expanded}>
-                        <GridSearchIcon fontSize="small" />
-                     </StyledToolbarButton>
+               <StyledQuickFilter>
+                  <QuickFilterTrigger
+                     render={(triggerProps, state) => (
+                        <Tooltip title="Buscar" enterDelay={0}>
+                           <StyledToolbarButton {...triggerProps} ownerState={{ expanded: state.expanded }} color="default" aria-disabled={state.expanded}>
+                              <GridSearchIcon fontSize="small" />
+                           </StyledToolbarButton>
+                        </Tooltip>
+                     )}
+                  />
+                  <QuickFilterControl
+                     render={({ ref, ...controlProps }, state) => (
+                        <StyledTextField
+                           {...controlProps}
+                           ownerState={{ expanded: state.expanded }}
+                           inputRef={ref}
+                           aria-label="Buscar"
+                           placeholder="Buscar..."
+                           size="small"
+                           slotProps={{
+                              input: {
+                                 startAdornment: (
+                                    <InputAdornment position="start">
+                                       <Search fontSize="small" />
+                                    </InputAdornment>
+                                 ),
+                                 endAdornment: state.value ? (
+                                    <InputAdornment position="end">
+                                       <QuickFilterClear edge="end" size="small" aria-label="Clear search" material={{ sx: { marginRight: -0.75 } }}>
+                                          <Cancel fontSize="small" />
+                                       </QuickFilterClear>
+                                    </InputAdornment>
+                                 ) : null,
+                                 ...controlProps.slotProps?.input
+                              },
+                              ...controlProps.slotProps
+                           }}
+                        />
+                     )}
+                  />
+               </StyledQuickFilter>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               {btnAdd && (
+                  <Tooltip title="Agregar Registro">
+                     <IconButton color="success" size="small" sx={{}} onClick={handleClickAdd}>
+                        <AddCircle />
+                     </IconButton>
                   </Tooltip>
                )}
-            />
-            <QuickFilterControl
-               render={({ ref, ...controlProps }, state) => (
-                  <StyledTextField
-                     {...controlProps}
-                     ownerState={{ expanded: state.expanded }}
-                     inputRef={ref}
-                     aria-label="Buscar"
-                     placeholder="Buscar..."
-                     size="small"
-                     slotProps={{
-                        input: {
-                           startAdornment: (
-                              <InputAdornment position="start">
-                                 <Search fontSize="small" />
-                              </InputAdornment>
-                           ),
-                           endAdornment: state.value ? (
-                              <InputAdornment position="end">
-                                 <QuickFilterClear edge="end" size="small" aria-label="Clear search" material={{ sx: { marginRight: -0.75 } }}>
-                                    <Cancel fontSize="small" />
-                                 </QuickFilterClear>
-                              </InputAdornment>
-                           ) : null,
-                           ...controlProps.slotProps?.input
-                        },
-                        ...controlProps.slotProps
-                     }}
-                  />
-               )}
-            />
-         </StyledQuickFilter>
-
-         <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
-
-         {btnAdd && (
-            <Tooltip title="Agregar Registro">
-               <IconButton color="success" size="small" sx={{}} onClick={handleClickAdd}>
-                  <AddCircle />
-               </IconButton>
-            </Tooltip>
-         )}
+            </Grid>
+         </Grid>
       </Toolbar>
    );
 }
@@ -374,7 +406,7 @@ const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisE
 
    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
    const open = Boolean(anchorEl);
-   const objName = params.columns[indexColumnName].field;
+   const objName = params.columns[indexColumnName + 1].field;
    const id = params.row.id;
    const active = params.row.active;
    // console.log("🚀 ~ RowActions ~ objName:", objName);
@@ -472,6 +504,7 @@ interface DataTableComponentProps {
    singularName?: string;
    indexColumnName?: number;
    scrollHeight?: number | string;
+   handleClickDeleteMultipleContinue?: (selectedIds: any[]) => Promise<void>;
 }
 const DataTableComponent = ({
    dataColumns = [],
@@ -503,6 +536,7 @@ const DataTableComponent = ({
    const [outliersFactor, setOutliersFactor] = React.useState(String(DEFAULT_GRID_AUTOSIZE_OPTIONS.outliersFactor));
    const [expand, setExpand] = React.useState((DEFAULT_GRID_AUTOSIZE_OPTIONS.expand = true));
    const [isLoading, setIsLoading] = React.useState(false);
+   const [selectionModel, setSelectionModel] = React.useState<GridSelectionModel>([]);
 
    const handleClickButtonsAction = (event: React.MouseEvent<HTMLButtonElement>) => {
       setAnchorElActions(event.currentTarget);
@@ -627,6 +661,31 @@ const DataTableComponent = ({
       }
    };
 
+   const handleDeleteSelected = async () => {
+      try {
+         const ids = (selectionModel || []).map((id: any) => id);
+         if (!ids || ids.length === 0) {
+            Toast.Error("No hay registros seleccionados");
+            return;
+         }
+         if (!handleClickDeleteMultipleContinue) {
+            // Si no hay callback, solo mostrar ids en consola
+            console.log("Selected IDs:", ids);
+            return;
+         }
+         setIsLoading(true);
+         await handleClickDeleteMultipleContinue(ids);
+         setSelectionModel([]);
+         setIsLoading(false);
+         if (refreshTable) await refreshTable();
+         Toast.Success("Acción aplicada a registros seleccionados");
+      } catch (error) {
+         console.log(error);
+         setIsLoading(false);
+         Toast.Error(error);
+      }
+   };
+
    React.useEffect(() => {
       setIsLoading(true);
       if (data.length > 0) {
@@ -659,12 +718,12 @@ const DataTableComponent = ({
             sx={(theme) => ({
                border: 1,
                backgroundColor: "",
-               '& .row-advertencia': {
-                  backgroundColor: theme.palette.warning.light + ' !important'
+               "& .row-advertencia": {
+                  backgroundColor: theme.palette.warning.light + " !important"
                },
-               '& .row-peligro': {
-                  backgroundColor: theme.palette.warning.dark + ' !important',
-                  color: theme.palette.getContrastText(theme.palette.warning.dark) + ' !important'
+               "& .row-peligro": {
+                  backgroundColor: theme.palette.warning.dark + " !important",
+                  color: theme.palette.getContrastText(theme.palette.warning.dark) + " !important"
                }
             })}
             apiRef={apiRef}
@@ -702,7 +761,9 @@ const DataTableComponent = ({
             autoPageSize={false}
             pageSizeOptions={[5, 10, 100, { value: -1, label: "Todos" }]}
             rowSelection={true}
-            // checkboxSelection //Muestra la columna de checks
+            checkboxSelection
+            selectionModel={selectionModel}
+            onRowSelectionModelChange={(newModel) => setSelectionModel(newModel)}
             editMode={"row"}
             onCellEditStart={(e) => console.log("onRowEditStart", e)}
             onCellEditStop={(e) => console.log("onRowEditStop", e)}
@@ -710,7 +771,7 @@ const DataTableComponent = ({
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
-               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust)
+               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust, selectionModel, handleDeleteSelected)
             }}
          />
       </Box>
