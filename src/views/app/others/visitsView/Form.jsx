@@ -97,12 +97,11 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       setLocationError,
       availableProducts
    } = useVisitContext();
-   const { product, updateLoteAssignment, selectIndexProductForVisit, getAllProducts } = useProductContext();
+   const { allProducts, setAllProducts, updateLoteAssignment, selectIndexProductForVisit, getAllProducts } = useProductContext();
 
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
-   console.log("🚀 ~ VisitForm ~ usersSelect:", usersSelect);
    const { pointsOfSaleSelect, setPointsOfSaleSelect, getSelectIndexPointsOfSale } = usePointOfSaleContext();
-   const { allLotes, setAllLotes, getAllLotes } = useLoteContext();
+   // const { allLotes, setAllLotes, getAllLotes } = useLoteContext();
 
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
 
@@ -114,11 +113,10 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const [selectedProducts, setSelectedProducts] = useState([]);
    const [isGettingLocation, setIsGettingLocation] = useState(false);
 
-   const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes(theUserIs([ROLE_SELLER]) ? { seller_id: auth.id } : {}), setAllLotes);
+   // const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes(theUserIs([ROLE_SELLER]) ? { seller_id: auth.id } : {}), setAllLotes);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
-   // console.log("🚀 ~ VisitForm ~ formikRef.current?.values.product_ids:", formikRef.current?.values.product_ids);
    const { refetch: refetchProductsInStock } = useFetch(() => {
       return selectIndexProductForVisit({
          // location_status: ["Asignado"],
@@ -127,10 +125,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
       });
    }, setProductsInStockSelect);
-   // const { refetch: refetchProductsDistributed } = useFetch(
-   //    () => getAllProducts({ id: ["Asignado"]}),
-   //    setProductsInStockSelect
-   // );
+   const { refetch: refetchProductsDistributed } = useFetch(() => getAllProducts({ id: visit?.product_ids }), setAllProducts);
 
    // Obtener ubicación actual
    const getCurrentLocation = () => {
@@ -146,10 +141,20 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                const location = {
                   lat: position.coords.latitude,
                   lon: position.coords.longitude,
-                  accuracy: position.coords.accuracy
+                  ubi: `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`
                };
+               // console.log("🚀 ~ getCurrentLocation ~ location:", location);
                setCurrentLocation(location);
                setIsGettingLocation(false);
+
+               setLocationVerified(true);
+               // Toast.Success(result.message);
+               // Actualizar campos en el formulario
+               formikRef.current.setFieldValue("lat", location.lat);
+               formikRef.current.setFieldValue("lon", location.lon);
+               formikRef.current.setFieldValue("ubication", location.ubi);
+               // formikRef.current.setFieldValue("ubication", `Lat: ${currentLocation.lat}, Lon: ${currentLocation.lng}`);
+
                resolve(location);
             },
             (error) => {
@@ -170,6 +175,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                }
                setLocationError(errorMessage);
                reject(errorMessage);
+               setLocationVerified(false);
+               Toast.Error(errorMessage);
             },
             {
                enableHighAccuracy: true,
@@ -184,15 +191,15 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const handleChangeUbication = async (values) => {
       try {
          // Verificar ubicación y asignando valores de ubicacion
-         console.log("🚀 ~ handleChangeUbication ~ values:", values);
+         // console.log("🚀 ~ handleChangeUbication ~ values:", values);
          const currentLocation = values.coords;
          const pos = pointsOfSaleSelect.find((item) => item.id === formikRef.current?.values.pos_id);
-         console.log("🚀 ~ handleChangeUbication ~ pos:", pos);
+         // console.log("🚀 ~ handleChangeUbication ~ pos:", pos);
          if (!currentLocation || !pos) return false;
 
          setIsLoading(true);
          const result = await verifyLocation(pos, currentLocation.lat, currentLocation.lng);
-         console.log("🚀 ~ handleChangeUbication ~ result:", result);
+         // console.log("🚀 ~ handleChangeUbication ~ result:", result);
          setIsLoading(false);
 
          if (result.valid) {
@@ -244,9 +251,9 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
    // Manejar cambio de tipo de visita
    const handleVisitTypeChange = (values) => {
-      console.log("🚀 ~ handleVisitTypeChange ~ value:", values);
+      // console.log("🚀 ~ handleVisitTypeChange ~ value:", values);
       const isDistribucion = values.value === "Distribución";
-      console.log("🚀 ~ handleVisitTypeChange ~ isDistribucion:", isDistribucion);
+      // console.log("🚀 ~ handleVisitTypeChange ~ isDistribucion:", isDistribucion);
       formikRef.current.setFieldValue("visit_type", values.value);
 
       if (!isDistribucion) {
@@ -388,10 +395,11 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                label="Ubicación del comprador"
                mb={2}
                onChangeExtra={handleChangeUbication}
+               hidden
             />
          ),
          value: "",
-         validations: Yup.string().required("Ubicación requerida"),
+         validations: null, //Yup.string().required("Ubicación requerida"),
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
          // name: "location_section",
@@ -457,7 +465,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       {
          name: "evidence_photo",
          input: (
-            <Grid size={{ md: 4 }}>
+            <Grid size={{ md: 6 }}>
                <EvidenceCapture
                   key={`key-input-evidence`}
                   idName="evidence_photo"
@@ -542,7 +550,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                      handleClickLeft={handleClickLeftTansfer}
                      handleClickRight={handleClickRightTansfer}
                      data={productsInStockSelect}
-                     onRefetch={refetchProductsInStock}
+                     onRefetch={allProducts.length > 1 ? async () => await init() : refetchProductsInStock}
                   />
                   {/* )} */}
                </Box>
@@ -589,7 +597,11 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const onSubmit = async (values, { setSubmitting, resetForm }) => {
       console.log("🚀 ~ onSubmit ~ values:", values);
       // Validar ubicación primero
-      console.log("🚀 ~ onSubmit ~ locationVerified:", locationVerified);
+      const currentLocation = await getCurrentLocation();
+      values.lat = currentLocation.lat;
+      values.lon = currentLocation.lon;
+      values.ubication = currentLocation.ubi;
+
       if (!locationVerified && values.pos_id) {
          Toast.Error("Debes verificar tu ubicación antes de registrar la visita");
          setSubmitting(false);
@@ -598,11 +610,15 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
       // Validar que esté en el rango
       if (values.lat && values.lon && values.pos_id) {
-         const result = await verifyLocation(values.point_of_sale, values.lat, values.lon);
+         const posSelected = pointsOfSaleSelect.find((item) => item.id === values.pos_id);
+         console.log("🚀 ~ onSubmit ~ posSelected:", posSelected);
+         const result = await verifyLocation(posSelected, values.lat, values.lon);
          if (!result.valid) {
             Toast.Error(result.message);
             setSubmitting(false);
             return;
+         } else {
+            Toast.Error(result.message);
          }
       }
 
@@ -673,23 +689,55 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       }
    };
 
-   const init = () => {
+   const init = async () => {
       // si el usuario es de rol_id === 3 (vendedor) seleccionar el id y poner disabled el Select2
-      console.log("🚀 ~ init ~ theUserIs([ROLE_SELLER]):", theUserIs([ROLE_SELLER]));
       if (theUserIs([ROLE_SELLER])) formikRef?.current?.setFieldValue("seller_id", auth.id);
       else console.log("no lo soy");
-      console.log("🚀 ~ init ~ formikRef?.current:", formikRef?.current);
-      console.log("🚀 ~ init ~ auth.role_id:", auth.id);
 
       // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
       formikRef?.current?.setFieldValue(
          "productos_en_stock",
          productsInStockSelect.map((d) => d.id)
       );
-      // formikRef?.current?.setFieldValue(
-      //    "product_ids",
-      //    productsInStockSelected.map((d) => d.id)
-      // );
+      await refetchProductsDistributed();
+      if (allProducts) {
+         // formikRef?.current?.setFieldValue(
+         //    "product_ids",
+         //    productsInStockSelected.map((d) => d.id)
+         // );
+         console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
+         const productsAsigment = productsInStockSelect.filter((p) => p.location_status == "Asignado").map((d) => d.id);
+         // productsInStockSelect
+         //    .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
+         //    .map((d) => d.id);
+         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+         const productsSelected = allProducts.map((d) => ({
+            activation_status: d.activation_status,
+            folio: d.folio,
+            id: d.id,
+            label: `${d.iccid} - ${d.celular} - ${d.fecha ?? ""}`,
+            location_status: d.location_status
+         }));
+         // console.log("🚀 ~ handleChangeLote ~ productsSelected:", productsSelected);
+         setProductsInStockSelect((prev) => {
+            const merged = [...prev, ...productsSelected];
+
+            const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+
+            return unique;
+         });
+
+         const productsInStockSelected = allProducts.map((d) => d.id);
+
+         console.log("🚀 ~ init ~ productsAsigment:", productsAsigment);
+         console.log("🚀 ~ init ~ productsInStockSelected:", productsInStockSelected);
+
+         formikRef?.current?.setFieldValue(
+            "productos_en_stock",
+            productsAsigment //.filter((product) => product.location_status == "Asignado")
+         );
+         formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
+      }
    };
    useEffect(() => {
       // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);

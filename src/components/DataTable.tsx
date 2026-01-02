@@ -199,7 +199,7 @@ function CustomToolbar(
    selectedCount: GridSelectionModel,
    onDeleteSelected: () => void
 ) {
-   console.log("🚀 ~ CustomToolbar ~ selectedCount:", selectedCount);
+   // console.log("🚀 ~ CustomToolbar ~ selectedCount:", selectedCount);
    const [exportMenuOpen, setExportMenuOpen] = React.useState(false);
    const exportMenuTriggerRef = React.useRef<HTMLButtonElement>(null);
 

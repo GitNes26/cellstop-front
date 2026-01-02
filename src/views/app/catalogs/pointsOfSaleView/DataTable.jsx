@@ -66,6 +66,11 @@ const PointOfSaleDT = () => {
          </Typography>
       </>
    );
+   const SellerBodyTemplate = (obj) => (
+      <Typography textAlign={"center"} size={fontSizeTable.text}>
+         {obj.seller.username}
+      </Typography>
+   );
 
    const ActiveBodyTemplate = (obj) => (
       <Typography textAlign={"center"} className="flex justify-center">
@@ -118,6 +123,20 @@ const PointOfSaleDT = () => {
          renderCell: (params) => {
             const { key, ...obj } = params.row;
             return <AddressBodyTemplate {...obj} key={`address-${params.row.id}`} />;
+         },
+         filter: true,
+         filterField: null
+      },
+      {
+         field: "seller",
+         headerName: "Vendedor",
+         description: "",
+         // width: 90,
+         sortable: true,
+         functionEdit: null,
+         renderCell: (params) => {
+            const { key, ...obj } = params.row;
+            return <SellerBodyTemplate {...obj} key={`seller-${params.row.id}`} />;
          },
          filter: true,
          filterField: null

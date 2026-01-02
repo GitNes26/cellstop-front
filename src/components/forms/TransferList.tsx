@@ -77,7 +77,7 @@ const TransferListItem: React.FC<TransferListItemProps> = memo(({ value, checked
          <ListItemIcon>
             <Checkbox checked={checked} tabIndex={-1} disableRipple />
          </ListItemIcon>
-         <ListItemText primary={item?.label || `Item ${value}`} secondary={item?.location_status ? `Estado: ${item.location_status}` : undefined} />
+         <ListItemText primary={item?.label || `Item ${value}`} secondary={`Estado: ${item?.location_status ?? " "}  |  Folio: ${item?.folio ?? " "}`} />
       </ListItemButton>
    );
 });
@@ -115,7 +115,12 @@ const CustomList: React.FC<CustomListProps> = memo(
       const filteredItems = useMemo(() => {
          if (!search) return dataItems;
          const searchLower = search.toLowerCase();
-         return dataItems.filter((chip) => chip.label.toLowerCase().includes(searchLower) || chip.location_status?.toLowerCase().includes(searchLower));
+         return dataItems.filter(
+            (chip) =>
+               chip.label.toLowerCase().includes(searchLower) ||
+               chip.location_status?.toLowerCase().includes(searchLower) ||
+               chip.folio?.toString().includes(searchLower)
+         );
       }, [dataItems, search]);
 
       return (

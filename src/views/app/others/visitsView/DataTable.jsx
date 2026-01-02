@@ -80,7 +80,7 @@ const VisitDT = () => {
          {obj.visit_type === "Distribución" ? (
             <div className="flex items-center justify-center">
                <Category fontSize={"small"} className="mr-1" />
-               {obj.products?.length || 0} productos
+               {JSON.parse(obj.product_ids).length} productos
             </div>
          ) : (
             "No aplica"
@@ -111,6 +111,12 @@ const VisitDT = () => {
          )}
       </Typography> */}
       </>
+   );
+
+   const ObservationsBodyTemplate = (obj) => (
+      <Typography textAlign={"center"} size={fontSizeTable.text}>
+         {obj.observations}
+      </Typography>
    );
 
    const ChipsInfoBodyTemplate = (obj) => (
@@ -182,7 +188,7 @@ const VisitDT = () => {
       },
       {
          field: "products",
-         headerName: "Productos",
+         headerName: "Productos Dsitribuidos",
          sortable: false,
          renderCell: (params) => {
             const { key, ...obj } = params.row;
@@ -201,15 +207,25 @@ const VisitDT = () => {
          filter: false
       },
       {
-         field: "chips_info",
-         headerName: "Seguimiento",
+         field: "observations",
+         headerName: "Observaciones",
          sortable: false,
          renderCell: (params) => {
             const { key, ...obj } = params.row;
-            return <ChipsInfoBodyTemplate {...obj} />;
+            return <ObservationsBodyTemplate {...obj} />;
          },
          filter: false
       }
+      // {
+      //    field: "chips_info",
+      //    headerName: "Seguimiento",
+      //    sortable: false,
+      //    renderCell: (params) => {
+      //       const { key, ...obj } = params.row;
+      //       return <ChipsInfoBodyTemplate {...obj} />;
+      //    },
+      //    filter: false
+      // }
    ];
 
    if (auth.role_id === ROLE_SUPER_ADMIN) {
