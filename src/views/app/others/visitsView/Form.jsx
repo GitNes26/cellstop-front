@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography, Grid, Chip, Box, Alert } from "@mui/material";
 import Toast from "../../../../utils/Toast";
 import { useAuthContext } from "../../../../context/AuthContext";
-import { ROLE_SELLER, useGlobalContext } from "../../../../context/GlobalContext";
+import { ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_SELLER, useGlobalContext } from "../../../../context/GlobalContext";
 import { useVisitContext } from "../../../../context/VisitContext";
 import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -118,14 +118,15 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
    const { refetch: refetchProductsInStock } = useFetch(() => {
-      return selectIndexProductForVisit({
+      return selectIndexProductForVisit(
+         theUserIs([ROLE_SUPER_ADMIN, ROLE_ADMIN]) ? { seller_id: formikRef?.current?.values?.seller_id } : {}
          // location_status: ["Asignado"],
          // activation_status: "Pre-activado",
          // id: [229, 228, 227, 226, 225, 224, 223, 222]
          // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
-      });
+      );
    }, setProductsInStockSelect);
-   const { refetch: refetchProductsDistributed } = useFetch(() => getAllProducts({ id: visit?.product_ids }), setAllProducts);
+   const { refetch: refetchProductsDistributed } = useFetch(() => getAllProducts({ id: visit?.product_ids ?? [0] }), setAllProducts);
 
    // Obtener ubicación actual
    const getCurrentLocation = () => {
@@ -268,6 +269,13 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       }
    };
 
+   const handleChangeSeller = (values) => {
+      // console.log("🚀 ~ handleChangeSeller ~ values:", values);
+      // console.log("🚀 ~ handleChangeSeller ~ formikRef?.current?.values:", formikRef?.current?.values);
+      formikRef?.current?.setFieldValue("seller_id", values?.value?.id);
+      refetchProductsInStock(values?.value?.id);
+   };
+
    // Manejar selección de productos
    const handleProductSelection = (productId) => {
       const currentSelected = [...selectedProducts];
@@ -326,6 +334,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                label="Vendedor"
                // options={usersSelect.filter((item) => item.role_id !== 3) || []}
                options={usersSelect || []}
+               onChangeExtra={handleChangeSeller}
                refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
                disabled={theUserIs([ROLE_SELLER])}
@@ -622,6 +631,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          }
       }
 
+      return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
       // values.avatar = imgAvatar.length == 0 ? "" : imgAvatar[0].file;
 
@@ -749,6 +759,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
       // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
+      console.log("🚀 ~ VisitForm ~ visit:", visit);
+      console.log("🚀 ~ VisitForm ~ formikRef:", formikRef);
    }, [visit, formikRef, isEdit]);
    // useEffect(() => {
    //    // Si hay un vendedor logueado, cargar sus productos disponibles

@@ -259,7 +259,7 @@ export const StatCard: React.FC<StatCardProps> = ({
 
                {/* Trend y métricas secundarias */}
                {(trend || progress !== undefined) && (
-                  <Box sx={{ mt: size === "compact" ? 1 : 2 }}>
+                  <Box sx={{ mt: size === "compact" ? 1 : 2, display: "none" }}>
                      {/* Trend indicator */}
                      {trend && (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: progress !== undefined ? 1 : 0 }}>
