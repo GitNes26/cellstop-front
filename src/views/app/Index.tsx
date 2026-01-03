@@ -25,6 +25,7 @@ import { useGlobalContext } from "../../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
 import DashboardView from "./main/dashboard/Index.js";
 import { useAuthContext } from "./../../context/AuthContext";
+import useFetch from './../../hooks/useFetch';
 
 const Index = ({}) => {
    const { setIsLoading } = useGlobalContext();
@@ -34,6 +35,9 @@ const Index = ({}) => {
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
    const navigate = useNavigate();
    const [activeCard, setActiveCard] = useState<string | null>(null);
+
+   const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
+
 
    const [counter, setCounter] = useState(0);
    const handleClick = () => {

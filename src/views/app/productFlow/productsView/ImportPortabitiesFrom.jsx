@@ -782,6 +782,7 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
    };
 
    const onSubmit = async (values, { setSubmitting, resetForm }) => {
+      console.log("🚀 ~ onSubmit ~ processedData:", processedData)
       if (processedData.length === 0) {
          Toast.Warning("Primero debe procesar un archivo válido");
          setSubmitting(false);
