@@ -25,7 +25,9 @@ import { useGlobalContext } from "../../context/GlobalContext";
 import { useNavigate } from "react-router-dom";
 import DashboardView from "./main/dashboard/Index.js";
 import { useAuthContext } from "./../../context/AuthContext";
-import useFetch from './../../hooks/useFetch';
+import { useDashboardContext } from "./../../context/DashboardContext";
+import useFetch from "./../../hooks/useFetch";
+import VisitForm from "./others/visitsView/Form.jsx";
 
 const Index = ({}) => {
    const { setIsLoading } = useGlobalContext();
@@ -36,8 +38,11 @@ const Index = ({}) => {
    const navigate = useNavigate();
    const [activeCard, setActiveCard] = useState<string | null>(null);
 
-   const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
+   const [VisitFormDialog, setVisitFormDialog] = useState(false);
 
+   const { sellerDashboardData, setSellerDashboardData, getSellerDashboard } = useDashboardContext();
+
+   const { refetch: refreshSellerDashboard } = useFetch(getSellerDashboard, setSellerDashboardData);
 
    const [counter, setCounter] = useState(0);
    const handleClick = () => {
@@ -53,24 +58,14 @@ const Index = ({}) => {
    // Acciones rápidas del vendedor
    const quickActions = [
       {
-         id: "distribution",
-         title: "Distribución",
-         description: "Gestionar envío y asignación de chips",
+         id: "visit",
+         title: "Checar Visita / Distribución",
+         description: "Registrar visita a punto de venta /Distribuir productos",
          icon: <LocalShipping sx={{ fontSize: 32 }} />,
          color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
          stats: "12,540 chips",
          badge: "8,430 pre-activados",
-         route: "/app"
-      },
-      {
-         id: "visit-check",
-         title: "Checar Visita",
-         description: "Registrar visita a punto de venta",
-         icon: <LocationOn sx={{ fontSize: 32 }} />,
-         color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-         stats: "28 puntos",
-         badge: "Visita activa",
-         route: "/app"
+         route: "/app/otros/visitas"
       },
       {
          id: "inventory",
@@ -80,28 +75,28 @@ const Index = ({}) => {
          color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
          stats: "3,120 asignados",
          badge: "+12% mes",
-         route: "/app"
-      },
-      {
-         id: "sales",
-         title: "Ventas",
-         description: "Registro y seguimiento de ventas",
-         icon: <TrendingUp sx={{ fontSize: 32 }} />,
-         color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-         stats: "1,890 distribuidos",
-         badge: "+8% crecimiento",
-         route: "/app"
-      },
-      {
-         id: "reports",
-         title: "Reportes",
-         description: "Analíticas y reportes de desempeño",
-         icon: <Assessment sx={{ fontSize: 32 }} />,
-         color: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-         stats: "15 reportes",
-         badge: "3 nuevos",
-         route: "/app"
+         route: "/app/productos/asignados"
       }
+      // {
+      //    id: "sales",
+      //    title: "Ventas",
+      //    description: "Registro y seguimiento de ventas",
+      //    icon: <TrendingUp sx={{ fontSize: 32 }} />,
+      //    color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+      //    stats: "1,890 distribuidos",
+      //    badge: "+8% crecimiento",
+      //    route: "/app"
+      // },
+      // {
+      //    id: "reports",
+      //    title: "Reportes",
+      //    description: "Analíticas y reportes de desempeño",
+      //    icon: <Assessment sx={{ fontSize: 32 }} />,
+      //    color: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+      //    stats: "15 reportes",
+      //    badge: "3 nuevos",
+      //    route: "/app"
+      // }
       // {
       //    id: "qr-scanner",
       //    title: "Escanear QR",
@@ -116,10 +111,42 @@ const Index = ({}) => {
 
    // Métricas rápidas
    const quickMetrics = [
-      { label: "Chips Asignados", value: "0", change: "0%", icon: <Inventory color="primary" /> },
-      { label: "Visitas Diarias", value: "0", change: "0", icon: <CheckCircle color="success" /> },
-      { label: "Chips Distribuidos", value: "0", change: "0%", icon: <Storefront color="warning" /> },
-      { label: "Puntos de Venta", value: "0", change: "0", icon: <Schedule color="error" /> }
+      {
+         label: "Chips Activos",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
+         change: "0%",
+         icon: <CheckCircle color="success" />
+      },
+      {
+         label: "Chips Asignados",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
+         change: "0%",
+         icon: <Inventory color="primary" />
+      },
+      {
+         label: "Chips Distribuidos",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed ?? "0",
+         change: "0%",
+         icon: <Storefront color="warning" />
+      },
+      {
+         label: "Chips Portados",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_ported ?? "0",
+         change: "0%",
+         icon: <Storefront color="error" />
+      },
+      {
+         label: "Puntos de Venta",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.points_of_sale?.total ?? "0",
+         change: "0",
+         icon: <Storefront color="warning" />
+      },
+      {
+         label: "Visitas Diarias",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
+         change: "0",
+         icon: <Schedule color="error" />
+      }
    ];
 
    const handleCardClick = (action: (typeof quickActions)[0]) => {
@@ -153,7 +180,7 @@ const Index = ({}) => {
    return (
       <>
          {/* <ClockComponent color={"initial"} /> */}
-         <Box className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
+         <Box className="min-h-screen  p-4 md:p-6">
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                <Paper className="rounded-2xl shadow-lg mb-6 border-0" sx={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
@@ -194,13 +221,13 @@ const Index = ({}) => {
                   {quickMetrics.map((metric, index) => (
                      <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                         <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }}>
-                           <Paper className="p-4 rounded-2xl shadow-sm border-0 h-full">
+                           <Paper className="p-4 rounded-2xl shadow-xl border-0 h-full">
                               <Box className="flex items-center justify-between">
                                  <Box>
-                                    <Typography variant="h4" fontWeight="800" className="text-gray-800">
+                                    <Typography variant="h4" fontWeight="800" className="text-base">
                                        {metric.value}
                                     </Typography>
-                                    <Typography variant="body2" className="text-gray-600 mt-1">
+                                    <Typography variant="body2" className="text-base mt-1">
                                        {metric.label}
                                     </Typography>
                                     <Chip
@@ -358,7 +385,7 @@ const Index = ({}) => {
 
          {/* <DashboardView /> */}
          {/* <p>Crear modulo de visitas...</p> */}
-         {/* <SaleForm /> */}
+         {/* <VisitForm container="modal" openDialog={VisitFormDialog} setOpenDialog={setVisitFormDialog} refreshSelect={{}} /> */}
       </>
    );
 };

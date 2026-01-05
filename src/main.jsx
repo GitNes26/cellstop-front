@@ -9,13 +9,16 @@ dayjs.extend(isBetween);
 import { GlobalContextProvider } from "./context/GlobalContext";
 import AuthContextProvider from "./context/AuthContext";
 import MenuContextProvider from "./context/MenuContext";
+import DashboardContextProvider from "./context/DashboardContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
    <React.StrictMode>
       <GlobalContextProvider>
          <AuthContextProvider>
             <MenuContextProvider>
-               <App />
+               <DashboardContextProvider>
+                  <App />
+               </DashboardContextProvider>
             </MenuContextProvider>
          </AuthContextProvider>
       </GlobalContextProvider>

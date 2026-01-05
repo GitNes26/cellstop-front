@@ -539,11 +539,11 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                      </Box>
                   )} */}
 
-                  <Grid container width={"100%"} spacing={2} className="my-3 p-2">
+                  {/* <Grid container width={"100%"} spacing={2} className="my-3 p-2">
                      <Input col={4} idName="chips_delivered" label="Chips Entregados" type="number" placeholder="0" min={0} />
                      <Input col={4} idName="chips_sold" label="Chips Vendidos" type="number" placeholder="0" min={0} />
                      <Input col={4} idName="chips_remaining" label="Chips en Inventario" type="number" placeholder="0" min={0} />
-                  </Grid>
+                  </Grid> */}
                   {/* </>
                   ) : ( */}
                   <TransferList
@@ -620,10 +620,9 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       // Validar que esté en el rango
       if (values.lat && values.lon && values.pos_id) {
          const posSelected = pointsOfSaleSelect.find((item) => item.id === values.pos_id);
-         console.log("🚀 ~ onSubmit ~ posSelected:", posSelected);
          const result = await verifyLocation(posSelected, values.lat, values.lon);
          if (!result.valid) {
-            Toast.Error(result.message);
+            Toast.Success(result.message);
             setSubmitting(false);
             return;
          } else {
@@ -631,7 +630,6 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          }
       }
 
-      return console.log("🚀 ~ onSubmit ~ values:", values);
       setIsLoading(true);
       // values.avatar = imgAvatar.length == 0 ? "" : imgAvatar[0].file;
 

@@ -12,7 +12,7 @@ const DashboardContext = createContext();
 //    folio: "",
 //    active: ""
 // };
-const prefixPath = "/dashboards";
+const prefixPath = "/dashboard";
 
 export default function DashboardContextProvider({ children }) {
    const params = useParams();
@@ -24,7 +24,7 @@ export default function DashboardContextProvider({ children }) {
 
    const [dashboard, setDashboard] = useState(null);
    const [sellerDashboard, setSellerDashboard] = useState([]);
-   const [dashboardsSelect, setDashboardsSelect] = useState([]);
+   const [sellerDashboardData, setSellerDashboardData] = useState(null);
    const [formTitle, setFormTitle] = useState(`REGISTRAR ${singularName.toUpperCase()}`);
    const [textBtnSubmit, setTextBtnSubmit] = useState("REGISTRAR");
    const [formData, setFormData] = useState(null);
@@ -49,7 +49,7 @@ export default function DashboardContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      setSellerDashboard(res.result);
+      setSellerDashboardData(res.result);
 
       return res;
    };
@@ -69,8 +69,8 @@ export default function DashboardContextProvider({ children }) {
             setDashboard,
             sellerDashboard,
             setSellerDashboard,
-            dashboardsSelect,
-            setDashboardsSelect,
+            sellerDashboardData,
+            setSellerDashboardData,
             formTitle,
             setFormTitle,
             textBtnSubmit,
@@ -82,12 +82,7 @@ export default function DashboardContextProvider({ children }) {
             formikRef,
             isEdit,
             setIsEdit,
-            getSellerDashboard,
-            getSelectIndexDashboards,
-            createOrUpdateDashboard,
-            getDashboard,
-            deleteDashboard,
-            disEnableDashboard
+            getSellerDashboard
          }}
       >
          {children}
