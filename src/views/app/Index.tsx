@@ -180,7 +180,7 @@ const Index = ({}) => {
    return (
       <>
          {/* <ClockComponent color={"initial"} /> */}
-         <Box className="min-h-screen  p-4 md:p-6">
+         <Box className="">
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                <Paper className="rounded-2xl shadow-lg mb-6 border-0" sx={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
