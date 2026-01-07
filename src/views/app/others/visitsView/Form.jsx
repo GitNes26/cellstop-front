@@ -622,11 +622,11 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          const posSelected = pointsOfSaleSelect.find((item) => item.id === values.pos_id);
          const result = await verifyLocation(posSelected, values.lat, values.lon);
          if (!result.valid) {
-            Toast.Success(result.message);
+            Toast.Error(result.message);
             setSubmitting(false);
             return;
          } else {
-            Toast.Error(result.message);
+            Toast.Success(result.message);
          }
       }
 

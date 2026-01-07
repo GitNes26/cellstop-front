@@ -188,7 +188,7 @@ const VisitDT = () => {
       },
       {
          field: "products",
-         headerName: "Productos Dsitribuidos",
+         headerName: "Productos Distribuidos",
          sortable: false,
          renderCell: (params) => {
             const { key, ...obj } = params.row;
