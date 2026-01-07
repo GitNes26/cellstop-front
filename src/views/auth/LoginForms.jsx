@@ -202,7 +202,7 @@ export default function LoginForms() {
                />
             ))}
          </div>
-         
+
          {/* Lado Izquierdo - Específico para Distribución de Chips */}
          <motion.div
             className="hidden lg:flex flex-1 relative overflow-hidden"
@@ -220,7 +220,7 @@ export default function LoginForms() {
                <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="mb-12">
                   <Typography variant="h2" fontWeight="800" className="mb-4 leading-tight">
                      Sistema de Gestión
-                     <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">CellStop Distribution</span>
+                     <span className="block bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">CellStop</span>
                   </Typography>
                   <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 300, lineHeight: 1.6 }}>
                      Plataforma especializada en la gestión y distribución inteligente de chips telefónicos con control total del inventario en tiempo real.

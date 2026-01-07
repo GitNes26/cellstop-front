@@ -17,7 +17,10 @@ import {
    LocationOn,
    CheckCircle,
    Schedule,
-   Storefront
+   Storefront,
+   SignalCellularNoSimRounded,
+   SimCardRounded,
+   OutboxRounded
 } from "@mui/icons-material";
 import Toast from "../../utils/Toast";
 import { useLayoutEffect, useState } from "react";
@@ -61,20 +64,20 @@ const Index = ({}) => {
          id: "visit",
          title: "Checar Visita / Distribución",
          description: "Registrar visita a punto de venta /Distribuir productos",
-         icon: <LocalShipping sx={{ fontSize: 32 }} />,
+         icon: <LocalShipping sx={{ fontSize: 32, color: "black" }} />,
          color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-         stats: "12,540 chips",
-         badge: "8,430 pre-activados",
+         stats: "",
+         badge: "",
          route: "/app/otros/visitas"
       },
       {
          id: "inventory",
          title: "Inventario",
          description: "Control de stock y existencias",
-         icon: <Inventory sx={{ fontSize: 32 }} />,
+         icon: <Inventory sx={{ fontSize: 32, color: "black" }} />,
          color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-         stats: "3,120 asignados",
-         badge: "+12% mes",
+         stats: "",
+         badge: "",
          route: "/app/productos/asignados"
       }
       // {
@@ -112,39 +115,45 @@ const Index = ({}) => {
    // Métricas rápidas
    const quickMetrics = [
       {
-         label: "Chips Activos",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
-         change: "0%",
-         icon: <CheckCircle color="success" />
+         label: "Chips Asignados",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.assigned ?? "0",
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.assigned_rate}%`,
+         icon: <SimCardRounded color="primary" />
       },
       {
-         label: "Chips Asignados",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
-         change: "0%",
-         icon: <Inventory color="primary" />
+         label: "Chips en Stock",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.in_stock ?? "0",
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.in_stock_rate}%`,
+         icon: <Inventory color="info" />
       },
       {
          label: "Chips Distribuidos",
          value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed ?? "0",
-         change: "0%",
-         icon: <Storefront color="warning" />
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed_rate}%`,
+         icon: <OutboxRounded color="warning" />
+      },
+      {
+         label: "Chips Activos",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.actived ?? "0",
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.actived_rate}%`,
+         icon: <CheckCircle color="success" />
       },
       {
          label: "Chips Portados",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_ported ?? "0",
-         change: "0%",
-         icon: <Storefront color="error" />
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.ported ?? "0",
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.ported_rate}%`,
+         icon: <SignalCellularNoSimRounded color="error" />
       },
       {
          label: "Puntos de Venta",
          value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.points_of_sale?.total ?? "0",
-         change: "0",
+         change: "100%",
          icon: <Storefront color="warning" />
       },
       {
          label: "Visitas Diarias",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.total_assigned ?? "0",
-         change: "0",
+         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.visits?.daily ?? "0",
+         change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.visits?.daily_rate}%`,
          icon: <Schedule color="error" />
       }
    ];
@@ -180,7 +189,7 @@ const Index = ({}) => {
    return (
       <>
          {/* <ClockComponent color={"initial"} /> */}
-         <Box className="">
+         <Box className="" sx={{}}>
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                <Paper className="rounded-2xl shadow-lg mb-6 border-0" sx={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
@@ -193,11 +202,7 @@ const Index = ({}) => {
                            <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 300 }}>
                               ¿Qué deseas hacer hoy?
                            </Typography>
-                           <Chip
-                              label="Sesión activa • CellStop Distribution"
-                              variant="outlined"
-                              sx={{ color: "white", borderColor: "rgba(255,255,255,0.3)", mt: 2 }}
-                           />
+                           <Chip label="Sesión activa • CellStop" variant="outlined" sx={{ color: "white", borderColor: "rgba(255,255,255,0.3)", mt: 2 }} />
                         </Box>
 
                         {/* <Box className="flex items-center gap-3">
@@ -217,11 +222,11 @@ const Index = ({}) => {
 
             {/* Métricas Rápidas */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mb-8">
-               <Grid container spacing={3}>
+               <Grid container spacing={2}>
                   {quickMetrics.map((metric, index) => (
                      <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                         <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }}>
-                           <Paper className="p-4 rounded-2xl shadow-xl border-0 h-full">
+                           <Paper className="p-4 rounded-2xl shadow-xl border-0 h-full" sx={{}}>
                               <Box className="flex items-center justify-between">
                                  <Box>
                                     <Typography variant="h4" fontWeight="800" className="text-base">
@@ -249,7 +254,7 @@ const Index = ({}) => {
 
             {/* Acciones Rápidas */}
             <motion.div variants={containerVariants} initial="hidden" animate="visible">
-               <Typography variant="h5" fontWeight="700" className="text-gray-800 mb-4">
+               <Typography variant="h5" fontWeight="700" className="text-base mb-6" mb={1}>
                   Acciones Rápidas
                </Typography>
 
@@ -377,8 +382,7 @@ const Index = ({}) => {
             {/* Footer de Estado */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 1 }} className="mt-8 text-center">
                <Typography variant="caption" className="text-gray-500">
-                  Sistema CellStop Distribution • Conectado • Última actualización: hoy a las{" "}
-                  {new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                  Sistema CellStop • Conectado • Última actualización: hoy a las {new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
                </Typography>
             </motion.div>
          </Box>

@@ -150,7 +150,7 @@ export default function Navbar() {
             </Typography> */}
             {/* Resto de la barra */}
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-               <IconButton
+               {/* <IconButton
                   size="large"
                   aria-label="account of current user"
                   aria-controls="menu-appbar"
@@ -181,12 +181,11 @@ export default function Navbar() {
                         <Typography sx={{ textAlign: "center" }}>{page}</Typography>
                      </MenuItem>
                   ))}
-               </Menu>
+               </Menu> */}
+               {/* <img src={images.logo} className="w-12" onClick={() => (window.location.hash = "/app")} /> */}
             </Box>
-            <Box sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}>
-               <img src={images.logo} className="w-8" />
-            </Box>
-            <Typography
+            <Box sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}></Box>
+            {/* <Typography
                variant="h5"
                noWrap
                component="a"
@@ -203,7 +202,7 @@ export default function Navbar() {
                }}
             >
                {env.NAME_SYSTEM}
-            </Typography>
+            </Typography> */}
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
                {/* {pages.map((page) => (
                      <Button
