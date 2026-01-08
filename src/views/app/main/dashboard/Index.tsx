@@ -602,7 +602,7 @@ const DashboardView: React.FC = () => {
                </Toolbar>
             </AppBar>
          )}
-         <Grid container spacing={2} maxHeight={"90%"} sx={{ mt: isMobile ? 8 : 0 }}>
+         <Grid container spacing={2} maxHeight={"100%"} sx={{ mt: isMobile ? 8 : 0, overflowY:"hidden" }}>
             {/* Drawer de filtros */}
             <Grid size={{ xs: 2 /* md: FILTERS_DRAWER_WIDTH */ }}>
                <Paper
@@ -635,7 +635,7 @@ const DashboardView: React.FC = () => {
                      // width: { md: `calc(100% - ${FILTERS_DRAWER_WIDTH}px)` },
                      ml: 0, //{ md: `${FILTERS_DRAWER_WIDTH}px` },
                      // pt: isMobile ? 8 : 3
-                     maxHeight: "50%",
+                     maxHeight: "49.5%",
                      overflowY: "auto"
                   }}
                >

@@ -2,7 +2,7 @@
 import React from "react";
 import { Grid } from "@mui/material";
 import { StatCard, StatCardGrid } from "../widgets/StatCard";
-import { Inventory2, PointOfSale, People, TrendingUp, QrCode2, Assignment, SimCardRounded, AssignmentIndRounded } from "@mui/icons-material";
+import { Inventory2, PointOfSale, People, TrendingUp, QrCode2, Assignment, SimCardRounded, AssignmentIndRounded, TrendingDown } from "@mui/icons-material";
 
 export interface HeaderStatsProps {
    stats: {
@@ -132,7 +132,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                   <StatCard
                      title="Activados"
                      value={stats?.activated.toLocaleString()}
-                     subtitle="Primera recarga"
+                     subtitle="Productos con recargas"
                      icon={<TrendingUp />}
                      color="success"
                      progress={Math.round((stats?.activated / stats?.products) * 100)}
@@ -143,8 +143,8 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                   <StatCard
                      title="Portados"
                      value={stats?.portados.toLocaleString()}
-                     subtitle="Primera recarga"
-                     icon={<TrendingUp />}
+                     subtitle="Sin recargar reportadas"
+                     icon={<TrendingDown/>}
                      color="error"
                      progress={Math.round((stats?.portados / stats?.products) * 100)}
                      onClick={() => handleStatClick("portados")}
