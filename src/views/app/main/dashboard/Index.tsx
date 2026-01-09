@@ -38,6 +38,7 @@ import { Dashboard, Refresh, Download, Menu, Close, Circle } from "@mui/icons-ma
 import { motion } from "framer-motion";
 import Loading from "../../../../components/Loading.js";
 import { images } from "../../../../constant/index.js";
+import DistributionMonitoring from "../../../../components/dashboard/DistributionMonitoring.js";
 // import ChartComponent from "../../../../components/dashboard/charts/ChartComponent";
 // import PortedNumbersTable from "../../../../components/dashboard/PortedNumbersTable";
 
@@ -73,6 +74,25 @@ const DashboardView: React.FC = () => {
    const { productTypesSelect, setProductTypesSelect, getSelectIndexProductTypes } = useProductTypeContext();
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchProductTypes } = useFetch(() => getSelectIndexProductTypes(), setProductTypesSelect);
+
+   const salesData = [
+      {
+         id: 1,
+         name: "Mi Tienda 1",
+         lat: 40.4168,
+         lng: -3.7038,
+         type: "high",
+         zone: "Zona Centro",
+         postalCode: "28001",
+         inventory: 85,
+         sales: 25000,
+         rotation: 3.2,
+         orders: 2,
+         lastDelivery: "2024-01-15",
+         performance: [80, 82, 85, 83, 86, 85, 87]
+      }
+      // ... más puntos de venta
+   ];
 
    // Estados
    const [activeSection, setActiveSection] = useState("stats");
@@ -602,7 +622,7 @@ const DashboardView: React.FC = () => {
                </Toolbar>
             </AppBar>
          )}
-         <Grid container spacing={2} maxHeight={"100%"} sx={{ mt: isMobile ? 8 : 0, overflowY:"hidden" }}>
+         <Grid container spacing={2} maxHeight={"100%"} sx={{ mt: isMobile ? 8 : 0, overflowY: "hidden" }}>
             {/* Drawer de filtros */}
             <Grid size={{ xs: 2 /* md: FILTERS_DRAWER_WIDTH */ }}>
                <Paper
@@ -808,8 +828,8 @@ const DashboardView: React.FC = () => {
                         <Typography variant="h5" sx={{ mb: 3 }}>
                            🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
                         </Typography>
-
-                        <PointsOfSaleMap
+                        <DistributionMonitoring salesPoints={salesData} />
+                        {/* <PointsOfSaleMap
                            points={data?.points_of_sale}
                            //   loading={loading}
                            onPointClick={(point) => {
@@ -821,7 +841,7 @@ const DashboardView: React.FC = () => {
                                  severity: "info"
                               });
                            }}
-                        />
+                        /> */}
                      </Box>
                   )}
 

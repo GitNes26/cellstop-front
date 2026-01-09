@@ -18,7 +18,7 @@ interface PointOfSale {
    id: number;
    name: string;
    lat: number;
-   lng: number;
+   lon: number;
    address: string;
    inventory_count: number;
    activated_count: number;
@@ -35,7 +35,7 @@ interface PointsOfSaleMapProps {
 }
 
 const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ points, onPointClick }) => {
-   const center = points.length > 0 ? [points[0].lat, points[0].lng] : [19.4326, -99.1332]; // CDMX como fallback
+   const center = points.length > 0 ? [points[0].lat, points[0].lon] : [19.4326, -99.1332]; // CDMX como fallback
 
    const getMarkerColor = (point: PointOfSale) => {
       if (point.portado_count > 10) return "#ef4444"; // rojo
@@ -54,7 +54,7 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ points, onPointClick 
             {points.map((point) => (
                <CircleMarker
                   key={point.id}
-                  center={[point.lat, point.lng]}
+                  center={[point.lat, point.lon]}
                   radius={15 + point.inventory_count / 10}
                   pathOptions={{
                      fillColor: point.seller_color || getMarkerColor(point),
