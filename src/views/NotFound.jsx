@@ -50,7 +50,7 @@ const NotFound = () => {
                               width: 200,
                               height: 200,
                               borderRadius: "50%",
-                              background: "linear-gradient(135deg, #667eea20 0%, #764ba220 100%)",
+                              background: "linear-gradient(135deg, #6F99CD20 0%, #764ba220 100%)",
                               animation: "pulse 2s infinite"
                            }}
                         />
@@ -63,7 +63,7 @@ const NotFound = () => {
                               width: 150,
                               height: 150,
                               borderRadius: "50%",
-                              background: "linear-gradient(135deg, #667eea15 0%, #764ba215 100%)",
+                              background: "linear-gradient(135deg, #6F99CD15 0%, #764ba215 100%)",
                               animation: "pulse 2s infinite 0.5s"
                            }}
                         />
@@ -86,7 +86,7 @@ const NotFound = () => {
                                  width: 120,
                                  height: 120,
                                  borderRadius: "50%",
-                                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                 background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                                  display: "flex",
                                  alignItems: "center",
                                  justifyContent: "center",
@@ -189,7 +189,7 @@ const NotFound = () => {
                            sx={{
                               fontSize: { xs: "3rem", md: "4rem" },
                               fontWeight: 800,
-                              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                              background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                               backgroundClip: "text",
                               WebkitBackgroundClip: "text",
                               color: "transparent",
@@ -245,7 +245,7 @@ const NotFound = () => {
                                  borderRadius: 3,
                                  fontSize: "1rem",
                                  fontWeight: 600,
-                                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                 background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                                  boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
                                  "&:hover": {
                                     background: "linear-gradient(135deg, #5a6fd8 0%, #6a42a0 100%)",
@@ -268,10 +268,10 @@ const NotFound = () => {
                                  borderRadius: 3,
                                  fontSize: "1rem",
                                  fontWeight: 600,
-                                 borderColor: "#667eea",
-                                 color: "#667eea",
+                                 borderColor: "#6F99CD",
+                                 color: "#6F99CD",
                                  "&:hover": {
-                                    backgroundColor: "#667eea10",
+                                    backgroundColor: "#6F99CD10",
                                     borderColor: "#5a6fd8",
                                     transform: "translateY(-2px)"
                                  },
@@ -294,10 +294,10 @@ const NotFound = () => {
                               borderRadius: 3,
                               fontSize: "1rem",
                               fontWeight: 600,
-                              borderColor: "#667eea",
-                              color: "#667eea",
+                              borderColor: "#6F99CD",
+                              color: "#6F99CD",
                               "&:hover": {
-                                 backgroundColor: "#667eea10",
+                                 backgroundColor: "#6F99CD10",
                                  borderColor: "#5a6fd8",
                                  transform: "translateY(-2px)"
                               },

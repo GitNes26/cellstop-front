@@ -2,7 +2,7 @@
 import React from "react";
 import { Grid } from "@mui/material";
 import { StatCard, StatCardGrid } from "../widgets/StatCard";
-import { Inventory2, PointOfSale, People, TrendingUp, QrCode2, Assignment, SimCardRounded, AssignmentIndRounded, TrendingDown } from "@mui/icons-material";
+import { Inventory2, PointOfSale, People, TrendingUp, QrCode2, Assignment, SimCardRounded, AssignmentIndRounded, TrendingDown, OutboxRounded } from "@mui/icons-material";
 
 export interface HeaderStatsProps {
    stats: {
@@ -119,7 +119,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      title="Distribuidos"
                      value={stats?.distributed.toLocaleString()}
                      subtitle="En puntos de venta"
-                     icon={<PointOfSale />}
+                     icon={<OutboxRounded />}
                      color="success"
                      trend={{ value: 8, isPositive: true }}
                      onClick={() => handleStatClick("distributed")}

@@ -40,7 +40,7 @@ export class InventoryStatusChart {
                   show: false
                },
                data: [
-                  { value: 6540, name: "Stock Central", itemStyle: { color: "#667eea" } },
+                  { value: 6540, name: "Stock Central", itemStyle: { color: "#6F99CD" } },
                   { value: 3120, name: "Asignado Vendedores", itemStyle: { color: "#d69e2e" } },
                   { value: 1890, name: "Distribuido Puntos", itemStyle: { color: "#38a169" } },
                   { value: 990, name: "En Tránsito", itemStyle: { color: "#e53e3e" } }
@@ -86,7 +86,7 @@ export class InventoryStatusChart {
                   focus: "series"
                },
                data: [3200, 800, 600, 450, 300, 190],
-               itemStyle: { color: "#667eea" }
+               itemStyle: { color: "#6F99CD" }
             },
             {
                name: "E-SIM",

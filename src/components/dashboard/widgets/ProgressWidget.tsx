@@ -20,7 +20,7 @@ export interface ProgressWidgetProps {
 
 export const ProgressWidget: React.FC<ProgressWidgetProps> = ({ title, subtitle, items, height = 300 }) => {
    const colorMap = {
-      primary: "#667eea",
+      primary: "#6F99CD",
       secondary: "#764ba2",
       success: "#38a169",
       error: "#e53e3e",
@@ -37,7 +37,7 @@ export const ProgressWidget: React.FC<ProgressWidgetProps> = ({ title, subtitle,
          <Card
             sx={{
                height: "100%",
-               background: "rgba(255, 255, 255, 0.9)",
+               // background: "rgba(255, 255, 255, 0.9)",
                backdropFilter: "blur(10px)",
                border: "1px solid rgba(255, 255, 255, 0.2)"
             }}

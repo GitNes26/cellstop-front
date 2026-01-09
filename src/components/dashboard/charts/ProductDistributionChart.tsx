@@ -40,7 +40,7 @@ export class ProductDistributionChart {
                   show: false
                },
                data: [
-                  { value: 6540, name: "SIM Físico", itemStyle: { color: "#667eea" } },
+                  { value: 6540, name: "SIM Físico", itemStyle: { color: "#6F99CD" } },
                   { value: 3210, name: "E-SIM", itemStyle: { color: "#764ba2" } },
                   { value: 1980, name: "Dispositivos", itemStyle: { color: "#38a169" } },
                   { value: 650, name: "Accesorios", itemStyle: { color: "#d69e2e" } },

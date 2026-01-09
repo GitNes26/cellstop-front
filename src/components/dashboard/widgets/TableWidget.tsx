@@ -52,7 +52,8 @@ export const TableWidget: React.FC<TableWidgetProps> = ({
    const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
    const [searchTerm, setSearchTerm] = useState("");
 
-   const filteredData = data.filter((row) =>
+   console.log("🚀 ~ TableWidget ~ data:", data);
+   const filteredData = data?.filter((row) =>
       columns.some((column) => {
          const value = row[column.key];
          return value?.toString().toLowerCase().includes(searchTerm.toLowerCase());
@@ -75,7 +76,7 @@ export const TableWidget: React.FC<TableWidgetProps> = ({
          <Card
             sx={{
                height: "100%",
-               background: "rgba(255, 255, 255, 0.9)",
+               // background: "rgba(255, 255, 255, 0.9)",
                backdropFilter: "blur(10px)"
             }}
          >

@@ -127,7 +127,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       <motion.div
          whileHover={{ y: variant === "minimal" ? -2 : -4, scale: variant === "minimal" ? 1.01 : 1.02 }}
          transition={{ type: "spring", stiffness: 300 }}
-         className="h-full"
+         className="h-full w-full"
       >
          <Card
             sx={{
@@ -347,6 +347,7 @@ export const StatCardGrid: React.FC<StatCardGridProps> = ({ children, columns = 
          sx={{
             display: "grid",
             direction: "ltr",
+            width: "100%",
             gap: gap,
             gridTemplateColumns: {
                xs: `repeat(${columns.xs}, 1fr)`,

@@ -54,7 +54,7 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({ title, subtitle, chart
          <Card
             sx={{
                height: "100%",
-               background: "rgba(255, 255, 255, 0.9)",
+               // background: "rgba(255, 255, 255, 0.9)",
                backdropFilter: "blur(10px)",
                border: "1px solid rgba(255, 255, 255, 0.2)"
             }}

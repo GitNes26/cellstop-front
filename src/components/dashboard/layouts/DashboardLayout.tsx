@@ -21,7 +21,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
    return (
       <Box
          sx={{
-            flexGrow: 1,
+            // flexGrow: 1,
             maxHeight: "10vh",
             width: "100%",
             m: 0,
@@ -33,7 +33,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
          {/* Navigation Sidebar */}
          {navigation && navigation}
 
-         <Container maxWidth={false} sx={{ position: "relative", zIndex: 1 }}>
+         <Container maxWidth={false} sx={{ position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "hidden" }}>
             {/* Header */}
             <motion.div
                initial={{ opacity: 0, y: -20 }}
@@ -50,15 +50,17 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                      fontWeight="800"
                      gutterBottom
                      sx={{
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                         backgroundClip: "text",
                         WebkitBackgroundClip: "text",
-                        color: "transparent"
+                        color: "transparent",
+                        pb: 0,
+                        mb: 0
                      }}
                   >
                      {title}
                   </Typography>
-                  <Typography variant="h6" color="text.secondary" sx={{ opacity: 0.8 }}>
+                  <Typography variant="h6" color="text.secondary" sx={{ opacity: 0.8, mt: 0, pt: 0 }}>
                      {subtitle}
                   </Typography>
                </Box>

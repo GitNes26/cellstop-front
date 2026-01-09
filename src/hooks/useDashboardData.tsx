@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Axios } from "../utils/Api";
+import { SalesPerformanceProps } from "../components/dashboard/sections/SalesPerformance";
 
 interface DashboardFilters {
    startDate: Date | null;

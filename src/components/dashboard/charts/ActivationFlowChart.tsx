@@ -46,7 +46,7 @@ export class ActivationFlowChart {
                data: [stats.products, stats.activated, stats.assigned, stats.distributed, stats.activated],
                itemStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                     { offset: 0, color: "#667eea" },
+                     { offset: 0, color: "#6F99CD" },
                      { offset: 1, color: "#764ba2" }
                   ])
                }

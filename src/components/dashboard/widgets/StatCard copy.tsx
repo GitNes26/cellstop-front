@@ -20,7 +20,7 @@ export interface StatCardProps {
 
 export const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, color = "primary", trend, progress, onClick }) => {
    const colorMap = {
-      primary: "#667eea",
+      primary: "#6F99CD",
       secondary: "#764ba2",
       success: "#38a169",
       error: "#e53e3e",

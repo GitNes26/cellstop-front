@@ -209,7 +209,7 @@ const DistributionMonitoring = ({ salesPoints = [] }) => {
                      color = "#f56565";
                      break;
                   case "center":
-                     color = "#667eea";
+                     color = "#6F99CD";
                      break;
                }
 
@@ -280,7 +280,7 @@ const DistributionMonitoring = ({ salesPoints = [] }) => {
                      value: [point.lng, point.lat, value],
                      symbolSize: symbolSize,
                      itemStyle: {
-                        color: point.type === "high" ? "#48bb78" : point.type === "medium" ? "#f6ad55" : point.type === "low" ? "#f56565" : "#667eea",
+                        color: point.type === "high" ? "#48bb78" : point.type === "medium" ? "#f6ad55" : point.type === "low" ? "#f56565" : "#6F99CD",
                         shadowBlur: 10,
                         shadowColor:
                            point.type === "high"
@@ -394,10 +394,10 @@ const DistributionMonitoring = ({ salesPoints = [] }) => {
                data: selectedPoint?.performance || [85, 88, 90, 89, 92, 91, 93],
                lineStyle: {
                   width: 4,
-                  color: "#667eea"
+                  color: "#6F99CD"
                },
                itemStyle: {
-                  color: "#667eea"
+                  color: "#6F99CD"
                },
                areaStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [

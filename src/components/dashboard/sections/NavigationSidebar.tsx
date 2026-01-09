@@ -111,7 +111,7 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({ onSectionC
                               minHeight: 48,
                               justifyContent: isCollapsed ? "center" : "flex-start",
                               "&.Mui-selected": {
-                                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                 background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                                  color: "white",
                                  "&:hover": {
                                     background: "linear-gradient(135deg, #5a6fd8 0%, #6a42a0 100%)"

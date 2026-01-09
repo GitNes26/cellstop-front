@@ -65,7 +65,7 @@ const Index = ({}) => {
          title: "Checar Visita / Distribución",
          description: "Registrar visita a punto de venta /Distribuir productos",
          icon: <LocalShipping sx={{ fontSize: 32, color: "black" }} />,
-         color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+         color: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
          stats: "",
          badge: "",
          route: "/app/otros/visitas"
@@ -192,7 +192,7 @@ const Index = ({}) => {
          <Box className="" sx={{}}>
             {/* Header */}
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-               <Paper className="rounded-2xl shadow-lg mb-6 border-0" sx={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}>
+               <Paper className="rounded-2xl shadow-lg mb-6 border-0" sx={{ background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)" }}>
                   <Box className="p-6 text-white">
                      <Box className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <Box>
@@ -368,7 +368,7 @@ const Index = ({}) => {
                            sx={{
                               borderRadius: 3,
                               textTransform: "none",
-                              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                              background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)"
                            }}
                            onClick={() => navigate("#")}
                         >

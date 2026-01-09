@@ -7,37 +7,62 @@ import { SalesTrendChart } from "../charts/SalesTrendChart";
 
 export interface SalesPerformanceProps {
    data: {
-      topSellers: Array<{
+      sellers: Array<{
          id: number;
-         name: string;
-         activations: number;
+         full_name: string;
+         pin_color: string;
+         assigned: number;
          distributed: number;
+         actived: number;
+         ported: number;
          efficiency: number;
-         region: string;
+         deficiency: number;
+         points_of_sale: number;
+         visits: number;
+         daily: number;
+         [key: string]: any;
       }>;
-      recentSales: Array<{
-         id: number;
-         product: string;
-         seller: string;
-         pointOfSale: string;
-         date: string;
-         status: string;
-      }>;
+      // topSellers: Array<{
+      //    id: number;
+      //    name: string;
+      //    activations: number;
+      //    distributed: number;
+      //    efficiency: number;
+      //    region: string;
+      // }>;
+      // recentSales: Array<{
+      //    id: number;
+      //    product: string;
+      //    seller: string;
+      //    pointOfSale: string;
+      //    date: string;
+      //    status: string;
+      // }>;
    };
 }
 
 export const SalesPerformance: React.FC<SalesPerformanceProps> = ({ data }) => {
    const sellerColumns = [
       { key: "name", label: "Vendedor", align: "left" as const },
-      { key: "activations", label: "Activaciones", align: "center" as const },
       { key: "distributed", label: "Distribuidos", align: "center" as const },
+      { key: "actived", label: "Activados", align: "center" as const },
+      { key: "activatiportedons", label: "Portados", align: "center" as const },
       {
          key: "efficiency",
          label: "Eficiencia",
          align: "center" as const,
          render: (value: number) => `${value}%`
       },
-      { key: "region", label: "Región", align: "center" as const }
+      {
+         key: "deficiency",
+         label: "Defiencia",
+         align: "center" as const,
+         render: (value: number) => `${value}%`
+      },
+      { key: "points_of_sale", label: "Puntos de venta", align: "center" as const },
+      { key: "visits", label: "Visitas", align: "center" as const },
+      { key: "daily", label: "Visitas diarias", align: "center" as const },
+      { key: "pin_color", label: "Color Pin Mapa", align: "center" as const }
    ];
 
    const salesColumns = [
@@ -87,6 +112,17 @@ export const SalesPerformance: React.FC<SalesPerformanceProps> = ({ data }) => {
                   title="Ranking de Vendedores"
                   subtitle="Top 10 por desempeño"
                   columns={sellerColumns}
+                  data={data?.sellers}
+                  height={300}
+                  pagination={false}
+               />
+            </Grid>
+
+            {/* <Grid size={{ xs: 12, md: 6 }}>
+               <TableWidget
+                  title="Ranking de Vendedores"
+                  subtitle="Top 10 por desempeño"
+                  columns={sellerColumns}
                   data={data.topSellers}
                   height={300}
                   pagination={false}
@@ -103,7 +139,7 @@ export const SalesPerformance: React.FC<SalesPerformanceProps> = ({ data }) => {
                   pagination={false}
                   searchable={true}
                />
-            </Grid>
+            </Grid> */}
          </Grid>
       </Box>
    );

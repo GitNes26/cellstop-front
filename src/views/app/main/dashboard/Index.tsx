@@ -39,6 +39,8 @@ import { motion } from "framer-motion";
 import Loading from "../../../../components/Loading.js";
 import { images } from "../../../../constant/index.js";
 import DistributionMonitoring from "../../../../components/dashboard/DistributionMonitoring.js";
+import { ProductAnalytics } from "../../../../components/dashboard/sections/ProductAnalytics.js";
+import { SalesPerformance } from "../../../../components/dashboard/sections/SalesPerformance.js";
 // import ChartComponent from "../../../../components/dashboard/charts/ChartComponent";
 // import PortedNumbersTable from "../../../../components/dashboard/PortedNumbersTable";
 
@@ -124,6 +126,8 @@ const DashboardView: React.FC = () => {
 
    // Referencias para scroll
    const statsRef = useRef<HTMLDivElement>(null);
+   const salesRef = useRef<HTMLDivElement>(null);
+   const productsRef = useRef<HTMLDivElement>(null);
    const chartsRef = useRef<HTMLDivElement>(null);
    const mapRef = useRef<HTMLDivElement>(null);
    const tableRef = useRef<HTMLDivElement>(null);
@@ -294,6 +298,40 @@ const DashboardView: React.FC = () => {
       }));
    };
 
+   const productAnalytics = {
+      productTypes: [
+         { name: "SIM Físico", count: 6540, percentage: 52 },
+         { name: "E-SIM", count: 3210, percentage: 26 },
+         { name: "Dispositivos", count: 1980, percentage: 16 },
+         { name: "Accesorios", count: 650, percentage: 5 },
+         { name: "Otros", count: 160, percentage: 1 }
+      ],
+      inventoryStatus: [
+         { location: "Stock Central", count: 6540, total: 12540 },
+         { location: "Zona Norte", count: 2200, total: 3200 },
+         { location: "Zona Sur", count: 1800, total: 2800 },
+         { location: "Zona Este", count: 1200, total: 1500 },
+         { location: "Zona Oeste", count: 480, total: 540 }
+      ]
+   };
+
+   const salesPerformance = {
+      topSellers: [
+         { id: 1, name: "Juan Pérez", activations: 145, distributed: 320, efficiency: 45, region: "Centro" },
+         { id: 2, name: "María García", activations: 132, distributed: 280, efficiency: 47, region: "Norte" },
+         { id: 3, name: "Carlos López", activations: 101, distributed: 240, efficiency: 42, region: "Sur" },
+         { id: 4, name: "Ana Martínez", activations: 98, distributed: 210, efficiency: 47, region: "Este" },
+         { id: 5, name: "Pedro Rodríguez", activations: 76, distributed: 180, efficiency: 42, region: "Oeste" }
+      ],
+      recentSales: [
+         { id: 1, product: "SIM Físico", seller: "Juan Pérez", pointOfSale: "Punto Centro", date: "2024-01-15", status: "Activado" },
+         { id: 2, product: "E-SIM", seller: "María García", pointOfSale: "Punto Norte", date: "2024-01-15", status: "Distribuido" },
+         { id: 3, product: "Dispositivo", seller: "Carlos López", pointOfSale: "Punto Sur", date: "2024-01-14", status: "Activado" },
+         { id: 4, product: "SIM Físico", seller: "Ana Martínez", pointOfSale: "Punto Este", date: "2024-01-14", status: "Distribuido" },
+         { id: 5, product: "E-SIM", seller: "Pedro Rodríguez", pointOfSale: "Punto Oeste", date: "2024-01-13", status: "Activado" }
+      ]
+   };
+
    // Dibujar de filtros
    const filtersDrawer = (
       // <Box sx={{ width: FILTERS_DRAWER_WIDTH, height: "100vh", overflow: "auto" }}>
@@ -339,12 +377,12 @@ const DashboardView: React.FC = () => {
       return (
          <Box
             sx={{
-               minHeight: "100vh",
+               minHeight: "88vh",
                display: "flex",
                flexDirection: "column",
                alignItems: "center",
                justifyContent: "center",
-               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+               background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
                color: "white",
                position: "relative",
                overflow: "hidden"
@@ -622,7 +660,7 @@ const DashboardView: React.FC = () => {
                </Toolbar>
             </AppBar>
          )}
-         <Grid container spacing={2} maxHeight={"100%"} sx={{ mt: isMobile ? 8 : 0, overflowY: "hidden" }}>
+         <Grid container spacing={2} maxHeight={"10%"} sx={{ mt: isMobile ? 8 : 0, overflowY: "hidden" }}>
             {/* Drawer de filtros */}
             <Grid size={{ xs: 2 /* md: FILTERS_DRAWER_WIDTH */ }}>
                <Paper
@@ -651,11 +689,11 @@ const DashboardView: React.FC = () => {
                   component="main"
                   sx={{
                      flexGrow: 1,
-                     p: 2,
+                     p: 1.5,
                      // width: { md: `calc(100% - ${FILTERS_DRAWER_WIDTH}px)` },
                      ml: 0, //{ md: `${FILTERS_DRAWER_WIDTH}px` },
                      // pt: isMobile ? 8 : 3
-                     maxHeight: "49.5%",
+                     maxHeight: "24.5%",
                      overflowY: "auto"
                   }}
                >
@@ -697,7 +735,7 @@ const DashboardView: React.FC = () => {
                   </Box>
 
                   {/* Estadísticas Principales */}
-                  <Box id="stats" ref={statsRef} sx={{ mb: 6 }}>
+                  <Box id="stats" ref={statsRef} sx={{ mb: 7 }}>
                      <HeaderStats
                         stats={data ? data?.stats : null}
                         // loading={loading}
@@ -709,6 +747,16 @@ const DashboardView: React.FC = () => {
                            }
                         }}
                      />
+                  </Box>
+
+                  {/* Sales Performance */}
+                  <Box id="sales" ref={salesRef} sx={{ mb: 6 }}>
+                     <SalesPerformance data={data?.sellers_performance} />
+                  </Box>
+
+                  {/* Product Analytics */}
+                  <Box id="products" ref={productsRef} sx={{ mb: 6 }}>
+                     <ProductAnalytics data={productAnalytics} />
                   </Box>
 
                   {/* Sección de Gráficos */}

@@ -18,7 +18,7 @@ export interface ProductAnalyticsProps {
          count: number;
          total: number;
       }>;
-   };
+   } | null;
 }
 
 export const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({ data }) => {

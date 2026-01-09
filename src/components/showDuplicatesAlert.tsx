@@ -83,7 +83,7 @@ export const ALERT_CONFIGS: Record<AlertType, AlertConfig> = {
       title: "ELEMENTOS DUPLICADOS",
       subtitle: (data: AlertData) => `Se encontraron ${(data as string[]).length} elementos repetidos`,
       icon: {
-         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+         background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
          content: "!"
       },
       itemRenderer: (item: string, index: number) => (
@@ -685,7 +685,7 @@ export default showFlexibleAlert;
 //                style={{
 //                   width: "40px",
 //                   height: "40px",
-//                   background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+//                   background: "linear-gradient(135deg, #6F99CD 0%, #764ba2 100%)",
 //                   borderRadius: "10px",
 //                   display: "flex",
 //                   alignItems: "center",

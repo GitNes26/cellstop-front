@@ -141,7 +141,7 @@ export class SalesTrendChart {
                data: [145, 132, 101, 98, 76, 65],
                itemStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                     { offset: 0, color: "#667eea" },
+                     { offset: 0, color: "#6F99CD" },
                      { offset: 1, color: "#764ba2" }
                   ])
                },
