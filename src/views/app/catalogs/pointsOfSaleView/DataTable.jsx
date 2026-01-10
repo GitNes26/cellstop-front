@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from "react";
-import { Typography, Button, ButtonGroup, Tooltip } from "@mui/material";
+import { Typography, Button, ButtonGroup, Tooltip, Avatar } from "@mui/material";
 
 import Toast from "../../../../utils/Toast";
 import { DataTableComponent } from "../../../../components";
-import { formatDatetime, formatPhone } from "../../../../utils/Formats";
+import { formatDatetime, formatPhone, stringAvatar } from "../../../../utils/Formats";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -11,6 +11,8 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
 import { CancelRounded, CheckCircleRounded, MapRounded, PhoneAndroidRounded } from "@mui/icons-material";
+import { setObjImg } from "../../../../components/forms/FileInputModerno";
+import { env } from "../../../../constant";
 
 const PointOfSaleDT = () => {
    const { auth } = useAuthContext();
@@ -21,6 +23,7 @@ const PointOfSaleDT = () => {
       setFormTitle,
       setTextBtnSubmit,
       formikRef,
+      setImgImg,
       setIsEdit,
       deletePointOfSale,
       disEnablePointOfSale,
@@ -34,6 +37,10 @@ const PointOfSaleDT = () => {
    const globalFilterFields = ["pointOfSale", "description", "active", "created_at"];
 
    // #region BodysTemplate
+   const ImgBodyTemplate = (obj) => (
+      <>{obj.img == null || obj.img === "" ? <Avatar {...stringAvatar(obj.name)} /> : <Avatar src={`${env.API_URL_IMG}/${obj.img}`} />}</>
+   );
+
    const PointOfSaleBodyTemplate = (obj) => (
       <Typography textAlign={"center"} size={fontSizeTable.text}>
          {obj.name}
@@ -85,6 +92,17 @@ const PointOfSaleDT = () => {
    // #endregion BodysTemplate
 
    const columns = [
+      {
+         field: "img",
+         headerName: "Img",
+         description: "",
+         // width: 90,
+         sortable: false,
+         functionEdit: null,
+         renderCell: (params) => <ImgBodyTemplate {...params.row} key={`img-${params.row.id}`} />,
+         filter: false,
+         filterField: null
+      },
       {
          field: "name",
          headerName: "Puesto de trabajo",
@@ -182,6 +200,7 @@ const PointOfSaleDT = () => {
          formikRef?.current?.setValues(formikRef.current.initialValues);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
          setTextBtnSubmit("AGREGAR");
+         setImgImg([]);
          setIsEdit(false);
          setOpenDialog(true);
       } catch (error) {
@@ -208,6 +227,7 @@ const PointOfSaleDT = () => {
             setIsLoading(false);
             return Toast.Customizable(res.alert_text, res.alert_icon);
          }
+         setObjImg(res.result.img, setImgImg);
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
          formikRef?.current.setValues(res.result);
@@ -325,7 +345,7 @@ const PointOfSaleDT = () => {
          handleClickEdit={handleClickEdit}
          handleClickDisEnable={handleClickDisEnable}
          singularName={singularName}
-         indexColumnName={1}
+         indexColumnName={2}
          rowEdit={false}
          refreshTable={getAllPointsOfSale}
          btnsExport={false}

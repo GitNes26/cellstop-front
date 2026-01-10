@@ -1,6 +1,16 @@
 // views/VisitsView/Form.tsx
 import { useEffect, useState } from "react";
-import FormikForm, { DividerComponent, FileInput, Input, LocationButton, Radio, Select2, Textarea, TransferList } from "../../../../components/forms";
+import FormikForm, {
+   DividerComponent,
+   FileInput,
+   FileInputModerno,
+   Input,
+   LocationButton,
+   Radio,
+   Select2,
+   Textarea,
+   TransferList
+} from "../../../../components/forms";
 import * as Yup from "yup";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography, Grid, Chip, Box, Alert } from "@mui/material";
 import Toast from "../../../../utils/Toast";
@@ -86,6 +96,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       textBtnSubmit,
       setTextBtnSubmit,
       formikRef,
+      imgEvidencePhoto,
+      setImgEvidencePhoto,
       isEdit,
       setIsEdit,
       createOrUpdateVisit,
@@ -475,13 +487,32 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          name: "evidence_photo",
          input: (
             <Grid size={{ md: 6 }}>
-               <EvidenceCapture
+               {
+                  <FileInputModerno
+                     key={`key-input-evidence_photo`}
+                     col={12}
+                     idName="evidence_photo"
+                     label="Evidencia de la visita"
+                     filePreviews={imgEvidencePhoto}
+                     setFilePreviews={setImgEvidencePhoto}
+                     helperText="Toma una foto del comprador con el chip o documento"
+                     multiple={false}
+                     accept={"image/*"}
+                     zoomLeft={true}
+                     fileSizeMax={3}
+                     showBtnCamera={true}
+                     // handleUploadingFile={handleUpload}
+                     // showDialogFileOrPhoto={true}
+                  />
+               }
+               ,
+               {/* <EvidenceCapture
                   key={`key-input-evidence`}
                   idName="evidence_photo"
                   label="Foto de evidencia"
                   helperText="Toma una foto del comprador con el chip o documento"
                   // getFile={}
-               />
+               /> */}
             </Grid>
          ),
          value: "",
@@ -513,7 +544,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                   {/* {formikRef.current?.values?.visit_type === "Distribución" ? (
                      <> */}
                   <Typography variant="h6" className="mb-4 pl-2 pt-2">
-                     Información de Monitoreo
+                     Información de Distribución (solo se llena cuando la visita es tipo Distribución)
                   </Typography>
 
                   {/* {productsInStockSelect.length > 0 && (
@@ -631,7 +662,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       }
 
       setIsLoading(true);
-      // values.avatar = imgAvatar.length == 0 ? "" : imgAvatar[0].file;
+      values.evidence_photo = imgEvidencePhoto.length == 0 ? "" : imgEvidencePhoto[0].file;
 
       // Preparar datos para enviar
       // const dataToSend = {
@@ -661,6 +692,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       await resetForm();
       formikRef.current.resetForm();
       formikRef.current.setValues(formikRef.current.initialValues);
+      setImgEvidencePhoto([]);
       setSelectedProducts([]);
       setLocationVerified(false);
       setCurrentLocation(null);
@@ -679,6 +711,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
       setTextBtnSubmit("AGREGAR");
       setIsEdit(false);
+      setImgEvidencePhoto([]);
       setSelectedProducts([]);
       setLocationVerified(false);
       setCurrentLocation(null);
@@ -713,7 +746,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          //    "product_ids",
          //    productsInStockSelected.map((d) => d.id)
          // );
-         console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
+         // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
          const productsAsigment = productsInStockSelect.filter((p) => p.location_status == "Asignado").map((d) => d.id);
          // productsInStockSelect
          //    .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
@@ -737,8 +770,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
          const productsInStockSelected = allProducts.map((d) => d.id);
 
-         console.log("🚀 ~ init ~ productsAsigment:", productsAsigment);
-         console.log("🚀 ~ init ~ productsInStockSelected:", productsInStockSelected);
+         // console.log("🚀 ~ init ~ productsAsigment:", productsAsigment);
+         // console.log("🚀 ~ init ~ productsInStockSelected:", productsInStockSelected);
 
          formikRef?.current?.setFieldValue(
             "productos_en_stock",
@@ -757,8 +790,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
       // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
-      console.log("🚀 ~ VisitForm ~ visit:", visit);
-      console.log("🚀 ~ VisitForm ~ formikRef:", formikRef);
+      // console.log("🚀 ~ VisitForm ~ visit:", visit);
+      // console.log("🚀 ~ VisitForm ~ formikRef:", formikRef);
    }, [visit, formikRef, isEdit]);
    // useEffect(() => {
    //    // Si hay un vendedor logueado, cargar sus productos disponibles

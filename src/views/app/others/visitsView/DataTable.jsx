@@ -11,11 +11,14 @@ import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalCo
 import { useVisitContext } from "../../../../context/VisitContext";
 import { Typography } from "@mui/material";
 import { CheckCircleRounded, CancelRounded, LocationOn, Person, Phone, Store, Category, MapRounded, PhoneAndroidRounded } from "@mui/icons-material";
+import { setObjImg } from "../../../../components/forms/FileInputModerno";
+import { env } from "../../../../constant";
 
 const VisitDT = () => {
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
-   const { singularName, allVisits, setFormTitle, setTextBtnSubmit, formikRef, setIsEdit, deleteVisit, disEnableVisit, getAllVisits, getVisit } = useVisitContext();
+   const { singularName, allVisits, setFormTitle, setTextBtnSubmit, formikRef, setImgEvidencePhoto, setIsEdit, deleteVisit, disEnableVisit, getAllVisits, getVisit } =
+      useVisitContext();
 
    const mySwal = withReactContent(Swal);
 
@@ -119,6 +122,12 @@ const VisitDT = () => {
       </Typography>
    );
 
+   const EvidenceBodyTemplate = (obj) => (
+      <>
+         <img src={`${env.API_URL_IMG}/${obj.evidence_photo}`} className="object-contain h-[50px]" />
+      </>
+   );
+
    const ChipsInfoBodyTemplate = (obj) => (
       <Typography textAlign={"center"} size={fontSizeTable.text}>
          {obj.visit_type === "Distribución" ? (
@@ -215,6 +224,17 @@ const VisitDT = () => {
             return <ObservationsBodyTemplate {...obj} />;
          },
          filter: false
+      },
+      {
+         field: "evidence_photo",
+         headerName: "Evidencia",
+         description: "",
+         // width: 90,
+         sortable: false,
+         functionEdit: null,
+         renderCell: (params) => <EvidenceBodyTemplate {...params.row} key={`evidence_photo-${params.row.id}`} />,
+         filter: false,
+         filterField: null
       }
       // {
       //    field: "chips_info",
@@ -262,6 +282,7 @@ const VisitDT = () => {
          formikRef?.current?.setValues(formikRef.current.initialValues);
          //if(auth.role_id===3) formikRef?.current?.setFieldValue("seller_id", auth.id);
          setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
+         setImgEvidencePhoto([]);
          setTextBtnSubmit("AGREGAR");
          setIsEdit(false);
          setOpenDialog(true);
@@ -294,6 +315,7 @@ const VisitDT = () => {
          if (res.result.product_ids && typeof res.result.product_ids === "string") {
             res.result.product_ids = JSON.parse(res.result.product_ids);
          }
+         setObjImg(res.result.evidence_photo, setImgEvidencePhoto);
 
          formikRef?.current.setValues(res.result);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);

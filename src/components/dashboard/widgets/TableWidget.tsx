@@ -52,7 +52,6 @@ export const TableWidget: React.FC<TableWidgetProps> = ({
    const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
    const [searchTerm, setSearchTerm] = useState("");
 
-   console.log("🚀 ~ TableWidget ~ data:", data);
    const filteredData = data?.filter((row) =>
       columns.some((column) => {
          const value = row[column.key];

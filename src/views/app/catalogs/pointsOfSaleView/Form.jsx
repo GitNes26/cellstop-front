@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import FormikForm, { Input, LocationButton, Select2, Textarea } from "../../../../components/forms";
+import FormikForm, { FileInputModerno, Input, LocationButton, Select2, Textarea } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { Drawer, FormControlLabel, FormGroup, Switch, Tooltip, Typography } from "@mui/material";
@@ -78,8 +78,20 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
    const { auth, theUserIs } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
-   const { singularName, pointOfSale, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, formikRef, isEdit, setIsEdit, createOrUpdatePointOfSale } =
-      usePointOfSaleContext();
+   const {
+      singularName,
+      pointOfSale,
+      formTitle,
+      setFormTitle,
+      textBtnSubmit,
+      setTextBtnSubmit,
+      formikRef,
+      imgImg,
+      setImgImg,
+      isEdit,
+      setIsEdit,
+      createOrUpdatePointOfSale
+   } = usePointOfSaleContext();
    const [sellerFormDialog, setSellerFormDialog] = useState(false);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
@@ -180,6 +192,30 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
       {
+         name: "img",
+         input: (
+            <FileInputModerno
+               key={`key-input-img`}
+               col={12}
+               idName="img"
+               label="Foto del Punto de venta / Cliente"
+               filePreviews={imgImg}
+               setFilePreviews={setImgImg}
+               multiple={false}
+               accept={"image/*"}
+               zoomLeft={true}
+               fileSizeMax={3}
+               showBtnCamera={true}
+               // handleUploadingFile={handleUpload}
+               // showDialogFileOrPhoto={true}
+            />
+         ),
+         value: null,
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
          name: "address",
          input: (
             <Textarea
@@ -242,6 +278,9 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
    const onSubmit = async (values, { setSubmitting, resetForm }) => {
       // console.log("🚀 ~ onSubmit ~ validationSchema:", validationSchema());
       // return console.log("🚀 ~ onSubmit ~ values:", values);
+
+      values.img = imgImg.length == 0 ? "" : imgImg[0].file;
+
       setIsLoading(true);
       const res = await createOrUpdatePointOfSale(values);
       // console.log("🚀 ~ onSubmit ~ res:", res);
@@ -272,6 +311,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
       formikRef.current.setValues(formikRef.current.initialValues);
       setFormTitle(`REGISTRAR ${singularName.toUpperCase()}`);
       setTextBtnSubmit("AGREGAR");
+      setImgImg([]);
       setIsEdit(false);
       if (refreshSelect) refreshSelect();
       if (!checkAdd) setOpenDialog(false);

@@ -8,7 +8,7 @@ import { QuestionAlertConfig } from "../../utils/sAlert";
 import { Grid, FormControl, Typography, Box, FormLabel, Backdrop } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { isMobile } from "react-device-detect";
-import CameraInput from "./CameraInput";
+import CameraInput from "./CameraInput2";
 import Compressor from "compressorjs";
 import DialogSelectMode from "../DialogSelectMode";
 import env from "../../constant/env";
@@ -320,7 +320,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
    };
 
    useEffect(() => {
-      console.log("🚀 ~ FileInputModerno ~ filePreviews:", filePreviews)
+      console.log("🚀 ~ FileInputModerno ~ filePreviews:", filePreviews);
       if (filePreviews.length == 0) setConfirmRemove(true);
       else setConfirmRemove(false);
    }, [idName, formik.values[idName], filePreviews]);

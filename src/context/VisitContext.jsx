@@ -1,6 +1,6 @@
 // context/VisitContext.tsx
 import { createContext, useContext, useRef, useState } from "react";
-import { Axios, Response } from "../utils/Api";
+import { Axios, AxiosFiles, Response } from "../utils/Api";
 import Toast from "../utils/Toast";
 import { useAuthContext } from "./AuthContext";
 import to from "await-to-js";
@@ -39,7 +39,7 @@ export default function VisitContextProvider({ children }) {
    const [openDialog, setOpenDialog] = useState(false);
    const formikRef = useRef(null);
    const [isEdit, setIsEdit] = useState(false);
-   const [imgEvidence, setImgEvidence] = useState([]);
+   const [imgEvidencePhoto, setImgEvidencePhoto] = useState([]);
    const [availableProducts, setAvailableProducts] = useState([]);
    const [currentLocation, setCurrentLocation] = useState(null);
    const [locationError, setLocationError] = useState("");
@@ -79,7 +79,7 @@ export default function VisitContextProvider({ children }) {
 
    const createOrUpdateVisit = async (data) => {
       const id = data.id > 0 ? `/${data.id}` : "";
-      const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
+      const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
 
       if (error) {
          console.log("🚀 ~ createOrUpdateVisit ~ error:", error);
@@ -228,8 +228,8 @@ export default function VisitContextProvider({ children }) {
             formikRef,
             isEdit,
             setIsEdit,
-            imgEvidence,
-            setImgEvidence,
+            imgEvidencePhoto,
+            setImgEvidencePhoto,
             availableProducts,
             setAvailableProducts,
             currentLocation,

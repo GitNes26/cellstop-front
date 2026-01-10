@@ -860,29 +860,18 @@ const DashboardView: React.FC = () => {
                   </Box> */}
 
                   {/* Mapa de Puntos de Venta */}
-                  {data?.points_of_sale && data?.points_of_sale.length > 0 && (
-                     <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
-                        <Typography variant="h5" sx={{ mb: 3 }}>
-                           🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
-                        </Typography>
-                        {/* 
-                        <div className="min-h-screen bg-gray-50">
-                           <header className="bg-white shadow-sm">
-                              <div className="max-w-7xl mx-auto px-4 py-4">
-                                 <h1 className="text-2xl font-bold text-gray-800">Mapa de Distribución</h1>
-                                 <p className="text-gray-600">Seguimiento de puntos de venta y vendedores</p>
-                              </div>
-                           </header>
+                  {/* {data?.points_of_sale && data?.points_of_sale.length > 0 && ( */}
+                  <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
+                     <Typography variant="h5" sx={{ mb: 3 }}>
+                        🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
+                     </Typography>
 
-                           <main className="h-[calc(100vh-80px)]"> */}
-                        {data && <SalesMap pointsOfSale={data.points_of_sale} />}
-                        {/* </main>
-                        </div> */}
-                        {/* <SalesMap/> */}
+                     <SalesMap pointsOfSale={data.points_of_sale} />
+                     {/* <SalesMap/> */}
 
-                        {/* <DistributionMonitoring salesPoints={salesData} /> */}
+                     {/* <DistributionMonitoring salesPoints={salesData} /> */}
 
-                        {/* <PointsOfSaleMap
+                     {/* <PointsOfSaleMap
                            points={data?.points_of_sale}
                            //   loading={loading}
                            onPointClick={(point) => {
@@ -895,8 +884,8 @@ const DashboardView: React.FC = () => {
                               });
                            }}
                         /> */}
-                     </Box>
-                  )}
+                  </Box>
+                  {/* )} */}
 
                   {/* Tabla de Números Portados */}
                   {data?.ported_numbers && data?.ported_numbers.length > 0 && (

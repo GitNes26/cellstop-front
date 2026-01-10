@@ -30,6 +30,7 @@ export default function PointOfSaleContextProvider({ children }) {
    const [formData, setFormData] = useState(formDataInitialState);
    const [openDialog, setOpenDialog] = useState(false);
    const formikRef = useRef(null);
+   const [imgImg, setImgImg] = useState([]);
    const [isEdit, setIsEdit] = useState(false);
 
    //#region CRUD
@@ -189,6 +190,8 @@ export default function PointOfSaleContextProvider({ children }) {
             openDialog,
             setOpenDialog,
             formikRef,
+            imgImg,
+            setImgImg,
             isEdit,
             setIsEdit,
             getAllPointsOfSale,
