@@ -860,18 +860,18 @@ const DashboardView: React.FC = () => {
                   </Box> */}
 
                   {/* Mapa de Puntos de Venta */}
-                  {/* {data?.points_of_sale && data?.points_of_sale.length > 0 && ( */}
-                  <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
-                     <Typography variant="h5" sx={{ mb: 3 }}>
-                        🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
-                     </Typography>
+                  {data?.points_of_sale && data?.points_of_sale.length > 0 && (
+                     <Box id="map" ref={mapRef} sx={{ mb: 6 }}>
+                        <Typography variant="h5" sx={{ mb: 3 }}>
+                           🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
+                        </Typography>
 
-                     <SalesMap pointsOfSale={data.points_of_sale} />
-                     {/* <SalesMap/> */}
+                        <SalesMap pointsOfSale={data?.points_of_sale} />
+                        {/* <SalesMap/> */}
 
-                     {/* <DistributionMonitoring salesPoints={salesData} /> */}
+                        {/* <DistributionMonitoring salesPoints={salesData} /> */}
 
-                     {/* <PointsOfSaleMap
+                        {/* <PointsOfSaleMap
                            points={data?.points_of_sale}
                            //   loading={loading}
                            onPointClick={(point) => {
@@ -884,8 +884,8 @@ const DashboardView: React.FC = () => {
                               });
                            }}
                         /> */}
-                  </Box>
-                  {/* )} */}
+                     </Box>
+                  )}
 
                   {/* Tabla de Números Portados */}
                   {data?.ported_numbers && data?.ported_numbers.length > 0 && (
