@@ -33,7 +33,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
          {/* Navigation Sidebar */}
          {navigation && navigation}
 
-         <Container maxWidth={false} sx={{ position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "hidden" }}>
+         <Container maxWidth={false} sx={{ position: "relative", zIndex: 1, maxHeight: "90vh", overflowY: "auto" }}>
             {/* Header */}
             <motion.div
                initial={{ opacity: 0, y: -20 }}

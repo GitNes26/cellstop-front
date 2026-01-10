@@ -21,6 +21,7 @@ import ImportProductDetailsForm from "./ImportProductDetailsForm.js";
 import ModalTableDetails from "./TableDetails.js";
 import ImportPortabitiesFrom from "./ImportPortabitiesFrom.jsx";
 import { ProductMovementsModal } from "./TableMovements.js";
+import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert.js";
 
 const columnasPortaciones = ["telefono", "fechaActivacion", "fechaPortacion", "FzaVentas", "descripFzaVta"];
 
@@ -105,7 +106,8 @@ const ProductDT = ({}) => {
       setProductDetailsByProduct,
       getProductDetailsByProduct,
       allProductDetails,
-      getMovementsByProduct
+      getMovementsByProduct,
+      createMultipleManuallyPortabilities
    } = useProductContext();
    const mySwal = withReactContent(Swal);
 
@@ -498,6 +500,47 @@ const ProductDT = ({}) => {
       }
    };
 
+   const handleClickCreateMultipleManuallyPortabilities = async (id, name) => {
+      try {
+         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR")).then(async (result) => {
+            if (result.isConfirmed) {
+               setIsLoading(true);
+               const ids = [];
+               ids.push(id);
+               const res = await createMultipleManuallyPortabilities(ids);
+               // console.log('🚀 ~ handleClickLogout ~ res:', res);
+               if (!res) return setIsLoading(false);
+               if (res.errors) {
+                  setIsLoading(false);
+                  Object.values(res.errors).forEach((errors) => {
+                     errors.map((error) => Toast.Warning(error));
+                  });
+                  return;
+               } else if (res.status_code !== 200) {
+                  setIsLoading(false);
+                  return Toast.Customizable(res.alert_text, res.alert_icon);
+               }
+               if (res.metrics)
+                  /* showMetricsAlert(res.metrics); */
+                  showFlexibleAlert(res.metrics, {
+                     type: ALERT_TYPES.METRICS_CUSTOM,
+                     title: "PORTACIONES MANUALES",
+                     subtitle: res.message,
+                     copyTextGenerator: (data) => {
+                        const metrics = data;
+                        return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                     }
+                  });
+               // if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+               setIsLoading(false);
+            }
+         });
+      } catch (error) {
+         console.log(error);
+         Toast.Error(error);
+      }
+   };
+
    const handleClickDisEnable = async (id, name, active) => {
       try {
          setTimeout(async () => {
@@ -547,12 +590,20 @@ const ProductDT = ({}) => {
                   color: "primary",
                   permission: true
                },
+               {
+                  label: "Portar Manualmente",
+                  iconName: "ImportExportRounded",
+                  tooltip: "",
+                  handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.iccid),
+                  color: "primary",
+                  permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
+               },
 
                {
                   label: "Eliminar",
                   iconName: "Delete",
                   tooltip: "",
-                  handleOnClick: () => handleClickDelete(obj.id, obj.product),
+                  handleOnClick: () => handleClickDelete(obj.id, obj.iccid),
                   color: "red",
                   permission: auth.permissions.delete
                }

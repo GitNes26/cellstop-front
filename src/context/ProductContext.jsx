@@ -487,6 +487,28 @@ export default function ProductContextProvider({ children }) {
 
       return res;
    };
+
+   const createMultipleManuallyPortabilities = async (ids) => {
+      // console.log("🚀 ~ createMultipleManuallyPortabilities ~ data:", data);
+      // // if (!(await checkLoggedIn())) return;
+
+      const [error, response] = await to(Axios.post(`${prefixPathPortabilities}/createMultipleManually`, { ids }));
+      // console.log("🚀 ~ createMultipleManuallyPortabilities ~ error:", error);
+      // console.log("🚀 ~ createMultipleManuallyPortabilities ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createMultipleManuallyPortabilities ~ error:", error);
+         const message = error.response.data.message || "createMultipleManuallyPortabilities ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      getAllProducts();
+
+      return res;
+   };
    //#endregion Portabilities
 
    // useEffect(() => {
@@ -548,7 +570,8 @@ export default function ProductContextProvider({ children }) {
             setPortabilitiesByProduct,
             importPortabilities,
             getAllPortabilities,
-            getPortabilitiesByProduct
+            getPortabilitiesByProduct,
+            createMultipleManuallyPortabilities
          }}
       >
          {children}

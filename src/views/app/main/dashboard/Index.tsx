@@ -41,6 +41,7 @@ import { images } from "../../../../constant/index.js";
 import DistributionMonitoring from "../../../../components/dashboard/DistributionMonitoring.js";
 import { ProductAnalytics } from "../../../../components/dashboard/sections/ProductAnalytics.js";
 import { SalesPerformance } from "../../../../components/dashboard/sections/SalesPerformance.js";
+import SalesMap from "../../../../components/dashboard/SalesMap.js";
 // import ChartComponent from "../../../../components/dashboard/charts/ChartComponent";
 // import PortedNumbersTable from "../../../../components/dashboard/PortedNumbersTable";
 
@@ -134,7 +135,7 @@ const DashboardView: React.FC = () => {
 
    // Hook para datos del dashboard
    const { data, loading, error, refresh, exportData } = useDashboardData(filters);
-   console.log("🚀 ~ DashboardView ~ data:", data);
+   // console.log("🚀 ~ DashboardView ~ data:", data);
 
    // Cargar tipos de producto
    useEffect(() => {
@@ -278,16 +279,18 @@ const DashboardView: React.FC = () => {
       }));
    };
 
-   const prepareTopSellersData = () => {
-      if (!data?.top_sellers) return [];
+   // const prepareTopSellersData = () => {
+   //    if (!data?.top_sellers?.list) return [];
 
-      return data?.top_sellers.map((seller) => ({
-         name: seller.name,
-         value: seller.port_count,
-         sellerId: seller.id,
-         color: seller.color
-      }));
-   };
+   //    return data?.top_sellers.list.map((seller) => ({
+   //       name: seller.seller,
+   //       value: seller.data
+   //       // name: seller.name,
+   //       // value: seller.data,
+   //       // sellerId: seller.id,
+   //       // color: seller.color
+   //    }));
+   // };
 
    const prepareStatusDistributionData = () => {
       if (!data?.status_distribution) return [];
@@ -302,9 +305,9 @@ const DashboardView: React.FC = () => {
       productTypes: [
          { name: "SIM Físico", count: 6540, percentage: 52 },
          { name: "E-SIM", count: 3210, percentage: 26 },
-         { name: "Dispositivos", count: 1980, percentage: 16 },
-         { name: "Accesorios", count: 650, percentage: 5 },
-         { name: "Otros", count: 160, percentage: 1 }
+         { name: "Dispositivos", count: 1980, percentage: 16 }
+         // { name: "Accesorios", count: 650, percentage: 5 },
+         // { name: "Otros", count: 160, percentage: 1 }
       ],
       inventoryStatus: [
          { location: "Stock Central", count: 6540, total: 12540 },
@@ -315,31 +318,11 @@ const DashboardView: React.FC = () => {
       ]
    };
 
-   const salesPerformance = {
-      topSellers: [
-         { id: 1, name: "Juan Pérez", activations: 145, distributed: 320, efficiency: 45, region: "Centro" },
-         { id: 2, name: "María García", activations: 132, distributed: 280, efficiency: 47, region: "Norte" },
-         { id: 3, name: "Carlos López", activations: 101, distributed: 240, efficiency: 42, region: "Sur" },
-         { id: 4, name: "Ana Martínez", activations: 98, distributed: 210, efficiency: 47, region: "Este" },
-         { id: 5, name: "Pedro Rodríguez", activations: 76, distributed: 180, efficiency: 42, region: "Oeste" }
-      ],
-      recentSales: [
-         { id: 1, product: "SIM Físico", seller: "Juan Pérez", pointOfSale: "Punto Centro", date: "2024-01-15", status: "Activado" },
-         { id: 2, product: "E-SIM", seller: "María García", pointOfSale: "Punto Norte", date: "2024-01-15", status: "Distribuido" },
-         { id: 3, product: "Dispositivo", seller: "Carlos López", pointOfSale: "Punto Sur", date: "2024-01-14", status: "Activado" },
-         { id: 4, product: "SIM Físico", seller: "Ana Martínez", pointOfSale: "Punto Este", date: "2024-01-14", status: "Distribuido" },
-         { id: 5, product: "E-SIM", seller: "Pedro Rodríguez", pointOfSale: "Punto Oeste", date: "2024-01-13", status: "Activado" }
-      ]
-   };
-
    // Dibujar de filtros
    const filtersDrawer = (
       // <Box sx={{ width: FILTERS_DRAWER_WIDTH, height: "100vh", overflow: "auto" }}>
-      <Box sx={{ p: 1 }}>
-         <Box display="flex" alignItems="center" justifyContent="space-between" mb={3}>
-            <Typography variant="h6" fontWeight="bold">
-               🎛️ Filtros
-            </Typography>
+      <Box sx={{ p: 1, height: "100%" }}>
+         <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
             {isMobile && (
                <IconButton onClick={handleDrawerToggle}>
                   <Close />
@@ -349,7 +332,7 @@ const DashboardView: React.FC = () => {
 
          <FiltersPanel filters={filters} onFilterChange={handleFilterChange} sellers={sellers} productTypes={productTypes} onClearFilters={handleClearFilters} />
 
-         <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: "divider" }}>
+         <Box sx={{ mt: 2, pt: 1, borderTop: 1, borderColor: "divider" }}>
             <Typography variant="body2" color="text.secondary">
                <strong>Filtros activos:</strong> {activeFiltersCount}
             </Typography>
@@ -660,7 +643,7 @@ const DashboardView: React.FC = () => {
                </Toolbar>
             </AppBar>
          )}
-         <Grid container spacing={2} maxHeight={"10%"} sx={{ mt: isMobile ? 8 : 0, overflowY: "hidden" }}>
+         <Grid container spacing={2} maxHeight={"100%"} sx={{ mt: isMobile ? 8 : 0, overflowY: "hidden" }}>
             {/* Drawer de filtros */}
             <Grid size={{ xs: 2 /* md: FILTERS_DRAWER_WIDTH */ }}>
                <Paper
@@ -693,7 +676,7 @@ const DashboardView: React.FC = () => {
                      // width: { md: `calc(100% - ${FILTERS_DRAWER_WIDTH}px)` },
                      ml: 0, //{ md: `${FILTERS_DRAWER_WIDTH}px` },
                      // pt: isMobile ? 8 : 3
-                     maxHeight: "24.5%",
+                     maxHeight: "77vh",
                      overflowY: "auto"
                   }}
                >
@@ -722,9 +705,9 @@ const DashboardView: React.FC = () => {
                                  <Chip label={`${activeFiltersCount} filtro(s) activo(s)`} color="primary" size="small" onDelete={handleClearFilters} />
                               )}
 
-                              <Button variant="outlined" startIcon={<Download />} onClick={() => handleExport("excel")}>
+                              {/* <Button variant="outlined" startIcon={<Download />} onClick={() => handleExport("excel")}>
                                  Exportar
-                              </Button>
+                              </Button> */}
 
                               <Button variant="contained" startIcon={<Refresh />} onClick={handleRefresh} disabled={loading}>
                                  {loading ? "Actualizando..." : "Actualizar"}
@@ -751,23 +734,29 @@ const DashboardView: React.FC = () => {
 
                   {/* Sales Performance */}
                   <Box id="sales" ref={salesRef} sx={{ mb: 6 }}>
-                     <SalesPerformance data={data?.sellers_performance} />
+                     <SalesPerformance
+                        data={
+                           data
+                              ? { sellers: data?.sellers_performance, topBestSellers: data?.top_sellers?.bestSeller, topBadSellers: data?.top_sellers?.badSeller }
+                              : null
+                        }
+                     />
                   </Box>
 
                   {/* Product Analytics */}
-                  <Box id="products" ref={productsRef} sx={{ mb: 6 }}>
+                  <Box id="products" ref={productsRef} sx={{ mb: 6, display: "none" }}>
                      <ProductAnalytics data={productAnalytics} />
                   </Box>
 
                   {/* Sección de Gráficos */}
-                  <Box id="charts" ref={chartsRef} sx={{ mb: 6 }}>
+                  {/* <Box id="charts" ref={chartsRef} sx={{ mb: 6 }}>
                      <Typography variant="h5" sx={{ mb: 3, display: "flex", alignItems: "center" }}>
                         📈 Análisis de Portabilidad
-                     </Typography>
+                     </Typography> */}
 
-                     <Grid container spacing={3}>
-                        {/* Gráfico de Portabilidad por Mes */}
-                        <Grid size={{ xs: 12, md: 6 }}>
+                  {/* <Grid container spacing={3}> */}
+                  {/* Gráfico de Portabilidad por Mes */}
+                  {/* <Grid size={{ xs: 12, md: 6 }}>
                            <ChartComponent
                               title="Portabilidad por Mes"
                               subtitle="Números portados por mes"
@@ -790,10 +779,10 @@ const DashboardView: React.FC = () => {
                                  formatter: "{b}: {c} portaciones"
                               }}
                            />
-                        </Grid>
+                        </Grid> */}
 
-                        {/* Gráfico de Top Vendedores */}
-                        <Grid size={{ xs: 12, md: 6 }}>
+                  {/* Gráfico de Top Vendedores */}
+                  {/* <Grid size={{ xs: 12, md: 6 }}>
                            <ChartComponent
                               title="Top 10 Vendedores"
                               subtitle="Por cantidad de portaciones"
@@ -819,10 +808,10 @@ const DashboardView: React.FC = () => {
                                  }
                               }}
                            />
-                        </Grid>
+                        </Grid> */}
 
-                        {/* Gráfico de Distribución por Estatus */}
-                        <Grid size={{ xs: 12, md: 4 }}>
+                  {/* Gráfico de Distribución por Estatus */}
+                  {/* <Grid size={{ xs: 12, md: 4 }}>
                            <ChartComponent
                               title="Distribución por Estatus"
                               type="pie"
@@ -840,10 +829,10 @@ const DashboardView: React.FC = () => {
                                  }
                               }}
                            />
-                        </Grid>
+                        </Grid> */}
 
-                        {/* Gráfico de Productos Más Portados */}
-                        <Grid size={{ xs: 12, md: 8 }}>
+                  {/* Gráfico de Productos Más Portados */}
+                  {/* <Grid size={{ xs: 12, md: 8 }}>
                            {data?.top_products && data?.top_products.length > 0 && (
                               <ChartComponent
                                  title="Productos Más Portados"
@@ -866,9 +855,9 @@ const DashboardView: React.FC = () => {
                                  }}
                               />
                            )}
-                        </Grid>
-                     </Grid>
-                  </Box>
+                        </Grid> */}
+                  {/* </Grid>
+                  </Box> */}
 
                   {/* Mapa de Puntos de Venta */}
                   {data?.points_of_sale && data?.points_of_sale.length > 0 && (
@@ -876,7 +865,23 @@ const DashboardView: React.FC = () => {
                         <Typography variant="h5" sx={{ mb: 3 }}>
                            🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
                         </Typography>
-                        <DistributionMonitoring salesPoints={salesData} />
+                        {/* 
+                        <div className="min-h-screen bg-gray-50">
+                           <header className="bg-white shadow-sm">
+                              <div className="max-w-7xl mx-auto px-4 py-4">
+                                 <h1 className="text-2xl font-bold text-gray-800">Mapa de Distribución</h1>
+                                 <p className="text-gray-600">Seguimiento de puntos de venta y vendedores</p>
+                              </div>
+                           </header>
+
+                           <main className="h-[calc(100vh-80px)]"> */}
+                        {data && <SalesMap pointsOfSale={data.points_of_sale} />}
+                        {/* </main>
+                        </div> */}
+                        {/* <SalesMap/> */}
+
+                        {/* <DistributionMonitoring salesPoints={salesData} /> */}
+
                         {/* <PointsOfSaleMap
                            points={data?.points_of_sale}
                            //   loading={loading}
@@ -919,7 +924,7 @@ const DashboardView: React.FC = () => {
                   )}
 
                   {/* Información de Rendimiento de Vendedores */}
-                  {data?.sellers_performance && data?.sellers_performance.length > 0 && (
+                  {data?.sellers_performance && data?.sellers_performance.length < -10 && (
                      <Box sx={{ mb: 6 }}>
                         <Typography variant="h5" sx={{ mb: 3 }}>
                            👥 Rendimiento de Vendedores

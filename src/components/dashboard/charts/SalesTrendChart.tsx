@@ -113,7 +113,7 @@ export class SalesTrendChart {
       return Array.from({ length: count }, () => Math.floor(Math.random() * (max - min + 1)) + min);
    }
 
-   static getSellerPerformanceOption(): echarts.EChartsOption {
+   static getSellerPerformanceOption(data): echarts.EChartsOption {
       return {
          tooltip: {
             trigger: "axis",
@@ -132,13 +132,13 @@ export class SalesTrendChart {
          },
          yAxis: {
             type: "category",
-            data: ["Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Pedro Rodríguez", "Laura Hernández"]
+            data: data.labels //["Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Pedro Rodríguez", "Laura Hernández"]
          },
          series: [
             {
                name: "Activaciones",
                type: "bar",
-               data: [145, 132, 101, 98, 76, 65],
+               data: data.data, //[145, 132, 101, 98, 76, 65],
                itemStyle: {
                   color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                      { offset: 0, color: "#6F99CD" },

@@ -782,13 +782,14 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
    };
 
    const onSubmit = async (values, { setSubmitting, resetForm }) => {
-      console.log("🚀 ~ onSubmit ~ processedData:", processedData)
+      console.log("🚀 ~ onSubmit ~ processedData:", processedData);
       if (processedData.length === 0) {
          Toast.Warning("Primero debe procesar un archivo válido");
          setSubmitting(false);
          return;
       }
 
+      console.log("🚀 ~ onSubmit ~ validationResults:", validationResults);
       if (validationResults.invalidRows > 0) {
          mySwal
             .fire(
@@ -877,6 +878,52 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
          //    setSubmitting(false);
          //    return;
          // }
+      } else {
+         try {
+            const res = await importPortabilities(values);
+
+            if (!res) {
+               setIsLoading(false);
+               return;
+            }
+
+            if (res.errors) {
+               setIsLoading(false);
+               Object.values(res.errors).forEach((errors) => {
+                  if (typeof errors === "string") Toast.Warning(errors);
+                  else errors.map((error) => Toast.Warning(error));
+               });
+               return;
+            } else if (res.status_code !== 200) {
+               setIsLoading(false);
+               return Toast.Customizable(res.alert_text, res.alert_icon);
+            }
+
+            Toast.Success(`Se importaron ${processedData.length} portaciones correctamente`);
+            if (res.metrics)
+               /* showMetricsAlert(res.metrics); */
+               showFlexibleAlert(res.metrics, {
+                  type: ALERT_TYPES.METRICS_CUSTOM,
+                  title: "PORTACIONES",
+                  subtitle: res.message,
+                  copyTextGenerator: (data) => {
+                     const metrics = data;
+                     return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                  }
+               });
+
+            if (!checkAdd) {
+               setOpenDialog(false);
+               resetForm();
+               init();
+            }
+         } catch (error) {
+            console.error("Error importando portaciones:", error);
+            Toast.Error("Error al importar las portaciones");
+         } finally {
+            setIsLoading(false);
+            setSubmitting(false);
+         }
       }
    };
 

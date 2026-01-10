@@ -65,11 +65,11 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
 
    const activationStatusOptions = [
       { value: null, label: "Todos" },
-      { value: "Virgen", label: "Virgen" },
+      // { value: "Virgen", label: "Virgen" },
       { value: "Pre-activado", label: "Pre-activado" },
       { value: "Activado", label: "Activado" },
-      { value: "Portado", label: "Portado" },
-      { value: "Caducado", label: "Caducado" }
+      { value: "Portado", label: "Portado" }
+      // { value: "Caducado", label: "Caducado" }
    ];
 
    const handleSellerChange = (event: any, newValue: Seller[]) => {
@@ -97,6 +97,9 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
             {/* <Typography variant="h6" fontWeight="bold">
                   Filtros Avanzados
                </Typography> */}
+            <Typography variant="h6" fontWeight="bold">
+               🎛️ Filtros
+            </Typography>
             <Button size="small" onClick={onClearFilters} sx={{ ml: "auto" }} startIcon={<ClearIcon />} variant="outlined" color="secondary">
                Limpiar Todo
             </Button>
@@ -259,7 +262,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
             </Grid>
          </Grid>
 
-         <Box sx={{ mt: 3, pt: 2, borderTop: 1, borderColor: "divider" }}>
+         <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: "divider" }}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                Filtros rápidos:
             </Typography>
@@ -287,7 +290,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({
                   variant={filters.activationStatus === "Activado" ? "filled" : "outlined"}
                />
                <Chip
-                  label="En Distribución"
+                  label="Distribuidos"
                   size="small"
                   color={filters.locationStatus === "Distribuido" ? "secondary" : "default"}
                   onClick={() =>

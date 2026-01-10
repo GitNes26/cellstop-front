@@ -32,7 +32,18 @@ export interface DashboardData {
       [key: string]: number | undefined;
    };
    portability_by_month: Record<string, number>;
-   top_sellers: Array<{ id: number; name: string; port_count: number; color: string }>;
+   top_sellers: {
+      bestSeller: {
+         list: Array<{ id?: number; name?: string; seller?: string; data: number; color?: string }>;
+         labels: Array<string>;
+         data: Array<number>;
+      };
+      badSeller: {
+         list: Array<{ id?: number; name?: string; seller?: string; data: number; color?: string }>;
+         labels: Array<string>;
+         data: Array<number>;
+      };
+   };
    top_products: Array<{ producto: string; count: number }>;
    status_distribution: Record<string, number>;
    ported_numbers: Array<any>;
@@ -105,7 +116,7 @@ export const useDashboardData = (filters: DashboardFilters) => {
          // const response = await axios.get("/api/dashboard/stats", { params });
          const response = await Axios.get("/dashboard/stats", { params });
 
-         console.log("🚀 ~ useDashboardData ~ response.data:", response.data);
+         // console.log("🚀 ~ useDashboardData ~ response.data:", response.data);
          setData(response.data.data.result);
          setResponse(response.data.data);
          setLastUpdated(new Date());
@@ -191,7 +202,7 @@ export const useDashboardData = (filters: DashboardFilters) => {
 // interface DashboardData {
 //    stats: HeaderStatsProps;
 //    portability_by_month: Record<number, number>;
-//    top_sellers: Array<{ id: number; name: string; port_count: number; color: string }>;
+//    top_sellers: Array<{ id: number; name: string; data: number; color: string }>;
 //    top_products: Array<{ producto: string; count: number }>;
 //    status_distribution: Record<string, number>;
 //    ported_numbers: Array<{
