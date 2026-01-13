@@ -42,6 +42,7 @@ import DistributionMonitoring from "../../../../components/dashboard/Distributio
 import { ProductAnalytics } from "../../../../components/dashboard/sections/ProductAnalytics.js";
 import { SalesPerformance } from "../../../../components/dashboard/sections/SalesPerformance.js";
 import SalesMap from "../../../../components/dashboard/SalesMap.js";
+import { useNavigate } from "react-router-dom";
 // import ChartComponent from "../../../../components/dashboard/charts/ChartComponent";
 // import PortedNumbersTable from "../../../../components/dashboard/PortedNumbersTable";
 
@@ -49,11 +50,17 @@ import SalesMap from "../../../../components/dashboard/SalesMap.js";
 interface DashboardFilters {
    startDate: Date | null;
    endDate: Date | null;
+   folio: string | null; // NUEVO
+   startDatePreActivation: Date | null; // NUEVO
+   endDatePreActivation: Date | null; // NUEVO
    sellerIds: number[];
+   importName?: ImportName[]; // NUEVO
    locationStatus: string | null;
    activationStatus: string | null;
    productTypeId: number | null;
    searchText: string;
+   startDateInSystem: Date | null; // NUEVO
+   endDateInSystem: Date | null; // NUEVO
 }
 
 export interface Seller {
@@ -67,11 +74,18 @@ export interface ProductType {
    label: string;
 }
 
+export interface ImportName {
+   id: number;
+   label: string;
+}
+
 // Ancho del drawer de filtros
 const FILTERS_DRAWER_WIDTH = 320;
 
 const DashboardView: React.FC = () => {
    const { auth } = useAuthContext();
+   const navigate = useNavigate();
+
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
    const { productTypesSelect, setProductTypesSelect, getSelectIndexProductTypes } = useProductTypeContext();
@@ -118,11 +132,16 @@ const DashboardView: React.FC = () => {
    const [filters, setFilters] = useState<DashboardFilters>({
       startDate: null,
       endDate: new Date(),
+      folio: null, // NUEVO
+      startDatePreActivation: null, // NUEVO
+      endDatePreActivation: null, // NUEVO
       sellerIds: [],
       locationStatus: null,
       activationStatus: null,
       productTypeId: null,
-      searchText: ""
+      searchText: "",
+      startDateInSystem: null, // NUEVO
+      endDateInSystem: null // NUEVO
    });
 
    // Referencias para scroll
@@ -213,11 +232,16 @@ const DashboardView: React.FC = () => {
       setFilters({
          startDate: null,
          endDate: new Date(),
+         folio: null,
+         startDatePreActivation: null,
+         endDatePreActivation: null,
          sellerIds: [],
          locationStatus: null,
          activationStatus: null,
          productTypeId: null,
-         searchText: ""
+         searchText: "",
+         startDateInSystem: null,
+         endDateInSystem: null
       });
       setSnackbar({
          open: true,

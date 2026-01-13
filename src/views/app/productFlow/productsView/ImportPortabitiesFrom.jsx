@@ -17,7 +17,7 @@ import {
    Box,
    Alert
 } from "@mui/material";
-import FormikForm, { DividerComponent, FileInputModerno, Input } from "../../../../components/forms";
+import FormikForm, { DateTimePicker, DividerComponent, FileInputModerno, Input } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { useEffect, useRef, useState } from "react";
@@ -31,6 +31,7 @@ import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDupli
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { QuestionAlertConfig } from "../../../../utils/sAlert";
+import dayjs from "dayjs";
 
 const checkAddInitialState = localStorage.getItem("checkAddPortaciones") == "true" ? true : false || false;
 
@@ -695,6 +696,16 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
 
    const formData = [
       {
+         name: "executed_at",
+         input: (
+            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+         ),
+         value: dayjs(),
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
          name: "file",
          input: (
             <FileInputModerno
@@ -799,7 +810,8 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
                )
             )
             .then(async (result) => {
-               if (!result.isConfirmed) {
+               console.log("aqui voy", result);
+               if (result.isConfirmed) {
                   setIsLoading(true);
 
                   try {

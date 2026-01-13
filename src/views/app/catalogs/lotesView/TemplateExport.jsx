@@ -36,8 +36,8 @@ import dayjs from "dayjs";
 const TemplateExport = ({ open, onClose, data }) => {
    // Estados
    const [plantillas, setPlantillas] = useState({
-      "PLANTILLA A4": { columnas: 10, filas: 28, nombre: "A4", etiquetasPorHoja: 20 },
-      "PLANTILLA TABLOIDE": { columnas: 14, filas: 40, nombre: "Tabloide", etiquetasPorHoja: 35 }
+      "PLANTILLA A4": { columnas: 10, filas: 28, nombre: "A4", etiquetasPorHoja: 500 },
+      "PLANTILLA TABLOIDE": { columnas: 14, filas: 40, nombre: "Tabloide", etiquetasPorHoja: 500 }
    });
    const [tipoPlantilla, setTipoPlantilla] = useState("PLANTILLA A4");
    const [elementos, setElementos] = useState([]);

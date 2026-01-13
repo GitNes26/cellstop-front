@@ -320,7 +320,7 @@ const FileInputModerno: React.FC<FileInputProps> = ({
    };
 
    useEffect(() => {
-      console.log("🚀 ~ FileInputModerno ~ filePreviews:", filePreviews);
+      // console.log("🚀 ~ FileInputModerno ~ filePreviews:", filePreviews);
       if (filePreviews.length == 0) setConfirmRemove(true);
       else setConfirmRemove(false);
    }, [idName, formik.values[idName], filePreviews]);

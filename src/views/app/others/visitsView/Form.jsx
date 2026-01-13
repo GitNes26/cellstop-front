@@ -1,6 +1,7 @@
 // views/VisitsView/Form.tsx
 import { useEffect, useState } from "react";
 import FormikForm, {
+   DateTimePicker,
    DividerComponent,
    FileInput,
    FileInputModerno,
@@ -29,6 +30,8 @@ import PointOfSaleForm from "../../catalogs/pointsOfSaleView/Form";
 import EvidenceCapture from "../../../../components/forms/EvidenceCapture";
 import { useProductContext } from "../../../../context/ProductContext";
 import { useLoteContext } from "../../../../context/LoteContext";
+import dayjs from "dayjs";
+import { RefreshRounded } from "@mui/icons-material";
 
 const checkAddInitialState = localStorage.getItem("checkAddVisits") == "true" ? true : false || false;
 
@@ -521,6 +524,16 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
       {
+         name: "executed_at",
+         input: (
+            <DateTimePicker col={4} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+         ),
+         value: dayjs(),
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
          name: "contact_name",
          input: <Input col={6} idName="contact_name" label="Nombre del Comprador" placeholder="Nombre completo del comprador" required />,
          value: null,
@@ -544,7 +557,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                   {/* {formikRef.current?.values?.visit_type === "Distribución" ? (
                      <> */}
                   <Typography variant="h6" className="mb-4 pl-2 pt-2">
-                     Información de Distribución (solo se llena cuando la visita es tipo Distribución)
+                     Información de Distribución (solo se llena cuando la visita es tipo Distribución) (recomendación dar clic al botón de recargar datos{" "}
+                     <RefreshRounded />)
                   </Typography>
 
                   {/* {productsInStockSelect.length > 0 && (

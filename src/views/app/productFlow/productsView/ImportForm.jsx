@@ -34,6 +34,7 @@ import { Response } from "../../../../utils/Api";
 import * as XLSX from "xlsx";
 import sAlert from "../../../../utils/sAlert";
 import { excelDateToJSDate } from "../../../../utils/Formats";
+import dayjs from "dayjs";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -518,6 +519,16 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
          ),
          value: "",
          validations: Yup.number().min(1, "Esta opción no es valida").required("Tipo de producto requerido"),
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "executed_at",
+         input: (
+            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+         ),
+         value: dayjs(),
+         validations: null,
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },

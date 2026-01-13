@@ -2,7 +2,19 @@
 import React from "react";
 import { Grid } from "@mui/material";
 import { StatCard, StatCardGrid } from "../widgets/StatCard";
-import { Inventory2, PointOfSale, People, TrendingUp, QrCode2, Assignment, SimCardRounded, AssignmentIndRounded, TrendingDown, OutboxRounded } from "@mui/icons-material";
+import {
+   Inventory2,
+   PointOfSale,
+   People,
+   TrendingUp,
+   QrCode2,
+   Assignment,
+   SimCardRounded,
+   AssignmentIndRounded,
+   TrendingDown,
+   OutboxRounded
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
 export interface HeaderStatsProps {
    stats: {
@@ -29,9 +41,12 @@ export interface HeaderStatsProps {
 }
 
 export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, loading }) => {
-   console.log("🚀 ~ HeaderStats ~ stats:", stats);
+   const navigate = useNavigate();
+
+   // console.log("🚀 ~ HeaderStats ~ stats:", stats);
    const handleStatClick = (statKey: string) => {
-      onStatClick?.(statKey);
+      // onStatClick?.(statKey);
+      navigate(statKey);
    };
 
    return (
@@ -75,7 +90,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      icon={<SimCardRounded />}
                      color="primary"
                      // trend={{ value: 12, isPositive: true }}
-                     onClick={() => handleStatClick("products")}
+                     onClick={() => handleStatClick("/app/productos")}
                   />
                </Grid>
 
@@ -88,7 +103,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      color="info"
                      // size="compact"
                      progress={Math.round((stats?.preActivated / stats?.products) * 100)}
-                     onClick={() => handleStatClick("preActivated")}
+                     onClick={() => handleStatClick("/app/productos/en-stock")}
                   />
                   {/* <StatCard
                      title="En Stock"
@@ -110,7 +125,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      icon={<AssignmentIndRounded />}
                      color="warning"
                      progress={Math.round((stats?.assigned / stats?.products) * 100)}
-                     onClick={() => handleStatClick("assigned")}
+                     onClick={() => handleStatClick("/app/productos/asignados")}
                   />
                </Grid>
 
@@ -122,7 +137,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      icon={<OutboxRounded />}
                      color="success"
                      trend={{ value: 8, isPositive: true }}
-                     onClick={() => handleStatClick("distributed")}
+                     onClick={() => handleStatClick("/app/productos/distribuidos")}
                   />
                </Grid>
             </StatCardGrid>
@@ -136,7 +151,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      icon={<TrendingUp />}
                      color="success"
                      progress={Math.round((stats?.activated / stats?.products) * 100)}
-                     onClick={() => handleStatClick("activated")}
+                     onClick={() => handleStatClick("/app/productos/activados")}
                   />
                </Grid>
                <Grid size={{ md: 6 }}>
@@ -144,16 +159,23 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      title="Portados"
                      value={stats?.portados.toLocaleString()}
                      subtitle="Sin recargar reportadas"
-                     icon={<TrendingDown/>}
+                     icon={<TrendingDown />}
                      color="error"
                      progress={Math.round((stats?.portados / stats?.products) * 100)}
-                     onClick={() => handleStatClick("portados")}
+                     onClick={() => handleStatClick("/app/productos/portados")}
                   />
                </Grid>
             </Grid>
             <Grid container sx={{ width: "100%" }} spacing={2}>
                <Grid size={{ md: 6 }}>
-                  <StatCard title="Vendedores" value={stats?.sellers} subtitle="Activos" icon={<People />} color="info" onClick={() => handleStatClick("sellers")} />
+                  <StatCard
+                     title="Vendedores"
+                     value={stats?.sellers}
+                     subtitle="Activos"
+                     icon={<People />}
+                     color="info"
+                     onClick={() => handleStatClick("/app/configuraciones/empleados")}
+                  />
                </Grid>
 
                <Grid size={{ md: 6 }}>
@@ -163,7 +185,7 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                      subtitle="Activos"
                      icon={<PointOfSale />}
                      color="success"
-                     onClick={() => handleStatClick("points_of_sale")}
+                     onClick={() => handleStatClick("/app/catalogos/puntos-de-venta")}
                   />
                </Grid>
             </Grid>

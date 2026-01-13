@@ -500,10 +500,10 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
 
    useEffect(() => {
       // console.log("🚀 Form ~ useEffect :");
-      console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
+      // console.log("🚀 Form ~ useEffect ~ isEdit:", isEdit);
       setShowInputPinColor(false);
       if (formikRef?.current?.values?.position_id == 2) setShowInputPinColor(true);
-      console.log("formikRef.current.values.position_id", formikRef.current.values.position_id, " | showInputPinColor:", showInputPinColor);
+      // console.log("formikRef.current.values.position_id", formikRef?.current?.values?.position_id, " | showInputPinColor:", showInputPinColor);
       // if (isEdit) {
       //    console.log("edits");
       // } else {

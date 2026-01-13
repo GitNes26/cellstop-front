@@ -12,6 +12,7 @@ import useFetch from "../../../../hooks/useFetch";
 import LoteForm from "../../catalogs/lotesView/Form";
 import Toast from "../../../../utils/Toast";
 import sAlert from "../../../../utils/sAlert";
+import dayjs from "dayjs";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -171,6 +172,16 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             />
          ),
          value: "",
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
+         name: "executed_at",
+         input: (
+            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+         ),
+         value: dayjs(),
          validations: null,
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }

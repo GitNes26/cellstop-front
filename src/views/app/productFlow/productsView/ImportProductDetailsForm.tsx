@@ -14,7 +14,7 @@ import {
    TableRow,
    Paper
 } from "@mui/material";
-import FormikForm, { DividerComponent, FileInputModerno, Input } from "../../../../components/forms";
+import FormikForm, { DateTimePicker, DividerComponent, FileInputModerno, Input } from "../../../../components/forms";
 import * as Yup from "yup";
 import { DialogComponent } from "../../../../components";
 import { useEffect, useRef, useState } from "react";
@@ -27,6 +27,7 @@ import * as XLSX from "xlsx";
 import { formatCurrency } from "../../../../utils/Formats";
 import showFlexibleAlert, { ALERT_TYPES, showMetricsAlert } from "../../../../components/showDuplicatesAlert";
 import { productHistoryColumns, TableDetails } from "./TableDetails";
+import dayjs from "dayjs";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -389,11 +390,21 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
 
    const formData = [
       {
+         name: "executed_at",
+         input: (
+            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+         ),
+         value: dayjs(),
+         validations: null,
+         validationPage: [],
+         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      },
+      {
          name: "file",
          input: (
             <FileInputModerno
                key={`key-input-archivo`}
-               col="12"
+               col={12}
                idName="file"
                label="Cargar Archivo Excel: Detalle_Lineas"
                filePreviews={imgFile}
