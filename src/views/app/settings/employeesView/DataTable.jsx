@@ -98,7 +98,7 @@ const EmployeeDT = () => {
       <>
          <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
             <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
-            {obj.username ?? "Sin asignar"}
+            {obj.user.username ?? "Sin asignar"}
          </Typography>
       </>
    );
