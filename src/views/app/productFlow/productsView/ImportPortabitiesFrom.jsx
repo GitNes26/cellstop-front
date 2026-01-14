@@ -695,16 +695,16 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
    };
 
    const formData = [
-      {
-         name: "executed_at",
-         input: (
-            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
-         ),
-         value: dayjs(),
-         validations: null,
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
+      // {
+      //    name: "executed_at",
+      //    input: (
+      //       <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+      //    ),
+      //    value: dayjs(),
+      //    validations: null,
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
       {
          name: "file",
          input: (
@@ -793,14 +793,14 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
    };
 
    const onSubmit = async (values, { setSubmitting, resetForm }) => {
-      console.log("🚀 ~ onSubmit ~ processedData:", processedData);
+      // console.log("🚀 ~ onSubmit ~ processedData:", processedData);
       if (processedData.length === 0) {
          Toast.Warning("Primero debe procesar un archivo válido");
          setSubmitting(false);
          return;
       }
 
-      console.log("🚀 ~ onSubmit ~ validationResults:", validationResults);
+      // console.log("🚀 ~ onSubmit ~ validationResults:", validationResults);
       if (validationResults.invalidRows > 0) {
          mySwal
             .fire(
@@ -810,7 +810,6 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
                )
             )
             .then(async (result) => {
-               console.log("aqui voy", result);
                if (result.isConfirmed) {
                   setIsLoading(true);
 

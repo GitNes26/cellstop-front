@@ -468,9 +468,9 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
 
          {/* Mini resumen siempre visible */}
          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 1 }}>
-            <Typography variant="caption" color="text.secondary">
+            {/* <Typography variant="caption" color="text.secondary">
                {fileSummary.totalRegistros} registros • {fileSummary.totalFolios} folios
-            </Typography>
+            </Typography> */}
             {fileSummary.errores.length > 0 && (
                <Chip label={`${fileSummary.errores.length} error${fileSummary.errores.length !== 1 ? "es" : ""}`} size="small" color="warning" />
             )}

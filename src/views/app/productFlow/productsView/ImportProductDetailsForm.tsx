@@ -389,16 +389,16 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
    };
 
    const formData = [
-      {
-         name: "executed_at",
-         input: (
-            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
-         ),
-         value: dayjs(),
-         validations: null,
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
+      // {
+      //    name: "executed_at",
+      //    input: (
+      //       <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+      //    ),
+      //    value: dayjs(),
+      //    validations: null,
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
       {
          name: "file",
          input: (
@@ -455,12 +455,12 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
          name: "resumen",
          input: (
             <Grid key={`key-input-resumen`} container spacing={2} sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 1, mb: 2 }}>
-               <Grid item xs={12}>
+               <Grid size={{ xs: 12 }}>
                   <Typography variant="h6" gutterBottom>
                      Datos Procesado
                   </Typography>
                </Grid>
-               <Grid item xs={6} sm={3}>
+               <Grid size={{ xs: 6, sm: 3 }}>
                   <Typography variant="body2" fontWeight="bold">
                      Total Líneas:
                   </Typography>
@@ -468,7 +468,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {summary.totalLines}
                   </Typography>
                </Grid>
-               <Grid item xs={6} sm={3}>
+               <Grid size={{ xs: 6, sm: 3 }}>
                   <Typography variant="body2" fontWeight="bold">
                      Teléfonos Únicos:
                   </Typography>
@@ -476,7 +476,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {summary.telefonosUnicos}
                   </Typography>
                </Grid>
-               <Grid item xs={6} sm={2}>
+               <Grid size={{ xs: 6, sm: 2 }}>
                   <Typography variant="body2" fontWeight="bold" color="success.main">
                      Pagadas:
                   </Typography>
@@ -484,7 +484,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {summary.pagadas}
                   </Typography>
                </Grid>
-               <Grid item xs={6} sm={2}>
+               <Grid size={{ xs: 6, sm: 2 }}>
                   <Typography variant="body2" fontWeight="bold" color="error.main">
                      Rechazadas:
                   </Typography>
@@ -492,7 +492,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {summary.rechazadas}
                   </Typography>
                </Grid>
-               <Grid item xs={6} sm={2}>
+               <Grid size={{ xs: 6, sm: 2 }}>
                   <Typography variant="body2" fontWeight="bold" color="warning.main">
                      Pendientes:
                   </Typography>
@@ -500,7 +500,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {summary.pendientes}
                   </Typography>
                </Grid>
-               <Grid item xs={12} sm={6}>
+               <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="body2" fontWeight="bold" color="primary.main">
                      Total Comisión:
                   </Typography>
@@ -508,13 +508,13 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                      {formatCurrency(summary.totalComision)}
                   </Typography>
                </Grid>
-               <Grid item xs={12} sm={6}>
+               <Grid size={{ xs: 12, sm: 6 }}>
                   <Typography variant="body2" fontWeight="bold">
                      Evaluaciones:
                   </Typography>
                   <Grid container spacing={1}>
                      {[1, 2, 3, 4].map((evalNum) => (
-                        <Grid item xs={3} key={evalNum}>
+                        <Grid size={{ xs: 3 }} key={evalNum}>
                            <Typography variant="body2">
                               E{evalNum}: {summary.evaluaciones[evalNum]}
                            </Typography>
@@ -523,7 +523,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                   </Grid>
                </Grid>
                {processedData.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                      <Button variant="outlined" startIcon={showDetails ? <VisibilityOff /> : <Visibility />} onClick={() => setShowDetails(!showDetails)} size="small">
                         {showDetails ? "Ocultar Detalles" : "Ver Detalles"}
                      </Button>

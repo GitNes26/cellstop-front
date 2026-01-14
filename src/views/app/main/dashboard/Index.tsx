@@ -184,11 +184,17 @@ const DashboardView: React.FC = () => {
       let count = 0;
       if (filters.startDate) count++;
       if (filters.endDate && filters.endDate !== new Date()) count++;
+      if (filters.folio) count++;
+      if (filters.startDatePreActivation) count++;
+      if (filters.endDatePreActivation && filters.endDatePreActivation !== new Date()) count++;
       if (filters.sellerIds.length > 0) count++;
+      // if (filters?.importName.length > 0) count++;
       if (filters.locationStatus) count++;
       if (filters.activationStatus) count++;
       if (filters.productTypeId) count++;
       if (filters.searchText) count++;
+      if (filters.startDateInSystem) count++;
+      if (filters.endDateInSystem && filters.endDateInSystem !== new Date()) count++;
 
       setActiveFiltersCount(count);
    }, [filters]);
@@ -236,6 +242,7 @@ const DashboardView: React.FC = () => {
          startDatePreActivation: null,
          endDatePreActivation: null,
          sellerIds: [],
+         importName: [],
          locationStatus: null,
          activationStatus: null,
          productTypeId: null,

@@ -633,7 +633,7 @@ export const productHistoryColumns = {
       "fecha_publicacion"
    ] as const,
 
-   default: ["telefono", "iccid", "estatus_lin", "fecha_activ", "estatus_pago", "monto_com", "evaluacion"] as const,
+   default: ["telefono", "iccid", "estatus_lin", "fecha_activ", "estatus_pago", "monto_com", "evaluacion", "fecha_evaluacion"] as const,
 
    compact: ["telefono", "iccid", "estatus_pago", "monto_com"] as const,
 
@@ -684,7 +684,3 @@ const ModalTableDetails: React.FC<ModalTableDetailsProps> = ({
    );
 };
 export default ModalTableDetails;
-
-
-
-

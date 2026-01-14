@@ -508,7 +508,6 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                      // showDialogFileOrPhoto={true}
                   />
                }
-               ,
                {/* <EvidenceCapture
                   key={`key-input-evidence`}
                   idName="evidence_photo"
@@ -526,7 +525,16 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       {
          name: "executed_at",
          input: (
-            <DateTimePicker col={4} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+            <DateTimePicker
+               col={4}
+               idName={"executed_at"}
+               label={"Fecha de Ejecución"}
+               picker={"date"}
+               format={"DD/MM/YYYY"}
+               helperText={"DD/MM/AAAA"}
+               hidden={theUserIs([ROLE_SELLER])}
+               required
+            />
          ),
          value: dayjs(),
          validations: null,
@@ -557,8 +565,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                   {/* {formikRef.current?.values?.visit_type === "Distribución" ? (
                      <> */}
                   <Typography variant="h6" className="mb-4 pl-2 pt-2">
-                     Información de Distribución (solo se llena cuando la visita es tipo Distribución) (recomendación dar clic al botón de recargar datos{" "}
-                     <RefreshRounded />)
+                     Información de Distribución (solo se llena cuando la visita es tipo Distribución) (dar clic al botón de recargar datos <RefreshRounded />)
                   </Typography>
 
                   {/* {productsInStockSelect.length > 0 && (
@@ -657,7 +664,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       values.ubication = currentLocation.ubi;
 
       if (!locationVerified && values.pos_id) {
-         Toast.Error("Debes verificar tu ubicación antes de registrar la visita");
+         Toast.Error("Debes verificar tu ubicación antes de registrar la visita, vuelve dar click en AGREGAR");
          setSubmitting(false);
          return;
       }

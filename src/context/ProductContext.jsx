@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { data, useParams } from "react-router-dom";
 import { Axios, AxiosFiles, Response } from "../utils/Api";
 import Toast from "../utils/Toast";
 import { useAuthContext } from "./AuthContext";
@@ -488,11 +488,15 @@ export default function ProductContextProvider({ children }) {
       return res;
    };
 
-   const createMultipleManuallyPortabilities = async (ids) => {
+   const createMultipleManuallyPortabilities = async (ids, executed_at) => {
       // console.log("🚀 ~ createMultipleManuallyPortabilities ~ data:", data);
       // // if (!(await checkLoggedIn())) return;
+      const data = {
+         ids,
+         executed_at
+      };
 
-      const [error, response] = await to(Axios.post(`${prefixPathPortabilities}/createMultipleManually`, { ids }));
+      const [error, response] = await to(Axios.post(`${prefixPathPortabilities}/createMultipleManually`, data));
       // console.log("🚀 ~ createMultipleManuallyPortabilities ~ error:", error);
       // console.log("🚀 ~ createMultipleManuallyPortabilities ~ response:", response);
       if (error) {

@@ -3,15 +3,22 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Axios } from "../utils/Api";
 import { SalesPerformanceProps } from "../components/dashboard/sections/SalesPerformance";
+import { ImportName } from "../views/app/main/dashboard/Index";
 
 interface DashboardFilters {
    startDate: Date | null;
    endDate: Date | null;
+   folio: string | null; // NUEVO
+   startDatePreActivation: Date | null; // NUEVO
+   endDatePreActivation: Date | null; // NUEVO
    sellerIds: number[];
+   importName?: ImportName[]; // NUEVO
    locationStatus: string | null;
    activationStatus: string | null;
    productTypeId: number | null;
    searchText: string;
+   startDateInSystem: Date | null; // NUEVO
+   endDateInSystem: Date | null; // NUEVO
 }
 
 export interface DashboardData {
@@ -77,9 +84,19 @@ export const useDashboardData = (filters: DashboardFilters) => {
       if (filters.startDate) {
          params.start_date = filters.startDate.toISOString().split("T")[0];
       }
-
       if (filters.endDate) {
          params.end_date = filters.endDate.toISOString().split("T")[0];
+      }
+
+      if (filters.folio) {
+         params.folio = filters.folio;
+      }
+
+      if (filters.startDatePreActivation) {
+         params.start_date_pre_activation = filters.startDatePreActivation.toISOString().split("T")[0];
+      }
+      if (filters.endDatePreActivation) {
+         params.end_date_pre_activation = filters.endDatePreActivation.toISOString().split("T")[0];
       }
 
       if (filters.sellerIds.length > 0) {
@@ -100,6 +117,13 @@ export const useDashboardData = (filters: DashboardFilters) => {
 
       if (filters.searchText) {
          params.search = filters.searchText;
+      }
+
+      if (filters.startDateInSystem) {
+         params.start_datein_system = filters.startDateInSystem.toISOString().split("T")[0];
+      }
+      if (filters.endDateInSystem) {
+         params.end_datein_system = filters.endDateInSystem.toISOString().split("T")[0];
       }
 
       return params;

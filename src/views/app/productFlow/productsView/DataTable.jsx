@@ -502,39 +502,81 @@ const ProductDT = ({}) => {
 
    const handleClickCreateMultipleManuallyPortabilities = async (id, name) => {
       try {
-         mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR")).then(async (result) => {
-            if (result.isConfirmed) {
-               setIsLoading(true);
-               const ids = [];
-               ids.push(id);
-               const res = await createMultipleManuallyPortabilities(ids);
-               // console.log('🚀 ~ handleClickLogout ~ res:', res);
-               if (!res) return setIsLoading(false);
-               if (res.errors) {
-                  setIsLoading(false);
-                  Object.values(res.errors).forEach((errors) => {
-                     errors.map((error) => Toast.Warning(error));
-                  });
-                  return;
-               } else if (res.status_code !== 200) {
-                  setIsLoading(false);
-                  return Toast.Customizable(res.alert_text, res.alert_icon);
+         // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
+         mySwal
+            .fire({
+               ...QuestionAlertConfig(
+                  `
+         <div style="text-align: center;">
+            <h3>¿Estás seguro de portar manualmente el producto ${name}?</h3>
+            <br />
+            <label for="executedAt" style="display: block; margin-bottom: 8px; font-weight: 500;">
+            Fecha de ejecución:
+            </label>
+            <input 
+            type="date" 
+            id="executedAt" 
+            name="executedAt"
+            style="
+               padding: 8px 12px;
+               border: 1px solid #ddd;
+               border-radius: 4px;
+               font-size: 14px;
+               width: 100%;
+               max-width: 200px;
+            "
+            value="${new Date().toISOString().split("T")[0]}"
+            />
+         </div>
+      `,
+                  "CONFIRMAR"
+               ),
+               preConfirm: () => {
+                  const executedAtInput = document.getElementById("executedAt");
+                  const executedAtValue = executedAtInput ? executedAtInput.value : null;
+
+                  if (!executedAtValue) {
+                     mySwal.showValidationMessage("Por favor, selecciona una fecha de ejecución");
+                     return false;
+                  }
+
+                  return { executed_at: executedAtValue };
                }
-               if (res.metrics)
-                  /* showMetricsAlert(res.metrics); */
-                  showFlexibleAlert(res.metrics, {
-                     type: ALERT_TYPES.METRICS_CUSTOM,
-                     title: "PORTACIONES MANUALES",
-                     subtitle: res.message,
-                     copyTextGenerator: (data) => {
-                        const metrics = data;
-                        return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
-                     }
-                  });
-               // if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
-               setIsLoading(false);
-            }
-         });
+            })
+
+            .then(async (result) => {
+               if (result.isConfirmed) {
+                  setIsLoading(true);
+                  const ids = [];
+                  ids.push(id);
+                  const res = await createMultipleManuallyPortabilities({ ids, executed_at: result?.value?.executed_at });
+                  // console.log('🚀 ~ handleClickLogout ~ res:', res);
+                  if (!res) return setIsLoading(false);
+                  if (res.errors) {
+                     setIsLoading(false);
+                     Object.values(res.errors).forEach((errors) => {
+                        errors.map((error) => Toast.Warning(error));
+                     });
+                     return;
+                  } else if (res.status_code !== 200) {
+                     setIsLoading(false);
+                     return Toast.Customizable(res.alert_text, res.alert_icon);
+                  }
+                  if (res.metrics)
+                     /* showMetricsAlert(res.metrics); */
+                     showFlexibleAlert(res.metrics, {
+                        type: ALERT_TYPES.METRICS_CUSTOM,
+                        title: "PORTACIONES MANUALES",
+                        subtitle: res.message,
+                        copyTextGenerator: (data) => {
+                           const metrics = data;
+                           return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                        }
+                     });
+                  // if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+                  setIsLoading(false);
+               }
+            });
       } catch (error) {
          console.log(error);
          Toast.Error(error);
@@ -594,7 +636,7 @@ const ProductDT = ({}) => {
                   label: "Portar Manualmente",
                   iconName: "ImportExportRounded",
                   tooltip: "",
-                  handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.iccid),
+                  handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.celular),
                   color: "primary",
                   permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
                },
@@ -603,7 +645,7 @@ const ProductDT = ({}) => {
                   label: "Eliminar",
                   iconName: "Delete",
                   tooltip: "",
-                  handleOnClick: () => handleClickDelete(obj.id, obj.iccid),
+                  handleOnClick: () => handleClickDelete(obj.id, obj.celular),
                   color: "red",
                   permission: auth.permissions.delete
                }
@@ -657,7 +699,7 @@ const ProductDT = ({}) => {
             handleClickEdit={handleClickEdit}
             handleClickDisEnable={handleClickDisEnable}
             singularName={singularName}
-            indexColumnName={3}
+            indexColumnName={2}
             rowEdit={false}
             refreshTable={getAllProducts}
             btnsExport={false}
