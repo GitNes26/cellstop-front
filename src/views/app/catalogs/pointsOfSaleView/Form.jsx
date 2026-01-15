@@ -118,7 +118,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
                options={usersSelect || []}
                refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
-               disabled={theUserIs([ROLE_SELLER])}
+               // disabled={theUserIs([ROLE_SELLER])}
                required
             />
          ),

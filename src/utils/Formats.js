@@ -45,10 +45,12 @@ function binaryDateTimeFormat(the_date) {
 }
 
 export function formatDatetime(the_date, long_format = true, format = null || "") {
+   // console.log("🚀 ~ formatDatetime ~ the_date:", the_date);
    if ([null, ""].includes(the_date)) return "Sin Fecha";
    //#region OPCION DayJS
    dayjs.locale("es");
    let date = new Date(the_date);
+   // console.log("🚀 ~ formatDatetime ~ date:", date)
    let datetime;
 
    // if (the_date.length <= 10) {
@@ -56,9 +58,9 @@ export function formatDatetime(the_date, long_format = true, format = null || ""
    //    return (datetime = dayjs(date).format("DD-MM-YYYY"));
    // }
 
-   date = new Date(the_date);
+   // date = new Date(the_date);
    const formato = !format ? (long_format ? "DD-MM-YYYY h:mm:ss a" : "DD-MM-YYYY") : format;
-   return (datetime = dayjs(date).format(formato));
+   return (datetime = dayjs(the_date).format(formato));
    //#endregion OPCION DayJS
 
    //#region OPCION Intl
@@ -732,10 +734,12 @@ export const sleep = (ms) => {
 };
 
 export function excelDateToJSDate(excelDate, dbType = "mysql") {
+   // console.log("🚀 ~ excelDateToJSDate ~ excelDate:", excelDate)
    if (!excelDate) return null;
 
+   // console.log("🚀 ~ excelDateToJSDate ~ typeof excelDate:", typeof excelDate);
    // Caso 1: número serial
-   if (typeof excelDate === "number") {
+   if (typeof excelDate === "number" && excelDate.length < 10) {
       const date = new Date((excelDate - 25569) * 86400 * 1000);
       return date.toISOString().split("T")[0]; // YYYY-MM-DD
    }

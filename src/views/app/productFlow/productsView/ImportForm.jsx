@@ -208,6 +208,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                      if (String(col).toLowerCase().includes("fecha")) {
                         try {
                            const raw = newRow[col];
+                           console.log("🚀 ~ handleFile ~ raw:", raw)
                            newRow[col] = raw !== null && raw !== "" && raw !== undefined ? excelDateToJSDate(raw) : null;
                            // console.log("🚀 ~ handleFile ~ newRow[col]:", newRow[col]);
                         } catch {
@@ -522,16 +523,16 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
-      {
-         name: "executed_at",
-         input: (
-            <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
-         ),
-         value: dayjs(),
-         validations: null,
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
+      // {
+      //    name: "executed_at",
+      //    input: (
+      //       <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
+      //    ),
+      //    value: dayjs(),
+      //    validations: null,
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
       {
          name: "file",
          input: (

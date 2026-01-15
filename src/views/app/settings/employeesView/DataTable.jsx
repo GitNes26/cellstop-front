@@ -68,7 +68,7 @@ const EmployeeDT = () => {
             <PhoneAndroidRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {formatPhone(obj.cellphone)}
          </Typography>
          <Typography textAlign={"center"} size={fontSizeTable.subtext} className="flex items-center justify-center italic">
-            <AlternateEmailRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {obj.user ? obj.user.email : "No hay usuario vinculado"}
+            <AlternateEmailRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {obj?.user ? obj?.user?.email : "No hay usuario vinculado"}
          </Typography>
       </>
    );
@@ -98,7 +98,7 @@ const EmployeeDT = () => {
       <>
          <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
             <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
-            {obj.user.username ?? "Sin asignar"}
+            {obj?.user?.username ?? "Sin asignar"}
          </Typography>
       </>
    );

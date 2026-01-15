@@ -352,7 +352,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                onChangeExtra={handleChangeSeller}
                refreshSelect={refetchSeller}
                addRegister={auth.permissions.create ? () => setSellerFormDialog(true) : null}
-               disabled={theUserIs([ROLE_SELLER])}
+               // disabled={theUserIs([ROLE_SELLER])}
                required
             />
          ),
