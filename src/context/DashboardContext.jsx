@@ -34,8 +34,6 @@ export default function DashboardContextProvider({ children }) {
 
    //#region CRUD
    const getSellerDashboard = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.post(`${prefixPath}/by-seller`));
       // console.log("🚀 ~ getSellerDashboard ~ error:", error);
       // console.log("🚀 ~ getSellerDashboard ~ response:", response);

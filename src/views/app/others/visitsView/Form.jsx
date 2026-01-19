@@ -541,22 +541,22 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
       },
-      {
-         name: "contact_name",
-         input: <Input col={6} idName="contact_name" label="Nombre del Comprador" placeholder="Nombre completo del comprador" required />,
-         value: null,
-         validations: Yup.string().required("Nombre del contacto requerido"),
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
-      {
-         name: "contact_phone",
-         input: <Input col={6} idName="contact_phone" label="Teléfono del Comprador" placeholder="10 dígitos" type="tel" maxLength={10} required />,
-         value: null,
-         validations: Yup.string().required("Telefono del contacto requerido"),
-         validationPage: [],
-         dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
-      },
+      // {
+      //    name: "contact_name",
+      //    input: <Input col={6} idName="contact_name" label="Nombre del Comprador" placeholder="Nombre completo del comprador" required />,
+      //    value: null,
+      //    validations: Yup.string().required("Nombre del contacto requerido"),
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
+      // {
+      //    name: "contact_phone",
+      //    input: <Input col={6} idName="contact_phone" label="Teléfono del Comprador" placeholder="10 dígitos" type="tel" maxLength={10} required />,
+      //    value: null,
+      //    validations: Yup.string().required("Telefono del contacto requerido"),
+      //    validationPage: [],
+      //    dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
+      // },
       {
          name: "distribucion_section",
          input: (

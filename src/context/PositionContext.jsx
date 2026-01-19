@@ -34,8 +34,6 @@ export default function PositionContextProvider({ children }) {
 
    //#region CRUD
    const getAllPositions = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllPositions ~ error:", error);
       // console.log("🚀 ~ getAllPositions ~ response:", response);
@@ -55,8 +53,6 @@ export default function PositionContextProvider({ children }) {
    };
 
    const getSelectIndexPositions = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexPositions ~ error:", error);
       // console.log("🚀 ~ getSelectIndexPositions ~ response:", response);
@@ -77,7 +73,6 @@ export default function PositionContextProvider({ children }) {
 
    const createOrUpdatePosition = async (data) => {
       // console.log("🚀 ~ createOrUpdatePosition ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -99,8 +94,6 @@ export default function PositionContextProvider({ children }) {
    };
 
    const getPosition = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getPosition ~ error:", error);
       // console.log("🚀 ~ getPosition ~ response:", response);
@@ -121,7 +114,6 @@ export default function PositionContextProvider({ children }) {
 
    const deletePosition = async (id) => {
       // console.log("🚀 ~ deletePosition ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deletePosition ~ error:", error);
@@ -143,7 +135,7 @@ export default function PositionContextProvider({ children }) {
 
    const disEnablePosition = async (id, active) => {
       // console.log("🚀 ~ disEnablePosition ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnablePosition ~ error:", error);

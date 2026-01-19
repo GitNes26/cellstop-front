@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllCivilStatuses = async () => {
 //    const setAllCivilStatuses = useCivilStatusStore.getState().setAllCivilStatuses;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllCivilStatuses ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexCivilStatuses = async () => {
 //    const setCivilStatusesSelect = useCivilStatusStore.getState().setCivilStatusesSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexCivilStatuses ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const createOrUpdateCivilStatus = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateCivilStatus ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -76,7 +76,7 @@
 
 // export const getCivilStatus = async (id) => {
 //    const setCivilStatus = useCivilStatusStore.getState().setCivilStatus;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getCivilStatus ~ error:", error);
@@ -98,7 +98,7 @@
 
 // export const deleteCivilStatus = async (id) => {
 //    // console.log("🚀 ~ deleteCivilStatus ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteCivilStatus ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const disEnableCivilStatus = async (id, active) => {
 //    // console.log("🚀 ~ disEnableCivilStatus ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableCivilStatus ~ error:", error);

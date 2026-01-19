@@ -43,17 +43,28 @@ export default function ProductContextProvider({ children }) {
    function getFiltersByStatus(statusParam) {
       switch (statusParam) {
          case "en-stock":
-            return { location_status: "Stock", activation_status: "Pre-activado" };
+            return { destination: "Stock" };
          case "asignados":
-            return { location_status: "Asignado" };
+            return { destination: "Asignado" };
          case "distribuidos":
-            return { location_status: "Distribuido" };
+            return { destination: "Distribuido" };
          case "activados":
-            return { activation_status: "Activado" };
+            return { destination: "Activado" };
          case "portados":
-            return { activation_status: "Portado" };
+            return { destination: "Portado" };
          default:
             return null;
+         // case "en-stock":
+         //    return { location_status: "Stock", activation_status: "Pre-activado" };
+         // case "asignados":
+         //    return { location_status: "Asignado" };
+         // case "distribuidos":
+         //    return { location_status: "Distribuido" };
+         // case "activados":
+         //    return { activation_status: "Activado" };
+         // case "portados":
+         //    return { activation_status: "Portado" };
+         // default:
       }
    }
 
@@ -70,7 +81,7 @@ export default function ProductContextProvider({ children }) {
          };
       }
       // console.log("🚀 ~ getAllProducts ~ data:", data);
-      // if (!(await checkLoggedIn())) return;
+
       const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProducts ~ error:", error);
       // console.log("🚀 ~ getAllProducts ~ response:", response);
@@ -90,8 +101,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getSelectIndexProducts = async (data) => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = data ? await to(Axios.post(`${prefixPath}/selectIndex`, data)) : await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexProducts ~ error:", error);
       // console.log("🚀 ~ getSelectIndexProducts ~ response:", response);
@@ -112,7 +121,6 @@ export default function ProductContextProvider({ children }) {
 
    const createOrUpdateProduct = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `update/${data.id}` : "store";
       const [error, response] = await to(Axios.post(`${prefixPath}/${id}`, data));
@@ -134,8 +142,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getProduct = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getProduct ~ error:", error);
       // console.log("🚀 ~ getProduct ~ response:", response);
@@ -156,7 +162,6 @@ export default function ProductContextProvider({ children }) {
 
    const deleteProduct = async (id) => {
       // console.log("🚀 ~ deleteProduct ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteProduct ~ error:", error);
@@ -178,7 +183,7 @@ export default function ProductContextProvider({ children }) {
 
    const disEnableProduct = async (id, active) => {
       // console.log("🚀 ~ disEnableProduct ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableProduct ~ error:", error);
@@ -201,7 +206,6 @@ export default function ProductContextProvider({ children }) {
 
    const importProducts = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       // const formData = new FormData();
       // formData.append("file", file);
@@ -225,8 +229,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getSelectIndexFolios = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.post(`${prefixPath}/getFolios`));
       // console.log("🚀 ~ getSelectIndexFolios ~ error:", error);
       // console.log("🚀 ~ getSelectIndexFolios ~ response:", response);
@@ -246,8 +248,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getAvailableFoliosForLote = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.post(`${prefixPath}/getAvailableFoliosForLote`));
       // console.log("🚀 ~ getAvailableFoliosForLote ~ error:", error);
       // console.log("🚀 ~ getAvailableFoliosForLote ~ response:", response);
@@ -289,7 +289,6 @@ export default function ProductContextProvider({ children }) {
 
    const updateLoteAssignment = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.post(`loteDetails/updateLoteAssignment`, data));
       // console.log("🚀 ~ createOrUpdateProduct ~ error:", error);
@@ -310,8 +309,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getMovementsByProduct = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/${id}/movements`));
       // console.log("🚀 ~ getMovementsByProduct ~ error:", error);
       // console.log("🚀 ~ getMovementsByProduct ~ response:", response);
@@ -331,8 +328,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const selectIndexProductForVisit = async (data = {}) => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.post(`${prefixPath}/selectIndexProductForVisit`, data));
       // console.log("🚀 ~ selectIndexProductForVisit ~ error:", error);
       // console.log("🚀 ~ selectIndexProductForVisit ~ response:", response);
@@ -354,7 +349,6 @@ export default function ProductContextProvider({ children }) {
    //#region ProductDetails
    const importProductDetails = async (data) => {
       // console.log("🚀 ~ createOrUpdateProduct ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       // const formData = new FormData();
       // formData.append("file", file);
@@ -378,8 +372,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getAllProductDetails = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPathDetail}`));
       // console.log("🚀 ~ getAllProductDetails ~ error:", error);
       // console.log("🚀 ~ getAllProductDetails ~ response:", response);
@@ -399,8 +391,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getProductDetailsByProduct = async (productId) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPathDetail}/product/${productId}`));
       // console.log("🚀 ~ getProductDetailsByProduct ~ error:", error);
       // console.log("🚀 ~ getProductDetailsByProduct ~ response:", response);
@@ -423,7 +413,6 @@ export default function ProductContextProvider({ children }) {
    //#region Portabilities
    const importPortabilities = async (data) => {
       // console.log("🚀 ~ importPortabilities ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       // const formData = new FormData();
       // formData.append("file", file);
@@ -447,8 +436,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getAllPortabilities = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPathPortabilities}`));
       // console.log("🚀 ~ getAllPortabilities ~ error:", error);
       // console.log("🚀 ~ getAllPortabilities ~ response:", response);
@@ -468,8 +455,6 @@ export default function ProductContextProvider({ children }) {
    };
 
    const getPortabilitiesByProduct = async (productId) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPathPortabilities}/product/${productId}`));
       // console.log("🚀 ~ getPortabilitiesByProduct ~ error:", error);
       // console.log("🚀 ~ getPortabilitiesByProduct ~ response:", response);
@@ -490,7 +475,7 @@ export default function ProductContextProvider({ children }) {
 
    const createMultipleManuallyPortabilities = async (ids, executed_at) => {
       // console.log("🚀 ~ createMultipleManuallyPortabilities ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
+
       const data = {
          ids,
          executed_at

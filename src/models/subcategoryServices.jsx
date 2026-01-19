@@ -8,7 +8,7 @@
 
 // export const SP_affairsByDepartment = async () => {
 //    const setAllSubcategories = useSubcategoryStore.getState().setAllSubcategories;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/SP_affairsByDepartment`));
 //    // console.log("🚀 ~ SP_affairsByDepartment ~ error:", error);
@@ -31,7 +31,7 @@
 // //#region CRUD
 // export const getAllSubcategories = async () => {
 //    const setAllSubcategories = useSubcategoryStore.getState().setAllSubcategories;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllSubcategories ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const getSelectIndexSubcategories = async () => {
 //    const setSubcategoriesSelect = useSubcategoryStore.getState().setSubcategoriesSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexSubcategories ~ error:", error);
@@ -75,7 +75,7 @@
 
 // export const createOrUpdateSubcategory = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateSubcategory ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -98,7 +98,7 @@
 
 // export const getSubcategory = async (id) => {
 //    const setSubcategory = useSubcategoryStore.getState().setSubcategory;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getSubcategory ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const deleteSubcategory = async (id) => {
 //    // console.log("🚀 ~ deleteSubcategory ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteSubcategory ~ error:", error);
@@ -142,7 +142,7 @@
 
 // export const disEnableSubcategory = async (id, active) => {
 //    // console.log("🚀 ~ disEnableSubcategory ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableSubcategory ~ error:", error);

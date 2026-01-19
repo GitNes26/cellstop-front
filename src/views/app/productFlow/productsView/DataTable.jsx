@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Stack, Typography } from "@mui/material";
+import { Badge, Button, Stack, Typography } from "@mui/material";
 
 import Toast from "../../../../utils/Toast.js";
 import { DataTableComponent, ExcelUploader } from "../../../../components/index.js";
@@ -22,6 +22,7 @@ import ModalTableDetails from "./TableDetails.js";
 import ImportPortabitiesFrom from "./ImportPortabitiesFrom.jsx";
 import { ProductMovementsModal } from "./TableMovements.js";
 import showFlexibleAlert, { ALERT_TYPES } from "../../../../components/showDuplicatesAlert.js";
+import { useParams } from "react-router-dom";
 
 const columnasPortaciones = ["telefono", "fechaActivacion", "fechaPortacion", "FzaVentas", "descripFzaVta"];
 
@@ -89,6 +90,8 @@ const validaciones = {
 };
 
 const ProductDT = ({}) => {
+   const { status } = useParams();
+
    const { auth } = useAuthContext();
    const { setIsLoading, setOpenDialog } = useGlobalContext();
    const {
@@ -139,11 +142,13 @@ const ProductDT = ({}) => {
       </Typography>
    );
 
-   const FechaBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text}>
-         {formatDatetime(obj.fecha, false)}
-      </Typography>
-   );
+   const FechaBodyTemplate = ({ key, date }) => {
+      return (
+         <Typography key={key} textAlign="center" size={fontSizeTable.text}>
+            {formatDatetime(date, false)}
+         </Typography>
+      );
+   };
 
    const ActiveBodyTemplate = (obj) => (
       <Typography textAlign="center" className="flex justify-center">
@@ -158,13 +163,229 @@ const ProductDT = ({}) => {
    );
    // #endregion
 
+   // const columns = [
+   //    // {
+   //    //    field: "region",
+   //    //    headerName: "Región",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.region}</TextCenter>
+   //    // },
+   //    {
+   //       field: "celular",
+   //       headerName: "Celular",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.celular}</TextCenter>
+   //    },
+   //    {
+   //       field: "iccid",
+   //       headerName: "ICCID",
+   //       sortable: true,
+   //       renderCell: (params) => {
+   //          const { key, ...obj } = params.row;
+   //          return <IccidBodyTemplate {...obj} />;
+   //       }
+   //    },
+   //    {
+   //       field: "fecha",
+   //       headerName: "Fecha Pre-activación",
+   //       sortable: true,
+   //       renderCell: (params) => {
+   //          // const { key, ...obj } = params.row;
+   //          return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
+   //       }
+   //    },
+   //    {
+   //       field: "imei",
+   //       headerName: "IMEI",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
+   //    },
+   //    {
+   //       field: "marca",
+   //       headerName: "Marca",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+   //    },
+   //    {
+   //       field: "modelo",
+   //       headerName: "Modelo",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+   //    },
+   //    {
+   //       field: "color",
+   //       headerName: "Color",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
+   //    },
+   //    {
+   //       field: "executed_at",
+   //       headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
+   //       sortable: true,
+   //       renderCell: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
+   //    },
+   //    // {
+   //    //    field: "tramite",
+   //    //    headerName: "Trámite",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.tramite}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "estatus",
+   //    //    headerName: "Estatus",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.estatus}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "comentario",
+   //    //    headerName: "Comentario",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.comentario}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "fza_vta_prepago",
+   //    //    headerName: "Fza Vta Prepago",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "fza_vta_padre",
+   //    //    headerName: "Fza Vta Padre",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "usuario",
+   //    //    headerName: "Usuario",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.usuario}</TextCenter>
+   //    // },
+   //    status === "asignados" && {
+   //       field: "lote",
+   //       headerName: "Lote",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.lote}</TextCenter>
+   //    },
+   //    status === "asignados" && {
+   //       field: "folio",
+   //       headerName: "Folio",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
+   //    },
+   //    ["distribuidos", "activados", "portados"].includes(status) && {
+   //       field: "pos_name",
+   //       headerName: "P.V. / Cliente",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
+   //    },
+   //    {
+   //       field: "status",
+   //       headerName: "Estatus",
+   //       sortable: true,
+   //       renderCell: (params) => {
+   //          const color =
+   //             params.row.destination === "Asignado"
+   //                ? "warning"
+   //                : params.row.destination === "Distribuido"
+   //                  ? "info"
+   //                  : params.row.destination === "Activado"
+   //                    ? "success"
+   //                    : params.row.destination === "Portado"
+   //                      ? "error"
+   //                      : "default";
+   //          return (
+   //             <TextCenter>
+   //                <Badge color={color}>{params.row.destination}</Badge>
+   //             </TextCenter>
+   //          );
+   //       }
+   //    },
+   //    // {
+   //    //    field: "producto",
+   //    //    headerName: "Producto",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.producto}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "num_orden",
+   //    //    headerName: "Núm Orden",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "estatus_orden",
+   //    //    headerName: "Estatus Orden",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "motivo_error",
+   //    //    headerName: "Motivo Error",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "tipo_sim",
+   //    //    headerName: "Tipo SIM",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "modelo",
+   //    //    headerName: "Modelo",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "marca",
+   //    //    headerName: "Marca",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "color",
+   //    //    headerName: "Color",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "location_status",
+   //    //    headerName: "Ubicación",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.location_status}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "activation_status",
+   //    //    headerName: "Estatus Activación",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
+   //    // },
+   //    // {
+   //    //    field: "product_type",
+   //    //    headerName: "Tipo Producto",
+   //    //    sortable: true,
+   //    //    renderCell: (params) => <TextCenter>{params.row.product_type}</TextCenter>
+   //    // },
+   //    {
+   //       field: "import",
+   //       headerName: "Importación",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.import_name}</TextCenter>
+   //    },
+   //    {
+   //       field: "uploader_username",
+   //       headerName: "Creado Por",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
+   //    },
+   //    {
+   //       field: "evaluations_rejected",
+   //       headerName: "Evaluaciones",
+   //       sortable: true,
+   //       renderCell: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
+   //    }
+   // ];
    const columns = [
-      {
-         field: "region",
-         headerName: "Región",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.region}</TextCenter>
-      },
       {
          field: "celular",
          headerName: "Celular",
@@ -181,97 +402,19 @@ const ProductDT = ({}) => {
          }
       },
       {
+         field: "fecha",
+         headerName: "Fecha Pre-activación",
+         sortable: true,
+         renderCell: (params) => {
+            // const { key, ...obj } = params.row;
+            return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
+         }
+      },
+      {
          field: "imei",
          headerName: "IMEI",
          sortable: true,
          renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
-      },
-      {
-         field: "fecha",
-         headerName: "Fecha",
-         sortable: true,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <FechaBodyTemplate {...obj} />;
-         }
-      },
-      {
-         field: "tramite",
-         headerName: "Trámite",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.tramite}</TextCenter>
-      },
-      {
-         field: "estatus",
-         headerName: "Estatus",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.estatus}</TextCenter>
-      },
-      {
-         field: "comentario",
-         headerName: "Comentario",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.comentario}</TextCenter>
-      },
-      {
-         field: "fza_vta_prepago",
-         headerName: "Fza Vta Prepago",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
-      },
-      {
-         field: "fza_vta_padre",
-         headerName: "Fza Vta Padre",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
-      },
-      {
-         field: "usuario",
-         headerName: "Usuario",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.usuario}</TextCenter>
-      },
-      {
-         field: "folio",
-         headerName: "Folio",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
-      },
-      {
-         field: "producto",
-         headerName: "Producto",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.producto}</TextCenter>
-      },
-      {
-         field: "num_orden",
-         headerName: "Núm Orden",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
-      },
-      {
-         field: "estatus_orden",
-         headerName: "Estatus Orden",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
-      },
-      {
-         field: "motivo_error",
-         headerName: "Motivo Error",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
-      },
-      {
-         field: "tipo_sim",
-         headerName: "Tipo SIM",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
-      },
-      {
-         field: "modelo",
-         headerName: "Modelo",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
       },
       {
          field: "marca",
@@ -280,40 +423,80 @@ const ProductDT = ({}) => {
          renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
       },
       {
+         field: "modelo",
+         headerName: "Modelo",
+         sortable: true,
+         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+      },
+      {
          field: "color",
          headerName: "Color",
          sortable: true,
          renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
       },
       {
-         field: "location_status",
-         headerName: "Ubicación",
+         field: "executed_at",
+         headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.location_status}</TextCenter>
-      },
+         renderCell: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
+      }
+   ];
+   [undefined, "asignados"].includes(status) &&
+      columns.push(
+         {
+            field: "lote",
+            headerName: "Lote",
+            sortable: true,
+            renderCell: (params) => <TextCenter>{params.row.lote}</TextCenter>
+         },
+         {
+            field: "folio",
+            headerName: "Folio",
+            sortable: true,
+            renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
+         }
+      );
+   [undefined, "distribuidos", "activados", "portados"].includes(status) &&
+      columns.push({
+         field: "pos_name",
+         headerName: "P.V. / Cliente",
+         sortable: true,
+         renderCell: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
+      });
+   columns.push(
       {
-         field: "activation_status",
-         headerName: "Estatus Activación",
+         field: "status",
+         headerName: "Estatus",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
-      },
-      {
-         field: "product_type",
-         headerName: "Tipo Producto",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.product_type.product_type}</TextCenter>
+         renderCell: (params) => {
+            const color =
+               params.row.destination === "Asignado"
+                  ? "warning"
+                  : params.row.destination === "Distribuido"
+                    ? "info"
+                    : params.row.destination === "Activado"
+                      ? "success"
+                      : params.row.destination === "Portado"
+                        ? "error"
+                        : "default";
+            return (
+               <TextCenter>
+                  <Badge color={color}>{params.row.destination}</Badge>
+               </TextCenter>
+            );
+         }
       },
       {
          field: "import",
          headerName: "Importación",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.import.name}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.import_name}</TextCenter>
       },
       {
-         field: "import.uploader.username",
+         field: "uploader_username",
          headerName: "Creado Por",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.import.uploader.username}</TextCenter>
+         renderCell: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
       },
       {
          field: "evaluations_rejected",
@@ -321,7 +504,7 @@ const ProductDT = ({}) => {
          sortable: true,
          renderCell: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
       }
-   ];
+   );
 
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
@@ -660,7 +843,7 @@ const ProductDT = ({}) => {
    };
    formatData();
 
-   useEffect(() => {}, []);
+   useEffect(() => {}, [status]);
 
    return (
       <>
@@ -699,7 +882,7 @@ const ProductDT = ({}) => {
             handleClickEdit={handleClickEdit}
             handleClickDisEnable={handleClickDisEnable}
             singularName={singularName}
-            indexColumnName={2}
+            indexColumnName={1}
             rowEdit={false}
             refreshTable={getAllProducts}
             btnsExport={false}

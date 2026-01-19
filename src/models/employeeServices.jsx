@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllEmployees = async () => {
 //    const setAllEmployees = useEmployeeStore.getState().setAllEmployees;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllEmployees ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexEmployees = async () => {
 //    const setEmployeesSelect = useEmployeeStore.getState().setEmployeesSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const createOrUpdateEmployee = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateEmployee ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -76,7 +76,7 @@
 
 // export const getEmployee = async (id) => {
 //    const setEmployee = useEmployeeStore.getState().setEmployee;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getEmployee ~ error:", error);
@@ -98,7 +98,7 @@
 
 // export const deleteEmployee = async (id) => {
 //    // console.log("🚀 ~ deleteEmployee ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteEmployee ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const disEnableEmployee = async (id, active) => {
 //    // console.log("🚀 ~ disEnableEmployee ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableEmployee ~ error:", error);

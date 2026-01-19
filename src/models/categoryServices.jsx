@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllCategories = async () => {
 //    const setAllCategories = useCategoryStore.getState().setAllCategories;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllCategories ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexCategories = async () => {
 //    const setCategoriesSelect = useCategoryStore.getState().setCategoriesSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexCategories ~ error:", error);
@@ -52,7 +52,7 @@
 // };
 
 // export const createOrUpdateCategory = async (data) => {
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -75,7 +75,7 @@
 
 // export const getCategory = async (id) => {
 //    const setCategory = useCategoryStore.getState().setCategory;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getCategory ~ error:", error);
@@ -97,7 +97,7 @@
 
 // export const deleteCategory = async (id) => {
 //    // console.log("🚀 ~ deleteCategory ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteCategory ~ error:", error);
@@ -119,7 +119,7 @@
 
 // export const disEnableCategory = async (id, active) => {
 //    // console.log("🚀 ~ disEnableCategory ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableCategory ~ error:", error);

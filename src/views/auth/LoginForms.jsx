@@ -3,7 +3,22 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Box, Card, CardContent, Typography, Button, Alert } from "@mui/material";
-import { Login, HowToReg, Send, AccountCircle, Email, Lock, Security, Dashboard, Analytics, WorkspacesRounded, ArrowBack } from "@mui/icons-material";
+import {
+   Login,
+   HowToReg,
+   Send,
+   AccountCircle,
+   Email,
+   Lock,
+   Security,
+   Dashboard,
+   Analytics,
+   WorkspacesRounded,
+   ArrowBack,
+   EditNoteRounded,
+   QueryStatsRounded,
+   VerifiedUserRounded
+} from "@mui/icons-material";
 import { useGlobalContext } from "../../context/GlobalContext";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +32,7 @@ export default function LoginForms() {
    const navigate = useNavigate();
    const formikRef = useRef(null);
    const { setIsLoading } = useGlobalContext();
-   const { setAuth, login, signup } = useAuthContext();
+   const { auth, setAuth, login, signup } = useAuthContext();
 
    const [formState, setFormState] = useState("login");
    const [formSubmitted, setFormSubmitted] = useState(false);
@@ -141,7 +156,13 @@ export default function LoginForms() {
       setIsLoading(false);
       setFormSubmitted(false);
 
-      if (formState === "login") navigate("/app");
+      console.log("🚀 ~ onSubmit ~ res.data.resutl:", res?.result?.auth?.page_index);
+      console.log("a ver el auth jsoin", JSON.parse(localStorage.getItem("auth"))?.page_index);
+
+      if (formState === "login") console.log("vamos a :", JSON.parse(localStorage.getItem("auth"))?.page_index);
+      // setTimeout(() => {
+      //    navigate(JSON.parse(localStorage.getItem("auth"))?.page_index ?? "/app");
+      // }, 500);
       else handleFormChange("login");
    };
 
@@ -288,26 +309,20 @@ export default function LoginForms() {
                >
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-cyan-300">
-                        12K+
-                     </Typography>
-                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Chips Activos
+                        <EditNoteRounded sx={{ fontSize: 60 }} />
+                        <br /> Ingresa
                      </Typography>
                   </div>
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-purple-300">
-                        45
-                     </Typography>
-                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Vendedores
+                        <QueryStatsRounded sx={{ fontSize: 60 }} />
+                        <br /> Analiza
                      </Typography>
                   </div>
                   <div className="text-center">
                      <Typography variant="h3" fontWeight="800" className="text-blue-300">
-                        28
-                     </Typography>
-                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Puntos de Venta
+                        <VerifiedUserRounded sx={{ fontSize: 60 }} />
+                        <br /> Decide
                      </Typography>
                   </div>
                </motion.div>
@@ -437,8 +452,8 @@ export default function LoginForms() {
                                  {formState === "login"
                                     ? "Ingresa a tu espacio seguro y personalizado"
                                     : formState === "register"
-                                    ? "Comienza tu journey con nosotros hoy"
-                                    : "Te enviaremos instrucciones para recuperar tu cuenta"}
+                                      ? "Comienza tu journey con nosotros hoy"
+                                      : "Te enviaremos instrucciones para recuperar tu cuenta"}
                               </Typography>
                            </div>
 
@@ -469,16 +484,18 @@ export default function LoginForms() {
                                           borderRadius: 2,
                                           color: "white",
                                           "&:hover": {
-                                             bgcolor: "rgba(255,255,255,0.15)",
-                                             border: "1px solid rgba(255,255,255,0.3)"
+                                             fontWeight: "bolder",
+                                             // bgcolor: "rgba(255,255,255,0.15)",
+                                             border: "5px solid rgba(255,255,255,0.3)"
                                           },
                                           "&.Mui-focused": {
-                                             bgcolor: "rgba(255,255,255,0.2)",
+                                             fontWeight: "bolder",
+                                             // bgcolor: "rgba(255,255,255,0.2)",
                                              border: "2px solid rgba(59, 130, 246, 0.5)"
                                           }
                                        }
                                     }}
-                                    focus
+                                    focus={true}
                                     required
                                  />
                               ) : (

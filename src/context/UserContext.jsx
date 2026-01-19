@@ -35,8 +35,6 @@ export default function UserContextProvider({ children }) {
 
    //#region CRUD
    const getAllUsers = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllUsers ~ error:", error);
       // console.log("🚀 ~ getAllUsers ~ response:", response);
@@ -56,8 +54,6 @@ export default function UserContextProvider({ children }) {
    };
 
    const getSelectIndexUsersByRole = async (role_id) => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndexByRole/${role_id}`));
       // console.log("🚀 ~ getSelectIndexUsers ~ error:", error);
       // console.log("🚀 ~ getSelectIndexUsers ~ response:", response);
@@ -77,8 +73,6 @@ export default function UserContextProvider({ children }) {
    };
 
    const getSelectIndexUsers = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexUsers ~ error:", error);
       // console.log("🚀 ~ getSelectIndexUsers ~ response:", response);
@@ -99,7 +93,6 @@ export default function UserContextProvider({ children }) {
 
    const createOrUpdateUser = async (data) => {
       // console.log("🚀 ~ createOrUpdateUser ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -121,8 +114,6 @@ export default function UserContextProvider({ children }) {
    };
 
    const getUser = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getUser ~ error:", error);
       // console.log("🚀 ~ getUser ~ response:", response);
@@ -143,7 +134,6 @@ export default function UserContextProvider({ children }) {
 
    const deleteUser = async (id) => {
       // console.log("🚀 ~ deleteUser ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteUser ~ error:", error);
@@ -165,7 +155,6 @@ export default function UserContextProvider({ children }) {
 
    const deleteMultipleUser = async (ids) => {
       // console.log("🚀 ~ deleteUser ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.post(`${prefixPath}/destroyMultiple`, { ids }));
       // console.log("🚀 ~ deleteUser ~ error:", error);
@@ -187,7 +176,7 @@ export default function UserContextProvider({ children }) {
 
    const disEnableUser = async (id, active) => {
       // console.log("🚀 ~ disEnableUser ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableUser ~ error:", error);

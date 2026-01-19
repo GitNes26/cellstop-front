@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllRegisters = async () => {
 //    const setAllRegisters = useRegisterStore.getState().setAllRegisters;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllRegisters ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexRegisters = async () => {
 //    const setRegistersSelect = useRegisterStore.getState().setRegistersSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexRegisters ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const createOrUpdateRegister = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateRegister ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -76,7 +76,7 @@
 
 // export const getRegister = async (id) => {
 //    const setRegister = useRegisterStore.getState().setRegister;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getRegister ~ error:", error);
@@ -98,7 +98,7 @@
 
 // export const deleteRegister = async (id) => {
 //    // console.log("🚀 ~ deleteRegister ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteRegister ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const disEnableRegister = async (id, active) => {
 //    // console.log("🚀 ~ disEnableRegister ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableRegister ~ error:", error);

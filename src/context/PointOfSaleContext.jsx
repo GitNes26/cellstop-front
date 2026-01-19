@@ -35,8 +35,6 @@ export default function PointOfSaleContextProvider({ children }) {
 
    //#region CRUD
    const getAllPointsOfSale = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllPointsOfSale ~ error:", error);
       // console.log("🚀 ~ getAllPointsOfSale ~ response:", response);
@@ -56,8 +54,6 @@ export default function PointOfSaleContextProvider({ children }) {
    };
 
    const getSelectIndexPointsOfSale = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexPointsOfSale ~ error:", error);
       // console.log("🚀 ~ getSelectIndexPointsOfSale ~ response:", response);
@@ -78,7 +74,6 @@ export default function PointOfSaleContextProvider({ children }) {
 
    const createOrUpdatePointOfSale = async (data) => {
       // console.log("🚀 ~ createOrUpdatePointOfSale ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -100,8 +95,6 @@ export default function PointOfSaleContextProvider({ children }) {
    };
 
    const getPointOfSale = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getPointOfSale ~ error:", error);
       // console.log("🚀 ~ getPointOfSale ~ response:", response);
@@ -122,7 +115,6 @@ export default function PointOfSaleContextProvider({ children }) {
 
    const deletePointOfSale = async (id) => {
       // console.log("🚀 ~ deletePointOfSale ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deletePointOfSale ~ error:", error);
@@ -144,7 +136,7 @@ export default function PointOfSaleContextProvider({ children }) {
 
    const disEnablePointOfSale = async (id, active) => {
       // console.log("🚀 ~ disEnablePointOfSale ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnablePointOfSale ~ error:", error);

@@ -128,7 +128,7 @@ export default function AuthContextProvider({ children }) {
    };
 
    const checkLoggedIn = async () => {
-      console.log("🚀 ~ checkLoggedIn ~ a checar:");
+      // console.log("🚀 ~ checkLoggedIn ~ a checar:");
       const location = window.location;
       let url = location.hash.split("#").reverse()[0];
       const paths = url.split("/");
@@ -375,7 +375,7 @@ export default function AuthContextProvider({ children }) {
    const validateAccessPage = async (updateAuth = false) => {
       // console.log("validateAccessPage->el auth", auth);
       try {
-         // console.log("auth.antes", auth);
+         // console.log("validateAccessPage ~ auth.antes", auth);
          if (auth === null) {
             // console.log("al login");
             setIsAuth(false);

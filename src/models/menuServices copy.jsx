@@ -14,7 +14,7 @@ const prefixPath = "/menus";
 // export const getMenusByRole = async () => {
 //    // const auth = useAuthStore.getState().auth;
 //    const { auth } = useAuthContext();
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const pages_read = auth.read;
 //    const [error, response] = await to(Axios.get(`${prefixPath}/getMenusByRole/${pages_read}`));
@@ -35,7 +35,7 @@ const prefixPath = "/menus";
 // };
 
 // export const getHeadersMenusSelect = async () => {
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/getHeadersMenusSelect`));
 //    // console.log("🚀 ~ getHeadersMenusSelect ~ error:", error);
@@ -55,7 +55,7 @@ const prefixPath = "/menus";
 
 // export const getSelectMenusToRoles = async () => {
 //    const setMenusSelect = useMenuStore.getState().setMenusSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndexToRoles`));
 //    // console.log("🚀 ~ getSelectMenusToRoles ~ error:", error);
@@ -80,7 +80,7 @@ const prefixPath = "/menus";
 //    const { ObservableSet } = useObservable();
 
 //    // const setAllMenus = useMenuStore.getState().setAllMenus;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllMenus ~ error:", error);
@@ -106,7 +106,6 @@ export const GetAllMenus = async () => {
    const { ObservableSet } = useObservable();
 
    // const setAllMenus = useMenuStore.getState().setAllMenus;
-   // if (!(await checkLoggedIn())) return;
 
    const [menus] = useQueries({
       queries: [
@@ -171,7 +170,7 @@ export const getAllMenus = async () => {
 
 // export const createOrUpdateMenu = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateMenu ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -194,7 +193,7 @@ export const getAllMenus = async () => {
 
 // export const getMenu = async (id) => {
 //    const setMenu = useMenuStore.getState().setMenu;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getMenu ~ error:", error);
@@ -216,7 +215,7 @@ export const getAllMenus = async () => {
 
 // export const disEnableMenu = async (id, active) => {
 //    // console.log("🚀 ~ disEnableMenu ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));

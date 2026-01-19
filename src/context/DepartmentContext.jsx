@@ -34,8 +34,6 @@ export default function DepartmentContextProvider({ children }) {
 
    //#region CRUD
    const getAllDepartments = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllDepartments ~ error:", error);
       // console.log("🚀 ~ getAllDepartments ~ response:", response);
@@ -55,8 +53,6 @@ export default function DepartmentContextProvider({ children }) {
    };
 
    const getSelectIndexDepartments = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexDepartments ~ error:", error);
       // console.log("🚀 ~ getSelectIndexDepartments ~ response:", response);
@@ -77,7 +73,6 @@ export default function DepartmentContextProvider({ children }) {
 
    const createOrUpdateDepartment = async (data) => {
       // console.log("🚀 ~ createOrUpdateDepartment ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -99,8 +94,6 @@ export default function DepartmentContextProvider({ children }) {
    };
 
    const getDepartment = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getDepartment ~ error:", error);
       // console.log("🚀 ~ getDepartment ~ response:", response);
@@ -121,7 +114,6 @@ export default function DepartmentContextProvider({ children }) {
 
    const deleteDepartment = async (id) => {
       // console.log("🚀 ~ deleteDepartment ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteDepartment ~ error:", error);
@@ -143,7 +135,7 @@ export default function DepartmentContextProvider({ children }) {
 
    const disEnableDepartment = async (id, active) => {
       // console.log("🚀 ~ disEnableDepartment ~ data:", data);
-      // await checkLoggedIn();
+      
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableDepartment ~ error:", error);

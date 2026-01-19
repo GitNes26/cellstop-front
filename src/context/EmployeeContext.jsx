@@ -38,8 +38,6 @@ export default function EmployeeContextProvider({ children }) {
 
    //#region CRUD
    const getAllEmployees = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllEmployees ~ error:", error);
       // console.log("🚀 ~ getAllEmployees ~ response:", response);
@@ -59,8 +57,6 @@ export default function EmployeeContextProvider({ children }) {
    };
 
    const getSelectIndexEmployees = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexEmployees ~ error:", error);
       // console.log("🚀 ~ getSelectIndexEmployees ~ response:", response);
@@ -82,7 +78,6 @@ export default function EmployeeContextProvider({ children }) {
 
    const createOrUpdateEmployee = async (data) => {
       // console.log("🚀 ~ createOrUpdateEmployee ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -104,8 +99,6 @@ export default function EmployeeContextProvider({ children }) {
    };
 
    const getEmployee = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getEmployee ~ error:", error);
       // console.log("🚀 ~ getEmployee ~ response:", response);
@@ -126,7 +119,6 @@ export default function EmployeeContextProvider({ children }) {
 
    const deleteEmployee = async (id) => {
       // console.log("🚀 ~ deleteEmployee ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteEmployee ~ error:", error);
@@ -148,7 +140,7 @@ export default function EmployeeContextProvider({ children }) {
 
    const disEnableEmployee = async (id, active) => {
       // console.log("🚀 ~ disEnableEmployee ~ data:", data);
-      // await checkLoggedIn();
+      
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableEmployee ~ error:", error);

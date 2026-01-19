@@ -34,8 +34,6 @@ export default function ProductTypeContextProvider({ children }) {
 
    //#region CRUD
    const getAllProductTypes = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProductTypes ~ error:", error);
       // console.log("🚀 ~ getAllProductTypes ~ response:", response);
@@ -55,8 +53,6 @@ export default function ProductTypeContextProvider({ children }) {
    };
 
    const getSelectIndexProductTypes = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexProductTypes ~ error:", error);
       // console.log("🚀 ~ getSelectIndexProductTypes ~ response:", response);
@@ -77,7 +73,6 @@ export default function ProductTypeContextProvider({ children }) {
 
    const createOrUpdateProductType = async (data) => {
       // console.log("🚀 ~ createOrUpdateProductType ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -99,8 +94,6 @@ export default function ProductTypeContextProvider({ children }) {
    };
 
    const getProductType = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getProductType ~ error:", error);
       // console.log("🚀 ~ getProductType ~ response:", response);
@@ -121,7 +114,6 @@ export default function ProductTypeContextProvider({ children }) {
 
    const deleteProductType = async (id) => {
       // console.log("🚀 ~ deleteProductType ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteProductType ~ error:", error);
@@ -143,7 +135,7 @@ export default function ProductTypeContextProvider({ children }) {
 
    const disEnableProductType = async (id, active) => {
       // console.log("🚀 ~ disEnableProductType ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableProductType ~ error:", error);

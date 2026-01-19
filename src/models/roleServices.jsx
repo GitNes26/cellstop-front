@@ -8,7 +8,7 @@
 
 // export const updatePermissions = async (data) => {
 //    // console.log("🚀 ~ updatePermissions ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.post(`${prefixPath}/updatePermissions`, data));
 //    // console.log("🚀 ~ updatePermissions ~ error:", error);
@@ -31,7 +31,7 @@
 // //#region CRUD
 // export const getAllRoles = async () => {
 //    const setAllRoles = useRoleStore.getState().setAllRoles;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllRoles ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const getSelectIndexRoles = async () => {
 //    const setRolesSelect = useRoleStore.getState().setRolesSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexRoles ~ error:", error);
@@ -75,7 +75,7 @@
 
 // export const createOrUpdateRole = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateRole ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -99,7 +99,7 @@
 // export const getRole = async (id) => {
 //    const setRole = useRoleStore.getState().setRole;
 //    const setRoleSelect = useRoleStore.getState().setRoleSelect;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getRole ~ error:", error);
@@ -122,7 +122,7 @@
 
 // export const deleteRole = async (id) => {
 //    // console.log("🚀 ~ deleteRole ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteRole ~ error:", error);
@@ -144,7 +144,7 @@
 
 // export const disEnableRole = async (id, active) => {
 //    // console.log("🚀 ~ disEnableRole ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableRole ~ error:", error);

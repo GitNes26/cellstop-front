@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllPositions = async () => {
 //    const setAllPositions = usePositionStore.getState().setAllPositions;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllPositions ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexPositions = async () => {
 //    const setPositionsSelect = usePositionStore.getState().setPositionsSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexPositions ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const createOrUpdatePosition = async (data) => {
 //    // console.log("🚀 ~ createOrUpdatePosition ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -76,7 +76,7 @@
 
 // export const getPosition = async (id) => {
 //    const setPosition = usePositionStore.getState().setPosition;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getPosition ~ error:", error);
@@ -98,7 +98,7 @@
 
 // export const deletePosition = async (id) => {
 //    // console.log("🚀 ~ deletePosition ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deletePosition ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const disEnablePosition = async (id, active) => {
 //    // console.log("🚀 ~ disEnablePosition ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnablePosition ~ error:", error);

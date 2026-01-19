@@ -10,7 +10,7 @@
 // //#region CRUD
 // export const getAllSituations = async () => {
 //    const setAllSituations = useSituationStore.getState().setAllSituations;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllSituations ~ error:", error);
@@ -32,7 +32,7 @@
 
 // export const getSelectIndexSituations = async () => {
 //    const setSituationsSelect = useSituationStore.getState().setSituationsSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexSituations ~ error:", error);
@@ -54,7 +54,7 @@
 
 // export const createOrUpdateSituation = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateSituation ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -77,7 +77,7 @@
 
 // export const followUpSituation = async (data) => {
 //    console.log("🚀 ~ followUpSituation ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`${prefixPath}/followUp${id}`, data));
@@ -100,7 +100,7 @@
 
 // export const getSituation = async (column, value) => {
 //    const setSituation = useSituationStore.getState().setSituation;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/${column}/${value}`));
 //    // console.log("🚀 ~ getSituation ~ error:", error);
@@ -122,7 +122,7 @@
 
 // export const deleteSituation = async (id) => {
 //    // console.log("🚀 ~ deleteSituation ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteSituation ~ error:", error);
@@ -144,7 +144,7 @@
 
 // export const disEnableSituation = async (id, active) => {
 //    // console.log("🚀 ~ disEnableSituation ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableSituation ~ error:", error);
@@ -168,7 +168,7 @@
 // //#region FAMILIA
 // export const getAllFamilyDataByFolio = async (folio) => {
 //    const setAllFamilyData = useSituationStore.getState().setAllFamilyData;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`familyData/indexByFolio/${folio}`));
 //    // console.log("🚀 ~ getAllFamilyDataByFolio ~ error:", error);
@@ -191,7 +191,7 @@
 // export const createOrUpdateFamilyData = async (data, folio) => {
 //    console.log("🚀 ~ createOrUpdateFamilyData ~ folio:", folio);
 //    console.log("🚀 ~ createOrUpdateFamilyData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`familyData/createOrUpdate${id}`, data));
@@ -213,7 +213,7 @@
 // };
 // export const deleteFamilyData = async (id, folio) => {
 //    // console.log("🚀 ~ deleteFamilyData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`familyData/delete/${id}`));
 //    // console.log("🚀 ~ deleteFamilyData ~ error:", error);
@@ -235,7 +235,7 @@
 // };
 // export const disEnableFamilyData = async (id, active, folio) => {
 //    // console.log("🚀 ~ disEnableFamilyData ~ data:", data);
-//    // await checkLoggedIn();
+//
 
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`familyData/disEnable/${id}/${strActive}`));
@@ -260,7 +260,7 @@
 // //#region VIVIENDA
 // export const getLivingDataByFolio = async (folio) => {
 //    const setLivingData = useSituationStore.getState().setLivingData;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`livingData/indexByFolio/${folio}`));
 //    // console.log("🚀 ~ getLivingDataByFolio ~ error:", error);
@@ -283,7 +283,7 @@
 // export const createOrUpdateLivingData = async (data, folio) => {
 //    console.log("🚀 ~ createOrUpdateLivingData ~ folio:", folio);
 //    console.log("🚀 ~ createOrUpdateLivingData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`livingData/createOrUpdate${id}`, data));
@@ -305,7 +305,7 @@
 // };
 // export const deleteLivingData = async (id, folio) => {
 //    // console.log("🚀 ~ deleteLivingData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`livingData/delete/${id}`));
 //    // console.log("🚀 ~ deleteLivingData ~ error:", error);
@@ -327,7 +327,7 @@
 // };
 // export const disEnableLivingData = async (id, active, folio) => {
 //    // console.log("🚀 ~ disEnableLivingData ~ data:", data);
-//    // await checkLoggedIn();
+//
 
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`livingData/disEnable/${id}/${strActive}`));
@@ -352,7 +352,7 @@
 // //#region ECONOMIA
 // export const getEconomicDataByFolio = async (folio) => {
 //    const setEconomicData = useSituationStore.getState().setEconomicData;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`economicData/indexByFolio/${folio}`));
 //    // console.log("🚀 ~ getEconomicDataByFolio ~ error:", error);
@@ -375,7 +375,7 @@
 // export const createOrUpdateEconomicData = async (data, folio) => {
 //    console.log("🚀 ~ createOrUpdateEconomicData ~ folio:", folio);
 //    console.log("🚀 ~ createOrUpdateEconomicData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(AxiosFiles.post(`economicData/createOrUpdate${id}`, data));
@@ -397,7 +397,7 @@
 // };
 // export const deleteEconomicData = async (id, folio) => {
 //    // console.log("🚀 ~ deleteEconomicData ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`economicData/delete/${id}`));
 //    // console.log("🚀 ~ deleteEconomicData ~ error:", error);
@@ -419,7 +419,7 @@
 // };
 // export const disEnableEconomicData = async (id, active, folio) => {
 //    // console.log("🚀 ~ disEnableEconomicData ~ data:", data);
-//    // await checkLoggedIn();
+//
 
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`economicData/disEnable/${id}/${strActive}`));

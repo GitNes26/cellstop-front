@@ -37,8 +37,6 @@ export default function LoteContextProvider({ children }) {
 
    //#region CRUD
    const getAllLotes = async (data) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllLotes ~ error:", error);
       // console.log("🚀 ~ getAllLotes ~ response:", response);
@@ -58,8 +56,6 @@ export default function LoteContextProvider({ children }) {
    };
 
    const getSelectIndexLotes = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexLotes ~ error:", error);
       // console.log("🚀 ~ getSelectIndexLotes ~ response:", response);
@@ -80,7 +76,6 @@ export default function LoteContextProvider({ children }) {
 
    const createOrUpdateLote = async (data) => {
       // console.log("🚀 ~ createOrUpdateLote ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -102,8 +97,6 @@ export default function LoteContextProvider({ children }) {
    };
 
    const getLote = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getLote ~ error:", error);
       // console.log("🚀 ~ getLote ~ response:", response);
@@ -124,7 +117,6 @@ export default function LoteContextProvider({ children }) {
 
    const deleteLote = async (id) => {
       // console.log("🚀 ~ deleteLote ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteLote ~ error:", error);
@@ -146,7 +138,7 @@ export default function LoteContextProvider({ children }) {
 
    const disEnableLote = async (id, active) => {
       // console.log("🚀 ~ disEnableLote ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableLote ~ error:", error);
@@ -168,8 +160,6 @@ export default function LoteContextProvider({ children }) {
    //#endregion CRUD
 
    const getLoteDetailsByLote = async (loteId) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`loteDetails/showByLote/${loteId}`));
       // console.log("🚀 ~ getLoteDetailsByLote ~ error:", error);
       // console.log("🚀 ~ getLoteDetailsByLote ~ response:", response);

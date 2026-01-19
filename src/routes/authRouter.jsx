@@ -7,7 +7,7 @@ import NotFound from "../views/NotFound"; //const NotFound = lazy(() => import("
 const authRouter = {
    path: "/",
    element: (
-      <ProtectedRouter invert={true} redirectTo={"/app"}>
+      <ProtectedRouter invert={true} redirectTo={JSON.parse(localStorage.getItem("auth"))?.page_index ?? "/app/tablero"}>
          <AuthLayout />
       </ProtectedRouter>
    ),
@@ -15,17 +15,17 @@ const authRouter = {
    children: [
       {
          path: "/",
-         element: <AuthSignIn />,
+         element: <AuthSignIn />
       },
       {
          index: true,
          path: "login",
-         element: <AuthSignIn />,
+         element: <AuthSignIn />
       },
       {
          path: "registro",
-         element: <AuthSignUp />,
-      },
-   ],
+         element: <AuthSignUp />
+      }
+   ]
 };
 export default authRouter;

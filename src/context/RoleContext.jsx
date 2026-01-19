@@ -40,7 +40,6 @@ export default function RoleContextProvider({ children }) {
 
    const updatePermissions = async (data) => {
       // console.log("🚀 ~ updatePermissions ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.post(`${prefixPath}/updatePermissions`, data));
       // console.log("🚀 ~ updatePermissions ~ error:", error);
@@ -62,8 +61,6 @@ export default function RoleContextProvider({ children }) {
 
    //#region CRUD
    const getAllRoles = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllRoles ~ error:", error);
       // console.log("🚀 ~ getAllRoles ~ response:", response);
@@ -83,8 +80,6 @@ export default function RoleContextProvider({ children }) {
    };
 
    const getSelectIndexRoles = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
       // console.log("🚀 ~ getSelectIndexRoles ~ error:", error);
       // console.log("🚀 ~ getSelectIndexRoles ~ response:", response);
@@ -105,7 +100,6 @@ export default function RoleContextProvider({ children }) {
 
    const createOrUpdateRole = async (data) => {
       // console.log("🚀 ~ createOrUpdateRole ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -127,8 +121,6 @@ export default function RoleContextProvider({ children }) {
    };
 
    const getRole = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getRole ~ error:", error);
       // console.log("🚀 ~ getRole ~ response:", response);
@@ -150,7 +142,6 @@ export default function RoleContextProvider({ children }) {
 
    const deleteRole = async (id) => {
       // console.log("🚀 ~ deleteRole ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
       // console.log("🚀 ~ deleteRole ~ error:", error);
@@ -172,7 +163,7 @@ export default function RoleContextProvider({ children }) {
 
    const disEnableRole = async (id, active) => {
       // console.log("🚀 ~ disEnableRole ~ data:", data);
-      // await checkLoggedIn();
+
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
       // console.log("🚀 ~ disEnableRole ~ error:", error);

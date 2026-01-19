@@ -9,7 +9,7 @@
 // //#region CRUD
 // export const getAllDepartments = async () => {
 //    const setAllDepartments = useDepartmentStore.getState().setAllDepartments;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}`));
 //    // console.log("🚀 ~ getAllDepartments ~ error:", error);
@@ -31,7 +31,7 @@
 
 // export const getSelectIndexDepartments = async () => {
 //    const setDepartmentsSelect = useDepartmentStore.getState().setDepartmentsSelect;
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/selectIndex`));
 //    // console.log("🚀 ~ getSelectIndexDepartments ~ error:", error);
@@ -53,7 +53,7 @@
 
 // export const createOrUpdateDepartment = async (data) => {
 //    // console.log("🚀 ~ createOrUpdateDepartment ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const id = data.id > 0 ? `/${data.id}` : "";
 //    const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -76,7 +76,7 @@
 
 // export const getDepartment = async (id) => {
 //    const setDepartment = useDepartmentStore.getState().setDepartment;
-//    // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
 //    // console.log("🚀 ~ getDepartment ~ error:", error);
@@ -98,7 +98,7 @@
 
 // export const deleteDepartment = async (id) => {
 //    // console.log("🚀 ~ deleteDepartment ~ data:", data);
-//    // // if (!(await checkLoggedIn())) return;
+//
 
 //    const [error, response] = await to(Axios.get(`${prefixPath}/delete/${id}`));
 //    // console.log("🚀 ~ deleteDepartment ~ error:", error);
@@ -120,7 +120,7 @@
 
 // export const disEnableDepartment = async (id, active) => {
 //    // console.log("🚀 ~ disEnableDepartment ~ data:", data);
-//    // await checkLoggedIn();
+//
 //    const strActive = active ? "reactivar" : "desactivar";
 //    const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
 //    // console.log("🚀 ~ disEnableDepartment ~ error:", error);

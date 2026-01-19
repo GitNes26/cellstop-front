@@ -50,7 +50,6 @@ export default function MenuContextProvider({ children }) {
    const getMenusByRole = async () => {
       // const auth = useAuthStore.getState().auth;
       // const { auth } = useAuthContext();
-      // if (!(await checkLoggedIn())) return;
 
       // console.log("🚀 ~ getMenusByRole ~ Axios:", Axios);
       // console.log("el token: ", localStorage.getItem("token"));
@@ -73,8 +72,6 @@ export default function MenuContextProvider({ children }) {
    };
 
    const getHeadersMenusSelect = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/getHeadersMenusSelect`));
       // console.log("🚀 ~ getHeadersMenusSelect ~ error:", error);
       // console.log("🚀 ~ getHeadersMenusSelect ~ response:", response);
@@ -93,8 +90,6 @@ export default function MenuContextProvider({ children }) {
    };
 
    const getSelectMenusToRoles = async () => {
-      // // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/selectIndexToRoles`));
       // console.log("🚀 ~ getSelectMenusToRoles ~ error:", error);
       // console.log("🚀 ~ getSelectMenusToRoles ~ response:", response);
@@ -114,8 +109,6 @@ export default function MenuContextProvider({ children }) {
 
    //#region CRUD
    const getAllMenus = async () => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllMenus ~ error:", error);
       // console.log("🚀 ~ getAllMenus ~ response:", response);
@@ -136,7 +129,6 @@ export default function MenuContextProvider({ children }) {
 
    const createOrUpdateMenu = async (data) => {
       // console.log("🚀 ~ createOrUpdateMenu ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const id = data.id > 0 ? `/${data.id}` : "";
       const [error, response] = await to(Axios.post(`${prefixPath}/createOrUpdate${id}`, data));
@@ -158,8 +150,6 @@ export default function MenuContextProvider({ children }) {
    };
 
    const getMenu = async (id) => {
-      // if (!(await checkLoggedIn())) return;
-
       const [error, response] = await to(Axios.get(`${prefixPath}/id/${id}`));
       // console.log("🚀 ~ getMenu ~ error:", error);
       // console.log("🚀 ~ getMenu ~ response:", response);
@@ -180,7 +170,6 @@ export default function MenuContextProvider({ children }) {
 
    const disEnableMenu = async (id, active) => {
       // console.log("🚀 ~ disEnableMenu ~ data:", data);
-      // // if (!(await checkLoggedIn())) return;
 
       const strActive = active ? "reactivar" : "desactivar";
       const [error, response] = await to(Axios.get(`${prefixPath}/disEnable/${id}/${strActive}`));
