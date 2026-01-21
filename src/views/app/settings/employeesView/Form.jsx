@@ -346,7 +346,7 @@ const EmployeeForm = ({ container = "drawer", refreshSelect, openDialog, setOpen
                     </Grid>
                  ),
                  value: "",
-                 validations: showInputPinColor ? Yup.string().trim().required("Color de pin requerido") : null,
+                 validations: null, // showInputPinColor ? Yup.string().trim().required("Color de pin requerido") : null,
                  validationPage: [],
                  dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
               }
