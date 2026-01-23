@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Badge, Button, Stack, Typography } from "@mui/material";
+import { Badge, Button, Chip, Stack, Typography } from "@mui/material";
 
 import Toast from "../../../../utils/Toast.js";
 import { DataTableComponent, ExcelUploader } from "../../../../components/index.js";
@@ -417,26 +417,9 @@ const ProductDT = ({}) => {
          renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
       },
       {
-         field: "marca",
-         headerName: "Marca",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
-      },
-      {
-         field: "modelo",
-         headerName: "Modelo",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
-      },
-      {
-         field: "color",
-         headerName: "Color",
-         sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
-      },
-      {
          field: "executed_at",
-         headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
+         headerName: `Fecha de Ejecución`,
+         // headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
          sortable: true,
          renderCell: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
       }
@@ -456,6 +439,17 @@ const ProductDT = ({}) => {
             renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
          }
       );
+   [undefined, "asignados", "distribuidos", "activados", "portados"].includes(status) &&
+      columns.push({
+         field: "username",
+         headerName: "Vendedor",
+         sortable: true,
+         renderCell: (params) => (
+            <TextCenter>
+               {params.row.username} {params.row.full_name ? ` - ${params.row.full_name}` : ""}
+            </TextCenter>
+         )
+      });
    [undefined, "distribuidos", "activados", "portados"].includes(status) &&
       columns.push({
          field: "pos_name",
@@ -479,12 +473,26 @@ const ProductDT = ({}) => {
                       : params.row.destination === "Portado"
                         ? "error"
                         : "default";
-            return (
-               <TextCenter>
-                  <Badge color={color}>{params.row.destination}</Badge>
-               </TextCenter>
-            );
+            return <Chip color={color} label={params.row.destination} />;
          }
+      },
+      {
+         field: "marca",
+         headerName: "Marca",
+         sortable: true,
+         renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+      },
+      {
+         field: "modelo",
+         headerName: "Modelo",
+         sortable: true,
+         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+      },
+      {
+         field: "color",
+         headerName: "Color",
+         sortable: true,
+         renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
       },
       {
          field: "import",
@@ -843,7 +851,7 @@ const ProductDT = ({}) => {
    };
    formatData();
 
-   useEffect(() => {}, [status]);
+   useEffect(() => {}, [status, window.location.hash]);
 
    return (
       <>
