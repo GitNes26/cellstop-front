@@ -39,8 +39,7 @@ import {
    Tooltip,
    Typography,
    useColorScheme,
-   Grid,
-   LinearProgress
+   Grid
 } from "@mui/material";
 import { esES } from "@mui/x-data-grid/locales";
 import { useAuthContext } from "../context/AuthContext";
@@ -105,10 +104,6 @@ function CustomNoRowsOverlay() {
          </Typography>
       </StyledGridOverlay>
    );
-}
-
-function CustomLoadingOverlay() {
-   return <LinearProgress />;
 }
 
 // function renderRating(params) {
@@ -497,18 +492,6 @@ const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisE
    );
 };
 
-interface PaginationModel {
-   page: number;
-   pageSize: number;
-}
-
-interface PaginationInfo {
-   current_page: number;
-   total: number;
-   per_page: number;
-   last_page: number;
-}
-
 const mode = localStorage.getItem("mui-mode") || "light";
 interface DataTableComponentProps {
    dataColumns: GridColDef[];
@@ -522,12 +505,6 @@ interface DataTableComponentProps {
    indexColumnName?: number;
    scrollHeight?: number | string;
    handleClickDeleteMultipleContinue?: (selectedIds: any[]) => Promise<void>;
-
-   // Nuevas props para paginación
-   pagination?: PaginationInfo;
-   onPageChange?: (page: number) => void;
-   onPageSizeChange?: (pageSize: number) => void;
-   loading?: boolean;
 }
 const DataTableComponent = ({
    dataColumns = [],
@@ -539,14 +516,7 @@ const DataTableComponent = ({
    refreshTable,
    singularName,
    indexColumnName,
-   scrollHeight = 720,
-   handleClickDeleteMultipleContinue,
-
-   // Nuevas props
-   pagination,
-   onPageChange,
-   onPageSizeChange,
-   loading = false
+   scrollHeight = 720
 }: DataTableComponentProps) => {
    // const { mode, setMode } = useColorScheme();
    const { setLoading } = useGlobalContext();
@@ -554,35 +524,6 @@ const DataTableComponent = ({
    const [anchorElActions, setAnchorElActions] = React.useState<HTMLButtonElement | null>(null);
    const openActions = Boolean(anchorElActions);
    const idActions = openActions ? "simple-popover" : undefined;
-
-   //Nuevo para paginacion
-   const [paginationModel, setPaginationModel] = React.useState<PaginationModel>({
-      page: pagination?.current_page ? pagination.current_page - 1 : 0, // MUI usa base 0
-      pageSize: pagination?.per_page || 100
-   });
-
-   // Efecto para sincronizar paginación externa
-   React.useEffect(() => {
-      if (pagination) {
-         setPaginationModel({
-            page: pagination.current_page - 1, // Convertir de base 1 a base 0
-            pageSize: pagination.per_page
-         });
-      }
-   }, [pagination]);
-
-   const handlePaginationModelChange = (newModel: PaginationModel) => {
-      setPaginationModel(newModel);
-
-      // Notificar cambios
-      if (onPageChange && newModel.page !== paginationModel.page) {
-         onPageChange(newModel.page + 1); // Convertir a base 1
-      }
-
-      if (onPageSizeChange && newModel.pageSize !== paginationModel.pageSize) {
-         onPageSizeChange(newModel.pageSize);
-      }
-   };
 
    // const classes = useStyles();
    // const data = useData(100);
@@ -814,10 +755,11 @@ const DataTableComponent = ({
                columns: { columnVisibilityModel: { id: false } }
                // pinnedColumns: { left: ["firstName"], right: ["actions"] },
             }}
-            // loading={isLoading}
+            loading={isLoading}
             density="comfortable"
             getRowHeight={() => "auto"}
             autoPageSize={false}
+            pageSizeOptions={[5, 10, 100, { value: -1, label: "Todos" }]}
             rowSelection={true}
             checkboxSelection
             selectionModel={selectionModel}
@@ -826,37 +768,10 @@ const DataTableComponent = ({
             onCellEditStart={(e) => console.log("onRowEditStart", e)}
             onCellEditStop={(e) => console.log("onRowEditStop", e)}
             disableRowSelectionOnClick // Evita que al darle clic en cualquier parte del row se seleccione
-            // Props de paginación
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationModelChange}
-            // pageSizeOptions={[5, 10, 100, { value: -1, label: "Todos" }]}
-            pageSizeOptions={[5, 10, 25, 50, 100, 500]}
-            rowCount={pagination?.total || 0}
-            paginationMode="server"
-            loading={loading || isLoading}
-            // Mantener estas props
-            rows={data}
-            columns={columns}
-            localeText={esES.components.MuiDataGrid.defaultProps.localeText}
-            initialState={{
-               columns: { columnVisibilityModel: { id: false } }
-            }}
-            density="comfortable"
-            getRowHeight={() => "auto"}
-            editMode={"row"}
-            disableRowSelectionOnClick // Evita que al darle clic en cualquier parte del row se seleccione
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
-               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust, selectionModel, handleDeleteSelected),
-               // Agregar loading overlay personalizado si quieres
-               loadingOverlay: CustomLoadingOverlay
-            }}
-            slotProps={{
-               loadingOverlay: {
-                  // variant: "indeterminate",
-                  color: "primary"
-               }
+               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust, selectionModel, handleDeleteSelected)
             }}
          />
       </Box>

@@ -69,6 +69,38 @@ export default function ProductContextProvider({ children }) {
    }
 
    //#region CRUD
+   const getAllProductsPagination = async (filters, page = 1, pageSize = 100) => {
+      // console.log("🚀 ~ getAllProducts ~ status:", params.status);
+      let data = getFiltersByStatus(params.status);
+      if (!data) data = {}; // inicializar si viene null
+
+      const paginationParams = new URLSearchParams({
+         page: page.toString(),
+         per_page: pageSize.toString(),
+         ...filters
+      });
+      // console.log("🚀 ~ getAllProducts ~ data:", data);
+      // "http://127.0.0.1:8000/api/products?page=2"
+      const [error, response] = data
+         ? await to(Axios.post(`${prefixPath}?${paginationParams.toString()}`, data))
+         : await to(Axios.get(`${prefixPath}?${paginationParams.toString()}`));
+      // console.log("🚀 ~ getAllProducts ~ error:", error);
+      console.log("🚀 ~ getAllProducts ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getAllProducts ~ error:", error);
+         const message = error.response.data.message || "getAllProducts ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setAllProducts(res.result);
+
+      return res;
+   };
+
    const getAllProducts = async (filters) => {
       // console.log("🚀 ~ getAllProducts ~ status:", params.status);
       let data = getFiltersByStatus(params.status);
@@ -84,7 +116,7 @@ export default function ProductContextProvider({ children }) {
 
       const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProducts ~ error:", error);
-      // console.log("🚀 ~ getAllProducts ~ response:", response);
+      console.log("🚀 ~ getAllProducts ~ response:", response);
       if (error) {
          console.log("🚀 ~ getAllProducts ~ error:", error);
          const message = error.response.data.message || "getAllProducts ~ Ocurrio algun error, intenta de nuevo :c";
@@ -528,6 +560,7 @@ export default function ProductContextProvider({ children }) {
             isEdit,
             setIsEdit,
             getAllProducts,
+            getAllProductsPagination,
             getSelectIndexProducts,
             createOrUpdateProduct,
             getProduct,

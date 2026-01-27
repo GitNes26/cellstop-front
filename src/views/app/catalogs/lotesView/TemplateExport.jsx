@@ -94,6 +94,7 @@ const TemplateExport = ({ open, onClose, data }) => {
    React.useEffect(() => {
       if (open && data) {
          let datosParseados = data;
+         console.log("🚀 ~ TemplateExport ~ data:", data)
 
          // Si data es texto plano, parsearlo
          if (typeof data === "string") {

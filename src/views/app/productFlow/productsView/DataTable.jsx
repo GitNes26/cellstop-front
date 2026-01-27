@@ -104,6 +104,7 @@ const ProductDT = ({}) => {
       deleteProduct,
       disEnableProduct,
       getAllProducts,
+      getAllProductsPagination,
       getProduct,
       productDetailsByProduct,
       setProductDetailsByProduct,
@@ -125,6 +126,14 @@ const ProductDT = ({}) => {
       imei: "123456789012345",
       phone: "8722957088"
    });
+
+   // Nuevo Paginacion
+   const [currentPage, setCurrentPage] = useState(1);
+   const [pageSize, setPageSize] = useState(100);
+   const [totalItems, setTotalItems] = useState(0);
+   const [totalPages, setTotalPages] = useState(0);
+   const [tableLoading, setTableLoading] = useState(false);
+   const [tableData, setTableData] = useState([]);
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
@@ -803,55 +812,101 @@ const ProductDT = ({}) => {
 
    // toolbar content: input hidden + importar
 
-   const data = [];
-   const formatData = async () => {
+   // Función para cargar datos con paginación
+   const loadProductsWithPagination = async (page = currentPage, size = pageSize) => {
       try {
-         // console.log("cargar listado", allProducts);
-         await allProducts.map((obj, index) => {
-            // console.log(obj);
-            let register = obj;
-            register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.product} active={obj.active} />;
-            register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
-               { label: "Ver detalles", iconName: "ListAltRounded", tooltip: "", handleOnClick: () => handleClickDetails(obj.id), color: "primary", permission: true },
-               {
-                  label: "Ver movimientos",
-                  iconName: "HistoryRounded",
-                  tooltip: "",
-                  handleOnClick: () => handleClickMovements(obj),
-                  color: "primary",
-                  permission: true
-               },
-               {
-                  label: "Portar Manualmente",
-                  iconName: "ImportExportRounded",
-                  tooltip: "",
-                  handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.celular),
-                  color: "primary",
-                  permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
-               },
+         setTableLoading(true);
+         // Suponiendo que tu API acepta parámetros de paginación
+         const response = await getAllProductsPagination({}, page, size); // Necesitarás modificar esta función
+         console.log("🚀 ~ loadProductsWithPagination ~ response:", response);
+         // Si tu respuesta tiene la estructura del JSON que mostraste
+         if (response?.result) {
+            setTotalItems(response.result.total);
+            setTotalPages(response.result.last_page);
+            setCurrentPage(response.result.current_page);
+            setPageSize(response.result.per_page);
 
-               {
-                  label: "Eliminar",
-                  iconName: "Delete",
-                  tooltip: "",
-                  handleOnClick: () => handleClickDelete(obj.id, obj.celular),
-                  color: "red",
-                  permission: auth.permissions.delete
-               }
-            ];
-            data.push(register);
-         });
+            // Formatear datos con acciones
+            const formattedData = response.result.data.map((obj, index) => {
+               let register = { ...obj };
+               register.key = index + 1;
+               register.actions = [
+                  { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+                  {
+                     label: "Ver detalles",
+                     iconName: "ListAltRounded",
+                     tooltip: "",
+                     handleOnClick: () => handleClickDetails(obj.id),
+                     color: "primary",
+                     permission: true
+                  },
+                  {
+                     label: "Ver movimientos",
+                     iconName: "HistoryRounded",
+                     tooltip: "",
+                     handleOnClick: () => handleClickMovements(obj),
+                     color: "primary",
+                     permission: true
+                  },
+                  {
+                     label: "Portar Manualmente",
+                     iconName: "ImportExportRounded",
+                     tooltip: "",
+                     handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.celular),
+                     color: "primary",
+                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
+                  },
+                  {
+                     label: "Eliminar",
+                     iconName: "Delete",
+                     tooltip: "",
+                     handleOnClick: () => handleClickDelete(obj.id, obj.celular),
+                     color: "red",
+                     permission: auth.permissions.delete
+                  }
+               ];
+               return register;
+            });
+
+            setTableData(formattedData);
+            return formattedData;
+         }
+
+         setTableData([]);
+         return [];
       } catch (error) {
-         setIsLoading(false);
-         console.log(error);
+         console.error("Error loading products:", error);
          Toast.Error(error);
+         setTableData([]);
+         return [];
+      } finally {
+         setTableLoading(false);
       }
    };
-   formatData();
 
-   useEffect(() => {}, [status, window.location.hash]);
+   // Efecto para cargar datos iniciales
+   useEffect(() => {
+      loadProductsWithPagination();
+   }, [status]); // Recargar cuando cambie el status
+
+   // Manejadores de cambio de página
+   const handlePageChange = async (newPage) => {
+      await loadProductsWithPagination(newPage, pageSize);
+   };
+
+   const handlePageSizeChange = async (newSize) => {
+      await loadProductsWithPagination(1, newSize);
+   };
+
+   // Configurar información de paginación
+   const paginationInfo = {
+      current_page: currentPage,
+      total: totalItems,
+      per_page: pageSize,
+      last_page: totalPages
+   };
+
+   const data = tableData;
 
    return (
       <>
@@ -892,9 +947,15 @@ const ProductDT = ({}) => {
             singularName={singularName}
             indexColumnName={1}
             rowEdit={false}
-            refreshTable={getAllProducts}
+            // refreshTable={getAllProducts}
+            refreshTable={() => loadProductsWithPagination(currentPage, pageSize)}
             btnsExport={false}
             scrollHeight="75vh"
+            // Nuevas props de paginación
+            pagination={paginationInfo}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            loading={tableLoading}
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
