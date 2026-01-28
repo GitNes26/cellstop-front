@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 
 const ProductsView = ({}) => {
    const { status } = useParams();
-   console.log("🚀 ~ ProductsView ~ status:", status)
+   // console.log("🚀 ~ ProductsView ~ status:", status)
    const { openDialog, setOpenDialog } = useGlobalContext();
    const { pluralName, allProducts, setAllProducts, getAllProducts } = useProductContext();
 

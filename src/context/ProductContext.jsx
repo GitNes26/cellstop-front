@@ -70,7 +70,7 @@ export default function ProductContextProvider({ children }) {
 
    //#region CRUD
    const getAllProductsPagination = async (filters, page = 1, pageSize = 100) => {
-      // console.log("🚀 ~ getAllProducts ~ status:", params.status);
+      // console.log("🚀 ~ getAllProductsPagination ~ status:", params.status);
       let data = getFiltersByStatus(params.status);
       if (!data) data = {}; // inicializar si viene null
 
@@ -79,16 +79,16 @@ export default function ProductContextProvider({ children }) {
          per_page: pageSize.toString(),
          ...filters
       });
-      // console.log("🚀 ~ getAllProducts ~ data:", data);
+      // console.log("🚀 ~ getAllProductsPagination ~ data:", data);
       // "http://127.0.0.1:8000/api/products?page=2"
       const [error, response] = data
          ? await to(Axios.post(`${prefixPath}?${paginationParams.toString()}`, data))
          : await to(Axios.get(`${prefixPath}?${paginationParams.toString()}`));
-      // console.log("🚀 ~ getAllProducts ~ error:", error);
-      console.log("🚀 ~ getAllProducts ~ response:", response);
+      // console.log("🚀 ~ getAllProductsPagination ~ error:", error);
+      console.log("🚀 ~ getAllProductsPagination ~ response:", response);
       if (error) {
-         console.log("🚀 ~ getAllProducts ~ error:", error);
-         const message = error.response.data.message || "getAllProducts ~ Ocurrio algun error, intenta de nuevo :c";
+         console.log("🚀 ~ getAllProductsPagination ~ error:", error);
+         const message = error.response.data.message || "getAllProductsPagination ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -100,7 +100,6 @@ export default function ProductContextProvider({ children }) {
 
       return res;
    };
-
    const getAllProducts = async (filters) => {
       // console.log("🚀 ~ getAllProducts ~ status:", params.status);
       let data = getFiltersByStatus(params.status);
@@ -139,6 +138,32 @@ export default function ProductContextProvider({ children }) {
       if (error) {
          console.log("🚀 ~ getSelectIndexProducts ~ error:", error);
          const message = error.response.data.message || "getSelectIndexProducts ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      setProductsSelect(res.result);
+
+      return res;
+   };
+   const getSelectIndexProductsPagination = async (data, page = 1, pageSize = 10) => {
+      const paginationParams = new URLSearchParams({
+         page: page.toString(),
+         per_page: pageSize.toString(),
+         ...data
+      });
+
+      const [error, response] = data
+         ? await to(Axios.post(`${prefixPath}/selectIndex?${paginationParams.toString()}`, data))
+         : await to(Axios.get(`${prefixPath}/selectIndex?${paginationParams.toString()}`));
+      // console.log("🚀 ~ getSelectIndexProductsPagination ~ error:", error);
+      // console.log("🚀 ~ getSelectIndexProductsPagination ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getSelectIndexProductsPagination ~ error:", error);
+         const message = error.response.data.message || "getSelectIndexProductsPagination ~ Ocurrio algun error, intenta de nuevo :c";
          Toast.Error(message);
          return;
          // throw new Error("que sale aqui?");
@@ -562,6 +587,7 @@ export default function ProductContextProvider({ children }) {
             getAllProducts,
             getAllProductsPagination,
             getSelectIndexProducts,
+            getSelectIndexProductsPagination,
             createOrUpdateProduct,
             getProduct,
             deleteProduct,

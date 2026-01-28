@@ -818,7 +818,7 @@ const ProductDT = ({}) => {
          setTableLoading(true);
          // Suponiendo que tu API acepta parámetros de paginación
          const response = await getAllProductsPagination({}, page, size); // Necesitarás modificar esta función
-         console.log("🚀 ~ loadProductsWithPagination ~ response:", response);
+         // console.log("🚀 ~ loadProductsWithPagination ~ response:", response);
          // Si tu respuesta tiene la estructura del JSON que mostraste
          if (response?.result) {
             setTotalItems(response.result.total);

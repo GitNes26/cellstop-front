@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo, memo, useState } from "react";
+import React, { useEffect, useCallback, useMemo, memo, useState, useRef } from "react";
 import { useFormikContext, FormikValues } from "formik";
 import {
    Grid,
@@ -17,10 +17,19 @@ import {
    InputAdornment,
    CircularProgress,
    Tooltip,
-   IconButton
+   IconButton,
+   Typography
 } from "@mui/material";
 import { Theme } from "@emotion/react";
-import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search, Refresh } from "@mui/icons-material";
+import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search, Refresh, ExpandMore } from "@mui/icons-material";
+
+interface PaginationInfo {
+   current_page: number;
+   total: number;
+   per_page: number;
+   last_page: number;
+   data: ChipItem[];
+}
 
 interface ChipItem {
    id: number;
@@ -45,6 +54,11 @@ interface TransferListProps {
    handleClickRight?: () => void;
    onRefetch?: () => Promise<void> | void;
    isLoading?: boolean;
+
+   // Props para pre-carga inteligente
+   onLoadMore?: (page: number, search?: string) => Promise<{ items: ChipItem[]; hasMore: boolean; total?: number }>;
+   initialLoadCount?: number; // Cuántos items cargar inicialmente
+   searchDebounceMs?: number;
 }
 
 // Funciones utilitarias puras (sin hooks)
@@ -84,13 +98,31 @@ const TransferListItem: React.FC<TransferListItemProps> = memo(({ value, checked
 
 TransferListItem.displayName = "TransferListItem";
 
+// Hook para debounce
+const useDebounce = (value: string, delay: number) => {
+   const [debouncedValue, setDebouncedValue] = useState(value);
+
+   useEffect(() => {
+      const handler = setTimeout(() => {
+         setDebouncedValue(value);
+      }, delay);
+
+      return () => {
+         clearTimeout(handler);
+      };
+   }, [value, delay]);
+
+   return debouncedValue;
+};
+
 interface CustomListProps {
    title: string;
    items: readonly number[];
    search: string;
    setSearch: (value: string) => void;
    checked: readonly number[];
-   data: ChipItem[];
+   allData: ChipItem[]; // Todos los datos cargados
+   filteredData: ChipItem[]; // Datos filtrados localmente
    disabled: boolean;
    sx?: SxProps<Theme>;
    heightList: number | string | null;
@@ -100,28 +132,46 @@ interface CustomListProps {
    isLoading?: boolean;
    handleToggleAll: (items: readonly number[]) => () => void;
    handleToggle: (value: number) => () => void;
+   onScroll: (e: React.UIEvent<HTMLUListElement>) => void;
+   isLoadingMore: boolean;
+   hasMore: boolean;
+   totalItems?: number;
+   loadedCount: number;
+   onLoadMore: () => void;
+   searchMode: "local" | "server";
 }
 
 const CustomList: React.FC<CustomListProps> = memo(
-   ({ title, items, search, setSearch, checked, data, disabled, sx, heightList, labelLeft, onRefetch, isRefetching, isLoading, handleToggleAll, handleToggle }) => {
+   ({
+      title,
+      items,
+      search,
+      setSearch,
+      checked,
+      allData,
+      filteredData,
+      disabled,
+      sx,
+      heightList,
+      labelLeft,
+      onRefetch,
+      isRefetching,
+      isLoading,
+      handleToggleAll,
+      handleToggle,
+      onScroll,
+      isLoadingMore,
+      hasMore,
+      totalItems,
+      loadedCount,
+      onLoadMore,
+      searchMode
+   }) => {
       const numberOfChecked = useMemo(() => intersection(checked, items).length, [checked, items]);
-
       const allChecked = useMemo(() => numberOfChecked === items.length && items.length !== 0, [numberOfChecked, items.length]);
-
       const indeterminate = useMemo(() => numberOfChecked !== items.length && numberOfChecked !== 0, [numberOfChecked, items.length]);
 
-      const dataItems = useMemo(() => data.filter((d) => items.includes(d.id)), [data, items]);
-
-      const filteredItems = useMemo(() => {
-         if (!search) return dataItems;
-         const searchLower = search.toLowerCase();
-         return dataItems.filter(
-            (chip) =>
-               chip.label.toLowerCase().includes(searchLower) ||
-               chip.location_status?.toLowerCase().includes(searchLower) ||
-               chip.folio?.toString().includes(searchLower)
-         );
-      }, [dataItems, search]);
+      const dataItems = useMemo(() => filteredData.filter((d) => items.includes(d.id)), [filteredData, items]);
 
       return (
          <Card sx={{ width: "100%", ...sx }}>
@@ -148,7 +198,16 @@ const CustomList: React.FC<CustomListProps> = memo(
                      )}
                   </Box>
                }
-               subheader={`${numberOfChecked}/${items.length} seleccionado(s)`}
+               subheader={
+                  <Box>
+                     <div>{`${numberOfChecked}/${items.length} seleccionado(s)`}</div>
+                     {totalItems && (
+                        <Typography variant="caption" color="text.secondary">
+                           {searchMode === "server" ? `Buscando en servidor...` : `Mostrando ${loadedCount} de ${totalItems} (${search ? "filtrados" : "total"})`}
+                        </Typography>
+                     )}
+                  </Box>
+               }
             />
             <Box sx={{ px: 2, pt: 0, pb: 1 }}>
                <TextField
@@ -178,17 +237,46 @@ const CustomList: React.FC<CustomListProps> = memo(
                   overflow: "auto"
                }}
                dense
-               component="div"
                role="list"
+               onScroll={onScroll}
             >
-               {filteredItems.length === 0 ? (
+               {dataItems.length === 0 ? (
                   <ListItemButton disabled>
-                     <ListItemText primary="No hay elementos" sx={{ textAlign: "center", color: "text.secondary" }} />
+                     <ListItemText primary={isLoading ? "Cargando..." : "No hay elementos"} sx={{ textAlign: "center", color: "text.secondary" }} />
                   </ListItemButton>
                ) : (
-                  filteredItems.map((item) => (
-                     <TransferListItem key={item.id} value={item.id} checked={checked.includes(item.id)} data={data} disabled={disabled} onToggle={handleToggle} />
-                  ))
+                  <>
+                     {dataItems.map((item) => (
+                        <TransferListItem
+                           key={item.id}
+                           value={item.id}
+                           checked={checked.includes(item.id)}
+                           data={allData}
+                           disabled={disabled}
+                           onToggle={handleToggle}
+                        />
+                     ))}
+
+                     {/* Botón para cargar más (si hay búsqueda activa, no mostrar) */}
+                     {!search && hasMore && (
+                        <ListItemButton onClick={onLoadMore} disabled={isLoadingMore} sx={{ justifyContent: "center" }}>
+                           <ListItemIcon>{isLoadingMore ? <CircularProgress size={20} /> : <ExpandMore />}</ListItemIcon>
+                           <ListItemText
+                              primary={isLoadingMore ? "Cargando más..." : `Cargar más (${loadedCount}/${totalItems || "?"})`}
+                              sx={{ textAlign: "center" }}
+                           />
+                        </ListItemButton>
+                     )}
+
+                     {/* Indicador cuando no hay más */}
+                     {!hasMore && dataItems.length > 0 && !search && (
+                        <Box display="flex" justifyContent="center" py={2}>
+                           <Typography variant="caption" color="text.secondary">
+                              {totalItems ? `Todos los ${totalItems} elementos cargados` : "No hay más elementos"}
+                           </Typography>
+                        </Box>
+                     )}
+                  </>
                )}
             </List>
          </Card>
@@ -213,7 +301,12 @@ const TransferList: React.FC<TransferListProps> = ({
    handleClickLeft,
    handleClickRight,
    onRefetch,
-   isLoading = false
+   isLoading = false,
+
+   // Props para pre-carga
+   onLoadMore,
+   initialLoadCount = 50,
+   searchDebounceMs = 500
 }) => {
    const formik = useFormikContext<FormikValues>();
    const [checked, setChecked] = useState<readonly number[]>([]);
@@ -223,10 +316,178 @@ const TransferList: React.FC<TransferListProps> = ({
    const [searchRight, setSearchRight] = useState("");
    const [isRefetching, setIsRefetching] = useState(false);
 
+   // Estados para pre-carga inteligente
+   const [allData, setAllData] = useState<ChipItem[]>(data);
+   const [page, setPage] = useState(1);
+   const [isLoadingMore, setIsLoadingMore] = useState(false);
+   const [hasMore, setHasMore] = useState(true);
+   const [totalItems, setTotalItems] = useState<number | undefined>(undefined);
+   const [searchMode, setSearchMode] = useState<"local" | "server">("local");
+
+   // Debounce para búsqueda
+   const debouncedSearchLeft = useDebounce(searchLeft, searchDebounceMs);
+   const debouncedSearchRight = useDebounce(searchRight, searchDebounceMs);
+
    // Memoizar cálculos
    const leftChecked = useMemo(() => intersection(checked, left), [checked, left]);
    const rightChecked = useMemo(() => intersection(checked, right), [checked, right]);
-   const availableIds = useMemo(() => data.map((d) => d.id), [data]);
+
+   // Filtrar datos localmente
+   const filteredDataLeft = useMemo(() => {
+      if (!debouncedSearchLeft) return allData;
+
+      const searchLower = debouncedSearchLeft.toLowerCase();
+      return allData.filter(
+         (item) =>
+            item.label.toLowerCase().includes(searchLower) || item.location_status?.toLowerCase().includes(searchLower) || item.folio?.toString().includes(searchLower)
+      );
+   }, [allData, debouncedSearchLeft]);
+
+   const filteredDataRight = useMemo(() => {
+      if (!debouncedSearchRight) return allData;
+
+      const searchLower = debouncedSearchRight.toLowerCase();
+      return allData.filter(
+         (item) =>
+            item.label.toLowerCase().includes(searchLower) || item.location_status?.toLowerCase().includes(searchLower) || item.folio?.toString().includes(searchLower)
+      );
+   }, [allData, debouncedSearchRight]);
+
+   // Función para cargar más datos
+   const loadMoreData = useCallback(
+      async (search?: string) => {
+         if (!onLoadMore || isLoadingMore || !hasMore) return;
+
+         try {
+            setIsLoadingMore(true);
+
+            // Usar el estado actual de page
+            setPage((currentPage) => {
+               const nextPage = currentPage;
+
+               // Ejecutar la carga con la página actual
+               onLoadMore(nextPage, search)
+                  .then((result) => {
+                     console.log("🚀 ~ TransferList ~ result:", result);
+
+                     if (result.items.length > 0) {
+                        setAllData((prev) => {
+                           console.log("🚀 ~ TransferList ~ prev:", prev);
+                           // Evitar duplicados
+                           const existingIds = new Set(prev.map((item) => item.id));
+                           console.log("🚀 ~ TransferList ~ existingIds:", existingIds);
+                           const newItems = result.items.filter((item) => !existingIds.has(item.id));
+                           console.log("🚀 ~ TransferList ~ newItems:", newItems);
+                           console.log("🚀 ~ setAllData ~ newItems:", newItems);
+                           return [...prev, ...newItems];
+                        });
+
+                        setHasMore(result.hasMore);
+
+                        if (result.total !== undefined) {
+                           setTotalItems(result.total);
+                        }
+
+                        // Incrementar página después de cargar
+                        setPage((p) => p + 1);
+                     } else {
+                        setHasMore(false);
+                     }
+                  })
+                  .catch((error) => {
+                     console.error("Error cargando más datos:", error);
+                     setHasMore(false);
+                  })
+                  .finally(() => {
+                     setIsLoadingMore(false);
+                  });
+
+               return currentPage;
+            });
+         } catch (error) {
+            console.error("Error cargando más datos:", error);
+            setHasMore(false);
+            setIsLoadingMore(false);
+         }
+      },
+      [onLoadMore, isLoadingMore, hasMore]
+   );
+
+   // Carga inicial
+   useEffect(() => {
+      if (allData.length === 0 && onLoadMore) {
+         loadMoreData();
+      }
+   }, []);
+
+   // Cuando cambia la búsqueda, determinar si buscar local o en servidor
+   useEffect(() => {
+      const isLongSearch = debouncedSearchLeft.length >= 3;
+
+      if (isLongSearch && onLoadMore) {
+         // Búsqueda en servidor para términos largos
+         setSearchMode("server");
+         // Reiniciar y buscar desde el servidor
+         setAllData([]);
+         setPage(1);
+         setHasMore(true);
+         loadMoreData(debouncedSearchLeft);
+      } else if (debouncedSearchLeft.length === 0) {
+         // Vaciar búsqueda, volver a modo normal
+         setSearchMode("local");
+         if (allData.length < initialLoadCount && hasMore) {
+            // Cargar más datos si no tenemos suficientes
+            loadMoreData();
+         }
+      }
+   }, [debouncedSearchLeft]);
+
+   // Mismo efecto para búsqueda derecha
+   useEffect(() => {
+      const isLongSearch = debouncedSearchRight.length >= 3;
+
+      if (isLongSearch && onLoadMore) {
+         setSearchMode("server");
+         setAllData([]);
+         setPage(1);
+         setHasMore(true);
+         loadMoreData(debouncedSearchRight);
+      } else if (debouncedSearchRight.length === 0) {
+         setSearchMode("local");
+         if (allData.length < initialLoadCount && hasMore) {
+            loadMoreData();
+         }
+      }
+   }, [debouncedSearchRight]);
+
+   // Handlers para scroll infinito (solo en modo local)
+   const handleLeftScroll = useCallback(
+      (e: React.UIEvent<HTMLUListElement>) => {
+         if (searchMode === "server" || !hasMore || isLoadingMore) return;
+
+         const element = e.currentTarget;
+         const isNearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 200; // 200px de margen
+
+         if (isNearBottom) {
+            loadMoreData();
+         }
+      },
+      [searchMode, hasMore, isLoadingMore, loadMoreData]
+   );
+
+   const handleRightScroll = useCallback(
+      (e: React.UIEvent<HTMLUListElement>) => {
+         if (searchMode === "server" || !hasMore || isLoadingMore) return;
+
+         const element = e.currentTarget;
+         const isNearBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 200;
+
+         if (isNearBottom) {
+            loadMoreData();
+         }
+      },
+      [searchMode, hasMore, isLoadingMore, loadMoreData]
+   );
 
    // Memoizar handlers
    const handleToggle = useCallback(
@@ -277,58 +538,83 @@ const TransferList: React.FC<TransferListProps> = ({
       if (handleClickLeft) handleClickLeft();
    }, [left, right, rightChecked, formik, idNameLeft, idNameRight, handleClickLeft]);
 
-   // Función para recargar data
-   const handleRefetch = useCallback(async () => {
-      if (!onRefetch || isRefetching) return;
+   // // Función para recargar data
+   // const handleRefetch = useCallback(async () => {
+   //    if (!onRefetch || isRefetching) return;
 
-      try {
-         setIsRefetching(true);
-         await onRefetch();
-      } catch (error) {
-         console.error("Error al recargar datos:", error);
-      } finally {
-         setIsRefetching(false);
-      }
-   }, [onRefetch, isRefetching]);
+   //    try {
+   //       setIsRefetching(true);
+   //       await onRefetch();
+   //    } catch (error) {
+   //       console.error("Error al recargar datos:", error);
+   //    } finally {
+   //       setIsRefetching(false);
+   //    }
+   // }, [onRefetch, isRefetching]);
 
    // Efecto para sincronización
    // useEffect(() => {
-   //    const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
-   //    const formRight = (formik.values[idNameRight] || []) as number[];
+   //    const availableIds = data.map((d) => d.id);
 
-   //    const validLeft = formLeft.filter((id) => availableIds.includes(id));
-   //    const validRight = formRight.filter((id) => availableIds.includes(id));
+   //    // Valores actuales de Formik
+   //    const currentFormLeft = (formik.values[idNameLeft] || []) as number[];
+   //    const currentFormRight = (formik.values[idNameRight] || []) as number[];
 
-   //    setLeft(validLeft);
-   //    setRight(validRight);
+   //    // Filtrar solo IDs válidos
+   //    const validLeft = currentFormLeft.filter((id) => availableIds.includes(id));
+   //    const validRight = currentFormRight.filter((id) => availableIds.includes(id));
 
-   //    // Solo actualizar Formik si hay cambios
-   //    if (JSON.stringify(formik.values[idNameLeft]) !== JSON.stringify(validLeft)) {
-   //       formik.setFieldValue(idNameLeft, validLeft);
+   //    // Determinar si necesitamos inicializar con todos los chips
+   //    const shouldUseAllChips = validLeft.length === 0 && validRight.length === 0 && availableIds.length > 0;
+
+   //    const finalLeft = shouldUseAllChips ? availableIds : validLeft;
+   //    const finalRight = shouldUseAllChips ? [] : validRight;
+
+   //    // Actualizar estado local
+   //    if (JSON.stringify(left) !== JSON.stringify(finalLeft)) {
+   //       setLeft(finalLeft);
    //    }
-   //    if (JSON.stringify(formik.values[idNameRight]) !== JSON.stringify(validRight)) {
-   //       formik.setFieldValue(idNameRight, validRight);
+   //    if (JSON.stringify(right) !== JSON.stringify(finalRight)) {
+   //       setRight(finalRight);
    //    }
-   // }, [formik.values, data, idNameLeft, idNameRight, availableIds]);
+
+   //    // Sincronizar con Formik si hay diferencias
+   //    if (JSON.stringify(currentFormLeft) !== JSON.stringify(finalLeft)) {
+   //       formik.setFieldValue(idNameLeft, finalLeft);
+   //    }
+   //    if (JSON.stringify(currentFormRight) !== JSON.stringify(finalRight)) {
+   //       formik.setFieldValue(idNameRight, finalRight);
+   //    }
+   // }, [data, formik.values, idNameLeft, idNameRight]);
+
    // Efecto para sincronización - VERSIÓN CORREGIDA
    useEffect(() => {
-      const availableIds = data.map((d) => d.id);
-
-      // Valores actuales de Formik
+      const availableIds = allData.map((d) => d.id);
       const currentFormLeft = (formik.values[idNameLeft] || []) as number[];
       const currentFormRight = (formik.values[idNameRight] || []) as number[];
 
-      // Filtrar solo IDs válidos
       const validLeft = currentFormLeft.filter((id) => availableIds.includes(id));
       const validRight = currentFormRight.filter((id) => availableIds.includes(id));
 
-      // Determinar si necesitamos inicializar con todos los chips
       const shouldUseAllChips = validLeft.length === 0 && validRight.length === 0 && availableIds.length > 0;
 
-      const finalLeft = shouldUseAllChips ? availableIds : validLeft;
-      const finalRight = shouldUseAllChips ? [] : validRight;
+      // Cuando se cargan nuevos datos, añadir nuevos IDs a left (lado disponible)
+      let finalLeft: number[];
+      let finalRight: number[];
 
-      // Actualizar estado local
+      if (shouldUseAllChips) {
+         // Primera carga: todos los elementos en left
+         finalLeft = availableIds;
+         finalRight = [];
+      } else {
+         // Cargas posteriores: mantener los seleccionados, pero añadir nuevos IDs a left
+         const currentLeftIds = new Set(left);
+         const newAvailableIds = availableIds.filter((id) => !currentLeftIds.has(id) && !right.includes(id));
+
+         finalLeft = [...left, ...newAvailableIds];
+         finalRight = [...right];
+      }
+
       if (JSON.stringify(left) !== JSON.stringify(finalLeft)) {
          setLeft(finalLeft);
       }
@@ -336,28 +622,33 @@ const TransferList: React.FC<TransferListProps> = ({
          setRight(finalRight);
       }
 
-      // Sincronizar con Formik si hay diferencias
       if (JSON.stringify(currentFormLeft) !== JSON.stringify(finalLeft)) {
          formik.setFieldValue(idNameLeft, finalLeft);
       }
       if (JSON.stringify(currentFormRight) !== JSON.stringify(finalRight)) {
          formik.setFieldValue(idNameRight, finalRight);
       }
-   }, [data, formik.values, idNameLeft, idNameRight]);
+   }, [allData, formik.values, idNameLeft, idNameRight]);
 
-   // useEffect(() => {
-   //    console.log("Data recibida:", data);
-   //    console.log(
-   //       "IDs disponibles:",
-   //       data.map((d) => d.id)
-   //    );
-   //    console.log("Formik left:", formik.values[idNameLeft]);
-   //    console.log("Formik right:", formik.values[idNameRight]);
-   //    console.log("Estado left:", left);
-   //    console.log("Estado right:", right);
+   // Función para recargar data
+   const handleRefetch = useCallback(async () => {
+      if (!onRefetch || isRefetching) return;
 
-   //    // ... resto del código
-   // }, [data, formik.values, left, right]);
+      try {
+         setIsRefetching(true);
+         await onRefetch();
+         // También reiniciar la pre-carga
+         setAllData([]);
+         setLeft(allData.map((d) => d.id));
+         setPage(1);
+         setHasMore(true);
+         await loadMoreData();
+      } catch (error) {
+         console.error("Error al recargar datos:", error);
+      } finally {
+         setIsRefetching(false);
+      }
+   }, [onRefetch, isRefetching, loadMoreData]);
 
    return (
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center", width: "100%", px: 0, mx: 0 }} size={sizeCols}>
@@ -368,16 +659,24 @@ const TransferList: React.FC<TransferListProps> = ({
                search={searchLeft}
                setSearch={setSearchLeft}
                checked={checked}
-               data={data}
+               allData={allData}
+               filteredData={filteredDataLeft}
                disabled={disabled}
                sx={sx}
                heightList={heightList}
                labelLeft={labelLeft}
                onRefetch={handleRefetch}
                isRefetching={isRefetching}
-               isLoading={isLoading}
+               isLoading={isLoading || isLoadingMore}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
+               onScroll={handleLeftScroll}
+               isLoadingMore={isLoadingMore}
+               hasMore={hasMore}
+               totalItems={totalItems}
+               loadedCount={allData.length}
+               onLoadMore={() => loadMoreData()}
+               searchMode={searchMode}
             />
          </Grid>
 
@@ -413,16 +712,24 @@ const TransferList: React.FC<TransferListProps> = ({
                search={searchRight}
                setSearch={setSearchRight}
                checked={checked}
-               data={data}
+               allData={allData}
+               filteredData={filteredDataRight}
                disabled={disabled}
                sx={sx}
                heightList={heightList}
                labelLeft={labelLeft}
                onRefetch={handleRefetch}
                isRefetching={isRefetching}
-               isLoading={isLoading}
+               isLoading={isLoading || isLoadingMore}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
+               onScroll={handleRightScroll}
+               isLoadingMore={isLoadingMore}
+               hasMore={hasMore}
+               totalItems={totalItems}
+               loadedCount={allData.length}
+               onLoadMore={() => loadMoreData()}
+               searchMode={searchMode}
             />
          </Grid>
       </Grid>
@@ -430,221 +737,3 @@ const TransferList: React.FC<TransferListProps> = ({
 };
 
 export default memo(TransferList);
-
-// // import * as React from "react";
-// import React, { useEffect, useRef, useState } from "react";
-
-// import { useFormikContext, FormikValues } from "formik";
-// import {
-//    Grid,
-//    Card,
-//    CardHeader,
-//    List,
-//    ListItemButton,
-//    ListItemText,
-//    ListItemIcon,
-//    Checkbox,
-//    Button,
-//    Divider,
-//    SxProps,
-//    Box,
-//    TextField,
-//    InputAdornment
-// } from "@mui/material";
-// import { Theme } from "@emotion/react";
-// import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search } from "@mui/icons-material";
-
-// interface ChipItem {
-//    id: number;
-//    label: string;
-//    location_status: string;
-//    folio: number;
-// }
-// interface TransferListProps {
-//    xsOffset?: number | null;
-//    col: number;
-//    sizeCols?: { xs: number; sm: number; md: number };
-//    idNameLeft: string;
-//    idNameRight: string;
-//    labelLeft: string;
-//    labelRight: string;
-//    heightList: number | string | null;
-//    sx?: SxProps<Theme>;
-//    disabled?: boolean;
-//    data: ChipItem[];
-//    handleClickLeft?: () => void | null;
-//    handleClickRight?: () => void | null;
-// }
-
-// function not(a: readonly number[], b: readonly number[]) {
-//    return a.filter((value) => !b.includes(value));
-// }
-
-// function intersection(a: readonly number[], b: readonly number[]) {
-//    return a.filter((value) => b.includes(value));
-// }
-
-// function union(a: readonly number[], b: readonly number[]) {
-//    return [...a, ...not(b, a)];
-// }
-
-// const TransferList: React.FC<TransferListProps> = ({
-//    xsOffset = null,
-//    col,
-//    sizeCols = { xs: 12, sm: 12, md: col },
-//    idNameLeft,
-//    idNameRight,
-//    labelLeft,
-//    labelRight,
-//    heightList = 430,
-//    sx,
-//    disabled = false,
-//    data = [],
-//    handleClickLeft = null,
-//    handleClickRight = null
-// }) => {
-//    const formik = useFormikContext<FormikValues>();
-//    const [checked, setChecked] = React.useState<readonly number[]>([]);
-//    // Inicialmente vacíos; se sincronizan con Formik/data en useEffect
-//    const [left, setLeft] = React.useState<readonly number[]>([]);
-//    const [right, setRight] = React.useState<readonly number[]>([]);
-//    const [searchLeft, setSearchLeft] = useState("");
-//    const [searchRight, setSearchRight] = useState("");
-
-//    const leftChecked = intersection(checked, left);
-//    const rightChecked = intersection(checked, right);
-
-//    const handleToggle = (value: number) => () => {
-//       const currentIndex = checked.indexOf(value);
-//       const newChecked = [...checked];
-//       currentIndex === -1 ? newChecked.push(value) : newChecked.splice(currentIndex, 1);
-//       setChecked(newChecked);
-//    };
-
-//    const numberOfChecked = (items: readonly number[]) => intersection(checked, items).length;
-
-//    const handleToggleAll = (items: readonly number[]) => () => {
-//       numberOfChecked(items) === items.length ? setChecked(not(checked, items)) : setChecked(union(checked, items));
-//    };
-
-//    const handleCheckedRight = () => {
-//       const newRight = right.concat(leftChecked);
-//       const newLeft = not(left, leftChecked);
-//       setRight(newRight);
-//       setLeft(newLeft);
-//       setChecked(not(checked, leftChecked));
-//       formik.setFieldValue(idNameLeft, newLeft);
-//       formik.setFieldValue(idNameRight, newRight);
-//       if (handleClickRight) handleClickRight();
-//    };
-
-//    const handleCheckedLeft = () => {
-//       const newLeft = left.concat(rightChecked);
-//       const newRight = not(right, rightChecked);
-//       setLeft(newLeft);
-//       setRight(newRight);
-//       setChecked(not(checked, rightChecked));
-//       formik.setFieldValue(idNameLeft, newLeft);
-//       formik.setFieldValue(idNameRight, newRight);
-//       if (handleClickLeft) handleClickLeft();
-//    };
-
-//    const filterChips = (chips: ChipItem[], search: string) => {
-//       // console.log("🚀 ~ filterChips ~ search:", search);
-//       // console.log("🚀 ~ filterChips ~ chips:", chips);
-//       if (!search) return chips;
-//       return chips.filter((chip) => chip.label.toLowerCase().includes(search.toLowerCase()) || chip.location_status?.toLowerCase().includes(search.toLowerCase()));
-//    };
-
-//    useEffect(() => {
-//       const availableIds = data.map((d) => d.id);
-//       const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
-//       const formRight = (formik.values[idNameRight] || []) as number[];
-
-//       setLeft(formLeft.filter((id) => availableIds.includes(id)));
-//       setRight(formRight.filter((id) => availableIds.includes(id)));
-
-//       if (!formik.values[idNameLeft]) formik.setFieldValue(idNameLeft, formLeft);
-//       if (!formik.values[idNameRight]) formik.setFieldValue(idNameRight, formRight);
-//    }, [formik.values, data]);
-
-//    const customList = (title: string, items: readonly number[], search: string, setSearch: (value: string) => void) => {
-//       // console.log("🚀 ~ customList ~ items:", items);
-//       const dataItems: ChipItem[] = data.filter((d) => items.includes(d.id));
-//       // console.log("🚀 ~ customList ~ dataItems:", dataItems);
-//       const filteredItems = filterChips(dataItems, search);
-//       // console.log("🚀 ~ customList ~ filteredItems:", filteredItems);
-
-//       return (
-//          <Card sx={{ width: "100%", ...sx }}>
-//             <CardHeader
-//                sx={{ px: 2, py: 1 }}
-//                avatar={
-//                   <Checkbox
-//                      onClick={handleToggleAll(items)}
-//                      checked={numberOfChecked(items) === items.length && items.length !== 0}
-//                      indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
-//                      disabled={items.length === 0 || disabled}
-//                      inputProps={{ "aria-label": "todos los artículos seleccionados" }}
-//                   />
-//                }
-//                title={title}
-//                subheader={`${numberOfChecked(items)}/${items.length} seleccionado(s)`}
-//             />
-//             <Box sx={{ px: 2, pt: 0, pb: 1 }}>
-//                <TextField
-//                   fullWidth
-//                   size="small"
-//                   placeholder="Buscar chips..."
-//                   value={search}
-//                   onChange={(e) => setSearch(e.target.value)}
-//                   disabled={disabled}
-//                   slotProps={{
-//                      input: {
-//                         startAdornment: (
-//                            <InputAdornment position="start">
-//                               <Search fontSize="small" />
-//                            </InputAdornment>
-//                         )
-//                      }
-//                   }}
-//                />
-//             </Box>
-//             <Divider />
-//             <List sx={{ width: "100%", height: heightList, bgcolor: "background.paper", overflow: "auto" }} dense component="div" role="list">
-//                {items.map((value) => (
-//                   <ListItemButton key={value} role="listitem" onClick={handleToggle(value)} disabled={disabled}>
-//                      <ListItemIcon>
-//                         <Checkbox checked={checked.includes(value)} tabIndex={-1} disableRipple />
-//                      </ListItemIcon>
-//                      <ListItemText primary={data.find((d) => d.id === value)?.label || `Item ${value}`} />
-//                   </ListItemButton>
-//                ))}
-//             </List>
-//          </Card>
-//       );
-//    };
-
-//    return (
-//       <Grid container size={sizeCols} spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
-//          <Grid size={{ md: 5.5 }} offset={{ xs: xsOffset }} sx={{}}>
-//             {customList(labelLeft, left, searchLeft, setSearchLeft)}
-//          </Grid>
-
-//          <Grid>
-//             <Grid container direction="column" sx={{ alignItems: "center" }}>
-//                <Button sx={{ my: 0.5 }} variant="outlined" size="small" onClick={handleCheckedRight} disabled={leftChecked.length === 0 || disabled}>
-//                   <KeyboardArrowRightRounded />
-//                </Button>
-//                <Button sx={{ my: 0.5 }} variant="outlined" size="small" onClick={handleCheckedLeft} disabled={rightChecked.length === 0 || disabled}>
-//                   <KeyboardArrowLeftRounded />
-//                </Button>
-//             </Grid>
-//          </Grid>
-
-//          <Grid size={{ md: 5.5 }}>{customList(labelRight, right, searchRight, setSearchRight)}</Grid>
-//       </Grid>
-//    );
-// };
-
-// export default TransferList;

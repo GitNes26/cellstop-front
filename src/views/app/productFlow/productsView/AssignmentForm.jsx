@@ -59,8 +59,19 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
-   const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, updateLoteAssignment, getSelectIndexProducts } =
-      useProductContext();
+   const {
+      singularName,
+      product,
+      formTitle,
+      setFormTitle,
+      textBtnSubmit,
+      setTextBtnSubmit,
+      isEdit,
+      setIsEdit,
+      updateLoteAssignment,
+      getSelectIndexProducts,
+      getSelectIndexProductsPagination
+   } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
    const formikRef = useRef(null);
@@ -70,9 +81,31 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
    const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
+      () => getSelectIndexProductsPagination({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
       setProductsInStockSelect
    );
+
+   // Función para cargar datos del servidor
+   const fetchData = async (page = 1, search = "") => {
+      // const params = new URLSearchParams({
+      //    page: page.toString(),
+      //    per_page: "50",
+      //    ...(search && { search: search })
+      // });
+
+      const response = await getSelectIndexProductsPagination(
+         { location_status: ["Stock", "Asignado"], activation_status: "Pre-activado", ...(search && { search: search }) },
+         page
+      );
+      console.log("🚀 ~ fetchData ~ response:", response)
+      // const result = await response.json();
+
+      return {
+         items: response.result.data,
+         hasMore: response.result.current_page < response.result.last_page,
+         total: response.result.total
+      };
+   };
 
    const init = () => {
       // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
@@ -201,7 +234,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                labelRight={"Productos Asignados"}
                handleClickLeft={handleClickLeftTansfer}
                handleClickRight={handleClickRightTansfer}
-               data={productsInStockSelect}
+               // data={productsInStockSelect}
+               data={[]} // Ahora manejamos los datos internamente
+               onLoadMore={fetchData}
+               initialLoadCount={100} // Cargar 100 items inicialmente
+               searchDebounceMs={300}
+               disabled={false}
                onRefetch={refetchProductsInStock}
                // isLoading={}
             />
