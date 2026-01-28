@@ -73,6 +73,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       getSelectIndexProductsPagination
    } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
+   const [productsInStockSelectInfo, setProductsInStockSelectInfo] = useState([]);
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
    const formikRef = useRef(null);
 
@@ -81,7 +82,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
    const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProductsPagination({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
+      () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
       setProductsInStockSelect
    );
 
@@ -97,7 +98,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          { location_status: ["Stock", "Asignado"], activation_status: "Pre-activado", ...(search && { search: search }) },
          page
       );
-      console.log("🚀 ~ fetchData ~ response:", response)
+      console.log("🚀 ~ fetchData ~ response:", response);
       // const result = await response.json();
 
       return {
@@ -434,6 +435,10 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
          // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsInStockSelected.includes(id)).map((d) => d.id);
+
+         console.log("🚀 ~ handleChangeLote ~ productsInStockSelectInfo:", productsInStockSelectInfo);
+         console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
+         // productsInStockSelect.push(...productsInStockSelectInfo.data);
          const productsInStockByFolio = productsInStockSelect
             .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
             .map((d) => d.id);
