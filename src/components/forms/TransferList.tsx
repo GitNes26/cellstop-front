@@ -121,6 +121,18 @@ const CustomList: React.FC<CustomListProps> = memo(
          );
       }, [dataItems, search]);
 
+      const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+         if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (filteredItems.length > 0) {
+               const firstId = filteredItems[0].id;
+               handleToggle(firstId)();
+            }
+         }
+      };
+
       return (
          <Card sx={{ width: "100%", ...sx }}>
             <CardHeader
@@ -155,6 +167,7 @@ const CustomList: React.FC<CustomListProps> = memo(
                   placeholder="Buscar chips..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   disabled={disabled}
                   slotProps={{
                      input: {

@@ -311,11 +311,11 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          if (res.result.description) res.result.description == null && (res.result.description = "");
          // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsAssignment.includes(id)).map((d) => d.id);
 
-         console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
          const productsInStockByFolio = res.result
             .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock")
             .map((d) => d.id);
-         console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
+         // console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
          //
          // const productsInStockByFolio = productsSelectByLote;
          // productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")

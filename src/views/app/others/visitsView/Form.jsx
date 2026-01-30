@@ -112,7 +112,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       setLocationError,
       availableProducts
    } = useVisitContext();
-   const { allProducts, setAllProducts, updateLoteAssignment, selectIndexProductForVisit, getAllProducts } = useProductContext();
+   const { allProducts, setAllProducts, updateLoteAssignment, selectIndexProductForVisit, getSelectIndexProducts, getAllProducts } = useProductContext();
 
    const { usersSelect, setUsersSelect, getSelectIndexUsersByRole } = useUserContext();
    const { pointsOfSaleSelect, setPointsOfSaleSelect, getSelectIndexPointsOfSale } = usePointOfSaleContext();
@@ -132,15 +132,25 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
-   const { refetch: refetchProductsInStock } = useFetch(() => {
-      return selectIndexProductForVisit(
-         theUserIs([ROLE_SUPER_ADMIN, ROLE_ADMIN]) ? { seller_id: formikRef?.current?.values?.seller_id } : {}
-         // location_status: ["Asignado"],
-         // activation_status: "Pre-activado",
-         // id: [229, 228, 227, 226, 225, 224, 223, 222]
-         // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
-      );
-   }, setProductsInStockSelect);
+   // const { refetch: refetchProductsInStock } = useFetch(
+   //    () => {
+   //       return selectIndexProductForVisit(
+   //          theUserIs([ROLE_SUPER_ADMIN, ROLE_ADMIN]) ? { seller_id: formikRef?.current?.values?.seller_id } : {}
+   //          // location_status: ["Asignado"],
+   //          // activation_status: "Pre-activado",
+   //          // id: [229, 228, 227, 226, 225, 224, 223, 222]
+   //          // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
+   //       );
+   //    },
+   //    setProductsInStockSelect,
+   //    false
+   // );
+   const { refetch: refetchProductsInStock } = useFetch(
+      () => getSelectIndexProducts({ destination: "Asignado", seller_id: formikRef?.current?.values?.seller_id }),
+      setProductsInStockSelect,
+      false
+   );
+
    const { refetch: refetchProductsDistributed } = useFetch(() => getAllProducts({ id: visit?.product_ids ?? [0] }), setAllProducts);
 
    // Obtener ubicación actual
@@ -284,11 +294,78 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       }
    };
 
-   const handleChangeSeller = (values) => {
+   const handleChangeSeller = async (values) => {
       // console.log("🚀 ~ handleChangeSeller ~ values:", values);
       // console.log("🚀 ~ handleChangeSeller ~ formikRef?.current?.values:", formikRef?.current?.values);
-      formikRef?.current?.setFieldValue("seller_id", values?.value?.id);
-      refetchProductsInStock(values?.value?.id);
+      try {
+         if (values.value == null || values.value?.id < 1) {
+            formikRef?.current?.setFieldValue("productos_en_stock", []);
+            formikRef?.current?.setFieldValue("product_ids", []);
+            return Toast.Warning("Selecciona un vendedor");
+         }
+
+         const sellerId = values?.value?.id;
+         formikRef?.current?.setFieldValue("seller_id", sellerId);
+
+         setIsLoading(true);
+         // refetchProductsInStock();
+
+         if (formikRef.current === null) setOpenDialog(true);
+         // const res = await getLoteDetailsByLote(values.value.id);
+         const res = await getSelectIndexProducts({ destination: "Asignado", seller_id: sellerId });
+         if (!res) return setIsLoading(false);
+         if (res.errors) {
+            setIsLoading(false);
+            Object.values(res.errors).forEach((errors) => {
+               errors.map((error) => Toast.Warning(error));
+            });
+            return;
+         } else if (res.status_code !== 200) {
+            setIsLoading(false);
+            return Toast.Customizable(res.alert_text, res.alert_icon);
+         }
+
+         if (res.result.description) res.result.description == null && (res.result.description = "");
+
+         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+         // refetchProductsInStock(values?.value?.id);
+         const productsInStockByFolio = res.result.filter((product) => product.destination === "Asignado").map((d) => d.id);
+
+         const productsInStockSelected = res.result.map(
+            (d) =>
+               d.destination === "Stock" && {
+                  // activation_status: "d.product.activation_status",
+                  folio: d.folio,
+                  id: d.id,
+                  label: d.label,
+                  destination: d.destination
+               }
+         );
+         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
+         setProductsInStockSelect((prev) => {
+            const merged = [...prev, ...res.result, ...productsInStockSelected];
+
+            const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+
+            return unique;
+         });
+
+         // const productsAssignment = res.result.map((d) => d.id);
+         const productsAssignment = res.result.map((d) => (d.destination !== "Asignado" ? d.id : null)).filter((id) => id != null);
+         // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+
+         formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
+         formikRef?.current?.setFieldValue("product_ids", productsAssignment);
+
+         if (res.alert_text) Toast.Success(res.alert_text);
+         setIsLoading(false);
+         setOpenDialog(true);
+      } catch (error) {
+         setOpenDialog(false);
+         setIsLoading(false);
+         console.log(error);
+         Toast.Error(error);
+      }
    };
 
    // Manejar selección de productos
@@ -774,7 +851,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          //    .map((d) => d.id);
          // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
          const productsSelected = allProducts.map((d) => ({
-            activation_status: d.activation_status,
+            // activation_status: d.activation_status,
             folio: d.folio,
             id: d.id,
             label: `${d.iccid} - ${d.celular} - ${d.fecha ?? ""}`,
