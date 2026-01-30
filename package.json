@@ -1,7 +1,7 @@
 {
    "name": "sistema-cellstop",
    "private": true,
-   "version": "1.0.0.6",
+   "version": "1.0.0.7",
    "description": "Sistema Web para la gestión de productos de Cellstop - tsc -b && npm run bump &&  ",
    "type": "module",
    "scripts": {

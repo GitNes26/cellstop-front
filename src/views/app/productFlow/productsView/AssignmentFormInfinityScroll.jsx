@@ -7,7 +7,7 @@ import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useProductContext } from "../../../../context/ProductContext";
 import { AddLinkRounded, AssignmentInd, Inventory, Inventory2Rounded } from "@mui/icons-material";
 import { useAuthContext } from "../../../../context/AuthContext";
-import { useLoteContext } from "./../../../../context/LoteContext";
+import { useLoteContext } from "../../../../context/LoteContext";
 import useFetch from "../../../../hooks/useFetch";
 import LoteForm from "../../catalogs/lotesView/Form";
 import Toast from "../../../../utils/Toast";
@@ -59,34 +59,65 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
-   const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, updateLoteAssignment, getSelectIndexProducts } =
-      useProductContext();
+   const {
+      singularName,
+      product,
+      formTitle,
+      setFormTitle,
+      textBtnSubmit,
+      setTextBtnSubmit,
+      isEdit,
+      setIsEdit,
+      updateLoteAssignment,
+      getSelectIndexProducts,
+      getSelectIndexProductsPagination
+   } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
+   const [productsInStockSelectInfo, setProductsInStockSelectInfo] = useState([]);
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
    const formikRef = useRef(null);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
    const [loteFormDialog, setLoteFormDialog] = useState(false);
-   const [folioLote, setFolioLote] = useState(0);
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
-   const { refetch: refetchProductsInStock } = useFetch(() => getSelectIndexProducts({ destination: "Asignado", folio: folioLote }), setProductsInStockSelect, false);
-   // const { refetch: refetchProductsInStock } = useFetch(
-   //    () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
-   //    setProductsInStockSelect
-   // );
+   const { refetch: refetchProductsInStock } = useFetch(
+      () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
+      setProductsInStockSelect
+   );
+
+   // Función para cargar datos del servidor
+   const fetchData = async (page = 1, search = "") => {
+      // const params = new URLSearchParams({
+      //    page: page.toString(),
+      //    per_page: "50",
+      //    ...(search && { search: search })
+      // });
+
+      const response = await getSelectIndexProductsPagination(
+         { location_status: ["Stock", "Asignado"], activation_status: "Pre-activado", ...(search && { search: search }) },
+         page
+      );
+      console.log("🚀 ~ fetchData ~ response:", response);
+      // const result = await response.json();
+
+      return {
+         items: response.result.data,
+         hasMore: response.result.current_page < response.result.last_page,
+         total: response.result.total
+      };
+   };
 
    const init = () => {
       // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      setProductsInStockSelect([]);
+      formikRef?.current?.setFieldValue(
+         "productos_en_stock",
+         productsInStockSelect.map((d) => d.id)
+      );
       // formikRef?.current?.setFieldValue(
-      //    "productos_en_stock",
-      //    productsInStockSelect.map((d) => d.id)
+      //    "product_ids",
+      //    productsInStockSelected.map((d) => d.id)
       // );
-      // // formikRef?.current?.setFieldValue(
-      // //    "product_ids",
-      // //    productsAssignment.map((d) => d.id)
-      // // );
    };
    useEffect(() => {
       // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);
@@ -204,7 +235,12 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
                labelRight={"Productos Asignados"}
                handleClickLeft={handleClickLeftTansfer}
                handleClickRight={handleClickRightTansfer}
-               data={productsInStockSelect}
+               // data={productsInStockSelect}
+               data={[]} // Ahora manejamos los datos internamente
+               onLoadMore={fetchData}
+               initialLoadCount={100} // Cargar 100 items inicialmente
+               searchDebounceMs={300}
+               disabled={false}
                onRefetch={refetchProductsInStock}
                // isLoading={}
             />
@@ -272,10 +308,103 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       if (!checkAdd) setOpenDialog(false);
    };
 
+   // async function handleChangeLote(values) {
+   //    try {
+   //       console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
+
+   //       if (values.value.id < 1) {
+   //          formikRef?.current?.setValues(formikRef.current.initialValues);
+   //          formikRef?.current?.setFieldValue("productos_en_stock", []);
+   //          return Toast.Warning("Selecciona un lote");
+   //       }
+
+   //       const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
+
+   //       // Actualizar campos del formulario
+   //       formikRef?.current?.setFieldValue("folio", loteSelected.folio);
+   //       formikRef?.current?.setFieldValue("lada", loteSelected.lada);
+   //       formikRef?.current?.setFieldValue("quantity", loteSelected.quantity);
+   //       formikRef?.current?.setFieldValue("descrption", loteSelected.description);
+   //       formikRef?.current?.setFieldValue("preactivation_date", loteSelected.preactivation_date);
+
+   //       setIsLoading(true);
+
+   //       const res = await getLoteDetailsByLote(values.value.id);
+
+   //       if (!res) {
+   //          setIsLoading(false);
+   //          return;
+   //       }
+
+   //       if (res.errors) {
+   //          setIsLoading(false);
+   //          Object.values(res.errors).forEach((errors) => {
+   //             errors.map((error) => Toast.Warning(error));
+   //          });
+   //          return;
+   //       } else if (res.status_code !== 200) {
+   //          setIsLoading(false);
+   //          return Toast.Customizable(res.alert_text, res.alert_icon);
+   //       }
+
+   //       // Procesar productos del detalle
+   //       const productsFromDetail = res.result.map((d) => ({
+   //          ...d.product,
+   //          product_id: d.product_id || d.product?.id,
+   //          lote_id: values.value.id,
+   //          folio: loteSelected.folio
+   //       }));
+
+   //       console.log("🚀 ~ handleChangeLote ~ productsFromDetail:", productsFromDetail);
+
+   //       // **STRATEGY: Agregar productos del lote actual**
+   //       // 1. Eliminar productos del mismo lote anterior (si los hay)
+   //       const productsWithoutCurrentLote = productsInStockSelect.filter((product) => product.lote_id !== values.value.id);
+
+   //       // 2. Combinar con los nuevos productos del lote actual
+   //       const updatedProducts = [...productsWithoutCurrentLote, ...productsFromDetail];
+
+   //       // 3. Eliminar duplicados (por id)
+   //       const uniqueProducts = updatedProducts.reduce((acc, current) => {
+   //          const exists = acc.find((item) => item.id === current.id || item.product_id === current.product_id);
+   //          if (!exists) {
+   //             acc.push(current);
+   //          }
+   //          return acc;
+   //       }, []);
+   //       console.log("🚀 ~ handleChangeLote ~ uniqueProducts:", uniqueProducts)
+
+   //       setProductsInStockSelect(uniqueProducts);
+
+   //       // 4. Preparar IDs para el formulario
+   //       const productIdsFromDetail = productsFromDetail.map((product) => product.id || product.product_id);
+
+   //       // 5. Obtener productos del folio actual para el campo "productos_en_stock"
+   //       const productsInCurrentFolio = uniqueProducts
+   //          .filter((product) => Number(product.folio) === Number(loteSelected.folio))
+   //          .map((product) => product.id || product.product_id);
+
+   //       // Actualizar campos del formulario
+   //       formikRef?.current?.setFieldValue("productos_en_stock", productsInCurrentFolio);
+   //       formikRef?.current?.setFieldValue("product_ids", productIdsFromDetail);
+
+   //       if (res.alert_text) Toast.Success(res.alert_text);
+
+   //       setFormTitle(`EDITAR ${singularName.toUpperCase()}`);
+   //       setTextBtnSubmit("GUARDAR");
+   //       setIsEdit(true);
+   //       setIsLoading(false);
+   //       setOpenDialog(true);
+   //    } catch (error) {
+   //       setOpenDialog(false);
+   //       setIsLoading(false);
+   //       console.log(error);
+   //       Toast.Error(error);
+   //    }
+   // }
    async function handleChangeLote(values) {
       // console.log("🚀 ~ handleChangeLote ~ values:", values);
       try {
-         setFolioLote(0);
          // console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
          if (values.value == null || values.value?.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
@@ -283,7 +412,6 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             return Toast.Warning("Selecciona un lote");
          }
          const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
-         setFolioLote(loteSelected.folio);
          formikRef?.current?.setFieldValue("folio", loteSelected.folio);
          formikRef?.current?.setFieldValue("lada", loteSelected.lada);
          formikRef?.current?.setFieldValue("quantity", loteSelected.quantity);
@@ -291,11 +419,8 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          formikRef?.current?.setFieldValue("preactivation_date", loteSelected.preactivation_date);
 
          setIsLoading(true);
-         // refetchProductsInStock();
-
          if (formikRef.current === null) setOpenDialog(true);
-         // const res = await getLoteDetailsByLote(values.value.id);
-         const res = await getSelectIndexProducts({ destination: "Asignado", folio: loteSelected.folio });
+         const res = await getLoteDetailsByLote(values.value.id);
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -309,43 +434,36 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          }
 
          if (res.result.description) res.result.description == null && (res.result.description = "");
-         // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsAssignment.includes(id)).map((d) => d.id);
+         // const productsInStockSelect = formikRef?.current?.values?.productos_en_stock.filter((id) => !productsInStockSelected.includes(id)).map((d) => d.id);
 
-         console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
-         const productsInStockByFolio = res.result
-            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock")
+         console.log("🚀 ~ handleChangeLote ~ productsInStockSelectInfo:", productsInStockSelectInfo);
+         console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
+         // productsInStockSelect.push(...productsInStockSelectInfo.data);
+         const productsInStockByFolio = productsInStockSelect
+            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
             .map((d) => d.id);
-         console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
-         //
-         // const productsInStockByFolio = productsSelectByLote;
-         // productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
-         //    .map((d) => d.id);
          // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
-         const productsInStockSelected = res.result.map(
-            (d) =>
-               d.destination === "Stock" && {
-                  // activation_status: "d.product.activation_status",
-                  folio: d.folio,
-                  id: d.id,
-                  label: d.label,
-                  destination: d.destination
-               }
-         );
-         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
+         const productsSelected = res.result.map((d) => ({
+            activation_status: d.product.activation_status,
+            folio: d.product.folio,
+            id: d.product.id,
+            label: `${d.product.iccid} - ${d.product.celular} - ${d.product.fecha ?? ""}`,
+            location_status: d.product.location_status
+         }));
+         // console.log("🚀 ~ handleChangeLote ~ productsSelected:", productsSelected);
          setProductsInStockSelect((prev) => {
-            const merged = [...prev, ...res.result, ...productsInStockSelected];
+            const merged = [...prev, ...productsSelected];
 
             const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
 
             return unique;
          });
 
-         // const productsAssignment = res.result.map((d) => d.id);
-         const productsAssignment = res.result.map((d) => (d.destination !== "Stock" ? d.id : null)).filter((id) => id != null);
-         // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+         const productsInStockSelected = res.result.map((d) => d.product_id);
+         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
-         formikRef?.current?.setFieldValue("product_ids", productsAssignment);
+         formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
          // formikRef?.current.setValues(res.result);
          if (res.alert_text) Toast.Success(res.alert_text);
          setFormTitle(`EDITAR ${singularName.toUpperCase()}`);

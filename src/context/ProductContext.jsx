@@ -193,7 +193,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -233,7 +233,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -255,7 +255,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -280,7 +280,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -339,7 +339,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -360,7 +360,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProducts();
+      await getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -423,7 +423,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      getAllProducts();
+      getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -487,7 +487,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      getAllProducts();
+      getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
@@ -551,7 +551,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      getAllProducts();
+      getAllProductsPagination(); //getAllProducts();
 
       return res;
    };
