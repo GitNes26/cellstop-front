@@ -834,17 +834,6 @@ const DataTableComponent = ({
             rowCount={pagination?.total || 0}
             paginationMode="server"
             loading={loading || isLoading}
-            // Mantener estas props
-            rows={data}
-            columns={columns}
-            localeText={esES.components.MuiDataGrid.defaultProps.localeText}
-            initialState={{
-               columns: { columnVisibilityModel: { id: false } }
-            }}
-            density="comfortable"
-            getRowHeight={() => "auto"}
-            editMode={"row"}
-            disableRowSelectionOnClick // Evita que al darle clic en cualquier parte del row se seleccione
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
