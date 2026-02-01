@@ -55,13 +55,18 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const AssignmentForm = ({ openDialog, setOpenDialog }) => {
+const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    // const {setAllProducts,getSelectIndexRoles}=useProductContext()
    const { singularName, product, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, updateLoteAssignment, getSelectIndexProducts } =
       useProductContext();
-   const { lotesSelect, setLotesSelect, getSelectIndexLotes, allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote } = useLoteContext();
+   const {
+      lotesSelect,
+      setLotesSelect,
+      getSelectIndexLotes
+      /* allLoteDetailsByLote, setAllLoteDetailsByLote, getLoteDetailsByLote */
+   } = useLoteContext();
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
    const formikRef = useRef(null);
 
@@ -70,7 +75,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
    const [folioLote, setFolioLote] = useState(0);
 
    const { refetch: refreshLotes } = useFetch(getSelectIndexLotes, setLotesSelect);
-   const { refetch: refetchProductsInStock } = useFetch(() => getSelectIndexProducts({ destination: "Asignado", folio: folioLote }), setProductsInStockSelect, false);
+   const { refetch: refetchProductsInStock } = useFetch(() => getSelectIndexProducts({ folio: folioLote }), setProductsInStockSelect, false);
    // const { refetch: refetchProductsInStock } = useFetch(
    //    () => getSelectIndexProducts({ location_status: ["Stock", "Asignado"], activation_status: "Pre-activado" }),
    //    setProductsInStockSelect
@@ -184,7 +189,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          input: (
             <DateTimePicker col={12} idName={"executed_at"} label={"Fecha de Ejecución"} picker={"date"} format={"DD/MM/YYYY"} helperText={"DD/MM/AAAA"} required />
          ),
-         value: dayjs(),
+         value: null, //dayjs(),
          validations: null,
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
@@ -260,6 +265,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
       setSubmitting(false);
       setIsLoading(false);
       if (refetchProductsInStock) await refetchProductsInStock();
+      if (afterSubmit) await afterSubmit();
       if (!checkAdd) setOpenDialog(false);
    };
    const handleCancel = () => {
@@ -295,7 +301,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
 
          if (formikRef.current === null) setOpenDialog(true);
          // const res = await getLoteDetailsByLote(values.value.id);
-         const res = await getSelectIndexProducts({ destination: "Asignado", folio: loteSelected.folio });
+         const res = await getSelectIndexProducts({ folio: loteSelected.folio });
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -316,24 +322,10 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
             .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock")
             .map((d) => d.id);
          // console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
-         //
-         // const productsInStockByFolio = productsSelectByLote;
-         // productsInStockSelect.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
-         //    .map((d) => d.id);
-         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
-         const productsInStockSelected = res.result.map(
-            (d) =>
-               d.destination === "Stock" && {
-                  // activation_status: "d.product.activation_status",
-                  folio: d.folio,
-                  id: d.id,
-                  label: d.label,
-                  destination: d.destination
-               }
-         );
-         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
+
          setProductsInStockSelect((prev) => {
-            const merged = [...prev, ...res.result, ...productsInStockSelected];
+            const merged = [...prev, ...res.result];
+            // console.log("🚀 ~ handleChangeLote ~ merged:", merged);
 
             const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
 
@@ -341,8 +333,8 @@ const AssignmentForm = ({ openDialog, setOpenDialog }) => {
          });
 
          // const productsAssignment = res.result.map((d) => d.id);
-         const productsAssignment = res.result.map((d) => (d.destination !== "Stock" ? d.id : null)).filter((id) => id != null);
-         // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+         const productsAssignment = res.result.map((d) => (d.destination === "Asignado" ? d.id : null)).filter((id) => id != null);
+         console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
          formikRef?.current?.setFieldValue("product_ids", productsAssignment);

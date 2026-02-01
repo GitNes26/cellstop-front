@@ -151,9 +151,9 @@ const ProductDT = ({}) => {
       </Typography>
    );
 
-   const FechaBodyTemplate = ({ key, date }) => {
+   const FechaBodyTemplate = ({ date }) => {
       return (
-         <Typography key={key} textAlign="center" size={fontSizeTable.text}>
+         <Typography textAlign="center" size={fontSizeTable.text}>
             {formatDatetime(date, false)}
          </Typography>
       );
@@ -887,7 +887,7 @@ const ProductDT = ({}) => {
    // Efecto para cargar datos iniciales
    useEffect(() => {
       loadProductsWithPagination();
-   }, [status]); // Recargar cuando cambie el status
+   }, [status, allProducts.length]); // Recargar cuando cambie el status
 
    // Manejadores de cambio de página
    const handlePageChange = async (newPage) => {
@@ -921,17 +921,31 @@ const ProductDT = ({}) => {
                   apiEndpoint="products/import"
                   headerRow={1}
                   dataStartRow={2}
+                  afterSubmit={() => loadProductsWithPagination(currentPage, pageSize)}
                />
             )}
             {/* {<PreActivationForm openDialog={openDialogPreActivationForm} setOpenDialog={setOpenDialogPreActivationForm} />} */}
             {includesInArray(auth.permissions.more_permissions, ["todas", "Importar Detalles"]) && (
-               <ImportProductDetailsForm openDialog={openDialogImportDetailsForm} setOpenDialog={setOpenDialogImportDetailsForm} columns={columnasDetalleProducto} />
+               <ImportProductDetailsForm
+                  openDialog={openDialogImportDetailsForm}
+                  setOpenDialog={setOpenDialogImportDetailsForm}
+                  columns={columnasDetalleProducto}
+                  afterSubmit={() => loadProductsWithPagination(currentPage, pageSize)}
+               />
             )}
             {includesInArray(auth.permissions.more_permissions, ["todas", "Asignar Productos"]) && (
-               <AssignmentForm openDialog={openDialogAssignmentForm} setOpenDialog={setOpenDialogAssignmentForm} />
+               <AssignmentForm
+                  openDialog={openDialogAssignmentForm}
+                  setOpenDialog={setOpenDialogAssignmentForm}
+                  afterSubmit={() => loadProductsWithPagination(currentPage, pageSize)}
+               />
             )}
             {includesInArray(auth.permissions.more_permissions, ["todas", "Importa Portaciones"]) && (
-               <ImportPortabitiesFrom openDialog={openDialogImportPortabitiesForm} setOpenDialog={setOpenDialogImportPortabitiesForm} />
+               <ImportPortabitiesFrom
+                  openDialog={openDialogImportPortabitiesForm}
+                  setOpenDialog={setOpenDialogImportPortabitiesForm}
+                  afterSubmit={() => loadProductsWithPagination(currentPage, pageSize)}
+               />
             )}
          </Stack>
          <DataTableComponent

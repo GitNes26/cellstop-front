@@ -111,7 +111,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
+const ImportPortabitiesFrom = ({ openDialog, setOpenDialog, afetrSubmit = null }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const { importPortabilities } = useProductContext(); // Necesitarías crear esta función en tu contexto
@@ -923,6 +923,7 @@ const ImportPortabitiesFrom = ({ openDialog, setOpenDialog }) => {
                   }
                });
 
+            if (afetrSubmit) await afetrSubmit();
             if (!checkAdd) {
                setOpenDialog(false);
                resetForm();

@@ -131,7 +131,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   format={format}
                   className={className}
                   sx={sx}
-                  value={dayjs(values[idName]) || dayjs()}
+                  value={dayjs(values[idName]) || new Date()} //dayjs()}
                   onChange={(date) => {
                      formik.setFieldValue(idName, dayjs(date).format("YYYY-MM-DD"));
                      if (onChangeExtra) onChangeExtra(date);

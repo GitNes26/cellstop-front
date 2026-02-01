@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Box, Chip, Grid } from "@mui/material";
 import { DialogComponent } from "../../../../components";
 import { formatCurrency } from "../../../../utils/Formats";
+import { after } from "node:test";
 
 // Interfaz para los datos de cada línea (basada en tu BD)
 interface ProductDetail {
@@ -660,7 +661,7 @@ const ModalTableDetails: React.FC<ModalTableDetailsProps> = ({
    processedData,
    maxHeight = 500,
    fullScreen = false,
-   heightDialog = undefined
+   heightDialog = undefined,
 }) => {
    return (
       <DialogComponent

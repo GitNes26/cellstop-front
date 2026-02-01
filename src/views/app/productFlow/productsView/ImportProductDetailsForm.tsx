@@ -84,7 +84,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
    );
 };
 
-const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSize = 1000 }) => {
+const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSize = 1000, afterSubmit = null }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const { singularName, formTitle, setFormTitle, textBtnSubmit, setTextBtnSubmit, isEdit, setIsEdit, importProductDetails } = useProductContext();
@@ -605,6 +605,7 @@ const ImportProductDetailsForm = ({ openDialog, setOpenDialog, columns, chunkSiz
                }
             });
 
+         if (afterSubmit) await afterSubmit();
          if (!checkAdd) {
             setOpenDialog(false);
             resetForm();

@@ -137,6 +137,7 @@ const MovementTimeline: React.FC<{ movements: ProductMovement[] }> = ({ movement
 
 // Componente principal de tabla de movimientos
 export const TableMovements: React.FC<TableMovementsProps> = ({ movements, productInfo, compactMode = false, maxHeight = 400, viewMode = "table" }) => {
+   console.log("🚀 ~ TableMovements ~ movements:", movements);
    // Configuración de columnas
    const allColumns: ColumnConfig[] = [
       {
@@ -290,10 +291,13 @@ export const TableMovements: React.FC<TableMovementsProps> = ({ movements, produ
    const stats = useMemo(() => {
       return {
          total: movements.length,
-         byAction: movements.reduce((acc, movement) => {
-            acc[movement.action] = (acc[movement.action] || 0) + 1;
-            return acc;
-         }, {} as Record<string, number>),
+         byAction: movements.reduce(
+            (acc, movement) => {
+               acc[movement.action] = (acc[movement.action] || 0) + 1;
+               return acc;
+            },
+            {} as Record<string, number>
+         ),
          lastMovement: movements.length > 0 ? movements[0] : null,
          firstMovement: movements.length > 0 ? movements[movements.length - 1] : null
       };
@@ -602,11 +606,13 @@ export const ProductMovementsModal: React.FC<ProductMovementsModalProps> = ({ op
 export function useNormalizeMovements(data: any[]): ProductMovement[] {
    return useMemo(() => {
       if (!data || !Array.isArray(data)) return [];
-      return data.map((item) => ({
-         ...item,
-         executed_at: item.executed_at || item.created_at,
-         executer: item.executer || { username: "Sistema" }
-      }));
+      return data.map((item) => {
+         return {
+            ...item,
+            executed_at: item.executed_at || item.created_at,
+            executer: item.executer || { username: "Sistema" }
+         };
+      });
    }, [data]);
 }
 

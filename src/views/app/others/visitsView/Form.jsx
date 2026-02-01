@@ -118,6 +118,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const { pointsOfSaleSelect, setPointsOfSaleSelect, getSelectIndexPointsOfSale } = usePointOfSaleContext();
    // const { allLotes, setAllLotes, getAllLotes } = useLoteContext();
 
+   const [allPOSSelect, setAllPOSSelect] = useState([]);
    const [productsInStockSelect, setProductsInStockSelect] = useState([]);
 
    const [checkAdd, setCheckAdd] = useState(checkAddInitialState);
@@ -131,22 +132,10 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    // const { refetch: refetchFoliosByLote } = useFetch(() => getAllLotes(theUserIs([ROLE_SELLER]) ? { seller_id: auth.id } : {}), setAllLotes);
 
    const { refetch: refetchSeller } = useFetch(() => getSelectIndexUsersByRole(3), setUsersSelect);
-   const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setPointsOfSaleSelect);
-   // const { refetch: refetchProductsInStock } = useFetch(
-   //    () => {
-   //       return selectIndexProductForVisit(
-   //          theUserIs([ROLE_SUPER_ADMIN, ROLE_ADMIN]) ? { seller_id: formikRef?.current?.values?.seller_id } : {}
-   //          // location_status: ["Asignado"],
-   //          // activation_status: "Pre-activado",
-   //          // id: [229, 228, 227, 226, 225, 224, 223, 222]
-   //          // id: formikRef.current?.values.product_ids ? JSON.parse(formikRef.current?.values.product_ids) : null
-   //       );
-   //    },
-   //    setProductsInStockSelect,
-   //    false
-   // );
+   const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setAllPOSSelect);
+
    const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProducts({ destination: "Asignado", seller_id: formikRef?.current?.values?.seller_id }),
+      () => getSelectIndexProducts({ seller_id: formikRef?.current?.values?.seller_id, pos_id: formikRef?.current?.values?.pos_id }),
       setProductsInStockSelect,
       false
    );
@@ -298,66 +287,61 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       // console.log("🚀 ~ handleChangeSeller ~ values:", values);
       // console.log("🚀 ~ handleChangeSeller ~ formikRef?.current?.values:", formikRef?.current?.values);
       try {
-         if (values.value == null || values.value?.id < 1) {
-            formikRef?.current?.setFieldValue("productos_en_stock", []);
-            formikRef?.current?.setFieldValue("product_ids", []);
-            return Toast.Warning("Selecciona un vendedor");
-         }
+         // if (values.value == null || values.value?.id < 1) {
+         formikRef?.current?.setFieldValue("productos_en_stock", []);
+         formikRef?.current?.setFieldValue("product_ids", []);
+         // return Toast.Warning("Selecciona un vendedor");
+         // }
 
          const sellerId = values?.value?.id;
          formikRef?.current?.setFieldValue("seller_id", sellerId);
 
          setIsLoading(true);
+         setPointsOfSaleSelect(() => {
+            const filtered = allPOSSelect.filter((pos) => pos.seller_id === sellerId);
+            return filtered;
+         });
          // refetchProductsInStock();
 
-         if (formikRef.current === null) setOpenDialog(true);
-         // const res = await getLoteDetailsByLote(values.value.id);
-         const res = await getSelectIndexProducts({ destination: "Asignado", seller_id: sellerId });
-         if (!res) return setIsLoading(false);
-         if (res.errors) {
-            setIsLoading(false);
-            Object.values(res.errors).forEach((errors) => {
-               errors.map((error) => Toast.Warning(error));
-            });
-            return;
-         } else if (res.status_code !== 200) {
-            setIsLoading(false);
-            return Toast.Customizable(res.alert_text, res.alert_icon);
-         }
+         //#region CARGAR PRODUCTOS DISPONIBLES PARA EL VENDEDOR
+         // if (formikRef.current === null) setOpenDialog(true);
+         // // const res = await getLoteDetailsByLote(values.value.id);
+         // const res = await getSelectIndexProducts({ seller_id: sellerId });
+         // if (!res) return setIsLoading(false);
+         // if (res.errors) {
+         //    setIsLoading(false);
+         //    Object.values(res.errors).forEach((errors) => {
+         //       errors.map((error) => Toast.Warning(error));
+         //    });
+         //    return;
+         // } else if (res.status_code !== 200) {
+         //    setIsLoading(false);
+         //    return Toast.Customizable(res.alert_text, res.alert_icon);
+         // }
 
-         if (res.result.description) res.result.description == null && (res.result.description = "");
+         // if (res.result.description) res.result.description == null && (res.result.description = "");
 
-         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
-         // refetchProductsInStock(values?.value?.id);
-         const productsInStockByFolio = res.result.filter((product) => product.destination === "Asignado").map((d) => d.id);
+         // // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+         // // refetchProductsInStock(values?.value?.id);
+         // const productsInStockByFolio = res.result.filter((product) => product.destination === "Asignado").map((d) => d.id);
 
-         const productsInStockSelected = res.result.map(
-            (d) =>
-               d.destination === "Stock" && {
-                  // activation_status: "d.product.activation_status",
-                  folio: d.folio,
-                  id: d.id,
-                  label: d.label,
-                  destination: d.destination
-               }
-         );
-         // console.log("🚀 ~ handleChangeLote ~ productsInStockSelected:", productsInStockSelected);
-         setProductsInStockSelect((prev) => {
-            const merged = [...prev, ...res.result, ...productsInStockSelected];
+         // setProductsInStockSelect((prev) => {
+         //    const merged = [...prev, ...res.result];
 
-            const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+         //    const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
 
-            return unique;
-         });
+         //    return unique;
+         // });
 
-         // const productsAssignment = res.result.map((d) => d.id);
-         const productsAssignment = res.result.map((d) => (d.destination !== "Asignado" ? d.id : null)).filter((id) => id != null);
-         // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+         // // const productsAssignment = res.result.map((d) => d.id);
+         // const productsAssignment = res.result.map((d) => (d.destination === "Distribuido" ? d.id : null)).filter((id) => id != null);
+         // // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
 
-         formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
-         formikRef?.current?.setFieldValue("product_ids", productsAssignment);
+         // formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
+         // formikRef?.current?.setFieldValue("product_ids", productsAssignment);
+         //#endregion CARGAR PRODUCTOS DISPONIBLES PARA EL VENDEDOR
 
-         if (res.alert_text) Toast.Success(res.alert_text);
+         // if (res.alert_text) Toast.Success(res.alert_text);
          setIsLoading(false);
          setOpenDialog(true);
       } catch (error) {
@@ -366,6 +350,71 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
          console.log(error);
          Toast.Error(error);
       }
+   };
+   const handleChangePOS = async (values) => {
+      try {
+         // console.log("🚀 ~ handleChangeSeller ~ values:", values);
+         // console.log("🚀 ~ handleChangeSeller ~ formikRef?.current?.values:", formikRef?.current?.values);
+         try {
+            if (values.value == null || values.value?.id < 1) {
+               formikRef?.current?.setFieldValue("productos_en_stock", []);
+               formikRef?.current?.setFieldValue("product_ids", []);
+               return Toast.Warning("Selecciona un vendedor");
+            }
+
+            const sellerId = formikRef?.current?.values?.seller_id;
+            const posId = values?.value?.id;
+            formikRef?.current?.setFieldValue("pos_id", posId);
+
+            setIsLoading(true);
+            // refetchProductsInStock();
+
+            if (formikRef.current === null) setOpenDialog(true);
+            // const res = await getLoteDetailsByLote(values.value.id);
+            const res = await getSelectIndexProducts({ seller_id: sellerId, pos_id: posId });
+            if (!res) return setIsLoading(false);
+            if (res.errors) {
+               setIsLoading(false);
+               Object.values(res.errors).forEach((errors) => {
+                  errors.map((error) => Toast.Warning(error));
+               });
+               return;
+            } else if (res.status_code !== 200) {
+               setIsLoading(false);
+               return Toast.Customizable(res.alert_text, res.alert_icon);
+            }
+
+            if (res.result.description) res.result.description == null && (res.result.description = "");
+
+            // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+            // refetchProductsInStock(values?.value?.id);
+            const productsInStockByFolio = res.result.filter((product) => product.destination === "Asignado").map((d) => d.id);
+
+            setProductsInStockSelect((prev) => {
+               const merged = [...prev, ...res.result];
+
+               const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+
+               return unique;
+            });
+
+            // const productsAssignment = res.result.map((d) => d.id);
+            const productsAssignment = res.result.map((d) => (d.destination === "Distribuido" ? d.id : null)).filter((id) => id != null);
+            // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+
+            formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
+            formikRef?.current?.setFieldValue("product_ids", productsAssignment);
+
+            if (res.alert_text) Toast.Success(res.alert_text);
+            setIsLoading(false);
+            setOpenDialog(true);
+         } catch (error) {
+            setOpenDialog(false);
+            setIsLoading(false);
+            console.log(error);
+            Toast.Error(error);
+         }
+      } catch (error) {}
    };
 
    // Manejar selección de productos
@@ -450,6 +499,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                refreshSelect={refetchPointsOfSale}
                addRegister={auth.permissions.create ? () => setPointOfSaleFormDialog(true) : null}
                required
+               onChangeExtra={handleChangePOS}
                // onChangeExtra={async (value) => {
                //    formikRef.current.setFieldValue("pos_id", value.value);
                //    setLocationVerified(false);
@@ -613,7 +663,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                required
             />
          ),
-         value: dayjs(),
+         value: null, //dayjs(),
          validations: null,
          validationPage: [],
          dividerBefore: { show: false, title: "", orientation: "horizontal", sx: {} }
@@ -834,49 +884,49 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
       else console.log("no lo soy");
 
       // console.log("🚀 ~ init ~ allLoteDetailsByLote:", allLoteDetailsByLote);
-      formikRef?.current?.setFieldValue(
-         "productos_en_stock",
-         productsInStockSelect.map((d) => d.id)
-      );
-      await refetchProductsDistributed();
-      if (allProducts) {
-         // formikRef?.current?.setFieldValue(
-         //    "product_ids",
-         //    productsInStockSelected.map((d) => d.id)
-         // );
-         // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
-         const productsAsigment = productsInStockSelect.filter((p) => p.location_status == "Asignado").map((d) => d.id);
-         // productsInStockSelect
-         //    .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
-         //    .map((d) => d.id);
-         // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
-         const productsSelected = allProducts.map((d) => ({
-            // activation_status: d.activation_status,
-            folio: d.folio,
-            id: d.id,
-            label: `${d.iccid} - ${d.celular} - ${d.fecha ?? ""}`,
-            location_status: d.location_status
-         }));
-         // console.log("🚀 ~ handleChangeLote ~ productsSelected:", productsSelected);
-         setProductsInStockSelect((prev) => {
-            const merged = [...prev, ...productsSelected];
+      // formikRef?.current?.setFieldValue(
+      //    "productos_en_stock",
+      //    productsInStockSelect.map((d) => d.id)
+      // );
+      // await refetchProductsDistributed();
+      // if (allProducts) {
+      //    // formikRef?.current?.setFieldValue(
+      //    //    "product_ids",
+      //    //    productsInStockSelected.map((d) => d.id)
+      //    // );
+      //    // console.log("🚀 ~ init ~ productsInStockSelect:", productsInStockSelect);
+      //    const productsAsigment = productsInStockSelect.filter((p) => p.location_status == "Asignado").map((d) => d.id);
+      //    // productsInStockSelect
+      //    //    .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.location_status == "Stock")
+      //    //    .map((d) => d.id);
+      //    // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
+      //    const productsSelected = allProducts.map((d) => ({
+      //       // activation_status: d.activation_status,
+      //       folio: d.folio,
+      //       id: d.id,
+      //       label: `${d.iccid} - ${d.celular} - ${d.fecha ?? ""}`,
+      //       location_status: d.location_status
+      //    }));
+      //    // console.log("🚀 ~ handleChangeLote ~ productsSelected:", productsSelected);
+      //    setProductsInStockSelect((prev) => {
+      //       const merged = [...prev, ...productsSelected];
 
-            const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
+      //       const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
 
-            return unique;
-         });
+      //       return unique;
+      //    });
 
-         const productsInStockSelected = allProducts.map((d) => d.id);
+      //    const productsInStockSelected = allProducts.map((d) => d.id);
 
-         // console.log("🚀 ~ init ~ productsAsigment:", productsAsigment);
-         // console.log("🚀 ~ init ~ productsInStockSelected:", productsInStockSelected);
+      //    // console.log("🚀 ~ init ~ productsAsigment:", productsAsigment);
+      //    // console.log("🚀 ~ init ~ productsInStockSelected:", productsInStockSelected);
 
-         formikRef?.current?.setFieldValue(
-            "productos_en_stock",
-            productsAsigment //.filter((product) => product.location_status == "Asignado")
-         );
-         formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
-      }
+      //    formikRef?.current?.setFieldValue(
+      //       "productos_en_stock",
+      //       productsAsigment //.filter((product) => product.location_status == "Asignado")
+      //    );
+      //    formikRef?.current?.setFieldValue("product_ids", productsInStockSelected);
+      // }
    };
    useEffect(() => {
       // console.log("🚀 ~ AssignmentForm ~ useEffect:openDialog:", openDialog);

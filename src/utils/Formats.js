@@ -49,8 +49,11 @@ export function formatDatetime(the_date, long_format = true, format = null || ""
    if ([null, ""].includes(the_date)) return "Sin Fecha";
    //#region OPCION DayJS
    dayjs.locale("es");
-   let date = new Date(the_date);
-   // console.log("🚀 ~ formatDatetime ~ date:", date)
+   // si la fecha trae la T de separador y los caracteres despues de los segundos, se la quita para evitar errores
+   const cleanDate = the_date.includes("T") ? the_date.replace(/\.\d+Z?$/, "") : the_date;
+   // console.log("🚀 ~ formatDatetime ~ cleanDate:", cleanDate);
+   let date = new Date(cleanDate);
+   // console.log("🚀 ~ formatDatetime ~ date:", date);
    let datetime;
 
    // if (the_date.length <= 10) {
@@ -60,7 +63,7 @@ export function formatDatetime(the_date, long_format = true, format = null || ""
 
    // date = new Date(the_date);
    const formato = !format ? (long_format ? "DD-MM-YYYY h:mm:ss a" : "DD-MM-YYYY") : format;
-   return (datetime = dayjs(the_date).format(formato));
+   return (datetime = dayjs(date).format(formato));
    //#endregion OPCION DayJS
 
    //#region OPCION Intl

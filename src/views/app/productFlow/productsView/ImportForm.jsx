@@ -97,7 +97,7 @@ const Form = ({ formData, validations, formikRef, validationSchema, onSubmit, te
  *
  * @returns {React.JSX.Element} El componente FormikForm.
  */
-const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndpoint, chunkSize = 1000, headerRow = 1, dataStartRow }) => {
+const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndpoint, chunkSize = 1000, headerRow = 1, dataStartRow, afterSubmit = null }) => {
    const { auth } = useAuthContext();
    const { setIsLoading } = useGlobalContext();
    const formikRef = useRef(null);
@@ -208,7 +208,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
                      if (String(col).toLowerCase().includes("fecha")) {
                         try {
                            const raw = newRow[col];
-                           console.log("🚀 ~ handleFile ~ raw:", raw)
+                           console.log("🚀 ~ handleFile ~ raw:", raw);
                            newRow[col] = raw !== null && raw !== "" && raw !== undefined ? excelDateToJSDate(raw) : null;
                            // console.log("🚀 ~ handleFile ~ newRow[col]:", newRow[col]);
                         } catch {
@@ -624,6 +624,7 @@ const ImportForm = ({ refetchSelect, openDialog, setOpenDialog, columns, apiEndp
       setSubmitting(false);
       setIsLoading(false);
       if (refetchSelect) await refetchSelect();
+      if (afterSubmit) await afterSubmit();
       if (!checkAdd) setOpenDialog(false);
    };
 
