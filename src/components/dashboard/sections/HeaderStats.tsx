@@ -97,7 +97,8 @@ export const HeaderStats: React.FC<HeaderStatsProps> = ({ stats, onStatClick, lo
                <Grid>
                   <StatCard
                      title="Pre-Activados / En Stock"
-                     value={`${stats?.preActivated.toLocaleString()} / ${stats?.inStock.toLocaleString()}`}
+                     value={stats?.inStock.toLocaleString()}
+                     // value={`${stats?.preActivated.toLocaleString()} / ${stats?.inStock.toLocaleString()}`}
                      subtitle="Listos para asignar"
                      icon={<Inventory2 />}
                      color="info"

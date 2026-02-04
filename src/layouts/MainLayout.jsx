@@ -7,6 +7,8 @@ import Sidebar from "./Sidebar";
 import env from "../constant/env";
 import SplashLoader from "./../components/SplashLoader";
 import { Outlet } from "react-router-dom";
+import CountdownSession from "../components/CountdownSession";
+import { useAuthContext } from "../context/AuthContext";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
    display: "flex",
@@ -20,6 +22,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function MainLayout() {
    const { mode, setMode } = useColorScheme();
+   const { logout } = useAuthContext();
 
    return (
       <ThemeProvider theme={env.THEME}>
@@ -35,6 +38,16 @@ export default function MainLayout() {
             <Box component="main" sx={{ flexGrow: 1, p: 2, width: "82vw" }}>
                <DrawerHeader />
                <Outlet />
+               <CountdownSession
+                  startDate={new Date()}
+                  // endDate={new Date("2026-02-04T00:00:00")}
+                  endDate={new Date("2026-02-06T00:00:00")}
+                  title="TIEMPO DE PRUBEA RESTANTE"
+                  description={"al terminar el tiempo su acceso será removido hasta completar el pago"}
+                  showPersistentCounter
+                  autoLogoutOnExpire
+                  onLogout={logout}
+               />
             </Box>
          </Box>
       </ThemeProvider>
