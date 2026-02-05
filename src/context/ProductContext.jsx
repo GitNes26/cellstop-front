@@ -85,7 +85,7 @@ export default function ProductContextProvider({ children }) {
          ? await to(Axios.post(`${prefixPath}?${paginationParams.toString()}`, data))
          : await to(Axios.get(`${prefixPath}?${paginationParams.toString()}`));
       // console.log("🚀 ~ getAllProductsPagination ~ error:", error);
-      console.log("🚀 ~ getAllProductsPagination ~ response:", response);
+      // console.log("🚀 ~ getAllProductsPagination ~ response:", response);
       if (error) {
          console.log("🚀 ~ getAllProductsPagination ~ error:", error);
          const message = error.response.data.message || "getAllProductsPagination ~ Ocurrio algun error, intenta de nuevo :c";
@@ -115,7 +115,7 @@ export default function ProductContextProvider({ children }) {
 
       const [error, response] = data ? await to(Axios.post(`${prefixPath}`, data)) : await to(Axios.get(`${prefixPath}`));
       // console.log("🚀 ~ getAllProducts ~ error:", error);
-      console.log("🚀 ~ getAllProducts ~ response:", response);
+      // console.log("🚀 ~ getAllProducts ~ response:", response);
       if (error) {
          console.log("🚀 ~ getAllProducts ~ error:", error);
          const message = error.response.data.message || "getAllProducts ~ Ocurrio algun error, intenta de nuevo :c";

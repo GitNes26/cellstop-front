@@ -17,7 +17,7 @@ const ProductsView = ({}) => {
    const { refetch: refetchProducts } = useFetch(getAllProducts, setAllProducts);
 
    useEffect(() => {
-      refetchProducts();
+      // refetchProducts();
    }, [/* allProducts */ status]);
 
    return (

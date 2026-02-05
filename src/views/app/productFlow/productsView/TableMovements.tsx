@@ -137,7 +137,7 @@ const MovementTimeline: React.FC<{ movements: ProductMovement[] }> = ({ movement
 
 // Componente principal de tabla de movimientos
 export const TableMovements: React.FC<TableMovementsProps> = ({ movements, productInfo, compactMode = false, maxHeight = 400, viewMode = "table" }) => {
-   console.log("🚀 ~ TableMovements ~ movements:", movements);
+   // console.log("🚀 ~ TableMovements ~ movements:", movements);
    // Configuración de columnas
    const allColumns: ColumnConfig[] = [
       {

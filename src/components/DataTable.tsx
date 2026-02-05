@@ -40,7 +40,8 @@ import {
    Typography,
    useColorScheme,
    Grid,
-   LinearProgress
+   LinearProgress,
+   CircularProgress
 } from "@mui/material";
 import { esES } from "@mui/x-data-grid/locales";
 import { useAuthContext } from "../context/AuthContext";
@@ -391,7 +392,252 @@ function CustomToolbar(
       </Toolbar>
    );
 }
+// Actualizar CustomToolbar para pasar handleSearchChange
+const CustomToolbarWithSearch = (
+   btnAdd: boolean,
+   handleClickAdd: any,
+   handleClickRefresh: () => Promise<void>,
+   StackColumnsAdjust: () => JSX.Element,
+   selectedCount: GridSelectionModel,
+   onDeleteSelected: () => void,
+   isSearching: boolean,
+   setIsSearching: React.Dispatch<React.SetStateAction<boolean>>,
+   onSearch?: (searchTerm: string) => void,
+   onPageChange?: (page: number) => void
+) => {
+   const [exportMenuOpen, setExportMenuOpen] = React.useState(false);
+   const exportMenuTriggerRef = React.useRef<HTMLButtonElement>(null);
+   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+   const handleClickColumnAdjust = (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+   };
 
+   const handleClose = () => {
+      setAnchorEl(null);
+   };
+   const open = Boolean(anchorEl);
+   const id = open ? "simple-popover" : undefined;
+
+   // Estado para el término de búsqueda
+   const [searchTerm, setSearchTerm] = React.useState("");
+
+   // Timer para debounce
+   const searchTimeoutRef = React.useRef<NodeJS.Timeout>(null);
+
+   // Función para manejar cambios en la búsqueda
+   const handleSearchChange = (value: string) => {
+      setSearchTerm(value);
+      setIsSearching(true);
+
+      // Limpiar timeout anterior
+      if (searchTimeoutRef.current) {
+         clearTimeout(searchTimeoutRef.current);
+      }
+
+      // Configurar nuevo timeout para debounce (500ms)
+      searchTimeoutRef.current = setTimeout(() => {
+         if (onSearch) {
+            // Cuando hay búsqueda, debería volver a página 1
+            if (value.trim() !== "" && onPageChange) {
+               onPageChange(1); // Ir a primera página
+            }
+            onSearch(value);
+         }
+         setIsSearching(false);
+      }, 500);
+   };
+
+   // Limpiar timeout al desmontar
+   // React.useEffect(() => {
+   //    return () => {
+   //       if (searchTimeoutRef.current) {
+   //          clearTimeout(searchTimeoutRef.current);
+   //       }
+   //    };
+   // }, []);
+
+   return (
+      <Toolbar style={{}}>
+         <Grid container width={"100%"} alignItems="center" justifyContent="space-between">
+            <Grid size={{ xs: 2 }}>
+               <Tooltip title={`Eliminar ${selectedCount?.ids?.size ?? 0} seleccionados`}>
+                  <Button
+                     hidden
+                     color="error"
+                     size="small"
+                     sx={{ mr: 1 }}
+                     onClick={onDeleteSelected}
+                     startIcon={<MuiIcons.Delete fontSize="small" />}
+                     disabled={selectedCount?.type === "include" ? selectedCount?.ids?.size === 0 : selectedCount?.ids?.size === "exclude" ? false : true}
+                  >
+                     Eliminar ({selectedCount?.ids?.size ?? 0})
+                  </Button>
+               </Tooltip>
+            </Grid>
+
+            <Grid container justifyContent="flex-end" alignItems="center">
+               <Tooltip title="Refrescar información">
+                  <IconButton color="info" size="small" sx={{}} onClick={handleClickRefresh}>
+                     <SyncTwoTone />
+                  </IconButton>
+               </Tooltip>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               <Tooltip title="Ajustar Columnas">
+                  <IconButton aria-describedby={id} onClick={handleClickColumnAdjust}>
+                     <ExpandRounded rotate={"90deg"} fontSize="small" />
+                  </IconButton>
+               </Tooltip>
+               <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  disableRestoreFocus
+                  disableEscapeKeyDown={true}
+                  anchorOrigin={{
+                     vertical: "bottom",
+                     horizontal: "right"
+                  }}
+                  transformOrigin={{
+                     vertical: "top",
+                     horizontal: "right"
+                  }}
+               >
+                  <StackColumnsAdjust />
+               </Popover>
+
+               <Tooltip title="Columnas">
+                  <ColumnsPanelTrigger render={<ToolbarButton />}>
+                     <GridViewColumnIcon fontSize="small" />
+                  </ColumnsPanelTrigger>
+               </Tooltip>
+
+               <Tooltip title="Filtros">
+                  <FilterPanelTrigger
+                     render={(props, state) => (
+                        <ToolbarButton {...props} color="default">
+                           <Badge badgeContent={state.filterCount} color="primary" variant="dot">
+                              <GridFilterListIcon fontSize="small" />
+                           </Badge>
+                        </ToolbarButton>
+                     )}
+                  />
+               </Tooltip>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               <Tooltip title="Exportar">
+                  <ToolbarButton
+                     ref={exportMenuTriggerRef}
+                     id="export-menu-trigger"
+                     aria-controls="export-menu"
+                     aria-haspopup="true"
+                     aria-expanded={exportMenuOpen ? "true" : undefined}
+                     onClick={() => setExportMenuOpen(true)}
+                  >
+                     <FileDownload fontSize="small" />
+                  </ToolbarButton>
+               </Tooltip>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               <Menu
+                  id="export-menu"
+                  anchorEl={exportMenuTriggerRef.current}
+                  open={exportMenuOpen}
+                  onClose={() => setExportMenuOpen(false)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  slotProps={{
+                     list: {
+                        "aria-labelledby": "export-menu-trigger"
+                     }
+                  }}
+               >
+                  <ExportPrint render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
+                     Imprimir
+                  </ExportPrint>
+                  <ExportCsv render={<MenuItem />} onClick={() => setExportMenuOpen(false)}>
+                     Descargar como CSV
+                  </ExportCsv>
+               </Menu>
+
+               {/* Búsqueda personalizada que llama al servidor */}
+               <StyledQuickFilter>
+                  <QuickFilterTrigger
+                     render={(triggerProps, state) => (
+                        <Tooltip title="Buscar" enterDelay={0}>
+                           <StyledToolbarButton {...triggerProps} ownerState={{ expanded: state.expanded }} color="default" aria-disabled={state.expanded}>
+                              <GridSearchIcon fontSize="small" />
+                           </StyledToolbarButton>
+                        </Tooltip>
+                     )}
+                  />
+                  <QuickFilterControl
+                     render={({ ref, ...controlProps }, state) => (
+                        <StyledTextField
+                           {...controlProps}
+                           ownerState={{ expanded: state.expanded }}
+                           inputRef={ref}
+                           aria-label="Buscar"
+                           placeholder="Buscar..."
+                           size="small"
+                           value={searchTerm}
+                           onChange={(e) => handleSearchChange(e.target.value)}
+                           slotProps={{
+                              input: {
+                                 startAdornment: (
+                                    <InputAdornment position="start">
+                                       <Search fontSize="small" />
+                                    </InputAdornment>
+                                 ),
+                                 endAdornment: (
+                                    <InputAdornment position="end">
+                                       {isSearching ? (
+                                          <CircularProgress size={16} />
+                                       ) : searchTerm ? (
+                                          <QuickFilterClear
+                                             edge="end"
+                                             size="small"
+                                             aria-label="Clear search"
+                                             material={{ sx: { marginRight: -0.75 } }}
+                                             onClick={() => {
+                                                handleSearchChange("");
+                                                if (state.value && onSearch) {
+                                                   onSearch("");
+                                                }
+                                             }}
+                                          >
+                                             <Cancel fontSize="small" />
+                                          </QuickFilterClear>
+                                       ) : null}
+                                    </InputAdornment>
+                                 ),
+                                 ...controlProps.slotProps?.input
+                              },
+                              ...controlProps.slotProps
+                           }}
+                        />
+                     )}
+                  />
+               </StyledQuickFilter>
+
+               <Divider orientation="vertical" variant="middle" flexItem sx={{ mx: 0.5 }} />
+
+               {btnAdd && (
+                  <Tooltip title="Agregar Registro">
+                     <IconButton color="success" size="small" sx={{}} onClick={handleClickAdd}>
+                        <AddCircle />
+                     </IconButton>
+                  </Tooltip>
+               )}
+            </Grid>
+         </Grid>
+      </Toolbar>
+   );
+};
 // import { makeStyles } from '@mui/styles';
 // const useStyles = makeStyles({
 //    pinnedColumn: {
@@ -528,6 +774,9 @@ interface DataTableComponentProps {
    onPageChange?: (page: number) => void;
    onPageSizeChange?: (pageSize: number) => void;
    loading?: boolean;
+
+   // Nueva prop para búsqueda en servidor
+   onSearch?: (searchTerm: string) => void;
 }
 const DataTableComponent = ({
    dataColumns = [],
@@ -546,7 +795,8 @@ const DataTableComponent = ({
    pagination,
    onPageChange,
    onPageSizeChange,
-   loading = false
+   loading = false,
+   onSearch
 }: DataTableComponentProps) => {
    // const { mode, setMode } = useColorScheme();
    const { setLoading } = useGlobalContext();
@@ -555,7 +805,9 @@ const DataTableComponent = ({
    const openActions = Boolean(anchorElActions);
    const idActions = openActions ? "simple-popover" : undefined;
 
-   //Nuevo para paginacion
+   const [isSearching, setIsSearching] = React.useState(false);
+
+   // Nuevo para paginacion
    const [paginationModel, setPaginationModel] = React.useState<PaginationModel>({
       page: pagination?.current_page ? pagination.current_page - 1 : 0, // MUI usa base 0
       pageSize: pagination?.per_page || 100
@@ -833,11 +1085,23 @@ const DataTableComponent = ({
             pageSizeOptions={[5, 10, 25, 50, 100, 500]}
             rowCount={pagination?.total || 0}
             paginationMode="server"
-            loading={loading || isLoading}
+            loading={loading || isLoading || isSearching}
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
-               toolbar: () => CustomToolbar(btnAdd, handleClickAdd, handleClickRefresh, StackColumnsAdjust, selectionModel, handleDeleteSelected),
+               toolbar: () =>
+                  CustomToolbarWithSearch(
+                     btnAdd,
+                     handleClickAdd,
+                     handleClickRefresh,
+                     StackColumnsAdjust,
+                     selectionModel,
+                     handleDeleteSelected,
+                     isSearching,
+                     setIsSearching,
+                     onSearch,
+                     onPageChange
+                  ),
                // Agregar loading overlay personalizado si quieres
                loadingOverlay: CustomLoadingOverlay
             }}
@@ -846,6 +1110,15 @@ const DataTableComponent = ({
                   // variant: "indeterminate",
                   color: "primary"
                }
+            }}
+            // IMPORTANTE: Deshabilitar el quickFilter nativo cuando usamos paginación del servidor
+            // porque solo busca en la página actual
+            quickFilterProps={{
+               quickFilterParser: (searchInput: string) =>
+                  searchInput
+                     .split(" ")
+                     .filter((word) => word !== "")
+                     .map((word) => `"${word}"`)
             }}
          />
       </Box>

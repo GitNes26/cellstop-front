@@ -818,6 +818,7 @@ const ProductDT = ({}) => {
          setTableLoading(true);
          // Suponiendo que tu API acepta parámetros de paginación
          const response = await getAllProductsPagination({}, page, size); // Necesitarás modificar esta función
+         // const response = await getAllProducts(); // Necesitarás modificar esta función
          // console.log("🚀 ~ loadProductsWithPagination ~ response:", response);
          // Si tu respuesta tiene la estructura del JSON que mostraste
          if (response?.result) {
@@ -827,6 +828,7 @@ const ProductDT = ({}) => {
             setPageSize(response.result.per_page);
 
             // Formatear datos con acciones
+            // const formattedData = response.result.map((obj, index) => {
             const formattedData = response.result.data.map((obj, index) => {
                let register = { ...obj };
                register.key = index + 1;
@@ -867,6 +869,7 @@ const ProductDT = ({}) => {
                ];
                return register;
             });
+            // console.log("🚀 ~ loadProductsWithPagination ~ formattedData:", formattedData);
 
             setTableData(formattedData);
             return formattedData;
