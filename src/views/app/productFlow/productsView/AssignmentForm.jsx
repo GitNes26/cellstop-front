@@ -285,7 +285,9 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
          // console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
          if (values.value == null || values.value?.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
-            formikRef?.current?.setFieldValue("productos_en_stock", productsInStockSelect);
+            formikRef?.current?.setFieldValue("productos_en_stock", []);
+            formikRef?.current?.setFieldValue("product_ids", []);
+            setProductsInStockSelect([]);
             return Toast.Warning("Selecciona un lote");
          }
          const loteSelected = lotesSelect.find((item) => item.id === values.value.id);
