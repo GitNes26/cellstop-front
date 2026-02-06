@@ -38,7 +38,7 @@ export default function MainLayout() {
             <Box component="main" sx={{ flexGrow: 1, p: 2, width: "82vw" }}>
                <DrawerHeader />
                <Outlet />
-               <CountdownSession
+               {/* <CountdownSession
                   startDate={new Date()}
                   // endDate={new Date("2026-02-04T00:00:00")}
                   endDate={new Date("2026-02-06T00:00:00")}
@@ -47,7 +47,7 @@ export default function MainLayout() {
                   showPersistentCounter
                   autoLogoutOnExpire
                   onLogout={logout}
-               />
+               /> */}
             </Box>
          </Box>
       </ThemeProvider>
