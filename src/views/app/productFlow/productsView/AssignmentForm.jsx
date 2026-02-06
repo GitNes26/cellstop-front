@@ -335,7 +335,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
          });
 
          // const productsAssignment = res.result.map((d) => d.id);
-         const productsAssignment = res.result.map((d) => (d.destination === "Asignado" ? d.id : null)).filter((id) => id != null);
+         const productsAssignment = res.result.map((d) => (d.destination === "Asignado" && d.lote_id === loteSelected.id ? d.id : null)).filter((id) => id != null);
          console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
