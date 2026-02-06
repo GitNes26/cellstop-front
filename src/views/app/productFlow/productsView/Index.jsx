@@ -14,7 +14,7 @@ const ProductsView = ({}) => {
    const { pluralName, allProducts, setAllProducts, getAllProducts } = useProductContext();
 
    // CARGA DE LISTADOS
-   const { refetch: refetchProducts } = useFetch(getAllProducts, setAllProducts);
+   const { refetch: refetchProducts } = useFetch(getAllProducts, setAllProducts, false);
 
    useEffect(() => {
       // refetchProducts();
