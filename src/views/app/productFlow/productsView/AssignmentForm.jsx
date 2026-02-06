@@ -301,7 +301,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
 
          if (formikRef.current === null) setOpenDialog(true);
          // const res = await getLoteDetailsByLote(values.value.id);
-         const res = await getSelectIndexProducts({ folio: loteSelected.folio });
+         const res = await getSelectIndexProducts({ folio: loteSelected.folio, seller_id: loteSelected.seller_id });
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
