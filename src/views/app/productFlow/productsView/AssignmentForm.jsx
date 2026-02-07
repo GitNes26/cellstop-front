@@ -329,12 +329,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
          // console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
 
          setProductsInStockSelect((prev) => {
-            const merged = [
-               ...prev,
-               ...res.result.filter(
-                  (product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock" && product.lote_id === loteSelected.id
-               )
-            ];
+            const merged = [...prev, ...res.result];
             // console.log("🚀 ~ handleChangeLote ~ merged:", merged);
 
             const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
