@@ -135,7 +135,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
    const { refetch: refetchPointsOfSale } = useFetch(() => getSelectIndexPointsOfSale(), setAllPOSSelect);
 
    const { refetch: refetchProductsInStock } = useFetch(
-      () => getSelectIndexProducts({ seller_id: formikRef?.current?.values?.seller_id, pos_id: formikRef?.current?.values?.pos_id }),
+      () => getSelectIndexProducts({ seller_id: formikRef?.current?.values?.seller_id }),
       setProductsInStockSelect,
       false
    );
@@ -371,7 +371,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
 
             if (formikRef.current === null) setOpenDialog(true);
             // const res = await getLoteDetailsByLote(values.value.id);
-            const res = await getSelectIndexProducts({ seller_id: sellerId, pos_id: posId });
+            const res = await getSelectIndexProducts({ seller_id: sellerId });
             if (!res) return setIsLoading(false);
             if (res.errors) {
                setIsLoading(false);
@@ -399,7 +399,7 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
             });
 
             // const productsAssignment = res.result.map((d) => d.id);
-            const productsAssignment = res.result.map((d) => (d.destination === "Distribuido" ? d.id : null)).filter((id) => id != null);
+            const productsAssignment = res.result.map((d) => (d.destination === "Distribuido" && d.pos_id === posId ? d.id : null)).filter((id) => id != null);
             // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
 
             formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
@@ -692,7 +692,8 @@ const VisitForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDia
                   {/* {formikRef.current?.values?.visit_type === "Distribución" ? (
                      <> */}
                   <Typography variant="h6" className="mb-4 pl-2 pt-2">
-                     Información de Distribución (solo se llena cuando la visita es tipo Distribución) (dar clic al botón de recargar datos <RefreshRounded />)
+                     Información de Distribución (solo se llena cuando la visita es tipo Distribución)
+                     {/* (dar clic al botón de recargar datos <RefreshRounded />) */}
                   </Typography>
 
                   {/* {productsInStockSelect.length > 0 && (

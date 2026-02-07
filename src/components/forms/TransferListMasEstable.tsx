@@ -45,7 +45,6 @@ interface TransferListProps {
    handleClickRight?: () => void;
    onRefetch?: () => Promise<void> | void;
    isLoading?: boolean;
-   actionTransfer?: "Asignacion" | "Visita" | null;
 }
 
 // Funciones utilitarias puras (sin hooks)
@@ -101,46 +100,15 @@ interface CustomListProps {
    isLoading?: boolean;
    handleToggleAll: (items: readonly number[]) => () => void;
    handleToggle: (value: number) => () => void;
-   actionTransfer?: "Asignacion" | "Visita" | null;
 }
 
 const CustomList: React.FC<CustomListProps> = memo(
-   ({
-      title,
-      items,
-      search,
-      setSearch,
-      checked,
-      data,
-      disabled,
-      sx,
-      heightList,
-      labelLeft,
-      onRefetch,
-      isRefetching,
-      isLoading,
-      handleToggleAll,
-      handleToggle,
-      actionTransfer
-   }) => {
-      const isRightList = useMemo(() => title !== labelLeft, [title, labelLeft]);
+   ({ title, items, search, setSearch, checked, data, disabled, sx, heightList, labelLeft, onRefetch, isRefetching, isLoading, handleToggleAll, handleToggle }) => {
+      const numberOfChecked = useMemo(() => intersection(checked, items).length, [checked, items]);
 
-      const selectableItems = useMemo(() => {
-         if (actionTransfer === "Asignacion" && isRightList) {
-            return items.filter((id) => {
-               const it = data.find((d) => d.id === id);
-               return it?.destination === "Asignado";
-            });
-         }
+      const allChecked = useMemo(() => numberOfChecked === items.length && items.length !== 0, [numberOfChecked, items.length]);
 
-         return items;
-      }, [items, data, actionTransfer, isRightList]);
-
-      const numberOfChecked = useMemo(() => intersection(checked, selectableItems).length, [checked, selectableItems]);
-
-      const allChecked = useMemo(() => numberOfChecked === selectableItems.length && selectableItems.length !== 0, [numberOfChecked, selectableItems.length]);
-
-      const indeterminate = useMemo(() => numberOfChecked !== selectableItems.length && numberOfChecked !== 0, [numberOfChecked, selectableItems.length]);
+      const indeterminate = useMemo(() => numberOfChecked !== items.length && numberOfChecked !== 0, [numberOfChecked, items.length]);
 
       const dataItems = useMemo(() => data.filter((d) => items.includes(d.id)), [data, items]);
 
@@ -171,10 +139,10 @@ const CustomList: React.FC<CustomListProps> = memo(
                sx={{ px: 2, py: 1 }}
                avatar={
                   <Checkbox
-                     onClick={handleToggleAll(selectableItems)}
+                     onClick={handleToggleAll(items)}
                      checked={allChecked}
                      indeterminate={indeterminate}
-                     disabled={selectableItems.length === 0 || disabled}
+                     disabled={items.length === 0 || disabled}
                      inputProps={{ "aria-label": "todos los artículos seleccionados" }}
                   />
                }
@@ -229,20 +197,9 @@ const CustomList: React.FC<CustomListProps> = memo(
                      <ListItemText primary="No hay elementos" sx={{ textAlign: "center", color: "text.secondary" }} />
                   </ListItemButton>
                ) : (
-                  filteredItems.map((item) => {
-                     const itemDisabled = disabled || (actionTransfer === "Asignacion" && isRightList && item.destination !== "Asignado");
-
-                     return (
-                        <TransferListItem
-                           key={item.id}
-                           value={item.id}
-                           checked={checked.includes(item.id)}
-                           data={data}
-                           disabled={itemDisabled}
-                           onToggle={handleToggle}
-                        />
-                     );
-                  })
+                  filteredItems.map((item) => (
+                     <TransferListItem key={item.id} value={item.id} checked={checked.includes(item.id)} data={data} disabled={disabled} onToggle={handleToggle} />
+                  ))
                )}
             </List>
          </Card>
@@ -267,8 +224,7 @@ const TransferList: React.FC<TransferListProps> = ({
    handleClickLeft,
    handleClickRight,
    onRefetch,
-   isLoading = false,
-   actionTransfer
+   isLoading = false
 }) => {
    const formik = useFormikContext<FormikValues>();
    const [checked, setChecked] = useState<readonly number[]>([]);
@@ -346,6 +302,26 @@ const TransferList: React.FC<TransferListProps> = ({
       }
    }, [onRefetch, isRefetching]);
 
+   // Efecto para sincronización
+   // useEffect(() => {
+   //    const formLeft = (formik.values[idNameLeft] || availableIds) as number[];
+   //    const formRight = (formik.values[idNameRight] || []) as number[];
+
+   //    const validLeft = formLeft.filter((id) => availableIds.includes(id));
+   //    const validRight = formRight.filter((id) => availableIds.includes(id));
+
+   //    setLeft(validLeft);
+   //    setRight(validRight);
+
+   //    // Solo actualizar Formik si hay cambios
+   //    if (JSON.stringify(formik.values[idNameLeft]) !== JSON.stringify(validLeft)) {
+   //       formik.setFieldValue(idNameLeft, validLeft);
+   //    }
+   //    if (JSON.stringify(formik.values[idNameRight]) !== JSON.stringify(validRight)) {
+   //       formik.setFieldValue(idNameRight, validRight);
+   //    }
+   // }, [formik.values, data, idNameLeft, idNameRight, availableIds]);
+   // Efecto para sincronización - VERSIÓN CORREGIDA
    useEffect(() => {
       const availableIds = data.map((d) => d.id);
 
@@ -380,6 +356,20 @@ const TransferList: React.FC<TransferListProps> = ({
       }
    }, [data, formik.values, idNameLeft, idNameRight]);
 
+   // useEffect(() => {
+   //    console.log("Data recibida:", data);
+   //    console.log(
+   //       "IDs disponibles:",
+   //       data.map((d) => d.id)
+   //    );
+   //    console.log("Formik left:", formik.values[idNameLeft]);
+   //    console.log("Formik right:", formik.values[idNameRight]);
+   //    console.log("Estado left:", left);
+   //    console.log("Estado right:", right);
+
+   //    // ... resto del código
+   // }, [data, formik.values, left, right]);
+
    return (
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center", width: "100%", px: 0, mx: 0 }} size={sizeCols}>
          <Grid size={{ md: 5 }} sx={{ px: 0, mx: 0 }} offset={{ xs: xsOffset }}>
@@ -399,7 +389,6 @@ const TransferList: React.FC<TransferListProps> = ({
                isLoading={isLoading}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
-               actionTransfer={actionTransfer}
             />
          </Grid>
 
@@ -445,7 +434,6 @@ const TransferList: React.FC<TransferListProps> = ({
                isLoading={isLoading}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
-               actionTransfer={actionTransfer}
             />
          </Grid>
       </Grid>

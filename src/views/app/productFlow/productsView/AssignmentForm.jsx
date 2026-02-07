@@ -211,6 +211,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
                handleClickRight={handleClickRightTansfer}
                data={productsInStockSelect}
                onRefetch={refetchProductsInStock}
+               actionTransfer={"Asignacion"}
                // isLoading={}
             />
          ),
@@ -306,7 +307,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
 
          if (formikRef.current === null) setOpenDialog(true);
          // const res = await getLoteDetailsByLote(values.value.id);
-         const res = await getSelectIndexProducts({ folio: loteSelected.folio, seller_id: loteSelected.seller_id });
+         const res = await getSelectIndexProducts({ folio: loteSelected.folio });
          if (!res) return setIsLoading(false);
          if (res.errors) {
             setIsLoading(false);
@@ -324,22 +325,31 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
 
          // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
          const productsInStockByFolio = res.result
-            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock" && product.lote_id === loteSelected.id)
+            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock")
             .map((d) => d.id);
          // console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
 
          setProductsInStockSelect((prev) => {
-            const merged = [...prev, ...res.result];
+            const merged = [...prev, ...res.result.filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0))];
             // console.log("🚀 ~ handleChangeLote ~ merged:", merged);
 
             const unique = merged.filter((item, index, self) => index === self.findIndex((p) => p.id === item.id));
 
             return unique;
          });
+         // setProductsInStockSelect(productsInStockByFolio);
 
          // const productsAssignment = res.result.map((d) => d.id);
-         const productsAssignment = res.result.map((d) => (d.destination === "Asignado" && d.lote_id === loteSelected.id ? d.id : null)).filter((id) => id != null);
-         console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
+         const productsAssignment = res.result
+            .map((d) =>
+               !["Pre-activado", "Stock"].includes(d.destination) &&
+               // d.destination === "Asignado"
+               d.lote_id === loteSelected.id
+                  ? d.id
+                  : null
+            )
+            .filter((id) => id != null);
+         // console.log("🚀 ~ handleChangeLote ~ productsAssignment:", productsAssignment);
 
          formikRef?.current?.setFieldValue("productos_en_stock", productsInStockByFolio);
          formikRef?.current?.setFieldValue("product_ids", productsAssignment);
