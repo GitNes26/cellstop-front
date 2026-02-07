@@ -321,7 +321,7 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
 
          // console.log("🚀 ~ handleChangeLote ~ res.result:", res.result);
          const productsInStockByFolio = res.result
-            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock")
+            .filter((product) => Number(product.folio) === (Number(loteSelected.folio) || 0) && product.destination === "Stock" && product.lote_id === loteSelected.id)
             .map((d) => d.id);
          // console.log("🚀 ~ handleChangeLote ~ productsInStockByFolio:", productsInStockByFolio);
 
