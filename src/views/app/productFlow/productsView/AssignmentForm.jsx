@@ -282,6 +282,9 @@ const AssignmentForm = ({ openDialog, setOpenDialog, afterSubmit = null }) => {
       // console.log("🚀 ~ handleChangeLote ~ values:", values);
       try {
          setFolioLote(0);
+         formikRef?.current?.setFieldValue("productos_en_stock", []);
+         formikRef?.current?.setFieldValue("product_ids", []);
+         setProductsInStockSelect([]);
          // console.log("🚀 ~ handleChangeLote ~ productsInStockSelect:", productsInStockSelect);
          if (values.value == null || values.value?.id < 1) {
             formikRef?.current?.setValues(formikRef.current.initialValues);
