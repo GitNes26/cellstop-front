@@ -112,55 +112,6 @@ function CustomLoadingOverlay() {
    return <LinearProgress />;
 }
 
-// function renderRating(params) {
-//    return <Rating readOnly value={params.value} />;
-// }
-
-// function useData(length) {
-//    return React.useMemo(() => {
-//       const names = ["Nike", "Adidas", "Puma", "Reebok", "Fila", "Lululemon Athletica Clothing", "Varley"];
-
-//       const rows = Array.from({ length }).map((_, id) => ({
-//          id,
-//          brand: names[id % names.length],
-//          rep: randomTraderName(),
-//          rating: randomRating()
-//       }));
-
-//       const columns = [
-//          { field: "id", headerName: "Brand ID" },
-//          { field: "brand", headerName: "Brand name" },
-//          { field: "rep", headerName: "Representative" },
-//          {
-//             field: "rating",
-//             headerName: "Rating",
-//             renderCell: renderRating,
-//             display: "flex"
-//          }
-//       ];
-
-//       return { rows, columns };
-//    }, [length]);
-// }
-// import { GridData } from 'docsx/data/data-grid/virtualization/ColumnVirtualizationGrid';
-
-function getFakeData(length: number): Promise<{ rows: any }> {
-   return new Promise((resolve) => {
-      setTimeout(() => {
-         const names = ["Nike", "Adidas", "Puma", "Reebok", "Fila", "Lululemon Athletica Clothing", "Varley", "John", "Veny", "otro", "el Diez", "hola"];
-         const rows = Array.from({ length }).map((_, id) => ({
-            id,
-            firstName: `Name ${names[id]}`,
-            lastName: new Date(`2025/01/${id}`),
-            age: names[id]
-         }));
-         console.log("🚀 ~ rows ~ rows:", rows);
-
-         resolve({ rows });
-      }, 1000);
-   });
-}
-
 import * as ReactDOM from "react-dom";
 import { updateManyRows } from "../helpers/updateManyRows";
 import { GridPinnedColumnFields } from "@mui/x-data-grid/internals";
@@ -392,22 +343,38 @@ function CustomToolbar(
       </Toolbar>
    );
 }
-// Actualizar CustomToolbar para pasar handleSearchChange
-const CustomToolbarWithSearch = (
-   btnAdd: boolean,
-   handleClickAdd: any,
-   handleClickRefresh: () => Promise<void>,
-   StackColumnsAdjust: () => JSX.Element,
-   selectedCount: GridSelectionModel,
-   onDeleteSelected: () => void,
-   isSearching: boolean,
-   setIsSearching: React.Dispatch<React.SetStateAction<boolean>>,
-   onSearch?: (searchTerm: string) => void,
-   onPageChange?: (page: number) => void
-) => {
+interface CustomToolbarWithSearchProps {
+   btnAdd: boolean;
+   handleClickAdd: any;
+   handleClickRefresh: () => Promise<void>;
+   StackColumnsAdjust: () => JSX.Element;
+   selectedCount: GridSelectionModel;
+   onDeleteSelected: () => void;
+   isSearching: boolean;
+   onSearch: (searchTerm: string) => void;
+   onPageChange?: (page: number) => void;
+   isServerPagination?: boolean;
+   debounceTimeout?: number;
+}
+
+const CustomToolbarWithSearch: React.FC<CustomToolbarWithSearchProps> = ({
+   btnAdd,
+   handleClickAdd,
+   handleClickRefresh,
+   StackColumnsAdjust,
+   selectedCount,
+   onDeleteSelected,
+   isSearching,
+   onSearch,
+   onPageChange,
+   isServerPagination = false,
+   debounceTimeout = 500
+}) => {
    const [exportMenuOpen, setExportMenuOpen] = React.useState(false);
    const exportMenuTriggerRef = React.useRef<HTMLButtonElement>(null);
    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+   const [searchValue, setSearchValue] = React.useState("");
+   const searchTimeoutRef = React.useRef<NodeJS.Timeout>(null);
    const handleClickColumnAdjust = (event: React.MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
    };
@@ -422,39 +389,71 @@ const CustomToolbarWithSearch = (
    const [searchTerm, setSearchTerm] = React.useState("");
 
    // Timer para debounce
-   const searchTimeoutRef = React.useRef<NodeJS.Timeout>(null);
+   // const searchTimeoutRef = React.useRef<NodeJS.Timeout>(null);
 
    // Función para manejar cambios en la búsqueda
+   // const handleSearchChange = (value: string) => {
+   //    setSearchTerm(value);
+   //    setIsSearching(true);
+
+   //    // Limpiar timeout anterior
+   //    if (searchTimeoutRef.current) {
+   //       clearTimeout(searchTimeoutRef.current);
+   //    }
+
+   //    // Configurar nuevo timeout para debounce (500ms)
+   //    searchTimeoutRef.current = setTimeout(() => {
+   //       if (onSearch) {
+   //          // Cuando hay búsqueda, debería volver a página 1
+   //          if (value.trim() !== "" && onPageChange) {
+   //             onPageChange(1); // Ir a primera página
+   //          }
+   //          onSearch(value);
+   //       }
+   //       setIsSearching(false);
+   //    }, 500);
+   // };
    const handleSearchChange = (value: string) => {
       setSearchTerm(value);
-      setIsSearching(true);
 
       // Limpiar timeout anterior
       if (searchTimeoutRef.current) {
          clearTimeout(searchTimeoutRef.current);
       }
 
-      // Configurar nuevo timeout para debounce (500ms)
+      // Configurar nuevo timeout para debounce
       searchTimeoutRef.current = setTimeout(() => {
-         if (onSearch) {
-            // Cuando hay búsqueda, debería volver a página 1
-            if (value.trim() !== "" && onPageChange) {
-               onPageChange(1); // Ir a primera página
-            }
-            onSearch(value);
-         }
-         setIsSearching(false);
-      }, 500);
+         onSearch(value);
+      }, debounceTimeout);
    };
+   // const handleSearchChange = React.useCallback(
+   //    (searchTerm: string) => {
+   //       if (isServerPagination) {
+   //          // Llamar a onSearch si existe
+   //          if (onSearch) {
+   //             onSearch(searchTerm);
+   //          }
+   //       } else {
+   //          setClientSideSearchTerm(searchTerm);
+   //       }
+   //    },
+   //    [isServerPagination, onSearch]
+   // );
+   const handleClearSearch = React.useCallback(() => {
+      onSearch("");
+      if (onPageChange && !isServerPagination) {
+         onPageChange(1);
+      }
+   }, [isServerPagination, onSearch, onPageChange]);
 
    // Limpiar timeout al desmontar
-   // React.useEffect(() => {
-   //    return () => {
-   //       if (searchTimeoutRef.current) {
-   //          clearTimeout(searchTimeoutRef.current);
-   //       }
-   //    };
-   // }, []);
+   React.useEffect(() => {
+      return () => {
+         if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+         }
+      };
+   }, []);
 
    return (
       <Toolbar style={{}}>
@@ -584,7 +583,7 @@ const CustomToolbarWithSearch = (
                            aria-label="Buscar"
                            placeholder="Buscar..."
                            size="small"
-                           value={searchTerm}
+                           value={searchValue}
                            onChange={(e) => handleSearchChange(e.target.value)}
                            slotProps={{
                               input: {
@@ -638,16 +637,6 @@ const CustomToolbarWithSearch = (
       </Toolbar>
    );
 };
-// import { makeStyles } from '@mui/styles';
-// const useStyles = makeStyles({
-//    pinnedColumn: {
-//       position: "sticky",
-//       left: 0,
-//       backgroundColor: "#fff", // Fondo blanco para evitar transparencias
-//       zIndex: 1,
-//       boxShadow: "2px 0 5px -2px rgba(0,0,0,0.1)" // Sombra para separación visual
-//    }
-// });
 
 const RowActions = ({ params, singularName, indexColumnName = 2, handleClickDisEnable }) => {
    // console.log("🚀 ~ RowActions ~ params:", params.row);
@@ -796,6 +785,8 @@ const DataTableComponent = ({
    onPageChange,
    onPageSizeChange,
    loading = false,
+
+   // Props de búsqueda
    onSearch
 }: DataTableComponentProps) => {
    // const { mode, setMode } = useColorScheme();
@@ -826,14 +817,16 @@ const DataTableComponent = ({
    const handlePaginationModelChange = (newModel: PaginationModel) => {
       setPaginationModel(newModel);
 
-      // Notificar cambios
-      if (onPageChange && newModel.page !== paginationModel.page) {
-         onPageChange(newModel.page + 1); // Convertir a base 1
+      if (isServerPagination) {
+         // Modo servidor: notificar cambios
+         if (onPageChange && newModel.page !== paginationModel.page) {
+            onPageChange(newModel.page + 1); // Convertir a base 1
+         }
+         if (onPageSizeChange && newModel.pageSize !== paginationModel.pageSize) {
+            onPageSizeChange(newModel.pageSize);
+         }
       }
-
-      if (onPageSizeChange && newModel.pageSize !== paginationModel.pageSize) {
-         onPageSizeChange(newModel.pageSize);
-      }
+      // Modo local: no se necesita notificar, el DataGrid maneja la paginación automáticamente
    };
 
    // const classes = useStyles();
@@ -903,6 +896,29 @@ const DataTableComponent = ({
       expand
    };
 
+   const isServerPagination = Boolean(pagination && onPageChange);
+   const [internalSearching, setInternalSearching] = React.useState(false);
+   const [clientSideSearchTerm, setClientSideSearchTerm] = React.useState("");
+   const [localSearchTerm, setLocalSearchTerm] = React.useState("");
+   const [filteredData, setFilteredData] = React.useState<any[]>(
+      React.useMemo(() => {
+         if (!isServerPagination && clientSideSearchTerm) {
+            return data.filter((row) =>
+               columns.some((column) => {
+                  if (!column.field) return false;
+                  const value = row[column.field];
+                  if (value == null) return false;
+                  return value.toString().toLowerCase().includes(clientSideSearchTerm.toLowerCase());
+               })
+            );
+         }
+         return data;
+      }, [data, clientSideSearchTerm, isServerPagination, columns])
+   );
+
+   const debounceTimeout = isServerPagination ? 500 : 0;
+   const actualIsSearching = isServerPagination ? isSearching : false;
+
    const StackColumnsAdjust = () => {
       return (
          <Stack spacing={1} direction="column" alignItems="center" sx={{ p: 1 }} useFlexGap flexWrap="wrap">
@@ -928,36 +944,6 @@ const DataTableComponent = ({
          </Stack>
       );
    };
-
-   // const fetchData = React.useCallback(async () => {
-   //    setIsLoading(true);
-   //    await ReactDOM.flushSync(() => {
-   //       setIsLoading(true);
-   //       console.log("antes");
-   //       updateManyRows(apiRef, data); // aquí 'data' es el array que recibes por parámetro
-   //       console.log("después");
-   //       setIsLoading(false);
-   //    });
-   //    apiRef.current
-   //       ?.autosizeColumns(autosizeOptions)
-   //       //    getFakeData(10)
-   //       //       .then((data) => {
-   //       //          ReactDOM.flushSync(() => {
-   //       //             setIsLoading(false);
-   //       //             console.log("data.rows", data.rows);
-   //       //             updateManyRows(apiRef, data.rows);
-   //       //             // apiRef.current?.updateRows(data.rows);
-   //       //          });
-   //       //       })
-   //       //       // `sleep`/`setTimeout` is required because `.updateRows` is an
-   //       //       // async function throttled to avoid choking on frequent changes.
-   //       // .then(() => sleep(10))
-   //       .then(() => apiRef.current?.autosizeColumns(autosizeOptions));
-   // }, [apiRef, data, autosizeOptions]);
-
-   // React.useEffect(() => {
-   //    fetchData();
-   // }, [fetchData]);
 
    const handleClickRefresh = async () => {
       try {
@@ -997,27 +983,85 @@ const DataTableComponent = ({
       }
    };
 
+   // En la llamada a CustomToolbarWithSearch, pasamos diferentes callbacks según el modo
+   // const handleSearch = isServerPagination && onSearch ? onSearch : setClientSideSearchTerm;
+   const handleSearch = (searchTerm: string) => {
+      if (onSearch) {
+         // Búsqueda del servidor
+         setInternalSearching(true);
+         onSearch(searchTerm);
+         setTimeout(() => setInternalSearching(false), 500);
+      } else {
+         // Búsqueda local
+         setLocalSearchTerm(searchTerm);
+         // Volver a la primera página cuando se busca
+         setPaginationModel((prev) => ({ ...prev, page: 0 }));
+      }
+   };
+
+   // TAL VEZ HAYA CAMBIOS AQUI....
+   // React.useEffect(() => {
+   //    setIsLoading(true);
+   //    if (data.length > 0) {
+   //       (async () => {
+   //          setIsLoading(true);
+   //          await Promise.resolve().then(() => {
+   //             ReactDOM.flushSync(() => {
+   //                updateManyRows(apiRef, data);
+   //                setIsLoading(false);
+   //             });
+   //          });
+   //          // await ReactDOM.flushSync(() => {
+   //          //    updateManyRows(apiRef, data);
+   //          //    setIsLoading(false);
+   //          // });
+   //          apiRef.current?.autosizeColumns(autosizeOptions);
+   //       })();
+   //    } else {
+   //       setIsLoading(false);
+   //    }
+   // }, [data]); //[data, apiRef, autosizeOptions]);
    React.useEffect(() => {
       setIsLoading(true);
-      if (data.length > 0) {
+      if (filteredData.length > 0) {
          (async () => {
-            setIsLoading(true);
             await Promise.resolve().then(() => {
                ReactDOM.flushSync(() => {
-                  updateManyRows(apiRef, data);
+                  updateManyRows(apiRef, filteredData);
                   setIsLoading(false);
                });
             });
-            // await ReactDOM.flushSync(() => {
-            //    updateManyRows(apiRef, data);
-            //    setIsLoading(false);
-            // });
             apiRef.current?.autosizeColumns(autosizeOptions);
          })();
       } else {
          setIsLoading(false);
       }
-   }, [data]); //[data, apiRef, autosizeOptions]);
+   }, [filteredData]);
+
+   // Sincronizar paginación externa cuando está disponible
+   React.useEffect(() => {
+      if (pagination) {
+         setPaginationModel({
+            page: pagination.current_page - 1, // Convertir de base 1 a base 0
+            pageSize: pagination.per_page
+         });
+      }
+   }, [pagination]);
+   // Filtrar datos localmente cuando no hay búsqueda del servidor
+   React.useEffect(() => {
+      if (!onSearch) {
+         // Si no hay búsqueda del servidor, filtrar localmente
+         if (localSearchTerm.trim() === "") {
+            setFilteredData(data);
+         } else {
+            const filtered = data.filter((row) => Object.values(row).some((value) => value?.toString().toLowerCase().includes(localSearchTerm.toLowerCase())));
+            setFilteredData(filtered);
+         }
+      } else {
+         // Si hay búsqueda del servidor, usar los datos tal cual
+         setFilteredData(data);
+      }
+   }, [data, localSearchTerm, onSearch]);
 
    React.useEffect(() => {
       // console.log("mode en la DT", mode);
@@ -1055,7 +1099,7 @@ const DataTableComponent = ({
                backgroundColor: "#00000010"
                // border: "20px solid #000"
             }}
-            rows={data}
+            rows={filteredData}
             columns={columns}
             // pinnedColumns={pinnedColumns}
             // columnVisibilityModel={{
@@ -1083,25 +1127,56 @@ const DataTableComponent = ({
             onPaginationModelChange={handlePaginationModelChange}
             // pageSizeOptions={[5, 10, 100, { value: -1, label: "Todos" }]}
             pageSizeOptions={[5, 10, 25, 50, 100, 500]}
-            rowCount={pagination?.total || 0}
-            paginationMode="server"
+            // rowCount={pagination?.total || 0}
+            rowCount={isServerPagination ? pagination?.total || 0 : filteredData.length}
+            // paginationMode="server"
+            paginationMode={isServerPagination ? "server" : "client"}
             loading={loading || isLoading || isSearching}
+            //             btnAdd: boolean,
+            // handleClickAdd: any,
+            // handleClickRefresh: () => Promise<void>,
+            // StackColumnsAdjust: () => JSX.Element,
+            // selectedCount: GridSelectionModel,
+            // onDeleteSelected: () => void,
+            // isSearching: boolean,
+            // setIsSearching: React.Dispatch<React.SetStateAction<boolean>>,
+            // onSearchChange: (searchTerm: string) => void,
+            // onPageChange?: (page: number) => void,
+            // isServerPagination?: boolean,
+            // debounceTimeout?: number
             slots={{
                noRowsOverlay: CustomNoRowsOverlay,
                noResultsOverlay: CustomNoRowsOverlay,
-               toolbar: () =>
-                  CustomToolbarWithSearch(
-                     btnAdd,
-                     handleClickAdd,
-                     handleClickRefresh,
-                     StackColumnsAdjust,
-                     selectionModel,
-                     handleDeleteSelected,
-                     isSearching,
-                     setIsSearching,
-                     onSearch,
-                     onPageChange
-                  ),
+               // toolbar: () =>
+               //    CustomToolbarWithSearch(
+               //       btnAdd,
+               //       handleClickAdd,
+               //       handleClickRefresh,
+               //       StackColumnsAdjust,
+               //       selectionModel,
+               //       handleDeleteSelected,
+               //       isSearching,
+               //       setIsSearching,
+               //       onSear
+               //       onSearch,
+               //       onPageChange
+               //    ),
+               toolbar: () => (
+                  <CustomToolbarWithSearch
+                     btnAdd={btnAdd}
+                     handleClickAdd={handleClickAdd}
+                     handleClickRefresh={handleClickRefresh}
+                     StackColumnsAdjust={StackColumnsAdjust}
+                     selectedCount={selectionModel}
+                     onDeleteSelected={handleDeleteSelected}
+                     isSearching={internalSearching || isSearching}
+                     onSearch={handleSearch}
+                     onPageChange={onPageChange}
+                     isServerPagination={isServerPagination}
+                     debounceTimeout={debounceTimeout}
+                  />
+               ),
+
                // Agregar loading overlay personalizado si quieres
                loadingOverlay: CustomLoadingOverlay
             }}
@@ -1113,107 +1188,15 @@ const DataTableComponent = ({
             }}
             // IMPORTANTE: Deshabilitar el quickFilter nativo cuando usamos paginación del servidor
             // porque solo busca en la página actual
-            quickFilterProps={{
-               quickFilterParser: (searchInput: string) =>
-                  searchInput
-                     .split(" ")
-                     .filter((word) => word !== "")
-                     .map((word) => `"${word}"`)
-            }}
+            // quickFilterProps={{
+            //    quickFilterParser: (searchInput: string) =>
+            //       searchInput
+            //          .split(" ")
+            //          .filter((word) => word !== "")
+            //          .map((word) => `"${word}"`)
+            // }}
          />
       </Box>
    );
 };
 export default DataTableComponent;
-
-// /* FUNCIONES DE COMPLEMENTO
-// *  FUNCION PARA ELIMINAR MULTIPLES REGISTROS
-//    const handleClickDeleteContinue = async (selectedData) => {
-//       try {
-//          let ids = selectedData.map((d) => d.id);
-//          if (ids.length < 1) console.log("no hay registros");
-//          let msg = `¿Estas seguro de eliminar `;
-//          if (selectedData.length === 1) msg += `al familiar registrado como tu ${selectedData[0].relationship}?`;
-//          else if (selectedData.length > 1) msg += `a los familiares registrados como tu ${selectedData.map((d) => d.relationship)}?`;
-//          mySwal.fire(QuestionAlertConfig(msg)).then(async (result) => {
-//             if (result.isConfirmed) {
-//                setLoadingAction(true);
-//                const axiosResponse = await deleteFamily(ids);
-//                setLoadingAction(false);
-//                Toast.Customizable(axiosResponse.alert_text, axiosResponse.alert_icon);
-//             }
-//          });
-//       } catch (error) {
-//          console.log(error);
-//          Toast.Error(error);
-//       }
-//    };
-// */
-
-// interface DataTableComponentProps {
-//    idName?: string;
-//    columns: Array<{
-//       filterField: string | undefined;
-//       body: ReactNode | ((data: any, options: ColumnBodyOptions) => ReactNode);
-//       field: string;
-//       header: string;
-//       sortable?: boolean;
-//       filter?: boolean;
-//       functionEdit?: Function;
-//       width?: string;
-//    }>;
-//    globalFilterFields: string[];
-//    defaultGlobalFilter?: string;
-//    data: any[];
-//    setData: (data: any[]) => void;
-//    headerFilters?: boolean;
-//    rowEdit?: boolean;
-//    handleClickAdd?: () => void;
-//    createData?: (newData: any, folio?: any) => Promise<any>;
-//    onRowEditCompleteContinue?: (newData: any) => void;
-//    toolBar?: boolean;
-//    toolbarContentStart?: JSX.Element;
-//    toolbarContentCenter?: JSX.Element;
-//    toolbarContentEnd?: JSX.Element;
-//    updateData?: (newData: any, folio?: any) => Promise<any>;
-//    refreshTable?: () => Promise<void>;
-//    btnAdd?: boolean;
-//    titleBtnAdd?: string;
-//    newRow?: any;
-//    btnsExport?: boolean;
-//    fileNameExport?: string;
-//    showGridlines?: boolean;
-//    btnDeleteMultiple?: boolean;
-//    handleClickDeleteMultipleContinue?: (selectedData: any[]) => Promise<void>;
-//    scrollHeight?: string;
-//    showLoading?: boolean;
-// }
-// export const DataTableComponent: React.FC<DataTableComponentProps> = ({
-//    idName = "table",
-//    columns,
-//    globalFilterFields,
-//    defaultGlobalFilter = null,
-//    data,
-//    setData,
-//    headerFilters = true,
-//    rowEdit = false,
-//    handleClickAdd,
-//    createData,
-//    onRowEditCompleteContinue = null,
-//    toolBar = false,
-//    toolbarContentStart,
-//    toolbarContentCenter,
-//    toolbarContentEnd,
-//    updateData,
-//    refreshTable,
-//    btnAdd = true,
-//    titleBtnAdd = null,
-//    newRow = null,
-//    btnsExport = true,
-//    showGridlines = false,
-//    btnDeleteMultiple = false,
-//    handleClickDeleteMultipleContinue,
-//    scrollHeight = "65vh",
-//    fileNameExport = "datos",
-//    showLoading = false
-// })

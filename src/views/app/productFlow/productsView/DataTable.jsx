@@ -11,6 +11,8 @@ import withReactContent from "sweetalert2-react-content";
 import { useAuthContext } from "../../../../context/AuthContext.jsx";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext.jsx";
 import { useProductContext } from "../../../../context/ProductContext.jsx";
+import { useLoteContext } from "../../../../context/LoteContext";
+import useFetch from "../../../../hooks/useFetch";
 import { CheckCircleRounded, UploadFileRounded } from "@mui/icons-material";
 import { CancelRounded } from "@mui/icons-material";
 import { env } from "../../../../constant/index.js";
@@ -113,6 +115,8 @@ const ProductDT = ({}) => {
       getMovementsByProduct,
       createMultipleManuallyPortabilities
    } = useProductContext();
+   const { lotesSelect, setLotesSelect, getSelectIndexLotes } = useLoteContext();
+   const { refetch: refetchLotes } = useFetch(getSelectIndexLotes, setLotesSelect, false);
    const mySwal = withReactContent(Swal);
 
    const [openDialogImportForm, setOpenDialogImportForm] = useState(false);
@@ -783,6 +787,167 @@ const ProductDT = ({}) => {
       }
    };
 
+   const handleClickCreateMultipleManuallyAssignments = async (id, name) => {
+      try {
+         // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
+         // Construir lista de opciones con lotes cargados (lista desplegable estilizada)
+         const optionsListHTML = (lotesSelect || [])
+            .map((l) => `<li data-id="${l.id}" class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm">${l.label || ""}</li>`)
+            .join("");
+
+         mySwal
+            .fire({
+               ...QuestionAlertConfig(
+                  `
+         <div class="w-full max-w-md mx-auto text-left">
+            <h3 class="text-lg font-semibold text-center mb-3">Asignación manual del producto ${name}</h3>
+            <label for="loteSearch" class="block text-sm font-medium text-gray-700 mb-1">Lote</label>
+            <div class="relative">
+               <div id="loteSelector" class="flex items-center justify-between border rounded px-3 py-2 bg-white cursor-pointer" tabindex="0">
+                  <span id="loteSelectedText" class="text-sm text-gray-700">-- Selecciona un lote --</span>
+                  <svg id="loteCaret" class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+               </div>
+               <div id="loteDropdown" class="absolute left-0 right-0 mt-1 bg-white border rounded shadow max-h-56 overflow-auto hidden z-50">
+                  <div class="p-2">
+                     <input id="loteSearch" type="search" placeholder="Buscar por folio/descripcion" class="w-full px-3 py-2 border rounded text-sm" />
+                  </div>
+                  <ul id="loteOptions" class="divide-y"> 
+                     <li data-id="" class="px-3 py-2 text-sm text-gray-500">-- Selecciona un lote --</li>
+                     ${optionsListHTML}
+                  </ul>
+               </div>
+            </div>
+            <div class="mt-4">
+               <label for="executedAt" class="block text-sm font-medium text-gray-700 mb-1">Fecha de ejecución</label>
+               <input type="date" id="executedAt" name="executedAt" class="px-3 py-2 border rounded text-sm" value="${new Date().toISOString().split("T")[0]}" />
+            </div>
+         </div>
+      `,
+                  "CONFIRMAR"
+               ),
+               didOpen: () => {
+                  const selector = document.getElementById("loteSelector");
+                  const dropdown = document.getElementById("loteDropdown");
+                  const search = document.getElementById("loteSearch");
+                  const options = document.getElementById("loteOptions");
+                  const selectedText = document.getElementById("loteSelectedText");
+
+                  if (!selector || !dropdown || !search || !options) return;
+
+                  const openDropdown = () => dropdown.classList.remove("hidden");
+                  const closeDropdown = () => dropdown.classList.add("hidden");
+
+                  const onSelectorClick = (e) => {
+                     e.stopPropagation();
+                     if (dropdown.classList.contains("hidden")) openDropdown();
+                     else closeDropdown();
+                  };
+
+                  const onOptionClick = (e) => {
+                     const li = e.target.closest("li[data-id]");
+                     if (!li) return;
+                     const id = li.getAttribute("data-id");
+                     const text = li.textContent || li.innerText;
+                     // establecer valor seleccionado
+                     const hidden = document.getElementById("loteId");
+                     if (hidden) hidden.value = id;
+                     selectedText.textContent = text;
+                     closeDropdown();
+                  };
+
+                  const onSearch = () => {
+                     const q = search.value.toLowerCase();
+                     Array.from(options.querySelectorAll("li[data-id]")).forEach((li) => {
+                        const txt = (li.textContent || "").toLowerCase();
+                        li.style.display = txt.includes(q) ? "" : "none";
+                     });
+                  };
+
+                  // crear input oculto para almacenar id
+                  let hiddenInput = document.getElementById("loteId");
+                  if (!hiddenInput) {
+                     hiddenInput = document.createElement("input");
+                     hiddenInput.type = "hidden";
+                     hiddenInput.id = "loteId";
+                     document.querySelector(".swal2-html-container").appendChild(hiddenInput);
+                  }
+
+                  selector.addEventListener("click", onSelectorClick);
+                  options.addEventListener("click", onOptionClick);
+                  search.addEventListener("input", onSearch);
+
+                  // cerrar al hacer click fuera
+                  const outsideClick = (ev) => {
+                     if (!dropdown.contains(ev.target) && !selector.contains(ev.target)) closeDropdown();
+                  };
+                  document.addEventListener("click", outsideClick);
+
+                  // guardar referencias para limpieza
+                  window._swalLote = { onSelectorClick, onOptionClick, onSearch, outsideClick };
+               },
+               willClose: () => {
+                  // limpiar listeners
+                  if (!window._swalLote) return;
+                  const selector = document.getElementById("loteSelector");
+                  const options = document.getElementById("loteOptions");
+                  const search = document.getElementById("loteSearch");
+                  if (selector && window._swalLote.onSelectorClick) selector.removeEventListener("click", window._swalLote.onSelectorClick);
+                  if (options && window._swalLote.onOptionClick) options.removeEventListener("click", window._swalLote.onOptionClick);
+                  if (search && window._swalLote.onSearch) search.removeEventListener("input", window._swalLote.onSearch);
+                  if (window._swalLote.outsideClick) document.removeEventListener("click", window._swalLote.outsideClick);
+                  delete window._swalLote;
+               },
+               preConfirm: () => {
+                  const loteValue = document.getElementById("loteId") ? document.getElementById("loteId").value : null;
+                  const executedAtValue = document.getElementById("executedAt") ? document.getElementById("executedAt").value : null;
+                  if (!loteValue || loteValue === "") {
+                     mySwal.showValidationMessage("Por favor, selecciona un lote");
+                     return false;
+                  }
+                  if (!executedAtValue) {
+                     mySwal.showValidationMessage("Por favor, selecciona una fecha de ejecución");
+                     return false;
+                  }
+                  return { lote_id: loteValue, executed_at: executedAtValue };
+               }
+            })
+
+            .then(async (result) => {
+               if (result.isConfirmed) {
+                  setIsLoading(true);
+                  const ids = [];
+                  ids.push(id);
+                  const res = await createMultipleManuallyPortabilities({ ids, executed_at: result?.value?.executed_at, lote_id: result?.value?.lote_id });
+                  if (!res) return setIsLoading(false);
+                  if (res.errors) {
+                     setIsLoading(false);
+                     Object.values(res.errors).forEach((errors) => {
+                        errors.map((error) => Toast.Warning(error));
+                     });
+                     return;
+                  } else if (res.status_code !== 200) {
+                     setIsLoading(false);
+                     return Toast.Customizable(res.alert_text, res.alert_icon);
+                  }
+                  if (res.metrics)
+                     showFlexibleAlert(res.metrics, {
+                        type: ALERT_TYPES.METRICS_CUSTOM,
+                        title: "ASIGNACIONES MANUALES",
+                        subtitle: res.message,
+                        copyTextGenerator: (data) => {
+                           const metrics = data;
+                           return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
+                        }
+                     });
+                  setIsLoading(false);
+               }
+            });
+      } catch (error) {
+         console.log(error);
+         Toast.Error(error);
+      }
+   };
+
    const handleClickDisEnable = async (id, name, active) => {
       try {
          setTimeout(async () => {
@@ -858,6 +1023,14 @@ const ProductDT = ({}) => {
                      color: "primary",
                      permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
                   },
+                  // {
+                  //    label: "Asignación Manualmente",
+                  //    iconName: "ImportExportRounded",
+                  //    tooltip: "",
+                  //    handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj.id, obj.celular),
+                  //    color: "primary",
+                  //    permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"])
+                  // },
                   {
                      label: "Eliminar",
                      iconName: "Delete",
@@ -891,6 +1064,11 @@ const ProductDT = ({}) => {
    useEffect(() => {
       loadProductsWithPagination();
    }, [status, allProducts.length]); // Recargar cuando cambie el status
+
+   // Cargar lotes para selector de asignación manual
+   useEffect(() => {
+      if (refetchLotes) refetchLotes();
+   }, []);
 
    // Manejadores de cambio de página
    const handlePageChange = async (newPage) => {
