@@ -15,6 +15,7 @@ const ProductContext = createContext();
 const prefixPath = "/products";
 const prefixPathDetail = "/productDetails";
 const prefixPathPortabilities = "/portabilities";
+const prefixPathLoteDetail = "/loteDetails";
 
 export default function ProductContextProvider({ children }) {
    const params = useParams();
@@ -465,6 +466,32 @@ export default function ProductContextProvider({ children }) {
 
       return res;
    };
+
+   const createMultipleManuallyAssignments = async (ids, executed_at) => {
+      // console.log("🚀 ~ createMultipleManuallyAssignments ~ data:", data);
+
+      const data = {
+         ids,
+         executed_at
+      };
+
+      const [error, response] = await to(Axios.post(`${prefixPathLoteDetail}/createMultipleManually`, data));
+      // console.log("🚀 ~ createMultipleManuallyAssignments ~ error:", error);
+      // console.log("🚀 ~ createMultipleManuallyAssignments ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ createMultipleManuallyAssignments ~ error:", error);
+         const message = error.response.data.message || "createMultipleManuallyAssignments ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      getAllProductsPagination(); //getAllProducts();
+
+      return res;
+   };
    //#endregion ProductDetails
 
    //#region Portabilities
@@ -611,6 +638,7 @@ export default function ProductContextProvider({ children }) {
             productDetailsByProduct,
             setProductDetailsByProduct,
             getProductDetailsByProduct,
+            createMultipleManuallyAssignments,
 
             allPortabilities,
             setAllPortabilities,

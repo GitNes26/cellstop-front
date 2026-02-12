@@ -113,7 +113,8 @@ const ProductDT = ({}) => {
       getProductDetailsByProduct,
       allProductDetails,
       getMovementsByProduct,
-      createMultipleManuallyPortabilities
+      createMultipleManuallyPortabilities,
+      createMultipleManuallyAssignments
    } = useProductContext();
    const { lotesSelect, setLotesSelect, getSelectIndexLotes } = useLoteContext();
    const { refetch: refetchLotes } = useFetch(getSelectIndexLotes, setLotesSelect, false);
@@ -778,6 +779,7 @@ const ProductDT = ({}) => {
                         }
                      });
                   // if (res.alert_text) Toast.Customizable(res.alert_text, res.alert_icon);
+                  loadProductsWithPagination();
                   setIsLoading(false);
                }
             });
@@ -787,11 +789,12 @@ const ProductDT = ({}) => {
       }
    };
 
-   const handleClickCreateMultipleManuallyAssignments = async (id, name) => {
+   const handleClickCreateMultipleManuallyAssignments = async (id, obj) => {
       try {
          // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
          // Construir lista de opciones con lotes cargados (lista desplegable estilizada)
-         const optionsListHTML = (lotesSelect || [])
+         const lotesSelectByFolio = lotesSelect.filter((d) => Number(d.folio) === Number(obj.folio));
+         const optionsListHTML = (lotesSelectByFolio || [])
             .map((l) => `<li data-id="${l.id}" class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm">${l.label || ""}</li>`)
             .join("");
 
@@ -800,7 +803,7 @@ const ProductDT = ({}) => {
                ...QuestionAlertConfig(
                   `
          <div class="w-full max-w-md mx-auto text-left">
-            <h3 class="text-lg font-semibold text-center mb-3">Asignación manual del producto ${name}</h3>
+            <h3 class="text-lg font-semibold text-center mb-3">Asignación manual del producto <br/> cel:${obj.celular} | folio:${obj.folio}</h3>
             <label for="loteSearch" class="block text-sm font-medium text-gray-700 mb-1">Lote</label>
             <div class="relative">
                <div id="loteSelector" class="flex items-center justify-between border rounded px-3 py-2 bg-white cursor-pointer" tabindex="0">
@@ -917,7 +920,7 @@ const ProductDT = ({}) => {
                   setIsLoading(true);
                   const ids = [];
                   ids.push(id);
-                  const res = await createMultipleManuallyPortabilities({ ids, executed_at: result?.value?.executed_at, lote_id: result?.value?.lote_id });
+                  const res = await createMultipleManuallyAssignments({ ids, executed_at: result?.value?.executed_at, lote_id: result?.value?.lote_id });
                   if (!res) return setIsLoading(false);
                   if (res.errors) {
                      setIsLoading(false);
@@ -939,6 +942,7 @@ const ProductDT = ({}) => {
                            return `RESULTADO DETALLES:\n\n` + `Procesados: ${metrics.processed}\n` + `Errores: ${metrics.errors}`;
                         }
                      });
+                  loadProductsWithPagination();
                   setIsLoading(false);
                }
             });
@@ -1015,7 +1019,7 @@ const ProductDT = ({}) => {
                      color: "primary",
                      permission: true
                   },
-                  {
+                  register.destination != "Portado" && {
                      label: "Portar Manualmente",
                      iconName: "ImportExportRounded",
                      tooltip: "",
@@ -1023,14 +1027,14 @@ const ProductDT = ({}) => {
                      color: "primary",
                      permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
                   },
-                  // {
-                  //    label: "Asignación Manualmente",
-                  //    iconName: "ImportExportRounded",
-                  //    tooltip: "",
-                  //    handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj.id, obj.celular),
-                  //    color: "primary",
-                  //    permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"])
-                  // },
+                  register.seller_id == null && {
+                     label: "Asignación Manual",
+                     iconName: "AssignmentIndRounded",
+                     tooltip: "",
+                     handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj.id, obj),
+                     color: "primary",
+                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"])
+                  },
                   {
                      label: "Eliminar",
                      iconName: "Delete",

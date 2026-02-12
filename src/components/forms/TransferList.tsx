@@ -129,7 +129,7 @@ const CustomList: React.FC<CustomListProps> = memo(
          if (actionTransfer === "Asignacion" && isRightList) {
             return items.filter((id) => {
                const it = data.find((d) => d.id === id);
-               return it?.destination === "Asignado";
+               return ["Asignado", "Stock"].includes(it?.destination);
             });
          }
 
@@ -230,7 +230,7 @@ const CustomList: React.FC<CustomListProps> = memo(
                   </ListItemButton>
                ) : (
                   filteredItems.map((item) => {
-                     const itemDisabled = disabled || (actionTransfer === "Asignacion" && isRightList && item.destination !== "Asignado");
+                     const itemDisabled = disabled || (actionTransfer === "Asignacion" && isRightList && !["Asignado", "Stock"].includes(item.destination));
 
                      return (
                         <TransferListItem
