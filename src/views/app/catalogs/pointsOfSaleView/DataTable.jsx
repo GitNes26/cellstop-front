@@ -335,26 +335,41 @@ const PointOfSaleDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         title="Puestos de trabajo"
          data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
-         headerFilters={true}
-         btnAdd={auth.permissions.create}
-         handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         indexColumnName={2}
-         rowEdit={false}
-         refreshTable={getAllPointsOfSale}
-         btnsExport={false}
-         scrollHeight="67vh"
-         // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
-         // pointOfSaleBtnsToolbar="center"
-         // toolbarContentCenter={toolbarContentCenter}
-         // toolbarContentEnd={toolbarContentEnd}
+         // data={myData}
+         columns={[
+            { title: "ID", data: "id" },
+            { title: "Nombre", data: "name" },
+            { title: "Email", data: "email" }
+         ]}
+         serverSide={false} // o true si viene de Laravel
+         ajaxUrl="/api/users"
+         onRowSelect={(rows) => console.log("Seleccionados:", rows)}
+         onActionClick={(row) => console.log("Acción en:", row)}
       />
+
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    // setData={setRequestBecas}
+      //    // globalFilterFields={globalFilterFields}
+      //    headerFilters={true}
+      //    btnAdd={auth.permissions.create}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    indexColumnName={2}
+      //    rowEdit={false}
+      //    refreshTable={getAllPointsOfSale}
+      //    btnsExport={false}
+      //    scrollHeight="67vh"
+      //    // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+      //    // pointOfSaleBtnsToolbar="center"
+      //    // toolbarContentCenter={toolbarContentCenter}
+      //    // toolbarContentEnd={toolbarContentEnd}
+      // />
    );
 };
 export default PointOfSaleDT;

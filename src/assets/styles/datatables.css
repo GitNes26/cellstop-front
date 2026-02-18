@@ -1,0 +1,12 @@
+/* en tu index.css o tailwind.css */
+table.dataTable tbody tr.selected {
+   @apply bg-blue-100;
+}
+
+table.dataTable tbody td.select-checkbox::before {
+   @apply border border-gray-400 rounded-sm;
+}
+
+table.dataTable tbody td.select-checkbox.selected::after {
+   @apply bg-blue-500 text-white;
+}

@@ -2,6 +2,7 @@
 @import url(./assets/styles/loading.css);
 @import url(./assets/styles/print.css);
 @import url(./assets/styles/take-pciture.css);
+@import url(./assets/styles/datatables.css);
 
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
