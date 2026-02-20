@@ -1,12 +1,93 @@
 /* en tu index.css o tailwind.css */
 table.dataTable tbody tr.selected {
-   @apply bg-blue-100;
+   background-color: #dbeafe;
 }
 
 table.dataTable tbody td.select-checkbox::before {
-   @apply border border-gray-400 rounded-sm;
+   border: 1px solid #d1d5db;
+   border-radius: 0.125rem;
 }
 
 table.dataTable tbody td.select-checkbox.selected::after {
-   @apply bg-blue-500 text-white;
+   background-color: #3b82f6;
+   color: white;
+}
+
+.dt-paging-button.current {
+   background-color: #3b82f6;
+   color: white;
+   padding: 0.25rem 0.5rem;
+   border-radius: 50%;
+}
+
+.dt-container .dt-search input {
+   border: 1px solid #d1d5db;
+   border-radius: 0.25rem;
+   padding: 0.75rem;
+   font-size: 0.875rem;
+}
+
+.dt-container .dt-search input:focus {
+   outline: none;
+   ring: 1px;
+   ring-color: #93c5fd;
+}
+
+.dt-container .dt-length select {
+   border: 1px solid #d1d5db;
+   border-radius: 0.25rem;
+   padding: 0.25rem 0.5rem;
+   font-size: 0.875rem;
+}
+
+.dt-container .dt-paging .dt-paging-button {
+   padding: 0.25rem 0.5rem;
+   margin: 0 0.25rem;
+   border-radius: 0.25rem;
+   background-color: #e5e7eb;
+   transition: background-color 0.2s ease;
+}
+
+.dt-container .dt-paging .dt-paging-button:hover {
+   background-color: #d1d5db;
+}
+
+.dt-container .dt-info {
+   font-size: 0.875rem;
+   color: #4b5563;
+   font-style: italic;
+}
+
+.dt-container .dt-search input {
+   border: 1px solid #d1d5db;
+   border-radius: 0.25rem;
+   padding: 0.75rem 0.75rem 0.5rem 0.75rem;
+   font-size: 0.875rem;
+   outline: none;
+   box-shadow: 0 0 0 1px #93c5fd;
+}
+
+.dt-container .dt-length select {
+   border: 1px solid #d1d5db;
+   border-radius: 0.25rem;
+   padding: 0.25rem 0.5rem;
+   font-size: 0.875rem;
+}
+
+.dt-container .dt-paging .dt-paging-button {
+   padding: 0.25rem 0.5rem;
+   margin: 0 0.25rem;
+   border-radius: 0.25rem;
+   background-color: #e5e7eb;
+   transition: background-color 0.2s ease;
+}
+
+.dt-container .dt-paging .dt-paging-button:hover {
+   background-color: #d1d5db;
+}
+
+.dt-container .dt-info {
+   font-size: 0.875rem;
+   color: #4b5563;
+   font-style: italic;
 }
