@@ -194,110 +194,186 @@ const PointOfSaleDT = () => {
    //    );
    // //#endregion COLUMNAS
 
-   //#region OPCION DE DataTables.Net
+   // //#region OPCION DE DataTables.Net
+   // const fontSizeTable = { text: "sm", subtext: "xs" };
+
+   // const ImgBodyTemplate = (obj) =>
+   //    obj.img == null || obj.img === ""
+   //       ? ReactDOMServer.renderToString(<Avatar {...stringAvatar(obj.name)} />)
+   //       : ReactDOMServer.renderToString(<Avatar src={`${env.API_URL_IMG}/${obj.img}`} />);
+
+   // const ContactBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <>
+   //          {" "}
+   //          <Typography textAlign="center" size={fontSizeTable.text}>
+   //             {" "}
+   //             {obj.contact_name}{" "}
+   //          </Typography>{" "}
+   //          <Typography textAlign="center" size={fontSizeTable.subtext} className="flex items-center justify-center italic">
+   //             {" "}
+   //             <PhoneAndroidRounded fontSize="medium" className="mr-2" />{" "}
+   //             <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
+   //                {" "}
+   //                {formatPhone(obj.contact_phone)}{" "}
+   //             </a>{" "}
+   //          </Typography>{" "}
+   //       </>
+   //    );
+   // const PointOfSaleBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <Typography textAlign="center" size={fontSizeTable.text}>
+   //          {obj.name}
+   //       </Typography>
+   //    );
+   // const AddressBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <Typography
+   //          textAlign="center"
+   //          size={fontSizeTable.text}
+   //          component="a"
+   //          href={obj.ubication ?? "#"}
+   //          target="_blank"
+   //          className="text-blue-800 hover:underline transition-all"
+   //       >
+   //          {" "}
+   //          <MapRounded fontSize="medium" className="mr-2" /> {obj.address}{" "}
+   //       </Typography>
+   //    );
+
+   // const SellerBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <Typography textAlign="center" size={fontSizeTable.text}>
+   //          {obj.seller.username}
+   //       </Typography>
+   //    );
+
+   // const ActiveBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <Typography textAlign={"center"} className="flex justify-center">
+   //          {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   //       </Typography>
+   //    );
+
+   // const CreatedAtBodyTemplate = (obj) =>
+   //    ReactDOMServer.renderToString(
+   //       <Typography textAlign={"center"} size={fontSizeTable.text}>
+   //          {formatDatetime(obj.created_at, true)}
+   //       </Typography>
+   //    );
+
+   // const columns = [
+   //    { title: "Img", data: "img", orderable: false, render: (data, type, row) => ImgBodyTemplate(row) },
+   //    {
+   //       title: "Punto de venta",
+   //       data: "pos_name",
+   //       orderable: true,
+   //       render: (data, type, row) => PointOfSaleBodyTemplate(row)
+   //    },
+   //    { title: "Contacto", data: "contact_name", orderable: true, render: (data, type, row) => ContactBodyTemplate(row) },
+   //    {
+   //       title: "Dirección",
+   //       data: "address",
+   //       orderable: true,
+   //       render: (data, type, row) => AddressBodyTemplate(row)
+   //    },
+   //    {
+   //       title: "Vendedor",
+   //       data: "seller.username",
+   //       orderable: true,
+   //       render: (data, type, row) => SellerBodyTemplate(row)
+   //    },
+   //    {
+   //       title: "Activo",
+   //       data: "active",
+   //       orderable: true,
+   //       render: (data, type, row) => ActiveBodyTemplate(row)
+   //    },
+   //    {
+   //       title: "Fecha de alta",
+   //       data: "created_at",
+   //       orderable: true,
+   //       render: (data, type, row) => CreatedAtBodyTemplate(row)
+   //    }
+   // ];
+
+   // //#endregion OPCION DE DataTables.Net
+
+   //#region COLUMNAS PrimeReact
    const fontSizeTable = { text: "sm", subtext: "xs" };
+   const globalFilterFields = ["pointOfSale", "description", "active", "created_at"];
 
-   const ImgBodyTemplate = (obj) =>
-      obj.img == null || obj.img === ""
-         ? ReactDOMServer.renderToString(<Avatar {...stringAvatar(obj.name)} />)
-         : ReactDOMServer.renderToString(<Avatar src={`${env.API_URL_IMG}/${obj.img}`} />);
+   // #region BodyTemplates
+   const ImgBodyTemplate = (obj) => (obj.img == null || obj.img === "" ? <Avatar {...stringAvatar(obj.name)} /> : <Avatar src={`${env.API_URL_IMG}/${obj.img}`} />);
 
-   const ContactBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
-         <>
-            {" "}
-            <Typography textAlign="center" size={fontSizeTable.text}>
-               {" "}
-               {obj.contact_name}{" "}
-            </Typography>{" "}
-            <Typography textAlign="center" size={fontSizeTable.subtext} className="flex items-center justify-center italic">
-               {" "}
-               <PhoneAndroidRounded fontSize="medium" className="mr-2" />{" "}
-               <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
-                  {" "}
-                  {formatPhone(obj.contact_phone)}{" "}
-               </a>{" "}
-            </Typography>{" "}
-         </>
-      );
-   const PointOfSaleBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
+   const PointOfSaleBodyTemplate = (obj) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {obj.name}
+      </Typography>
+   );
+
+   const ContactBodyTemplate = (obj) => (
+      <>
          <Typography textAlign="center" size={fontSizeTable.text}>
-            {obj.name}
+            {obj.contact_name}
          </Typography>
-      );
-   const AddressBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
-         <Typography
-            textAlign="center"
-            size={fontSizeTable.text}
-            component="a"
-            href={obj.ubication ?? "#"}
-            target="_blank"
-            className="text-blue-800 hover:underline transition-all"
-         >
-            {" "}
-            <MapRounded fontSize="medium" className="mr-2" /> {obj.address}{" "}
+         <Typography textAlign="center" size={fontSizeTable.subtext} className="flex items-center justify-center italic">
+            <PhoneAndroidRounded fontSize="medium" className="mr-2" />
+            <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
+               {formatPhone(obj.contact_phone)}
+            </a>
          </Typography>
-      );
+      </>
+   );
 
-   const SellerBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
-         <Typography textAlign="center" size={fontSizeTable.text}>
-            {obj.seller.username}
-         </Typography>
-      );
+   const AddressBodyTemplate = (obj) => (
+      <Typography
+         textAlign="center"
+         size={fontSizeTable.text}
+         component="a"
+         href={obj.ubication ?? "#"}
+         target="_blank"
+         className="text-blue-800 hover:underline transition-all"
+      >
+         <MapRounded fontSize="medium" className="mr-2" /> {obj.address}
+      </Typography>
+   );
 
-   const ActiveBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
-         <Typography textAlign={"center"} className="flex justify-center">
-            {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
-         </Typography>
-      );
+   const SellerBodyTemplate = (obj) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {obj.seller.username}
+      </Typography>
+   );
 
-   const CreatedAtBodyTemplate = (obj) =>
-      ReactDOMServer.renderToString(
-         <Typography textAlign={"center"} size={fontSizeTable.text}>
-            {formatDatetime(obj.created_at, true)}
-         </Typography>
-      );
+   const ActiveBodyTemplate = (obj) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const CreatedAtBodyTemplate = (obj) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(obj.created_at, true)}
+      </Typography>
+   );
+   // #endregion BodyTemplates
 
    const columns = [
-      { title: "Img", data: "img", orderable: false, render: (data, type, row) => ImgBodyTemplate(row) },
-      {
-         title: "Punto de venta",
-         data: "pos_name",
-         orderable: true,
-         render: (data, type, row) => PointOfSaleBodyTemplate(row)
-      },
-      { title: "Contacto", data: "contact_name", orderable: true, render: (data, type, row) => ContactBodyTemplate(row) },
-      {
-         title: "Dirección",
-         data: "address",
-         orderable: true,
-         render: (data, type, row) => AddressBodyTemplate(row)
-      },
-      {
-         title: "Vendedor",
-         data: "seller.username",
-         orderable: true,
-         render: (data, type, row) => SellerBodyTemplate(row)
-      },
-      {
-         title: "Activo",
-         data: "active",
-         orderable: true,
-         render: (data, type, row) => ActiveBodyTemplate(row)
-      },
-      {
-         title: "Fecha de alta",
-         data: "created_at",
-         orderable: true,
-         render: (data, type, row) => CreatedAtBodyTemplate(row)
-      }
+      { field: "img", header: "Img", sortable: false, body: ImgBodyTemplate, filter: false },
+      { field: "name", header: "Puesto de trabajo", sortable: true, body: PointOfSaleBodyTemplate, filter: true },
+      { field: "contact_name", header: "Contacto", sortable: true, body: ContactBodyTemplate, filter: true },
+      { field: "address", header: "Dirección", sortable: true, body: AddressBodyTemplate, filter: true },
+      { field: "seller", header: "Vendedor", sortable: true, body: SellerBodyTemplate, filter: true }
    ];
 
-   //#endregion OPCION DE DataTables.Net
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
+      columns.push(
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate, filter: false },
+         { field: "created_at", header: "Fecha de alta", sortable: true, body: CreatedAtBodyTemplate, filter: false }
+      );
+   }
+   // #endregion COLUMNAS react-data-table-component
+
    const handleClickAdd = () => {
       try {
          if (formikRef.current === null) setOpenDialog(true);
@@ -415,11 +491,19 @@ const PointOfSaleDT = () => {
             let register = obj;
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.pointOfSale} active={obj.active} />;
+            // LOS ICONOS SON EN BASE A PRIMEREACT - PrimeIcons
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id, obj.pointOfSale),
                   color: "red",
@@ -440,17 +524,37 @@ const PointOfSaleDT = () => {
 
    return (
       <DataTableComponent
-         title="Puestos de trabajo"
+         columns={columns}
          data={data}
-         // data={myData}
-         columns={columns ?? []}
-         serverSide={false} // o true si viene de Laravel
-         ajaxUrl="/api/users"
-         onRowSelect={(rows) => console.log("Seleccionados:", rows)}
-         onActionClick={(row) => console.log("Acción en:", row)}
+         globalFilterFields={globalFilterFields}
+         headerFilters={true}
+         btnAdd={auth.permissions.create}
+         handleClickAdd={handleClickAdd}
+         rowEdit={false}
+         refreshTable={getAllPointsOfSale}
+         scrollHeight="67vh"
+         btnsExport={true}
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={1}
+         // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+         // positionBtnsToolbar="center"
+         // toolbarContentCenter={toolbarContentCenter}
+         // toolbarContentEnd={toolbarContentEnd}
       />
 
-      // <DataTableComponent
+      // <DataTableComponent // DataTables.Net
+      //    title="Puestos de trabajo"
+      //    data={data}
+      //    // data={myData}
+      //    columns={columns ?? []}
+      //    serverSide={false} // o true si viene de Laravel
+      //    ajaxUrl="/api/users"
+      //    onRowSelect={(rows) => console.log("Seleccionados:", rows)}
+      //    onActionClick={(row) => console.log("Acción en:", row)}
+      // />
+
+      // <DataTableComponent // MUI
       //    dataColumns={columns}
       //    data={data}
       //    // setData={setRequestBecas}

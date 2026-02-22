@@ -50,7 +50,7 @@ export function formatDatetime(the_date, long_format = true, format = null || ""
    //#region OPCION DayJS
    dayjs.locale("es");
    // si la fecha trae la T de separador y los caracteres despues de los segundos, se la quita para evitar errores
-   const cleanDate = the_date.includes("T") ? the_date.replace(/\.\d+Z?$/, "") : the_date;
+   const cleanDate = ["T"].includes(the_date) ? the_date.replace(/\.\d+Z?$/, "") : the_date;
    // console.log("🚀 ~ formatDatetime ~ cleanDate:", cleanDate);
    let date = new Date(cleanDate);
    // console.log("🚀 ~ formatDatetime ~ date:", date);

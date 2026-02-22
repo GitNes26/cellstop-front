@@ -1,0 +1,102 @@
+/**  DATA TABLE **/
+/* Sobreescribe el z-index del scrollable en DataTable */
+.card-table-container,
+.card-table-container > div,
+.p-datatable.p-component,
+.p-datatable-scrollable-header,
+.p-datatable-scrollable-body {
+   z-index: 10 !important; /* O un valor bajo que sea menor que el del menú */
+}
+
+.custom-filter-header {
+   height: 10px !important;
+   padding: 5px;
+   font-size: 12px;
+   /* border-radius: 4px; */
+   /* Agrega más estilos según sea necesario */
+}
+thead > tr:nth-child(2) {
+   background-color: #f0f0f0;
+   color: #333;
+
+   > th.custom-filter-header.p-filter-column {
+      /* background-color: #f0f0f0; */
+      max-height: min-content;
+
+      input.p-inputtext.p-component.p-column-filter {
+         font-size: 12px;
+         padding-block: 5px;
+         padding-left: 5px;
+         padding-right: 25px;
+         position: relative;
+      }
+      button {
+         height: 20px;
+         width: 20px;
+
+         svg {
+            height: 12px;
+         }
+      }
+      button[data-pc-section="filtermenubutton"] {
+         display: none;
+      }
+      button[data-pc-section="headerfilterclearbutton"] {
+         display: block;
+         /* position: absolute; */
+         right: 25px;
+      }
+   }
+}
+
+span.p-input-icon-left {
+   > i.pi.pi-search {
+      margin-left: 10px;
+   }
+
+   > input.p-inputtext.p-component {
+      padding-left: 35px;
+      height: 45px;
+   }
+}
+
+/* CSS para ajustar el layout del DataTable */
+.datatable-container {
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+   padding: 1rem;
+}
+
+.p-datatable-loading-overlay .p-component-overlay {
+   z-index: 13 !important; /* Asegura que el overlay de carga esté por encima del menú */
+}
+#table {
+   z-index: 10;
+   /* opacity: 0.2; */
+   /* padding: 1rem; */
+}
+table.p-datatable-table {
+   z-index: 10 !important;
+
+   .p-datatable-thead > tr > th {
+      padding: 0.5rem; /* Espaciado más pequeño para una tabla compacta */
+   }
+
+   .p-datatable-tbody > tr > td {
+      padding: 0.5rem;
+      /* background-color: white; */
+   }
+}
+
+.p-datatable-sm .p-datatable-header {
+   /* background-color: #f4f4f4;
+   color: #364152; */
+}
+
+.p-datatable-scrollable-header,
+.p-datatable-scrollable-body {
+   /* background-color: white; */
+}
+
+/**  DATA TABLE **/
