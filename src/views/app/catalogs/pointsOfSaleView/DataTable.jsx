@@ -35,7 +35,7 @@ const PointOfSaleDT = () => {
 
    // //#region COLUMNAS mui
    // const fontSizeTable = { text: "sm", subtext: "xs" };
-   // const globalFilterFields = ["pointOfSale", "description", "active", "created_at"];
+   // const globalFilterFields = ["name", "description", "active", "created_at"];
 
    // // #region BodysTemplate
    // const ImgBodyTemplate = (obj) => (
@@ -301,7 +301,7 @@ const PointOfSaleDT = () => {
 
    //#region COLUMNAS PrimeReact
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["pointOfSale", "description", "active", "created_at"];
+   const globalFilterFields = ["name", "description", "active", "created_at"];
 
    // #region BodyTemplates
    const ImgBodyTemplate = (obj) => (obj.img == null || obj.img === "" ? <Avatar {...stringAvatar(obj.name)} /> : <Avatar src={`${env.API_URL_IMG}/${obj.img}`} />);
@@ -490,7 +490,7 @@ const PointOfSaleDT = () => {
             // console.log(obj);
             let register = obj;
             register.key = index + 1;
-            // register.actions = <ButtonsAction id={obj.id} name={obj.pointOfSale} active={obj.active} />;
+            // register.actions = <ButtonsAction id={obj.id} name={obj.name} active={obj.active} />;
             // LOS ICONOS SON EN BASE A PRIMEREACT - PrimeIcons
             register.actions = [
                {
@@ -505,7 +505,7 @@ const PointOfSaleDT = () => {
                   label: "Eliminar",
                   iconName: "pi-trash",
                   tooltip: "",
-                  handleOnClick: () => handleClickDelete(obj.id, obj.pointOfSale),
+                  handleOnClick: () => handleClickDelete(obj.id, obj.name),
                   color: "red",
                   permission: auth.permissions.delete
                }

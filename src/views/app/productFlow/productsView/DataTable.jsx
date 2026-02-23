@@ -180,123 +180,123 @@ const ProductDT = ({}) => {
    // const columns = [
    //    // {
    //    //    field: "region",
-   //    //    headerName: "Región",
+   //    //    header: "Región",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.region}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.region}</TextCenter>
    //    // },
    //    {
    //       field: "celular",
-   //       headerName: "Celular",
+   //       header: "Celular",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.celular}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.celular}</TextCenter>
    //    },
    //    {
    //       field: "iccid",
-   //       headerName: "ICCID",
+   //       header: "ICCID",
    //       sortable: true,
-   //       renderCell: (params) => {
+   //       body: (params) => {
    //          const { key, ...obj } = params.row;
    //          return <IccidBodyTemplate {...obj} />;
    //       }
    //    },
    //    {
    //       field: "fecha",
-   //       headerName: "Fecha Pre-activación",
+   //       header: "Fecha Pre-activación",
    //       sortable: true,
-   //       renderCell: (params) => {
+   //       body: (params) => {
    //          // const { key, ...obj } = params.row;
    //          return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
    //       }
    //    },
    //    {
    //       field: "imei",
-   //       headerName: "IMEI",
+   //       header: "IMEI",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.imei}</TextCenter>
    //    },
    //    {
    //       field: "marca",
-   //       headerName: "Marca",
+   //       header: "Marca",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.marca}</TextCenter>
    //    },
    //    {
    //       field: "modelo",
-   //       headerName: "Modelo",
+   //       header: "Modelo",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
    //    },
    //    {
    //       field: "color",
-   //       headerName: "Color",
+   //       header: "Color",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.color}</TextCenter>
    //    },
    //    {
    //       field: "executed_at",
-   //       headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
+   //       header: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
    //       sortable: true,
-   //       renderCell: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
+   //       body: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
    //    },
    //    // {
    //    //    field: "tramite",
-   //    //    headerName: "Trámite",
+   //    //    header: "Trámite",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.tramite}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.tramite}</TextCenter>
    //    // },
    //    // {
    //    //    field: "estatus",
-   //    //    headerName: "Estatus",
+   //    //    header: "Estatus",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.estatus}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.estatus}</TextCenter>
    //    // },
    //    // {
    //    //    field: "comentario",
-   //    //    headerName: "Comentario",
+   //    //    header: "Comentario",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.comentario}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.comentario}</TextCenter>
    //    // },
    //    // {
    //    //    field: "fza_vta_prepago",
-   //    //    headerName: "Fza Vta Prepago",
+   //    //    header: "Fza Vta Prepago",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
    //    // },
    //    // {
    //    //    field: "fza_vta_padre",
-   //    //    headerName: "Fza Vta Padre",
+   //    //    header: "Fza Vta Padre",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
    //    // },
    //    // {
    //    //    field: "usuario",
-   //    //    headerName: "Usuario",
+   //    //    header: "Usuario",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.usuario}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.usuario}</TextCenter>
    //    // },
    //    status === "asignados" && {
    //       field: "lote",
-   //       headerName: "Lote",
+   //       header: "Lote",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.lote}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.lote}</TextCenter>
    //    },
    //    status === "asignados" && {
    //       field: "folio",
-   //       headerName: "Folio",
+   //       header: "Folio",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.folio}</TextCenter>
    //    },
    //    ["distribuidos", "activados", "portados"].includes(status) && {
    //       field: "pos_name",
-   //       headerName: "P.V. / Cliente",
+   //       header: "P.V. / Cliente",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
    //    },
    //    {
    //       field: "status",
-   //       headerName: "Estatus",
+   //       header: "Estatus",
    //       sortable: true,
-   //       renderCell: (params) => {
+   //       body: (params) => {
    //          const color =
    //             params.row.destination === "Asignado"
    //                ? "warning"
@@ -316,149 +316,149 @@ const ProductDT = ({}) => {
    //    },
    //    // {
    //    //    field: "producto",
-   //    //    headerName: "Producto",
+   //    //    header: "Producto",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.producto}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.producto}</TextCenter>
    //    // },
    //    // {
    //    //    field: "num_orden",
-   //    //    headerName: "Núm Orden",
+   //    //    header: "Núm Orden",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
    //    // },
    //    // {
    //    //    field: "estatus_orden",
-   //    //    headerName: "Estatus Orden",
+   //    //    header: "Estatus Orden",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
    //    // },
    //    // {
    //    //    field: "motivo_error",
-   //    //    headerName: "Motivo Error",
+   //    //    header: "Motivo Error",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
    //    // },
    //    // {
    //    //    field: "tipo_sim",
-   //    //    headerName: "Tipo SIM",
+   //    //    header: "Tipo SIM",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
    //    // },
    //    // {
    //    //    field: "modelo",
-   //    //    headerName: "Modelo",
+   //    //    header: "Modelo",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
    //    // },
    //    // {
    //    //    field: "marca",
-   //    //    headerName: "Marca",
+   //    //    header: "Marca",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.marca}</TextCenter>
    //    // },
    //    // {
    //    //    field: "color",
-   //    //    headerName: "Color",
+   //    //    header: "Color",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.color}</TextCenter>
    //    // },
    //    // {
    //    //    field: "location_status",
-   //    //    headerName: "Ubicación",
+   //    //    header: "Ubicación",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.location_status}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.location_status}</TextCenter>
    //    // },
    //    // {
    //    //    field: "activation_status",
-   //    //    headerName: "Estatus Activación",
+   //    //    header: "Estatus Activación",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
    //    // },
    //    // {
    //    //    field: "product_type",
-   //    //    headerName: "Tipo Producto",
+   //    //    header: "Tipo Producto",
    //    //    sortable: true,
-   //    //    renderCell: (params) => <TextCenter>{params.row.product_type}</TextCenter>
+   //    //    body: (params) => <TextCenter>{params.row.product_type}</TextCenter>
    //    // },
    //    {
    //       field: "import",
    //       headerName: "Importación",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.import_name}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.import_name}</TextCenter>
    //    },
    //    {
    //       field: "uploader_username",
    //       headerName: "Creado Por",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
    //    },
    //    {
    //       field: "evaluations_rejected",
    //       headerName: "Evaluaciones",
    //       sortable: true,
-   //       renderCell: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
+   //       body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
    //    }
    // ];
    const columns = [
       {
          field: "celular",
-         headerName: "Celular",
+         header: "Celular",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.celular}</TextCenter>
+         body: (params) => <TextCenter>{params.row.celular}</TextCenter>
       },
       {
          field: "iccid",
-         headerName: "ICCID",
+         header: "ICCID",
          sortable: true,
-         renderCell: (params) => {
+         body: (params) => {
             const { key, ...obj } = params.row;
             return <IccidBodyTemplate {...obj} />;
          }
       },
       {
          field: "fecha",
-         headerName: "Fecha Pre-activación",
+         header: "Fecha Pre-activación",
          sortable: true,
-         renderCell: (params) => {
+         body: (params) => {
             // const { key, ...obj } = params.row;
             return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
          }
       },
       {
          field: "imei",
-         headerName: "IMEI",
+         header: "IMEI",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.imei}</TextCenter>
+         body: (params) => <TextCenter>{params.row.imei}</TextCenter>
       },
       {
          field: "executed_at",
-         headerName: `Fecha de Ejecución`,
-         // headerName: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
+         header: `Fecha de Ejecución`,
+         // header: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
          sortable: true,
-         renderCell: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
+         body: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
       }
    ];
    [undefined, "asignados"].includes(status) &&
       columns.push(
          {
             field: "lote",
-            headerName: "Lote",
+            header: "Lote",
             sortable: true,
-            renderCell: (params) => <TextCenter>{params.row.lote}</TextCenter>
+            body: (params) => <TextCenter>{params.row.lote}</TextCenter>
          },
          {
             field: "folio",
-            headerName: "Folio",
+            header: "Folio",
             sortable: true,
-            renderCell: (params) => <TextCenter>{params.row.folio}</TextCenter>
+            body: (params) => <TextCenter>{params.row.folio}</TextCenter>
          }
       );
    [undefined, "asignados", "distribuidos", "activados", "portados"].includes(status) &&
       columns.push({
          field: "username",
-         headerName: "Vendedor",
+         header: "Vendedor",
          sortable: true,
-         renderCell: (params) => (
+         body: (params) => (
             <TextCenter>
                {params.row.username} {params.row.full_name ? ` - ${params.row.full_name}` : ""}
             </TextCenter>
@@ -467,16 +467,16 @@ const ProductDT = ({}) => {
    [undefined, "distribuidos", "activados", "portados"].includes(status) &&
       columns.push({
          field: "pos_name",
-         headerName: "P.V. / Cliente",
+         header: "P.V. / Cliente",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
+         body: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
       });
    columns.push(
       {
          field: "status",
-         headerName: "Estatus",
+         header: "Estatus",
          sortable: true,
-         renderCell: (params) => {
+         body: (params) => {
             const color =
                params.row.destination === "Asignado"
                   ? "warning"
@@ -492,39 +492,39 @@ const ProductDT = ({}) => {
       },
       {
          field: "marca",
-         headerName: "Marca",
+         header: "Marca",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.marca}</TextCenter>
+         body: (params) => <TextCenter>{params.row.marca}</TextCenter>
       },
       {
          field: "modelo",
-         headerName: "Modelo",
+         header: "Modelo",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+         body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
       },
       {
          field: "color",
-         headerName: "Color",
+         header: "Color",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.color}</TextCenter>
+         body: (params) => <TextCenter>{params.row.color}</TextCenter>
       },
       {
          field: "import",
-         headerName: "Importación",
+         header: "Importación",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.import_name}</TextCenter>
+         body: (params) => <TextCenter>{params.row.import_name}</TextCenter>
       },
       {
          field: "uploader_username",
-         headerName: "Creado Por",
+         header: "Creado Por",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
+         body: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
       },
       {
          field: "evaluations_rejected",
-         headerName: "Evaluaciones",
+         header: "Evaluaciones",
          sortable: true,
-         renderCell: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
+         body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
       }
    );
 
@@ -532,12 +532,12 @@ const ProductDT = ({}) => {
       columns.push(
          {
             field: "active",
-            headerName: "Activo",
+            header: "Activo",
             description: "",
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => {
+            body: (params) => {
                const { key, ...obj } = params.row;
                return <ActiveBodyTemplate {...obj} key={`active-${params.row.id}`} />;
             },
@@ -546,12 +546,12 @@ const ProductDT = ({}) => {
          },
          {
             field: "created_at",
-            headerName: "Fecha de alta",
+            header: "Fecha de alta",
             description: "",
             // width: 90,
             sortable: true,
             functionEdit: null,
-            renderCell: (params) => {
+            body: (params) => {
                const { key, ...obj } = params.row;
                return <CreatedAtBodyTemplate {...obj} key={`created-at-${params.row.id}`} />;
             },

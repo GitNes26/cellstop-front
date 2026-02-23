@@ -68,9 +68,6 @@ span.p-input-icon-left {
    padding: 1rem;
 }
 
-.p-datatable-loading-overlay .p-component-overlay {
-   z-index: 13 !important; /* Asegura que el overlay de carga esté por encima del menú */
-}
 #table {
    z-index: 10;
    /* opacity: 0.2; */
@@ -97,6 +94,10 @@ table.p-datatable-table {
 .p-datatable-scrollable-header,
 .p-datatable-scrollable-body {
    /* background-color: white; */
+}
+
+.p-datatable-loading-overlay .p-component-overlay {
+   z-index: 3 !important; /* Asegura que el overlay de carga esté por encima del menú */
 }
 
 /**  DATA TABLE **/

@@ -125,6 +125,7 @@ interface DataTableComponentProps {
    toolbarContentEnd?: JSX.Element;
    updateData?: (newData: any, folio?: any) => Promise<any>;
    refreshTable?: () => Promise<void>;
+   fetchLazyData?: (lazyEvent: any) => Promise<{ data: any[]; totalRecords: number }>;
    btnAdd?: boolean;
    titleBtnAdd?: string;
    // handleClickEdit?: (params: any) => void;
@@ -162,6 +163,7 @@ interface DataTableComponentProps {
  * @param {JSX.Element} toolbarContentEnd - Contenido final de la barra de herramientas.
  * @param {function} updateData - Función para actualizar registros existentes.
  * @param {function} refreshTable - Función para refrescar los datos de la tabla.
+ * @param {function} [fetchLazyData] - Función AJAX para obtener datos paginados. Recibe lazyState y devuelve {data: any[], totalRecords: number}. Si no se proporciona, usa slice local de datos.
  * @param {boolean} [btnAdd=true] - Indica si se muestra el botón de añadir.
  * @param {string} titleBtnAdd - Título del botón de añadir.
  * @param {any} newRow - Objeto que representa una nueva fila para añadir.
@@ -193,6 +195,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    updateData,
    handleClickDisEnable,
    refreshTable,
+   fetchLazyData,
    btnAdd = true,
    titleBtnAdd = null,
    newRow = null,
@@ -253,26 +256,35 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
    let networkTimeout = null;
 
+   // Ejecutar cuando lazyState cambia (incluyendo al montar con estado inicial)
    useEffect(() => {
       loadLazyData();
    }, [lazyState]);
 
-   const loadLazyData = () => {
+   const loadLazyData = async () => {
+      console.log("🚀 ~ loadLazyData ~ lazyState:", lazyState);
+
       setLoading(true);
 
-      if (networkTimeout) {
-         clearTimeout(networkTimeout);
-      }
-
-      //imitate delay of a backend call
-      networkTimeout = setTimeout(
-         () => {
+      try {
+         if (fetchLazyData) {
+            // Usar función AJAX personalizada si existe
+            const response = await fetchLazyData(lazyState);
+            setTotalRecords(response.totalRecords);
+            setFinalData(response.data);
+         } else {
+            // Fallback: usar slice local de datos
             setTotalRecords(data.length);
             setFinalData(data.slice(lazyState.first, lazyState.first + lazyState.rows));
-            setLoading(false);
-         },
-         Math.random() * 1000 + 250
-      );
+         }
+      } catch (error) {
+         console.error("Error cargando datos lazy:", error);
+         // En caso de error, usar fallback local
+         setTotalRecords(data.length);
+         setFinalData(data.slice(lazyState.first, lazyState.first + lazyState.rows));
+      } finally {
+         setLoading(false);
+      }
    };
 
    const onPage = (event) => {
@@ -725,10 +737,8 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    };
 
    useEffect(() => {
-      // setLoading(true);
-      // console.log(data);
-      // if (data.length > 0) setGlobalFilterFields(Object.keys(data[0]));
-      // setLoading(false);
+      // Actualizar dataColumns cuando data cambia
+      setDataColumns(data);
    }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
    useEffect(() => {
@@ -754,7 +764,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                id={idName}
                name={idName}
                ref={dt}
-               style={{ borderRadius: "20px", zIndex: 10 }}
+               style={{ borderRadius: "20px" /* zIndex: 10 */ }}
                stripedRows
                onLoadedDataCapture={() => console.log("onLoadedDataCapture")}
                onLoad={() => console.log("onLoad")}
@@ -765,7 +775,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                showGridlines={showGridlines}
                removableSort
                size="small"
-               value={data}
+               value={finalData}
                editMode="row"
                header={header}
                dataKey="key"
@@ -785,7 +795,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onSelectionChange={(e: any) => setSelectedData(e.value)}
                selectAll={selectAll}
                onSelectAllChange={onSelectAllChange}
-               loading={showLoading || loading}
+               loading={loading || showLoading}
                // loadingIcon={<CustomLoadingOverlay />}
                scrollable={true}
                scrollHeight={scrollHeight}
@@ -818,14 +828,14 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                         header={col.header}
                         headerStyle={{ /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/ textAlign: "center" }}
                         headerClassName="text-center"
-                        // filter={col.filter && headerFilters}
-                        // filterField={col.filterField}
-                        // filterHeaderStyle={
-                        //    {
-                        //       /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/
-                        //    }
-                        // }
-                        // filterHeaderClassName="custom-filter-header"
+                        filter={col.filter && headerFilters}
+                        filterField={col.filterField}
+                        filterHeaderStyle={
+                           {
+                              /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/
+                           }
+                        }
+                        filterHeaderClassName="custom-filter-header"
                         editor={(options) => {
                            if (col.functionEdit) return col.functionEdit(options);
                         }}
