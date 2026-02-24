@@ -301,7 +301,7 @@ const PointOfSaleDT = () => {
 
    //#region COLUMNAS PrimeReact
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["name", "description", "active", "created_at"];
+   const globalFilterFields = ["name", "contact_name", "contact_phone", "address", "seller", "active", "created_at"];
 
    // #region BodyTemplates
    const ImgBodyTemplate = (obj) => (obj.img == null || obj.img === "" ? <Avatar {...stringAvatar(obj.name)} /> : <Avatar src={`${env.API_URL_IMG}/${obj.img}`} />);

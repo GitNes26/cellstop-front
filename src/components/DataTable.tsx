@@ -251,10 +251,32 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
       rows: 10,
       page: 1,
       sortField: null,
-      sortOrder: null
+      sortOrder: null,
+      filters: filtersColumns
    });
 
    let networkTimeout = null;
+
+   // Función para aplicar filtros a los datos
+   const applyFilters = (dataToFilter: any[]) => {
+      return dataToFilter.filter((rowData) => {
+         return Object.keys(filters).every((key) => {
+            console.log("🚀 ~ applyFilters ~ key:", key)
+            if (key === "global") {
+               // Filtro global búsqueda en todos los campos
+               const globalValue = filters[key].value;
+               if (!globalValue) return true;
+               return globalFilterFields.some((field) => rowData[field]?.toString().toLowerCase().includes(globalValue.toLowerCase()));
+            } else {
+               // Filtros por columna
+               const filterValue = filters[key].value;
+               if (!filterValue) return true;
+               const rowValue = rowData[key];
+               return rowValue?.toString().toLowerCase().includes(filterValue.toLowerCase());
+            }
+         });
+      });
+   };
 
    // Ejecutar cuando lazyState cambia (incluyendo al montar con estado inicial)
    useEffect(() => {
@@ -273,15 +295,17 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
             setTotalRecords(response.totalRecords);
             setFinalData(response.data);
          } else {
-            // Fallback: usar slice local de datos
-            setTotalRecords(data.length);
-            setFinalData(data.slice(lazyState.first, lazyState.first + lazyState.rows));
+            // Fallback: usar slice local de datos y aplicar filtros
+            const filteredData = applyFilters(data);
+            setTotalRecords(filteredData.length);
+            setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
          }
       } catch (error) {
          console.error("Error cargando datos lazy:", error);
          // En caso de error, usar fallback local
-         setTotalRecords(data.length);
-         setFinalData(data.slice(lazyState.first, lazyState.first + lazyState.rows));
+         const filteredData = applyFilters(data);
+         setTotalRecords(filteredData.length);
+         setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
       } finally {
          setLoading(false);
       }
@@ -530,10 +554,9 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    };
    //#endregion EXPORTAR
 
-   const onGlobalFilterChange = (e: any) => {
+   const onGlobalFilterChange = (e) => {
       try {
          let value = e.target.value;
-         // console.log("buscador", value);
          if (value === undefined || value === null) value = "";
          let _filters = { ...filters };
 
@@ -541,6 +564,11 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
          setFilters(_filters);
          setGlobalFilterValue(value);
+
+         // Aplicar filtros globales inmediatamente
+         const filteredData = applyFilters(data);
+         setTotalRecords(filteredData.length);
+         setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
       } catch (error) {
          console.log(error);
          Toast.Error(error);
@@ -790,7 +818,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                sortField={lazyState.sortField}
                sortOrder={lazyState.sortOrder}
                onFilter={onFilter}
-               filters={filters /* lazyState.filters */}
+               filters={lazyState.filters /* filters */}
                selection={selectedData}
                onSelectionChange={(e: any) => setSelectedData(e.value)}
                selectAll={selectAll}
@@ -811,7 +839,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onRowEditInit={handleOnRowEditIinit}
                onRowEditCancel={handleOnRowEditCancel}
                metaKeySelection={true}
-               className="z-10 hover:bg-slate-500"
+               className=" hover:bg-slate-500"
             >
                {btnDeleteMultiple && <Column selectionMode="multiple" exportable={false}></Column>}
                {columns.map((col, index) => {
