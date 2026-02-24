@@ -142,27 +142,71 @@ const ProductDT = ({}) => {
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
+   const globalFilterFields = [
+      // "id",
+      // "action",
+      // "description",
+      // "origin",
+      "destination",
+      // "executed_at",
+      // "executed_by",
+      // "active",
+      // "created_at",
+      // "updated_at",
+      // "deleted_at",
+      "iccid",
+      "imei",
+      "fecha",
+      "celular",
+      "folio",
+      // "num_orden",
+      // "tipo_sim",
+      "modelo",
+      "marca",
+      // "color",
+      // "location_status",
+      // "activation_status",
+      // "product_type",
+      "evaluations_rejected",
+      "import_name",
+      // "uploader_username",
+      // "uploader_full_name",
+      "lote",
+      "lada",
+      // "preactivation_date",
+      // "quantity",
+      // "description_lote",
+      "username",
+      "full_name",
+      "pin_color",
+      "visit_type",
+      // "observations",
+      "pos_name",
+      "pos_address"
+      // // "ubication",
+   ];
 
    // #region Body Templates
-   const TextCenter = ({ children, key }) => (
-      <Typography key={key} textAlign="center" size={fontSizeTable.text}>
+   const TextCenter = ({ children }) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
          {children ?? "-"}
       </Typography>
    );
 
-   const IccidBodyTemplate = (obj) => (
-      <Typography textAlign="center" size={fontSizeTable.text} className="font-black">
-         {obj.iccid}
-      </Typography>
-   );
-
-   const FechaBodyTemplate = ({ date }) => {
+   const IccidBodyTemplate = (obj) => {
+      // console.log("🚀 ~ IccidBodyTemplate ~ obj:", obj);
       return (
-         <Typography textAlign="center" size={fontSizeTable.text}>
-            {formatDatetime(date, false)}
+         <Typography textAlign="center" size={fontSizeTable.text} className="font-black">
+            {obj.iccid}
          </Typography>
       );
    };
+
+   const FechaBodyTemplate = ({ date }) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(date, false)}
+      </Typography>
+   );
 
    const ActiveBodyTemplate = (obj) => (
       <Typography textAlign="center" className="flex justify-center">
@@ -175,6 +219,55 @@ const ProductDT = ({}) => {
          {formatDatetime(obj.created_at, true)}
       </Typography>
    );
+
+   // Templates para columnas simples con TextCenter
+   const celularBodyTemplate = (rowData) => <TextCenter>{rowData.celular}</TextCenter>;
+   const imeiBodyTemplate = (rowData) => <TextCenter>{rowData.imei}</TextCenter>;
+   const loteBodyTemplate = (rowData) => <TextCenter>{rowData.lote}</TextCenter>;
+   const folioBodyTemplate = (rowData) => <TextCenter>{rowData.folio}</TextCenter>;
+   const vendedorBodyTemplate = (rowData) => (
+      <TextCenter>
+         {rowData.username} {rowData.full_name ? ` - ${rowData.full_name}` : ""}
+      </TextCenter>
+   );
+   const posNameBodyTemplate = (rowData) => <TextCenter>{rowData.pos_name}</TextCenter>;
+   const marcaBodyTemplate = (rowData) => <TextCenter>{rowData.marca}</TextCenter>;
+   const modeloBodyTemplate = (rowData) => <TextCenter>{rowData.modelo}</TextCenter>;
+   const colorBodyTemplate = (rowData) => <TextCenter>{rowData.color}</TextCenter>;
+   const importBodyTemplate = (rowData) => <TextCenter>{rowData.import_name}</TextCenter>;
+   const uploaderBodyTemplate = (rowData) => <TextCenter>{rowData.uploader_username}</TextCenter>;
+   const evaluationsBodyTemplate = (rowData) => <TextCenter>{rowData.evaluations_rejected}</TextCenter>;
+
+   // Templates que usan componentes específicos
+   const iccidBodyTemplate = (rowData) => {
+      const { key, ...objData } = rowData;
+      return <IccidBodyTemplate {...objData} />;
+   };
+   const fechaBodyTemplate = (rowData) => <FechaBodyTemplate date={rowData.fecha} />;
+   const executedAtBodyTemplate = (rowData) => <FechaBodyTemplate date={rowData.executed_at} />;
+   const activeBodyTemplate = (rowData) => {
+      const { key, ...objData } = rowData;
+      return <ActiveBodyTemplate {...objData} />;
+   };
+   const createdAtBodyTemplate = (rowData) => {
+      const { key, ...objData } = rowData;
+      return <CreatedAtBodyTemplate {...objData} />;
+   };
+
+   // Template para el estatus (usando Chip)
+   const statusBodyTemplate = (rowData) => {
+      const color =
+         rowData.destination === "Asignado"
+            ? "warning"
+            : rowData.destination === "Distribuido"
+              ? "info"
+              : rowData.destination === "Activado"
+                ? "success"
+                : rowData.destination === "Portado"
+                  ? "error"
+                  : "default";
+      return <Chip color={color} label={rowData.destination} />;
+   };
    // #endregion
 
    // const columns = [
@@ -399,166 +492,211 @@ const ProductDT = ({}) => {
    //       body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
    //    }
    // ];
+
+   //#region COLUMNAS MUI
+   // const columns = [
+   //    {
+   //       field: "celular",
+   //       header: "Celular",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.celular}</TextCenter>
+   //    },
+   //    {
+   //       field: "iccid",
+   //       header: "ICCID",
+   //       sortable: true,
+   //       body: (params) => {
+   //          const { key, ...obj } = params.row;
+   //          return <IccidBodyTemplate {...obj} />;
+   //       }
+   //    },
+   //    {
+   //       field: "fecha",
+   //       header: "Fecha Pre-activación",
+   //       sortable: true,
+   //       body: (params) => {
+   //          // const { key, ...obj } = params.row;
+   //          return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
+   //       }
+   //    },
+   //    {
+   //       field: "imei",
+   //       header: "IMEI",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.imei}</TextCenter>
+   //    },
+   //    {
+   //       field: "executed_at",
+   //       header: `Fecha de Ejecución`,
+   //       // header: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
+   //       sortable: true,
+   //       body: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
+   //    }
+   // ];
+   // [undefined, "asignados"].includes(status) &&
+   //    columns.push(
+   //       {
+   //          field: "lote",
+   //          header: "Lote",
+   //          sortable: true,
+   //          body: (params) => <TextCenter>{params.row.lote}</TextCenter>
+   //       },
+   //       {
+   //          field: "folio",
+   //          header: "Folio",
+   //          sortable: true,
+   //          body: (params) => <TextCenter>{params.row.folio}</TextCenter>
+   //       }
+   //    );
+   // [undefined, "asignados", "distribuidos", "activados", "portados"].includes(status) &&
+   //    columns.push({
+   //       field: "username",
+   //       header: "Vendedor",
+   //       sortable: true,
+   //       body: (params) => (
+   //          <TextCenter>
+   //             {params.row.username} {params.row.full_name ? ` - ${params.row.full_name}` : ""}
+   //          </TextCenter>
+   //       )
+   //    });
+   // [undefined, "distribuidos", "activados", "portados"].includes(status) &&
+   //    columns.push({
+   //       field: "pos_name",
+   //       header: "P.V. / Cliente",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
+   //    });
+   // columns.push(
+   //    {
+   //       field: "status",
+   //       header: "Estatus",
+   //       sortable: true,
+   //       body: (params) => {
+   //          const color =
+   //             params.row.destination === "Asignado"
+   //                ? "warning"
+   //                : params.row.destination === "Distribuido"
+   //                  ? "info"
+   //                  : params.row.destination === "Activado"
+   //                    ? "success"
+   //                    : params.row.destination === "Portado"
+   //                      ? "error"
+   //                      : "default";
+   //          return <Chip color={color} label={params.row.destination} />;
+   //       }
+   //    },
+   //    {
+   //       field: "marca",
+   //       header: "Marca",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.marca}</TextCenter>
+   //    },
+   //    {
+   //       field: "modelo",
+   //       header: "Modelo",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
+   //    },
+   //    {
+   //       field: "color",
+   //       header: "Color",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.color}</TextCenter>
+   //    },
+   //    {
+   //       field: "import",
+   //       header: "Importación",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.import_name}</TextCenter>
+   //    },
+   //    {
+   //       field: "uploader_username",
+   //       header: "Creado Por",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
+   //    },
+   //    {
+   //       field: "evaluations_rejected",
+   //       header: "Evaluaciones",
+   //       sortable: true,
+   //       body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
+   //    }
+   // );
+
+   // auth.role_id === ROLE_SUPER_ADMIN &&
+   //    columns.push(
+   //       {
+   //          field: "active",
+   //          header: "Activo",
+   //          description: "",
+   //          // width: 90,
+   //          sortable: true,
+   //          functionEdit: null,
+   //          body: (params) => {
+   //             const { key, ...obj } = params.row;
+   //             return <ActiveBodyTemplate {...obj} key={`active-${params.row.id}`} />;
+   //          },
+   //          filter: false,
+   //          filterField: null
+   //       },
+   //       {
+   //          field: "created_at",
+   //          header: "Fecha de alta",
+   //          description: "",
+   //          // width: 90,
+   //          sortable: true,
+   //          functionEdit: null,
+   //          body: (params) => {
+   //             const { key, ...obj } = params.row;
+   //             return <CreatedAtBodyTemplate {...obj} key={`created-at-${params.row.id}`} />;
+   //          },
+   //          filter: false,
+   //          filterField: null
+   //       }
+   //    );
+   //#endregion COLUMNAS MUI
+
+   //#region COLUMNAS PRIMEREACT
    const columns = [
-      {
-         field: "celular",
-         header: "Celular",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.celular}</TextCenter>
-      },
-      {
-         field: "iccid",
-         header: "ICCID",
-         sortable: true,
-         body: (params) => {
-            const { key, ...obj } = params.row;
-            return <IccidBodyTemplate {...obj} />;
-         }
-      },
-      {
-         field: "fecha",
-         header: "Fecha Pre-activación",
-         sortable: true,
-         body: (params) => {
-            // const { key, ...obj } = params.row;
-            return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
-         }
-      },
-      {
-         field: "imei",
-         header: "IMEI",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.imei}</TextCenter>
-      },
-      {
-         field: "executed_at",
-         header: `Fecha de Ejecución`,
-         // header: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
-         sortable: true,
-         body: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
-      }
+      { field: "celular", header: "Celular", sortable: true, body: celularBodyTemplate, filter: true },
+      { field: "iccid", header: "ICCID", sortable: true, body: iccidBodyTemplate, filter: true },
+      { field: "fecha", header: "Fecha Pre-activación", sortable: true, body: fechaBodyTemplate, filter: false },
+      { field: "imei", header: "IMEI", sortable: true, body: imeiBodyTemplate, filter: false },
+      { field: "executed_at", header: "Fecha de Ejecución", sortable: true, body: executedAtBodyTemplate, filter: false }
    ];
+
+   // Columnas condicionales
    [undefined, "asignados"].includes(status) &&
       columns.push(
-         {
-            field: "lote",
-            header: "Lote",
-            sortable: true,
-            body: (params) => <TextCenter>{params.row.lote}</TextCenter>
-         },
-         {
-            field: "folio",
-            header: "Folio",
-            sortable: true,
-            body: (params) => <TextCenter>{params.row.folio}</TextCenter>
-         }
+         { field: "lote", header: "Lote", sortable: true, body: loteBodyTemplate, filter: true },
+         { field: "folio", header: "Folio", sortable: true, body: folioBodyTemplate, filter: true }
       );
+
    [undefined, "asignados", "distribuidos", "activados", "portados"].includes(status) &&
-      columns.push({
-         field: "username",
-         header: "Vendedor",
-         sortable: true,
-         body: (params) => (
-            <TextCenter>
-               {params.row.username} {params.row.full_name ? ` - ${params.row.full_name}` : ""}
-            </TextCenter>
-         )
-      });
+      columns.push({ field: "username", header: "Vendedor", sortable: true, body: vendedorBodyTemplate, filter: true });
+
    [undefined, "distribuidos", "activados", "portados"].includes(status) &&
-      columns.push({
-         field: "pos_name",
-         header: "P.V. / Cliente",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
-      });
+      columns.push({ field: "pos_name", header: "P.V. / Cliente", sortable: true, body: posNameBodyTemplate, filter: true });
+
+   // Columnas comunes a todos los casos
    columns.push(
-      {
-         field: "status",
-         header: "Estatus",
-         sortable: true,
-         body: (params) => {
-            const color =
-               params.row.destination === "Asignado"
-                  ? "warning"
-                  : params.row.destination === "Distribuido"
-                    ? "info"
-                    : params.row.destination === "Activado"
-                      ? "success"
-                      : params.row.destination === "Portado"
-                        ? "error"
-                        : "default";
-            return <Chip color={color} label={params.row.destination} />;
-         }
-      },
-      {
-         field: "marca",
-         header: "Marca",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.marca}</TextCenter>
-      },
-      {
-         field: "modelo",
-         header: "Modelo",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
-      },
-      {
-         field: "color",
-         header: "Color",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.color}</TextCenter>
-      },
-      {
-         field: "import",
-         header: "Importación",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.import_name}</TextCenter>
-      },
-      {
-         field: "uploader_username",
-         header: "Creado Por",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
-      },
-      {
-         field: "evaluations_rejected",
-         header: "Evaluaciones",
-         sortable: true,
-         body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
-      }
+      { field: "status", header: "Estatus", sortable: true, body: statusBodyTemplate, filter: true },
+      { field: "marca", header: "Marca", sortable: true, body: marcaBodyTemplate, filter: true },
+      { field: "modelo", header: "Modelo", sortable: true, body: modeloBodyTemplate, filter: true },
+      { field: "color", header: "Color", sortable: true, body: colorBodyTemplate, filter: true },
+      { field: "import", header: "Importación", sortable: true, body: importBodyTemplate, filter: false },
+      { field: "uploader_username", header: "Creado Por", sortable: true, body: uploaderBodyTemplate, filter: false },
+      { field: "evaluations_rejected", header: "Evaluaciones", sortable: true, body: evaluationsBodyTemplate, filter: false }
    );
 
+   // Columnas solo para super admin
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
-         {
-            field: "active",
-            header: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            body: (params) => {
-               const { key, ...obj } = params.row;
-               return <ActiveBodyTemplate {...obj} key={`active-${params.row.id}`} />;
-            },
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            header: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            body: (params) => {
-               const { key, ...obj } = params.row;
-               return <CreatedAtBodyTemplate {...obj} key={`created-at-${params.row.id}`} />;
-            },
-            filter: false,
-            filterField: null
-         }
+         { field: "active", header: "Activo", sortable: true, body: activeBodyTemplate, filter: true },
+         { field: "created_at", header: "Fecha de alta", sortable: true, body: createdAtBodyTemplate, filter: true }
       );
+   //#endregion COLUMNAS PRIMEREACT
+
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -986,8 +1124,8 @@ const ProductDT = ({}) => {
       try {
          setTableLoading(true);
          // Suponiendo que tu API acepta parámetros de paginación
-         const response = await getAllProductsPagination({}, page, size); // Necesitarás modificar esta función
-         // const response = await getAllProducts(); // Necesitarás modificar esta función
+         // const response = await getAllProductsPagination({}, page, size); // Necesitarás modificar esta función
+         const response = await getAllProducts(); // Necesitarás modificar esta función
          // console.log("🚀 ~ loadProductsWithPagination ~ response:", response);
          // Si tu respuesta tiene la estructura del JSON que mostraste
          if (response?.result) {
@@ -997,15 +1135,22 @@ const ProductDT = ({}) => {
             setPageSize(response.result.per_page);
 
             // Formatear datos con acciones
-            // const formattedData = response.result.map((obj, index) => {
-            const formattedData = response.result.data.map((obj, index) => {
+            // const formattedData = response.result.data.map((obj, index) => {
+            const formattedData = response.result.map((obj, index) => {
                let register = { ...obj };
                register.key = index + 1;
                register.actions = [
-                  { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+                  {
+                     label: "Editar",
+                     iconName: "pi-pen-to-square",
+                     tooltip: "",
+                     handleOnClick: () => handleClickEdit(obj.id),
+                     color: "blue",
+                     permission: auth.permissions.update
+                  },
                   {
                      label: "Ver detalles",
-                     iconName: "ListAltRounded",
+                     iconName: "pi pi-info-circle",
                      tooltip: "",
                      handleOnClick: () => handleClickDetails(obj.id),
                      color: "primary",
@@ -1013,7 +1158,7 @@ const ProductDT = ({}) => {
                   },
                   {
                      label: "Ver movimientos",
-                     iconName: "HistoryRounded",
+                     iconName: "pi-history",
                      tooltip: "",
                      handleOnClick: () => handleClickMovements(obj),
                      color: "primary",
@@ -1021,7 +1166,7 @@ const ProductDT = ({}) => {
                   },
                   register.destination != "Portado" && {
                      label: "Portar Manualmente",
-                     iconName: "ImportExportRounded",
+                     iconName: "pi-arrow-right-arrow-left",
                      tooltip: "",
                      handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.celular),
                      color: "primary",
@@ -1029,7 +1174,7 @@ const ProductDT = ({}) => {
                   },
                   register.seller_id == null && {
                      label: "Asignación Manual",
-                     iconName: "AssignmentIndRounded",
+                     iconName: "pi-tags",
                      tooltip: "",
                      handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj.id, obj),
                      color: "primary",
@@ -1037,7 +1182,7 @@ const ProductDT = ({}) => {
                   },
                   {
                      label: "Eliminar",
-                     iconName: "Delete",
+                     iconName: "pi pi-trash",
                      tooltip: "",
                      handleOnClick: () => handleClickDelete(obj.id, obj.celular),
                      color: "red",
@@ -1134,6 +1279,26 @@ const ProductDT = ({}) => {
             )}
          </Stack>
          <DataTableComponent
+            columns={columns}
+            data={data}
+            globalFilterFields={globalFilterFields}
+            headerFilters={true}
+            btnAdd={auth.permissions.create}
+            handleClickAdd={handleClickAdd}
+            rowEdit={false}
+            btnDeleteMultiple={true}
+            refreshTable={getAllProducts}
+            scrollHeight="64vh"
+            btnsExport={true}
+            fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+            singularName={singularName}
+            indexColumnName={3}
+            // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+            // positionBtnsToolbar="center"
+            // toolbarContentCenter={toolbarContentCenter}
+            // toolbarContentEnd={toolbarContentEnd}
+         />
+         {/* <DataTableComponent
             dataColumns={columns}
             data={data}
             // setData={setRequestBecas}
@@ -1159,7 +1324,7 @@ const ProductDT = ({}) => {
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
             // toolbarContentEnd={toolbarContentEnd}
-         />
+         /> */}
          <ModalTableDetails
             openDialog={openDialogTableDetails}
             setOpenDialog={setOpenDialogTableDetails}
