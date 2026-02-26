@@ -1140,14 +1140,14 @@ const ProductDT = ({}) => {
                let register = { ...obj };
                register.key = index + 1;
                register.actions = [
-                  {
-                     label: "Editar",
-                     iconName: "pi-pen-to-square",
-                     tooltip: "",
-                     handleOnClick: () => handleClickEdit(obj.id),
-                     color: "blue",
-                     permission: auth.permissions.update
-                  },
+                  // {
+                  //    label: "Editar",
+                  //    iconName: "pi-pen-to-square",
+                  //    tooltip: "",
+                  //    handleOnClick: () => handleClickEdit(obj.id),
+                  //    color: "blue",
+                  //    permission: auth.permissions.update
+                  // },
                   {
                      label: "Ver detalles",
                      iconName: "pi pi-info-circle",
@@ -1283,7 +1283,7 @@ const ProductDT = ({}) => {
             data={data}
             globalFilterFields={globalFilterFields}
             headerFilters={true}
-            btnAdd={auth.permissions.create}
+            btnAdd={false /* auth.permissions.create */}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
             btnDeleteMultiple={true}
@@ -1292,7 +1292,7 @@ const ProductDT = ({}) => {
             btnsExport={true}
             fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
             singularName={singularName}
-            indexColumnName={3}
+            indexColumnName={4}
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}

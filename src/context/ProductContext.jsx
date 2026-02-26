@@ -194,7 +194,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };
@@ -234,7 +234,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };
@@ -256,7 +256,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };
@@ -281,7 +281,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };
@@ -340,7 +340,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };
@@ -361,7 +361,7 @@ export default function ProductContextProvider({ children }) {
 
       Response.success = response.data.data;
       const res = Response.success;
-      await getAllProductsPagination(); //getAllProducts();
+      await getAllProducts(); //getAllProductsPagination();
 
       return res;
    };

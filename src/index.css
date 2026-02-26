@@ -44,3 +44,7 @@
 .swal2-backdrop-show {
    z-index: 10000 !important;
 }
+
+.p-datatable-loading-overlay .p-component-overlay {
+   z-index: 3 !important; /* Asegura que el overlay de carga esté por encima del menú */
+}

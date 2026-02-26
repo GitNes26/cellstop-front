@@ -44,7 +44,8 @@ thead > tr:nth-child(2) {
       button[data-pc-section="headerfilterclearbutton"] {
          display: block;
          /* position: absolute; */
-         right: 25px;
+         right: 30px;
+         top: -3px;
       }
    }
 }
@@ -96,7 +97,7 @@ table.p-datatable-table {
    /* background-color: white; */
 }
 
-.p-datatable-loading-overlay .p-component-overlay {
+.p-datatable-loading-overlay.p-component-overlay {
    z-index: 3 !important; /* Asegura que el overlay de carga esté por encima del menú */
 }
 

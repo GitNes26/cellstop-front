@@ -1,4 +1,4 @@
-import React, { JSX, ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { JSX, ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import "primereact/resources/primereact.min.css"; // PrimeReact CSS
 import "primereact/resources/themes/lara-dark-indigo/theme.css";
@@ -114,6 +114,7 @@ interface DataTableComponentProps {
    defaultGlobalFilter?: string;
    data: any[];
    setData: (data: any[]) => void;
+   rowsPerPage?: number;
    headerFilters?: boolean;
    rowEdit?: boolean;
    handleClickAdd?: () => void;
@@ -183,6 +184,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    defaultGlobalFilter = null,
    data,
    setData,
+   rowsPerPage = 100,
    headerFilters = true,
    rowEdit = false,
    handleClickAdd,
@@ -236,93 +238,87 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    filtersColumns = columns.map((c) => [c.field, { value: null, matchMode: FilterMatchMode.CONTAINS }]);
    filtersColumns = Object.fromEntries(filtersColumns);
    filtersColumns.global = { value: defaultGlobalFilter, matchMode: FilterMatchMode.CONTAINS };
-   const [filters, setFilters] = useState(filtersColumns);
-   const [globalFilterValue, setGlobalFilterValue] = useState("");
+   // const [filters, setFilters] = useState(filtersColumns);
+   // const [globalFilterValue, setGlobalFilterValue] = useState("");
    // FILTROS
 
    // #region LAZY LOADING
-   const [loading, setLoading] = useState(false);
-   const [totalRecords, setTotalRecords] = useState(0);
-   const [finalData, setFinalData] = useState(null);
    const [selectAll, setSelectAll] = useState(false);
-   // const [selectedCustomers, setSelectedData] = useState(null);
+   // Para datos remotos, mantener estado finalData
+   const [finalData, setFinalData] = useState<any[]>([]);
+   const [totalRecords, setTotalRecords] = useState(0);
+   const [loading, setLoading] = useState(false);
+   // Reemplaza la declaración de filters y lazyState inicial
    const [lazyState, setLazyState] = useState({
       first: 0,
-      rows: 10,
+      rows: rowsPerPage,
       page: 1,
       sortField: null,
       sortOrder: null,
-      filters: filtersColumns
+      filters: {
+         global: { value: defaultGlobalFilter || "", matchMode: FilterMatchMode.CONTAINS },
+         ...columns.reduce((acc, col) => {
+            if (col.field !== "actions") {
+               acc[col.field] = { value: null, matchMode: FilterMatchMode.CONTAINS };
+            }
+            return acc;
+         }, {})
+      }
    });
+
+   // Estado para el input de búsqueda global (sincronizado)
+   const [globalFilterValue, setGlobalFilterValue] = useState(defaultGlobalFilter || "");
 
    let networkTimeout = null;
 
-   // Función para aplicar filtros a los datos
-   const applyFilters = (dataToFilter: any[]) => {
-      return dataToFilter.filter((rowData) => {
-         return Object.keys(filters).every((key) => {
-            console.log("🚀 ~ applyFilters ~ key:", key)
+   // Determinar si usamos lazy remoto o local
+   const isLazyRemote = !!fetchLazyData;
+
+   // Para datos locales, calcular con useMemo
+   const computedData = useMemo(() => {
+      if (isLazyRemote) return []; // No se usa en modo remoto
+      const filtered = data.filter((rowData) => {
+         return Object.entries(lazyState.filters).every(([key, filter]: any) => {
             if (key === "global") {
-               // Filtro global búsqueda en todos los campos
-               const globalValue = filters[key].value;
-               if (!globalValue) return true;
-               return globalFilterFields.some((field) => rowData[field]?.toString().toLowerCase().includes(globalValue.toLowerCase()));
-            } else {
-               // Filtros por columna
-               const filterValue = filters[key].value;
-               if (!filterValue) return true;
-               const rowValue = rowData[key];
-               return rowValue?.toString().toLowerCase().includes(filterValue.toLowerCase());
+               const val = filter.value;
+               if (!val) return true;
+               return globalFilterFields.some((field) => rowData[field]?.toString().toLowerCase().includes(val.toLowerCase()));
             }
+            const filterVal = filter.value;
+            if (!filterVal) return true;
+            return rowData[key]?.toString().toLowerCase().includes(filterVal.toLowerCase());
          });
       });
-   };
+      setTotalRecords(filtered.length); // actualizar total para paginación
+      return filtered.slice(lazyState.first, lazyState.first + lazyState.rows);
+   }, [data, lazyState, globalFilterFields]);
 
-   // Ejecutar cuando lazyState cambia (incluyendo al montar con estado inicial)
-   useEffect(() => {
-      loadLazyData();
-   }, [lazyState]);
-
-   const loadLazyData = async () => {
-      console.log("🚀 ~ loadLazyData ~ lazyState:", lazyState);
-
+   const loadLazyData = useCallback(async () => {
       setLoading(true);
-
       try {
-         if (fetchLazyData) {
-            // Usar función AJAX personalizada si existe
+         if (isLazyRemote) {
             const response = await fetchLazyData(lazyState);
             setTotalRecords(response.totalRecords);
             setFinalData(response.data);
          } else {
-            // Fallback: usar slice local de datos y aplicar filtros
-            const filteredData = applyFilters(data);
-            setTotalRecords(filteredData.length);
-            setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
+            // Los datos locales ya se calculan en computedData, no es necesario hacer nada aquí
+            // Pero forzamos la actualización de totalRecords (ya se hizo en el memo)
          }
       } catch (error) {
-         console.error("Error cargando datos lazy:", error);
-         // En caso de error, usar fallback local
-         const filteredData = applyFilters(data);
-         setTotalRecords(filteredData.length);
-         setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
+         console.error("Error loading data", error);
+         Toast.Error("Error al cargar datos");
       } finally {
          setLoading(false);
       }
-   };
+   }, [lazyState, isLazyRemote, fetchLazyData]);
 
-   const onPage = (event) => {
-      setLazyState(event);
-   };
+   useEffect(() => {
+      loadLazyData();
+   }, [loadLazyData]); // Solo para remoto; el memo ya cubre local
 
-   const onSort = (event) => {
-      setLazyState(event);
-   };
-
-   const onFilter = (event) => {
-      event["first"] = 0;
-      setLazyState(event);
-   };
+   const onPage = (event: any) => setLazyState(event);
+   const onSort = (event: any) => setLazyState(event);
+   const onFilter = (event: any) => setLazyState({ ...event, first: 0 });
 
    const onSelectionChange = (event) => {
       const value = event.value;
@@ -554,25 +550,37 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    };
    //#endregion EXPORTAR
 
-   const onGlobalFilterChange = (e) => {
-      try {
-         let value = e.target.value;
-         if (value === undefined || value === null) value = "";
-         let _filters = { ...filters };
+   // const onGlobalFilterChange = (e) => {
+   //    try {
+   //       let value = e.target.value;
+   //       if (value === undefined || value === null) value = "";
+   //       let _filters = { ...filters };
 
-         _filters["global"].value = value;
+   //       _filters["global"].value = value;
 
-         setFilters(_filters);
-         setGlobalFilterValue(value);
+   //       setFilters(_filters);
+   //       setGlobalFilterValue(value);
 
-         // Aplicar filtros globales inmediatamente
-         const filteredData = applyFilters(data);
-         setTotalRecords(filteredData.length);
-         setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
-      } catch (error) {
-         console.log(error);
-         Toast.Error(error);
-      }
+   //       // Aplicar filtros globales inmediatamente
+   //       const filteredData = applyFilters(data);
+   //       setTotalRecords(filteredData.length);
+   //       setFinalData(filteredData.slice(lazyState.first, lazyState.first + lazyState.rows));
+   //    } catch (error) {
+   //       console.log(error);
+   //       Toast.Error(error);
+   //    }
+   // };
+   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setGlobalFilterValue(value);
+      setLazyState((prev) => ({
+         ...prev,
+         first: 0,
+         filters: {
+            ...prev.filters,
+            global: { ...prev.filters.global, value }
+         }
+      }));
    };
 
    const handleClickRefresh = async () => {
@@ -714,52 +722,103 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
       style?: React.CSSProperties;
    }
 
+   // const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {
+   //    const nameElement = rowData[columns[indexColumnName].field];
+   //    // console.log("🚀 ~ ActionsBodyTemplate ~ rowData:", rowData);
+   //    // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
+   //    // console.log("🚀 ~ ActionsBodyTemplate ~ nameElement:", nameElement);
+   //    const menuRef = useRef<Menu>(null);
+   //    const toastPrime = useRef<ToastPrime>(null);
+
+   //    const itemsActions = (rowData.actions || [])
+   //       .filter((action) => action.permission)
+   //       .map((action) => {
+   //          // console.log("🚀 ~ ActionsBodyTemplate ~ action:", action);
+   //          return {
+   //             label: action.label,
+   //             icon: `pi ${action.iconName.toLowerCase()}`, // usa primeicons
+   //             command: () => action.handleOnClick(),
+   //             style: { color: action.color || "inherit" }
+   //          };
+   //       });
+   //    //  template: (item, options) => (
+   //    //       <Tooltip title={nameElement} placement="top" arrow>
+   //    //          <Typography px={2} fontWeight={"bold"}>
+   //    //             {singularName}: {String(nameElement).length > 15 ? `${String(nameElement).substring(0, 15)}...` : String(nameElement)}
+   //    //          </Typography>
+   //    //       </Tooltip>
+   //    //    ),
+   //    const items: MenuItem[] = [
+   //       {
+   //          label: `${singularName}: ${nameElement}`,
+   //          items: itemsActions
+   //       }
+   //    ];
+
+   //    return (
+   //       <div className="flex justify-center">
+   //          {auth.role_id === ROLE_SUPER_ADMIN && (
+   //             <Tooltip title={rowData.active ? "Desactivar" : "Reactivar"} placement="left" arrow>
+   //                <Button color="primary" onClick={() => handleClickDisEnable(rowData.id)} sx={{ p: 0 }}>
+   //                   <Switch checked={Boolean(rowData.active)} />
+   //                </Button>
+   //             </Tooltip>
+   //          )}
+
+   //          <ToastPrime ref={toastPrime}></ToastPrime>
+   //          <Menu model={items} popup ref={menuRef} style={{}} />
+   //          <ButtonPrime icon="pi pi-ellipsis-v" onClick={(e) => menuRef.current.toggle(e)} severity="secondary" text disabled={items.length === 0} aria-haspopup />
+   //       </div>
+   //    );
+   // };
+
    const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {
-      const nameElement = rowData[columns[indexColumnName].field];
-      // console.log("🚀 ~ ActionsBodyTemplate ~ rowData:", rowData);
-      // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
-      // console.log("🚀 ~ ActionsBodyTemplate ~ nameElement:", nameElement);
       const menuRef = useRef<Menu>(null);
-      const toastPrime = useRef<ToastPrime>(null);
+      const nameElement = rowData[columns[indexColumnName]?.field] || "";
 
       const itemsActions = (rowData.actions || [])
          .filter((action) => action.permission)
-         .map((action) => {
-            // console.log("🚀 ~ ActionsBodyTemplate ~ action:", action);
-            return {
-               label: action.label,
-               icon: `pi ${action.iconName.toLowerCase()}`, // usa primeicons
-               command: () => action.handleOnClick(),
-               style: { color: action.color || "inherit" }
-            };
-         });
-      //  template: (item, options) => (
-      //       <Tooltip title={nameElement} placement="top" arrow>
-      //          <Typography px={2} fontWeight={"bold"}>
-      //             {singularName}: {String(nameElement).length > 15 ? `${String(nameElement).substring(0, 15)}...` : String(nameElement)}
-      //          </Typography>
-      //       </Tooltip>
-      //    ),
+         .map((action) => ({
+            label: action.label,
+            icon: `pi ${action.iconName.toLowerCase()}`,
+            command: action.handleOnClick,
+            style: { color: action.color || "inherit" }
+         }));
+
       const items: MenuItem[] = [
          {
-            label: `${singularName}: ${nameElement}`,
+            label: `${singularName}: ${String(nameElement).substring(0, 20)}${String(nameElement).length > 20 ? "..." : ""}`,
             items: itemsActions
          }
       ];
+
+      useEffect(() => {
+         return () => {
+            if (menuRef.current) {
+               menuRef?.current?.hide();
+            }
+         };
+      }, []);
 
       return (
          <div className="flex justify-center">
             {auth.role_id === ROLE_SUPER_ADMIN && (
                <Tooltip title={rowData.active ? "Desactivar" : "Reactivar"} placement="left" arrow>
-                  <Button color="primary" onClick={() => handleClickDisEnable(rowData.id)} sx={{ p: 0 }}>
+                  <Button color="primary" onClick={() => handleClickDisEnable?.(rowData.id)} sx={{ p: 0 }}>
                      <Switch checked={Boolean(rowData.active)} />
                   </Button>
                </Tooltip>
             )}
-
-            <ToastPrime ref={toastPrime}></ToastPrime>
-            <Menu model={items} popup ref={menuRef} style={{}} />
-            <ButtonPrime icon="pi pi-ellipsis-v" onClick={(e) => menuRef.current.toggle(e)} severity="secondary" text disabled={items.length === 0} aria-haspopup />
+            <Menu key={`<actions-${rowData.id}`} model={items} popup ref={menuRef} />
+            <ButtonPrime
+               key={`btn-actions-${rowData.id}`}
+               icon="pi pi-ellipsis-v"
+               onClick={(e) => menuRef.current?.toggle(e)}
+               severity="secondary"
+               text
+               disabled={itemsActions.length === 0}
+               aria-haspopup
+            />
          </div>
       );
    };
@@ -803,14 +862,14 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                showGridlines={showGridlines}
                removableSort
                size="small"
-               value={finalData}
+               value={isLazyRemote ? finalData : computedData}
                editMode="row"
                header={header}
                dataKey="key"
                lazy
                paginator
                rowsPerPageOptions={[5, 10, 50, 100, 500, 1000]}
-               rows={10}
+               rows={rowsPerPage}
                first={lazyState.first}
                totalRecords={totalRecords}
                onPage={onPage}
@@ -823,7 +882,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onSelectionChange={(e: any) => setSelectedData(e.value)}
                selectAll={selectAll}
                onSelectAllChange={onSelectAllChange}
-               loading={loading || showLoading}
+               loading={loading /* || showLoading */}
                // loadingIcon={<CustomLoadingOverlay />}
                scrollable={true}
                scrollHeight={scrollHeight}
