@@ -19,94 +19,49 @@ const RoleDT = ({ openDialogTable, setOpenDialogTable }) => {
    const globalFilterFields = ["role", "description", "page_index", "active", "created_at"];
 
    // #region BodysTemplate
-   const RoleBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.role}
-      </Typography>
-   );
-   const EmailBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.description}
-      </Typography>
-   );
-   const PageIndexTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.page_index}
+   const RoleBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.role}
       </Typography>
    );
 
-   const ActiveBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const EmailBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.description}
       </Typography>
    );
-   const CreatedAtBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {formatDatetime(obj.created_at, true)}
+
+   const PageIndexTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.page_index}
       </Typography>
    );
-   // #endregion BodysTemplate
+
+   const ActiveBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const CreatedAtBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(rowData.created_at, true)}
+      </Typography>
+   );
+   // #endregion
 
    const columns = [
-      {
-         field: "role",
-         headerName: "Rol",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <RoleBodyTemplate {...params.row} key={`role-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "description",
-         headerName: "Descripción",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <EmailBodyTemplate {...params.row} key={`email-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "page_index",
-         headerName: "Página Principal",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <PageIndexTemplate {...params.row} key={`page_index-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      }
+      { field: "role", header: "Rol", sortable: true, body: RoleBodyTemplate },
+      { field: "description", header: "Descripción", sortable: true, body: EmailBodyTemplate },
+      { field: "page_index", header: "Página Principal", sortable: true, body: PageIndexTemplate }
    ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha de alta", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
       );
+   }
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -223,6 +178,26 @@ const RoleDT = ({ openDialogTable, setOpenDialogTable }) => {
             <Typography variant="h4">{"Listado de roles".toUpperCase()}</Typography>
          </Grid>
          <DataTableComponent
+            columns={columns}
+            data={data}
+            globalFilterFields={globalFilterFields}
+            headerFilters={true}
+            btnAdd={false /* auth.permissions.create */}
+            handleClickAdd={handleClickAdd}
+            rowEdit={false}
+            btnDeleteMultiple={true}
+            refreshTable={getAllRoles}
+            scrollHeight="64vh"
+            btnsExport={true}
+            fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+            singularName={singularName}
+            indexColumnName={0}
+            // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+            // positionBtnsToolbar="center"
+            // toolbarContentCenter={toolbarContentCenter}
+            // toolbarContentEnd={toolbarContentEnd}
+         />
+         {/* <DataTableComponent
             dataColumns={columns}
             data={data}
             // setData={setRequestBecas}
@@ -242,7 +217,7 @@ const RoleDT = ({ openDialogTable, setOpenDialogTable }) => {
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
             // toolbarContentEnd={toolbarContentEnd}
-         />
+         /> */}
       </Drawer>
    );
 };

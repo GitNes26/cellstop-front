@@ -397,7 +397,7 @@ const VisitDT = () => {
             register.actions = [
                {
                   label: "Editar",
-                  iconName: "Edit",
+                  iconName: "pi-pen-to-square",
                   tooltip: "",
                   handleOnClick: () => handleClickEdit(obj.id),
                   color: "blue",
@@ -405,7 +405,7 @@ const VisitDT = () => {
                },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id),
                   color: "red",

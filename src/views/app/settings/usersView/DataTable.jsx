@@ -18,7 +18,7 @@ import { color } from "framer-motion";
 
 const UserDT = () => {
    const { auth } = useAuthContext();
-   const { setIsLoading, setOpenDialog } = useGlobalContext();
+   const { isLoading, setIsLoading, setOpenDialog } = useGlobalContext();
    const { singularName, allUsers, setFormTitle, setTextBtnSubmit, setChangePassword, formikRef, setIsEdit, deleteUser, disEnableUser, getAllUsers, getUser } =
       useUserContext();
 
@@ -26,109 +26,62 @@ const UserDT = () => {
 
    //#region COLUMNAS
    const fontSizeTable = { text: "medium", subtext: "small" };
-   const globalFilterFields = ["username", "email", "role", "active", "created_at"];
+   const globalFilterFields = ["username", "email", "role.role", "active", "created_at"];
 
    // #region BodysTemplate
-   const UserBodyTemplate = (obj) => {
-      return (
-         <Typography textAlign={"center"} fontSize={fontSizeTable.text}>
-            {obj.username}
-         </Typography>
-      );
-   };
-   const EmailBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.email}
-      </Typography>
-   );
-   const RoleTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.role.role}
-      </Typography>
-   );
-   const EmployeeIdBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.employee_id > 0 ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const UserBodyTemplate = (rowData) => (
+      <Typography textAlign="center" fontSize={fontSizeTable.text}>
+         {rowData.username}
       </Typography>
    );
 
-   const ActiveBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const EmailBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.email}
       </Typography>
    );
-   const CreatedAtBodyTemplate = (obj) => <Typography textAlign={"center"}>{formatDatetime(obj.created_at, true)}</Typography>;
+
+   const RoleTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.role?.role}
+      </Typography>
+   );
+
+   const EmployeeIdBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.employee_id > 0 ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const ActiveBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const CreatedAtBodyTemplate = (rowData) => <Typography textAlign="center">{formatDatetime(rowData.created_at, true)}</Typography>;
    // #endregion BodysTemplate
 
    const columns = [
+      { field: "username", header: "Usuario", sortable: true, filter: true, body: UserBodyTemplate },
+      { field: "email", header: "Correo", sortable: true, filter: true, body: EmailBodyTemplate },
       {
-         field: "username",
-         headerName: "Usuario",
-         description: "",
-         // width: 90,
+         field: "role.role",
+         filterField: "role.role",
+         header: "Rol",
          sortable: true,
-         editable: true,
-         functionEdit: null,
-         renderCell: (params) => <UserBodyTemplate {...params.row} key={`username-${params.row.id}`} />
-         // valueGetter: (value, row) => UserBodyTemplate(row) //`${row.username || ""} ${row.lastName || ""}`
-         // body: UserBodyTemplate,
-         // filter: true,
-         // filterField: null
+         filter: true,
+         body: RoleTemplate
       },
-      {
-         field: "email",
-         headerName: "Correo",
-         description: "",
-         // width: 90,
-         sortable: true,
-         editable: true,
-         functionEdit: null,
-         renderCell: (params) => <EmailBodyTemplate {...params.row} key={`email-${params.row.id}`} />
-      },
-      {
-         field: "role",
-         headerName: "Rol",
-         description: "",
-         // width: 90,
-         sortable: true,
-         editable: true,
-         functionEdit: null,
-         renderCell: (params) => <RoleTemplate {...params.row} key={`role-${params.row.id}`} />
-      },
-      {
-         field: "employee_id",
-         headerName: "Empleado",
-         description: "",
-         // width: 90,
-         sortable: true,
-         editable: true,
-         functionEdit: null,
-         renderCell: (params) => <EmployeeIdBodyTemplate {...params.row} key={`employee_id-${params.row.id}`} />
-      }
+      { field: "employee_id", header: "Empleado", sortable: true, body: EmployeeIdBodyTemplate }
    ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            editable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            editable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha de alta", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
       );
+   }
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -264,10 +217,17 @@ const UserDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.user} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id, obj.username),
                   color: "red",
@@ -298,25 +258,46 @@ const UserDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         columns={columns}
          data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
+         globalFilterFields={globalFilterFields}
          headerFilters={true}
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
          rowEdit={false}
+         btnDeleteMultiple={true}
          refreshTable={getAllUsers}
-         btnsExport={false}
-         scrollHeight="80vh"
+         scrollHeight="64vh"
+         btnsExport={true}
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={0}
+         showLoading={isLoading}
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
          // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
          // toolbarContentEnd={toolbarContentEnd}
       />
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    // setData={setRequestBecas}
+      //    // globalFilterFields={globalFilterFields}
+      //    headerFilters={true}
+      //    btnAdd={auth.permissions.create}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    rowEdit={false}
+      //    refreshTable={getAllUsers}
+      //    btnsExport={false}
+      //    scrollHeight="80vh"
+      //    // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+      //    // positionBtnsToolbar="center"
+      //    // toolbarContentCenter={toolbarContentCenter}
+      //    // toolbarContentEnd={toolbarContentEnd}
+      // />
    );
 };
 export default UserDT;

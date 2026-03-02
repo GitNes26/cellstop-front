@@ -34,78 +34,42 @@ const ProductTypeDT = () => {
    const globalFilterFields = ["product_type", "description", "active", "created_at"];
 
    // #region BodysTemplate
-   const ProductTypeBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.product_type}
-      </Typography>
-   );
-   const DescriptionBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.description}
+   const ProductTypeBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.product_type}
       </Typography>
    );
 
-   const ActiveBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const DescriptionBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.description}
       </Typography>
    );
-   const CreatedAtBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {formatDatetime(obj.created_at, true)}
+
+   const ActiveBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const CreatedAtBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(rowData.created_at, true)}
       </Typography>
    );
    // #endregion BodysTemplate
 
    const columns = [
-      {
-         field: "product_type",
-         headerName: "Tipo de Producto",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <ProductTypeBodyTemplate {...params.row} key={`product_type-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "description",
-         headerName: "Descripción",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`description-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      }
+      { field: "product_type", header: "Tipo de Producto", sortable: true, filter: true, body: ProductTypeBodyTemplate },
+      { field: "description", header: "Descripción", sortable: true, filter: true, body: DescriptionBodyTemplate }
    ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", width: "120px", header: "Fecha de alta", sortable: true, body: CreatedAtBodyTemplate }
       );
+   }
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -224,10 +188,17 @@ const ProductTypeDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.product_type} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id, obj.product_type),
                   color: "red",
@@ -248,26 +219,46 @@ const ProductTypeDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         columns={columns}
          data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
+         globalFilterFields={globalFilterFields}
          headerFilters={true}
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         indexColumnName={1}
          rowEdit={false}
+         btnDeleteMultiple={true}
          refreshTable={getAllProductTypes}
-         btnsExport={false}
-         scrollHeight="67vh"
+         scrollHeight="64vh"
+         btnsExport={true}
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={0}
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
          // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
          // toolbarContentEnd={toolbarContentEnd}
       />
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    // setData={setRequestBecas}
+      //    // globalFilterFields={globalFilterFields}
+      //    headerFilters={true}
+      //    btnAdd={auth.permissions.create}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    indexColumnName={1}
+      //    rowEdit={false}
+      //    refreshTable={getAllProductTypes}
+      //    btnsExport={false}
+      //    scrollHeight="67vh"
+      //    // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+      //    // positionBtnsToolbar="center"
+      //    // toolbarContentCenter={toolbarContentCenter}
+      //    // toolbarContentEnd={toolbarContentEnd}
+      // />
    );
 };
 export default ProductTypeDT;

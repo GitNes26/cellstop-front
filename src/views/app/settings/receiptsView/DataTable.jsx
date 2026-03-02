@@ -67,7 +67,16 @@ const ReceiptDT = () => {
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
          { field: "active", header: "Activo", sortable: true, functionEdit: null, body: ActiveBodyTemplate, filter: false, filterField: null },
-         { field: "created_at", header: "Fecha de alta", sortable: true, functionEdit: null, body: CreatedAtBodyTemplate, filter: false, filterField: null }
+         {
+            field: "created_at",
+            header: "Fecha de alta",
+            sortable: true,
+            functionEdit: null,
+            width: "120px",
+            body: CreatedAtBodyTemplate,
+            filter: false,
+            filterField: null
+         }
       );
    //#endregion COLUMNAS
 

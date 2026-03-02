@@ -31,174 +31,81 @@ const LoteDT = () => {
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["active", "created_at"];
+   const globalFilterFields = ["lote", "seller.username", "description", "folio", "quantity", "preactivation_date", "active", "created_at"];
 
    // #region BodysTemplate
-   const LoteBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text}>
-            {obj.lote}
-         </Typography>
-      </>
-   );
-   const SellerBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-            <AssignmentIndRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
-            {obj?.seller?.username ?? "Sin asignar"}
-         </Typography>
-      </>
-   );
-   const DescriptionBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text}>
-            {obj.description}
-         </Typography>
-      </>
-   );
-   const FolioBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-            {obj.folio ?? 0}
-         </Typography>
-      </>
-   );
-   const QuantityBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-            {obj.quantity ?? 0}
-         </Typography>
-      </>
-   );
-   const LadaBodyTemplate = (obj) => (
-      <>
-         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-            {obj.lada ?? "Sin lada"}
-         </Typography>
-      </>
-   );
-   const PreactivationDateBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {formatDatetime(obj.preactivation_date, false)}
+   const LoteBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.lote}
       </Typography>
    );
 
-   const ActiveBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const SellerBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         <AssignmentIndRounded fontSize="medium" className="mr-2" />
+         {rowData?.seller?.username ?? "Sin asignar"}
       </Typography>
    );
-   const CreatedAtBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {formatDatetime(obj.created_at, true)}
+
+   const DescriptionBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.description}
+      </Typography>
+   );
+
+   const FolioBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         {rowData.folio ?? 0}
+      </Typography>
+   );
+
+   const QuantityBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         {rowData.quantity ?? 0}
+      </Typography>
+   );
+
+   const LadaBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         {rowData.lada ?? "Sin lada"}
+      </Typography>
+   );
+
+   const PreactivationDateBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(rowData.preactivation_date, false)}
+      </Typography>
+   );
+
+   const ActiveBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
+      </Typography>
+   );
+
+   const CreatedAtBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(rowData.created_at, true)}
       </Typography>
    );
    // #endregion BodysTemplate
 
    const columns = [
-      {
-         field: "lote",
-         headerName: "Lote",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <LoteBodyTemplate {...params.row} key={`lote-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "seller",
-         headerName: "Vendedor",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <SellerBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "description",
-         headerName: "Descripción",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <DescriptionBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "folio",
-         headerName: "Folio",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <FolioBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "quantity",
-         headerName: "Cantidad",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <QuantityBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "lada",
-         headerName: "Lada",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <LadaBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "preactivation_date",
-         headerName: "Fecha de Pre-activación",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <PreactivationDateBodyTemplate {...params.row} key={`seller-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      }
+      { field: "lote", header: "Lote", sortable: true, filter: true, body: LoteBodyTemplate },
+      { field: "seller.username", header: "Vendedor", sortable: true, filter: true, body: SellerBodyTemplate },
+      { field: "description", header: "Descripción", sortable: true, filter: true, body: DescriptionBodyTemplate },
+      { field: "folio", header: "Folio", sortable: true, filter: true, body: FolioBodyTemplate },
+      { field: "quantity", header: "Cantidad", sortable: true, filter: true, body: QuantityBodyTemplate },
+      { field: "lada", header: "Lada", sortable: true, filter: true, body: LadaBodyTemplate },
+      { field: "preactivation_date", header: "Fecha de Pre-activación", sortable: true, filter: true, body: PreactivationDateBodyTemplate }
    ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha de alta", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
       );
+   }
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -350,10 +257,17 @@ const LoteDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.lote} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               },
                {
                   label: "Exportar Plantilla",
-                  iconName: "GridOnRounded",
+                  iconName: "pi-download",
                   tooltip: "",
                   handleOnClick: () => handleClickTemplateExport(obj),
                   color: "primary",
@@ -361,7 +275,7 @@ const LoteDT = () => {
                },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id, obj.lote),
                   color: "red",
@@ -384,6 +298,26 @@ const LoteDT = () => {
          <TemplateExport open={openDialogTemplateExport} onClose={() => setopenDialogTemplateExport(false)} plantillaUrl={PLANTILLA_PATH} data={allProducts} />
 
          <DataTableComponent
+            columns={columns}
+            data={data}
+            globalFilterFields={globalFilterFields}
+            headerFilters={true}
+            btnAdd={auth.permissions.create}
+            handleClickAdd={handleClickAdd}
+            rowEdit={false}
+            btnDeleteMultiple={true}
+            refreshTable={getAllLotes}
+            scrollHeight="64vh"
+            btnsExport={true}
+            fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+            singularName={singularName}
+            indexColumnName={0}
+            // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+            // positionBtnsToolbar="center"
+            // toolbarContentCenter={toolbarContentCenter}
+            // toolbarContentEnd={toolbarContentEnd}
+         />
+         {/* <DataTableComponent
             dataColumns={columns}
             data={data}
             // setData={setRequestBecas}
@@ -404,7 +338,7 @@ const LoteDT = () => {
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
             // toolbarContentEnd={toolbarContentEnd}
-         />
+         /> */}
       </>
    );
 };

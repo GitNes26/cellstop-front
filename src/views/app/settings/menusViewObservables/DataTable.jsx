@@ -248,8 +248,15 @@ const MenuDT = ({ refetch }) => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.menu} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update }
-               // { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.menu) }
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               }
+               // { label: "Eliminar", iconName: "pi-trash", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.menu) }
             ];
             data.push(register);
          });

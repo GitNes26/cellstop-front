@@ -7,11 +7,11 @@ import Toast from "../../../../utils/Toast";
 import { useAuthContext } from "../../../../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext } from "../../../../context/GlobalContext";
 import { useMenuContext } from "../../../../context/MenuContext";
-import { DataTableComponent } from "../../../../components";
 import { CancelRounded, CheckCircleRounded } from "@mui/icons-material";
 import { formatDatetime } from "../../../../utils/Formats";
 import * as MuiIcons from "@mui/icons-material";
 import useObservable from "../../../../hooks/useObservable";
+import { DataTableComponent } from "../../../../components";
 
 const MenuDT = () => {
    const { auth } = useAuthContext();
@@ -95,59 +95,76 @@ const MenuDT = () => {
 
    // #endregion BodysTemplate
 
-   const columns = [
-      { field: "id", headerName: "ID", width: 90, ediable: false },
-      // { field: "icon", headerName: "Icono", sortable: true, functionEdit: null, renderCell: (params) => <IconBodyTemplate {...params.row} />, filter: true, filterField: null },
-      {
-         field: "menu",
-         headerName: "Menu",
-         /* width: 90 */ sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <MenuBodyTemplate {...params.row} key={`menu-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "level",
-         headerName: "Info",
-         /* width: 90 */ sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <InfoBodyTemplate {...params.row} key={`info-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "others_permissions",
-         headerName: "Otros Permisos" /* width: 90 */,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <OthersPermissionsTemplate {...params.row} key={`others-permissions-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      }
-   ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
-      columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            /* width: 90 */ sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de registro",
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created-at-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         }
-      );
+   //#region COLUMNAS MUI
+   // const columns = [
+   //    { field: "id", headerName: "ID", width: 90, ediable: false },
+   //    // { field: "icon", headerName: "Icono", sortable: true, functionEdit: null, renderCell: (params) => <IconBodyTemplate {...params.row} />, filter: true, filterField: null },
+   //    {
+   //       field: "menu",
+   //       headerName: "Menu",
+   //       /* width: 90 */ sortable: true,
+   //       functionEdit: null,
+   //       renderCell: (params) => <MenuBodyTemplate {...params.row} key={`menu-${params.row.id}`} />,
+   //       filter: true,
+   //       filterField: null
+   //    },
+   //    {
+   //       field: "level",
+   //       headerName: "Info",
+   //       /* width: 90 */ sortable: true,
+   //       functionEdit: null,
+   //       renderCell: (params) => <InfoBodyTemplate {...params.row} key={`info-${params.row.id}`} />,
+   //       filter: true,
+   //       filterField: null
+   //    },
+   //    {
+   //       field: "others_permissions",
+   //       headerName: "Otros Permisos" /* width: 90 */,
+   //       sortable: true,
+   //       functionEdit: null,
+   //       renderCell: (params) => <OthersPermissionsTemplate {...params.row} key={`others-permissions-${params.row.id}`} />,
+   //       filter: true,
+   //       filterField: null
+   //    }
+   // ];
+   // auth.role_id === ROLE_SUPER_ADMIN &&
+   //    columns.push(
+   //       {
+   //          field: "active",
+   //          headerName: "Activo",
+   //          /* width: 90 */ sortable: true,
+   //          functionEdit: null,
+   //          renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
+   //          filter: false,
+   //          filterField: null
+   //       },
+   //       {
+   //          field: "created_at",
+   //          headerName: "Fecha de registro",
+   //          sortable: true,
+   //          functionEdit: null,
+   //          renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created-at-${params.row.id}`} />,
+   //          filter: false,
+   //          filterField: null
+   //       }
+   //    );
+   //#endregion COLUMNAS MUI
 
+   // #region COLUMNAS PRIMEREACT
+   const columns = [
+      { field: "id", header: "ID", sortable: true },
+      { field: "menu", header: "Menu", sortable: true, filter: true, body: MenuBodyTemplate },
+      { field: "level", header: "Info", sortable: true, filter: true, body: InfoBodyTemplate },
+      { field: "others_permissions", header: "Otros Permisos", sortable: true, body: OthersPermissionsTemplate }
+   ];
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
+      columns.push(
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha de registro", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
+      );
+   }
+   // #endregion COLUMNAS PRIMEREACT
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -235,8 +252,15 @@ const MenuDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.menu} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update }
-               // { label: "Eliminar", iconName: "Delete", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.menu) }
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               }
+               // { label: "Eliminar", iconName: "pi-trash", tooltip: "", handleOnClick: () => handleClickDelete(obj.id, obj.menu) }
             ];
             data.push(register);
          });
@@ -252,26 +276,46 @@ const MenuDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         columns={columns}
          data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
+         globalFilterFields={globalFilterFields}
          headerFilters={true}
-         btnAdd={false}
+         btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         indexColumnName={2}
          rowEdit={false}
+         btnDeleteMultiple={true}
          refreshTable={getAllMenus}
-         btnsExport={false}
-         scrollHeight="79vh" //56vh
+         scrollHeight="64vh"
+         btnsExport={true}
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={1}
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
          // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
          // toolbarContentEnd={toolbarContentEnd}
       />
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    // setData={setRequestBecas}
+      //    // globalFilterFields={globalFilterFields}
+      //    headerFilters={true}
+      //    btnAdd={false}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    indexColumnName={2}
+      //    rowEdit={false}
+      //    refreshTable={getAllMenus}
+      //    btnsExport={false}
+      //    scrollHeight="79vh" //56vh
+      //    // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+      //    // positionBtnsToolbar="center"
+      //    // toolbarContentCenter={toolbarContentCenter}
+      //    // toolbarContentEnd={toolbarContentEnd}
+      // />
    );
 };
 export default MenuDT;

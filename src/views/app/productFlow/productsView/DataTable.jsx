@@ -270,229 +270,6 @@ const ProductDT = ({}) => {
    };
    // #endregion
 
-   // const columns = [
-   //    // {
-   //    //    field: "region",
-   //    //    header: "Región",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.region}</TextCenter>
-   //    // },
-   //    {
-   //       field: "celular",
-   //       header: "Celular",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.celular}</TextCenter>
-   //    },
-   //    {
-   //       field: "iccid",
-   //       header: "ICCID",
-   //       sortable: true,
-   //       body: (params) => {
-   //          const { key, ...obj } = params.row;
-   //          return <IccidBodyTemplate {...obj} />;
-   //       }
-   //    },
-   //    {
-   //       field: "fecha",
-   //       header: "Fecha Pre-activación",
-   //       sortable: true,
-   //       body: (params) => {
-   //          // const { key, ...obj } = params.row;
-   //          return <FechaBodyTemplate key={`key-fechaPreactivacion-${params.row.id}`} date={params.row.fecha} />;
-   //       }
-   //    },
-   //    {
-   //       field: "imei",
-   //       header: "IMEI",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.imei}</TextCenter>
-   //    },
-   //    {
-   //       field: "marca",
-   //       header: "Marca",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.marca}</TextCenter>
-   //    },
-   //    {
-   //       field: "modelo",
-   //       header: "Modelo",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
-   //    },
-   //    {
-   //       field: "color",
-   //       header: "Color",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.color}</TextCenter>
-   //    },
-   //    {
-   //       field: "executed_at",
-   //       header: `Fecha de ${status === "asignados" ? "asignación" : status === "distribuidos" ? "distribución" : status === "activados" ? "activación" : status === "portados" ? "portación" : "ejecución"}`,
-   //       sortable: true,
-   //       body: (params) => <FechaBodyTemplate key={`key-fechaExecutedAt-${params.row.id}`} date={params.row.executed_at} />
-   //    },
-   //    // {
-   //    //    field: "tramite",
-   //    //    header: "Trámite",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.tramite}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "estatus",
-   //    //    header: "Estatus",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.estatus}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "comentario",
-   //    //    header: "Comentario",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.comentario}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "fza_vta_prepago",
-   //    //    header: "Fza Vta Prepago",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.fza_vta_prepago}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "fza_vta_padre",
-   //    //    header: "Fza Vta Padre",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.fza_vta_padre}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "usuario",
-   //    //    header: "Usuario",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.usuario}</TextCenter>
-   //    // },
-   //    status === "asignados" && {
-   //       field: "lote",
-   //       header: "Lote",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.lote}</TextCenter>
-   //    },
-   //    status === "asignados" && {
-   //       field: "folio",
-   //       header: "Folio",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.folio}</TextCenter>
-   //    },
-   //    ["distribuidos", "activados", "portados"].includes(status) && {
-   //       field: "pos_name",
-   //       header: "P.V. / Cliente",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.pos_name}</TextCenter>
-   //    },
-   //    {
-   //       field: "status",
-   //       header: "Estatus",
-   //       sortable: true,
-   //       body: (params) => {
-   //          const color =
-   //             params.row.destination === "Asignado"
-   //                ? "warning"
-   //                : params.row.destination === "Distribuido"
-   //                  ? "info"
-   //                  : params.row.destination === "Activado"
-   //                    ? "success"
-   //                    : params.row.destination === "Portado"
-   //                      ? "error"
-   //                      : "default";
-   //          return (
-   //             <TextCenter>
-   //                <Badge color={color}>{params.row.destination}</Badge>
-   //             </TextCenter>
-   //          );
-   //       }
-   //    },
-   //    // {
-   //    //    field: "producto",
-   //    //    header: "Producto",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.producto}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "num_orden",
-   //    //    header: "Núm Orden",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.num_orden}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "estatus_orden",
-   //    //    header: "Estatus Orden",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.estatus_orden}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "motivo_error",
-   //    //    header: "Motivo Error",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.motivo_error}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "tipo_sim",
-   //    //    header: "Tipo SIM",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.tipo_sim}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "modelo",
-   //    //    header: "Modelo",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.modelo}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "marca",
-   //    //    header: "Marca",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.marca}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "color",
-   //    //    header: "Color",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.color}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "location_status",
-   //    //    header: "Ubicación",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.location_status}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "activation_status",
-   //    //    header: "Estatus Activación",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.activation_status}</TextCenter>
-   //    // },
-   //    // {
-   //    //    field: "product_type",
-   //    //    header: "Tipo Producto",
-   //    //    sortable: true,
-   //    //    body: (params) => <TextCenter>{params.row.product_type}</TextCenter>
-   //    // },
-   //    {
-   //       field: "import",
-   //       headerName: "Importación",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.import_name}</TextCenter>
-   //    },
-   //    {
-   //       field: "uploader_username",
-   //       headerName: "Creado Por",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.uploader_username}</TextCenter>
-   //    },
-   //    {
-   //       field: "evaluations_rejected",
-   //       headerName: "Evaluaciones",
-   //       sortable: true,
-   //       body: (params) => <TextCenter>{params.row.evaluations_rejected}</TextCenter>
-   //    }
-   // ];
-
    //#region COLUMNAS MUI
    // const columns = [
    //    {
@@ -658,22 +435,22 @@ const ProductDT = ({}) => {
 
    //#region COLUMNAS PRIMEREACT
    const columns = [
-      { field: "celular", header: "Celular", sortable: true, body: celularBodyTemplate, filter: true },
-      { field: "iccid", header: "ICCID", sortable: true, body: iccidBodyTemplate, filter: true },
-      { field: "fecha", header: "Fecha Pre-activación", sortable: true, body: fechaBodyTemplate, filter: false },
-      { field: "imei", header: "IMEI", sortable: true, body: imeiBodyTemplate, filter: false },
-      { field: "executed_at", header: "Fecha de Ejecución", sortable: true, body: executedAtBodyTemplate, filter: false }
+      { field: "celular", header: "Celular", sortable: true, filter: true, body: celularBodyTemplate },
+      { field: "iccid", header: "ICCID", sortable: true, filter: true, body: iccidBodyTemplate },
+      { field: "fecha", header: "Fecha Pre-activación", sortable: true, filter: false, width: "120px", body: fechaBodyTemplate },
+      { field: "imei", header: "IMEI", sortable: true, filter: true, body: imeiBodyTemplate },
+      { field: "executed_at", header: "Fecha de Ejecución", sortable: true, filter: false, width: "120px", body: executedAtBodyTemplate }
    ];
 
    // Columnas condicionales
    [undefined, "asignados"].includes(status) &&
       columns.push(
-         { field: "lote", header: "Lote", sortable: true, body: loteBodyTemplate, filter: true },
-         { field: "folio", header: "Folio", sortable: true, body: folioBodyTemplate, filter: true }
+         { field: "lote", header: "Lote", sortable: true, filter: true, body: loteBodyTemplate },
+         { field: "folio", header: "Folio", sortable: true, filter: true, body: folioBodyTemplate }
       );
 
    [undefined, "asignados", "distribuidos", "activados", "portados"].includes(status) &&
-      columns.push({ field: "username", header: "Vendedor", sortable: true, body: vendedorBodyTemplate, filter: true });
+      columns.push({ field: "username", header: "Vendedor", sortable: true, filter: true, body: vendedorBodyTemplate });
 
    [undefined, "distribuidos", "activados", "portados"].includes(status) &&
       columns.push({ field: "pos_name", header: "P.V. / Cliente", sortable: true, body: posNameBodyTemplate, filter: true });
@@ -693,7 +470,7 @@ const ProductDT = ({}) => {
    auth.role_id === ROLE_SUPER_ADMIN &&
       columns.push(
          { field: "active", header: "Activo", sortable: true, body: activeBodyTemplate, filter: true },
-         { field: "created_at", header: "Fecha de alta", sortable: true, body: createdAtBodyTemplate, filter: true }
+         { field: "created_at", header: "Fecha de alta", sortable: true, filter: true, width: "120px", body: createdAtBodyTemplate }
       );
    //#endregion COLUMNAS PRIMEREACT
 
@@ -1182,7 +959,7 @@ const ProductDT = ({}) => {
                   },
                   {
                      label: "Eliminar",
-                     iconName: "pi pi-trash",
+                     iconName: "pi-trash",
                      tooltip: "",
                      handleOnClick: () => handleClickDelete(obj.id, obj.celular),
                      color: "red",

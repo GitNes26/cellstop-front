@@ -142,3 +142,22 @@
  .photo-animation {
    animation: photo-taken 0.6s ease-in-out;
  }
+
+
+ /* ~~~~~~~~~~~ ANIMACION SIMULANDO OLA ~~~~~~~~~~~ */
+ /* En tu archivo de estilos global (ej. index.css) */
+@keyframes wave {
+  0% {
+    transform: translateX(0) translateZ(0) scaleY(1);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0) scaleY(0.8);
+  }
+  100% {
+    transform: translateX(-50%) translateZ(0) scaleY(1);
+  }
+}
+
+.animate-wave {
+  animation: wave 10s ease-in-out infinite;
+}

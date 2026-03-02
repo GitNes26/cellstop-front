@@ -8,6 +8,9 @@
    z-index: 10 !important; /* O un valor bajo que sea menor que el del menú */
 }
 
+.p-column-header-content{
+   justify-content: space-around;
+}
 .custom-filter-header {
    height: 10px !important;
    padding: 5px;
@@ -104,6 +107,18 @@ table.p-datatable-table {
 /**  DATA TABLE **/
 
 /**  MENU CONTEXTUAL DE ACCIONES **/
-.menu-context-datatable > .p-overlaypanel-content {
-   padding: 0;
+.menu-context-datatable {
+
+   && .p-overlaypanel-content {
+      padding: 0;
+   }
+
+   && .p-divider.p-divider-horizontal{
+      margin-block: 0.125rem;
+   }
+
+   && .p-button-label.p-c {
+      justify-content: flex-start;
+      font-weight: 500;
+   }
 }

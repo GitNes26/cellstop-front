@@ -48,7 +48,19 @@ const EmployeeDT = () => {
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["payroll_number", "full_name", "cellphone", "office_phone", "ext", "department", "position", "active", "created_at"];
+   const globalFilterFields = [
+      "payroll_number",
+      "full_name",
+      "cellphone",
+      "office_phone",
+      "ext",
+      "department.department",
+      "position.position",
+      "user.username",
+      "pin_color",
+      "active",
+      "created_at"
+   ];
 
    // #region BodysTemplate
    const AvatarBodyTemplate = (obj) => (
@@ -124,109 +136,21 @@ const EmployeeDT = () => {
    // #endregion BodysTemplate
 
    const columns = [
-      {
-         field: "avatar",
-         headerName: "Avatar",
-         description: "",
-         // width: 90,
-         sortable: false,
-         functionEdit: null,
-         renderCell: (params) => <AvatarBodyTemplate {...params.row} key={`avatar-${params.row.id}`} />,
-         filter: false,
-         filterField: null
-      },
-      {
-         field: "payroll_number",
-         headerName: "No. Empleado",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <PayRollNumberTemplate {...params.row} key={`payroll_number-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "full_name",
-         headerName: "Empleado",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <EmployeeBodyTemplate {...params.row} key={`full_name-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "department",
-         headerName: "Departamento",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <DepartmentBodyTemplate {...params.row} key={`department-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "position",
-         headerName: "Puesto",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <PositionBodyTemplate {...params.row} key={`position-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "user",
-         headerName: "Usuario del sistema",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <UserBodyTemplate {...params.row} key={`user-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      },
-      {
-         field: "pin_color",
-         headerName: "Color del PIN de ubicación",
-         description: "",
-         // width: 90,
-         sortable: true,
-         functionEdit: null,
-         renderCell: (params) => <PinColorBodyTemplate {...params.row} key={`pin_color-${params.row.id}`} />,
-         filter: true,
-         filterField: null
-      }
+      { field: "avatar", header: "Avatar", sortable: false, body: AvatarBodyTemplate },
+      { field: "payroll_number", header: "No. Empleado", sortable: true, filter: true, body: PayRollNumberTemplate },
+      { field: "full_name", header: "Empleado", sortable: true, filter: true, body: EmployeeBodyTemplate },
+      { field: "department.department", header: "Departamento", sortable: true, filter: true, body: DepartmentBodyTemplate },
+      { field: "position.position", header: "Puesto", sortable: true, filter: true, body: PositionBodyTemplate },
+      { field: "user.username", header: "Usuario del sistema", sortable: true, filter: true, body: UserBodyTemplate },
+      { field: "pin_color", header: "Color del PIN de ubicación", sortable: true, filter: true, body: PinColorBodyTemplate }
    ];
-   auth.role_id === ROLE_SUPER_ADMIN &&
+
+   if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <ActiveBodyTemplate {...params.row} key={`active-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha de alta",
-            description: "",
-            // width: 90,
-            sortable: true,
-            functionEdit: null,
-            renderCell: (params) => <CreatedAtBodyTemplate {...params.row} key={`created_at-${params.row.id}`} />,
-            filter: false,
-            filterField: null
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha de alta", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
       );
+   }
    //#endregion COLUMNAS
 
    const handleClickAdd = () => {
@@ -354,10 +278,17 @@ const EmployeeDT = () => {
             register.key = index + 1;
             // register.actions = <ButtonsAction id={obj.id} name={obj.full_name} active={obj.active} />;
             register.actions = [
-               { label: "Editar", iconName: "Edit", tooltip: "", handleOnClick: () => handleClickEdit(obj.id), color: "blue", permission: auth.permissions.update },
+               {
+                  label: "Editar",
+                  iconName: "pi-pen-to-square",
+                  tooltip: "",
+                  handleOnClick: () => handleClickEdit(obj.id),
+                  color: "blue",
+                  permission: auth.permissions.update
+               },
                {
                   label: "Eliminar",
-                  iconName: "Delete",
+                  iconName: "pi-trash",
                   tooltip: "",
                   handleOnClick: () => handleClickDelete(obj.id, obj.full_name),
                   color: "red",
@@ -377,27 +308,47 @@ const EmployeeDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         columns={columns}
          data={data}
-         // setData={setRequestBecas}
-         // globalFilterFields={globalFilterFields}
+         globalFilterFields={globalFilterFields}
          headerFilters={true}
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         indexColumnName={3}
          rowEdit={false}
+         btnDeleteMultiple={true}
          refreshTable={getAllEmployees}
+         scrollHeight="64vh"
          btnsExport={true}
-         fileNameExport="Empleados"
-         scrollHeight="67vh"
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={2}
          // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
          // positionBtnsToolbar="center"
          // toolbarContentCenter={toolbarContentCenter}
          // toolbarContentEnd={toolbarContentEnd}
       />
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    // setData={setRequestBecas}
+      //    // globalFilterFields={globalFilterFields}
+      //    headerFilters={true}
+      //    btnAdd={auth.permissions.create}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    indexColumnName={3}
+      //    rowEdit={false}
+      //    refreshTable={getAllEmployees}
+      //    btnsExport={true}
+      //    fileNameExport="Empleados"
+      //    scrollHeight="67vh"
+      //    // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+      //    // positionBtnsToolbar="center"
+      //    // toolbarContentCenter={toolbarContentCenter}
+      //    // toolbarContentEnd={toolbarContentEnd}
+      // />
    );
 };
 export default EmployeeDT;

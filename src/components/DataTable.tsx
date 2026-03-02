@@ -42,6 +42,7 @@ import { MenuItem } from "primereact/menuitem";
 import DialogComponent from "./DialogComponent";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { Divider } from "primereact/divider";
+import TableSkeleton from "./TableSkeleton";
 
 /* COMO IMPROTAR
 *    columns={columns}
@@ -93,10 +94,39 @@ import { Divider } from "primereact/divider";
 */
 
 function CustomLoadingOverlay() {
+   const text = "CARGANDO";
    return (
-      <>
-         <LinearProgress value={50} />
-      </>
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+         <div className="relative">
+            {/* Círculo exterior pulsante */}
+            <div className="w-20 h-20 border-4 border-primary-200 rounded-full animate-ping opacity-75"></div>
+
+            {/* Círculo intermedio giratorio */}
+            <div className="absolute top-0 left-0 w-20 h-20 border-4 border-primary-500 rounded-full animate-spin border-t-transparent"></div>
+
+            {/* Círculo interior con gradiente */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full animate-pulse"></div>
+         </div>
+
+         <p className="mt-6 text-4xl font-bold ">
+            {text}
+            <span className="inline-flex ml-1">
+               <span className="animate-[bounce_1s_infinite]">.</span>
+               <span className="animate-[bounce_1s_infinite_0.2s]">.</span>
+               <span className="animate-[bounce_1s_infinite_0.4s]">.</span>
+            </span>
+         </p>
+
+         {/* Ola decorativa en la parte inferior */}
+         <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+            <svg className="relative block w-full h-8" viewBox="0 0 1200 120" preserveAspectRatio="none">
+               <path
+                  d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+                  className="fill-primary-100 dark:fill-primary-900 opacity-30 animate-wave"
+               ></path>
+            </svg>
+         </div>
+      </div>
    );
 }
 
@@ -236,8 +266,12 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    // columns.unshift({ id: 0, label: "Selecciona una opción..." });
 
    // FILTROS
+   // build filter object using `filterField` when available so nested values work
    let filtersColumns: any;
-   filtersColumns = columns.map((c) => [c.field, { value: null, matchMode: FilterMatchMode.CONTAINS }]);
+   filtersColumns = columns.map((c) => {
+      const key = c.filterField || c.field;
+      return [key, { value: null, matchMode: FilterMatchMode.CONTAINS }];
+   });
    filtersColumns = Object.fromEntries(filtersColumns);
    filtersColumns.global = { value: defaultGlobalFilter, matchMode: FilterMatchMode.CONTAINS };
    // const [filters, setFilters] = useState(filtersColumns);
@@ -276,21 +310,46 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    // Determinar si usamos lazy remoto o local
    const isLazyRemote = !!fetchLazyData;
 
+   // helper to access nested values (path can be "foo.bar.baz")
+   const getRowValue = (row: any, path: string) => {
+      if (row == null || path == null) return null;
+      if (path.indexOf(".") === -1) return row[path];
+      return path.split(".").reduce((acc, part) => (acc ? acc[part] : undefined), row);
+   };
+
    // Para datos locales, calcular con useMemo
    const computedData = useMemo(() => {
-      if (isLazyRemote) return []; // No se usa en modo remoto
-      const filtered = data.filter((rowData) => {
+      if (isLazyRemote) {
+         setLoading(false);
+         return []; // No se usa en modo remoto
+      }
+      let filtered = data.filter((rowData) => {
          return Object.entries(lazyState.filters).every(([key, filter]: any) => {
             if (key === "global") {
                const val = filter.value;
                if (!val) return true;
-               return globalFilterFields.some((field) => rowData[field]?.toString().toLowerCase().includes(val.toLowerCase()));
+               return globalFilterFields.some((field) => {
+                  const v = getRowValue(rowData, field);
+                  return v?.toString().toLowerCase().includes(val.toLowerCase());
+               });
             }
             const filterVal = filter.value;
             if (!filterVal) return true;
-            return rowData[key]?.toString().toLowerCase().includes(filterVal.toLowerCase());
+            const v = getRowValue(rowData, key);
+            return v?.toString().toLowerCase().includes(filterVal.toLowerCase());
          });
       });
+      if (lazyState.sortField) {
+         filtered = [...filtered].sort((a, b) => {
+            const fa = getRowValue(a, lazyState.sortField);
+            const fb = getRowValue(b, lazyState.sortField);
+            if (fa == null) return 1;
+            if (fb == null) return -1;
+            if (fa < fb) return lazyState.sortOrder;
+            if (fa > fb) return -lazyState.sortOrder;
+            return 0;
+         });
+      }
       setTotalRecords(filtered.length); // actualizar total para paginación
       return filtered.slice(lazyState.first, lazyState.first + lazyState.rows);
    }, [data, lazyState, globalFilterFields]);
@@ -319,7 +378,9 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    }, [loadLazyData]); // Solo para remoto; el memo ya cubre local
 
    const onPage = (event: any) => setLazyState(event);
-   const onSort = (event: any) => setLazyState(event);
+   const onSort = (event: any) => {
+      setLazyState((prev) => ({ ...prev, ...event }));
+   };
    const onFilter = (event: any) => setLazyState({ ...event, first: 0 });
 
    const onSelectionChange = (event) => {
@@ -634,7 +695,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                      disabled={!selectedData || !selectedData.length}
                      sx={{ borderRadius: "12px", mr: 1 }}
                   >
-                     <i className="pi pi-trash" style={{ color: "red", fontSize: "1.5rem" }}></i>
+                     <i className="pi pi-trash" style={{ color: !selectedData || !selectedData.length ? "gray" : "red", fontSize: "1.5rem" }}></i>
                   </IconButton>
                </span>
             </Tooltip>
@@ -643,7 +704,13 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
          {btnsExport && (
             <>
                <Tooltip title="Exportar a Excel" placement="top">
-                  <IconButton type="button" color="success" sx={{ borderRadius: "12px", mr: 1 }} onClick={handleClickOpenModalExport}>
+                  <IconButton
+                     type="button"
+                     color="success"
+                     className="hover:scale-95 transition-all duration-500"
+                     sx={{ borderRadius: "12px", mr: 1 }}
+                     onClick={handleClickOpenModalExport}
+                  >
                      <i className="pi pi-file-excel" style={{ color: "green", fontSize: "1.5rem" }}></i>
                   </IconButton>
                </Tooltip>
@@ -662,7 +729,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                color="secondary"
                sx={{ borderRadius: "12px", mr: 1 }}
                onClick={handleClickRefresh}
-               className="duration-500 rotate-0 active:rotate-180 active:transition-all"
+               className="duration-500 rotate-0 hover:rotate-90 active:rotate-180 hover:transition-all active:transition-all"
             >
                <i className="pi pi-refresh" style={{ color: "var(--primary-color)", fontSize: "1.5rem" }}></i>
                {/* <i className="pi pi-refetch"></i> */}
@@ -724,55 +791,6 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
       style?: React.CSSProperties;
    }
 
-   // const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {
-   //    const nameElement = rowData[columns[indexColumnName].field];
-   //    // console.log("🚀 ~ ActionsBodyTemplate ~ rowData:", rowData);
-   //    // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
-   //    // console.log("🚀 ~ ActionsBodyTemplate ~ nameElement:", nameElement);
-   //    const menuRef = useRef<Menu>(null);
-   //    const toastPrime = useRef<ToastPrime>(null);
-
-   //    const itemsActions = (rowData.actions || [])
-   //       .filter((action) => action.permission)
-   //       .map((action) => {
-   //          // console.log("🚀 ~ ActionsBodyTemplate ~ action:", action);
-   //          return {
-   //             label: action.label,
-   //             icon: `pi ${action.iconName.toLowerCase()}`, // usa primeicons
-   //             command: () => action.handleOnClick(),
-   //             style: { color: action.color || "inherit" }
-   //          };
-   //       });
-   //    //  template: (item, options) => (
-   //    //       <Tooltip title={nameElement} placement="top" arrow>
-   //    //          <Typography px={2} fontWeight={"bold"}>
-   //    //             {singularName}: {String(nameElement).length > 15 ? `${String(nameElement).substring(0, 15)}...` : String(nameElement)}
-   //    //          </Typography>
-   //    //       </Tooltip>
-   //    //    ),
-   //    const items: MenuItem[] = [
-   //       {
-   //          label: `${singularName}: ${nameElement}`,
-   //          items: itemsActions
-   //       }
-   //    ];
-
-   //    return (
-   //       <div className="flex justify-center">
-   //          {auth.role_id === ROLE_SUPER_ADMIN && (
-   //             <Tooltip title={rowData.active ? "Desactivar" : "Reactivar"} placement="left" arrow>
-   //                <Button color="primary" onClick={() => handleClickDisEnable(rowData.id)} sx={{ p: 0 }}>
-   //                   <Switch checked={Boolean(rowData.active)} />
-   //                </Button>
-   //             </Tooltip>
-   //          )}
-
-   //          <ToastPrime ref={toastPrime}></ToastPrime>
-   //          <Menu model={items} popup ref={menuRef} style={{}} />
-   //          <ButtonPrime icon="pi pi-ellipsis-v" onClick={(e) => menuRef.current.toggle(e)} severity="secondary" text disabled={items.length === 0} aria-haspopup />
-   //       </div>
-   //    );
-   // };
    const toast = useRef<ToastPrime>(null);
    const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {
       // const menuRef = useRef<Menu>(null);
@@ -797,12 +815,12 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
             style: { color: action.color || "inherit" }
          }));
 
-      const items: MenuItem[] = [
-         {
-            label: `${singularName}: ${String(nameElement).substring(0, 20)}${String(nameElement).length > 20 ? "..." : ""}`,
-            items: itemsActions
-         }
-      ];
+      // const items: MenuItem[] = [
+      //    {
+      //       label: `${singularName}: ${String(nameElement).substring(0, 20)}${String(nameElement).length > 20 ? "..." : ""}`,
+      //       items: itemsActions
+      //    }
+      // ];
 
       return (
          <div className="flex justify-center">
@@ -837,11 +855,13 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                   {/* Encabezado con el nombre del registro */}
                   {nameElement && (
                      <>
-                        <div className="p-submenu-header" style={{ fontWeight: "bold", padding: "0.75rem 1rem" }}>
-                           {singularName}: {String(nameElement).substring(0, 20)}
-                           {String(nameElement).length > 20 ? "..." : ""}
-                        </div>
-                        <Divider style={{ paddingBlock: 0, marginBlock: 0 }} />
+                        <Tooltip key={`key-${nameElement}`} title={nameElement}>
+                           <div className="p-submenu-header text-base" style={{ fontWeight: "bold", padding: "0 0.5rem" }}>
+                              {singularName}: {String(nameElement).substring(0, 20)}
+                              {String(nameElement).length > 20 ? "..." : ""}
+                           </div>
+                        </Tooltip>
+                        <Divider style={{ paddingBlock: 0, margin: 0 }} />
                      </>
                   )}
 
@@ -864,6 +884,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                                     justifyContent: "flex-start",
                                     width: "100%",
                                     padding: "0.75rem 1rem",
+                                    fontSize: "1rem",
                                     borderRadius: 0,
                                     color: action.color || "MenuText"
                                  }}
@@ -928,10 +949,17 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                removableSort
                size="small"
                value={isLazyRemote ? finalData : computedData}
+               // onLoadCapture={(e) => console.log("onLoadCapture" + e)}
+               // onLoadStartCapture={(e) => console.log("onLoadStartCapture" + e)}
+               // onLoadedMetadata={(e) => console.log("onLoadedMetadata" + e)}
+               // onLoadedMetadataCapture={(e) => console.log("onLoadedMetadataCapture" + e)}
                editMode="row"
                header={header}
                dataKey="key"
-               // virtualScrollerOptions={{}}
+               // virtualScrollerOptions={{
+               //    lazy: true,
+               //    itemSize: finalData.length
+               // }}
                lazy
                paginator
                rowsPerPageOptions={[5, 10, 50, 100, 500, 1000]}
@@ -948,8 +976,9 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onSelectionChange={(e: any) => setSelectedData(e.value)}
                selectAll={selectAll}
                onSelectAllChange={onSelectAllChange}
-               loading={loading /* || showLoading */}
-               // loadingIcon={<CustomLoadingOverlay />}
+               loading={loading || showLoading}
+               // loadingIcon={<TableSkeleton rows={5} columns={columns.length} hasHeader hasPagination hasSearch />}
+               loadingIcon={<CustomLoadingOverlay />}
                scrollable={true}
                scrollHeight={scrollHeight}
                globalFilter={globalFilterValue}
@@ -964,7 +993,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onRowEditInit={handleOnRowEditIinit}
                onRowEditCancel={handleOnRowEditCancel}
                metaKeySelection={true}
-               className=" hover:bg-slate-500"
+               className=" hover:bg-slate-500 text-xs"
             >
                {btnDeleteMultiple && <Column selectionMode="multiple" exportable={false}></Column>}
                {columns.map((col, index) => {
@@ -982,7 +1011,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                         headerStyle={{ /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/ textAlign: "center" }}
                         headerClassName="text-center"
                         filter={col.filter && headerFilters}
-                        filterField={col.filterField}
+                        filterField={col.filterField || col.field}
                         filterHeaderStyle={
                            {
                               /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/

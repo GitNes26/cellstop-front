@@ -369,7 +369,7 @@ const PointOfSaleDT = () => {
    if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
          { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate, filter: false },
-         { field: "created_at", header: "Fecha de alta", sortable: true, body: CreatedAtBodyTemplate, filter: false }
+         { field: "created_at", header: "Fecha de alta", sortable: true, filter: false, width: "120px", body: CreatedAtBodyTemplate }
       );
    }
    // #endregion COLUMNAS react-data-table-component
