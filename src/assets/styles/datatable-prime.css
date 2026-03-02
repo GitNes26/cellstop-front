@@ -102,3 +102,8 @@ table.p-datatable-table {
 }
 
 /**  DATA TABLE **/
+
+/**  MENU CONTEXTUAL DE ACCIONES **/
+.menu-context-datatable > .p-overlaypanel-content {
+   padding: 0;
+}

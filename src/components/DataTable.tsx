@@ -20,8 +20,8 @@ import { Toast as ToastPrime } from "primereact/toast";
 // import { IconEdit, IconFile, IconFileSpreadsheet, IconPlus, IconSearch } from "@tabler/icons";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
-import { Box } from "@mui/system";
-import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { Box, padding } from "@mui/system";
+import { AddCircleOutlineOutlined, PaddingSharp } from "@mui/icons-material";
 
 // import withReactContent from "sweetalert2-react-content";
 // import Swal from "sweetalert2";
@@ -40,6 +40,8 @@ import { getKeys } from "../utils/Formats";
 import { bool } from "@techstark/opencv-js";
 import { MenuItem } from "primereact/menuitem";
 import DialogComponent from "./DialogComponent";
+import { OverlayPanel } from "primereact/overlaypanel";
+import { Divider } from "primereact/divider";
 
 /* COMO IMPROTAR
 *    columns={columns}
@@ -771,10 +773,20 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    //       </div>
    //    );
    // };
-
+   const toast = useRef<ToastPrime>(null);
    const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {
-      const menuRef = useRef<Menu>(null);
+      // const menuRef = useRef<Menu>(null);
+      const op = useRef<OverlayPanel>(null);
       const nameElement = rowData[columns[indexColumnName]?.field] || "";
+      // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
+
+      // useEffect(() => {
+      //    return () => {
+      //       if (menuRef.current) {
+      //          menuRef?.current?.hide();
+      //       }
+      //    };
+      // }, []);
 
       const itemsActions = (rowData.actions || [])
          .filter((action) => action.permission)
@@ -792,14 +804,6 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
          }
       ];
 
-      useEffect(() => {
-         return () => {
-            if (menuRef.current) {
-               menuRef?.current?.hide();
-            }
-         };
-      }, []);
-
       return (
          <div className="flex justify-center">
             {auth.role_id === ROLE_SUPER_ADMIN && (
@@ -809,7 +813,68 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                   </Button>
                </Tooltip>
             )}
-            <Menu key={`<actions-${rowData.id}`} model={items} popup ref={menuRef} />
+
+            <ButtonPrime
+               key={`btn-actions-${rowData.id}`}
+               icon="pi pi-ellipsis-v"
+               onClick={(e) => op.current?.toggle(e)}
+               severity="secondary"
+               text
+               disabled={itemsActions.length === 0}
+               aria-haspopup={"menu"}
+            />
+            {/* OverlayPanel estilizado como Menu de PrimeReact */}
+            <OverlayPanel ref={op} dismissable showCloseIcon={false} style={{ padding: " 0 !important" }} className="p-0 menu-context-datatable">
+               <div
+                  className="p-menu"
+                  style={{
+                     minWidth: "250px",
+                     border: "none",
+                     boxShadow: "var(--overlay-shadow)",
+                     background: "var(--surface-overlay)"
+                  }}
+               >
+                  {/* Encabezado con el nombre del registro */}
+                  {nameElement && (
+                     <>
+                        <div className="p-submenu-header" style={{ fontWeight: "bold", padding: "0.75rem 1rem" }}>
+                           {singularName}: {String(nameElement).substring(0, 20)}
+                           {String(nameElement).length > 20 ? "..." : ""}
+                        </div>
+                        <Divider style={{ paddingBlock: 0, marginBlock: 0 }} />
+                     </>
+                  )}
+
+                  {/* Lista de acciones */}
+                  <ul className="p-menu-list p-0 m-0" style={{ listStyle: "none" }}>
+                     {rowData?.actions
+                        ?.filter((action) => action.permission)
+                        .map((action, idx) => (
+                           <li key={idx} className="p-menuitem">
+                              <ButtonPrime
+                                 label={action.label}
+                                 icon={`pi ${action.iconName}`}
+                                 onClick={() => {
+                                    action.handleOnClick();
+                                    op.current?.hide();
+                                 }}
+                                 text
+                                 className="p-menuitem-link hover:p-menuitem-link-active"
+                                 style={{
+                                    justifyContent: "flex-start",
+                                    width: "100%",
+                                    padding: "0.75rem 1rem",
+                                    borderRadius: 0,
+                                    color: action.color || "MenuText"
+                                 }}
+                              />
+                           </li>
+                        ))}
+                  </ul>
+               </div>
+            </OverlayPanel>
+
+            {/* <Menu key={`<actions-${rowData.id}`} model={items} popup ref={menuRef} onAuxClickCapture={(e) => console.log(e)} />
             <ButtonPrime
                key={`btn-actions-${rowData.id}`}
                icon="pi pi-ellipsis-v"
@@ -817,8 +882,8 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                severity="secondary"
                text
                disabled={itemsActions.length === 0}
-               aria-haspopup
-            />
+               aria-haspopup={"menu"}
+            /> */}
          </div>
       );
    };
@@ -846,7 +911,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                   style={{ marginBottom: "1px", paddingBlock: "10px", zIndex: 10 }}
                ></Toolbar>
             )}
-
+            <ToastPrime ref={toast} position="top-right" />
             <DataTable
                id={idName}
                name={idName}
@@ -866,6 +931,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                editMode="row"
                header={header}
                dataKey="key"
+               // virtualScrollerOptions={{}}
                lazy
                paginator
                rowsPerPageOptions={[5, 10, 50, 100, 500, 1000]}

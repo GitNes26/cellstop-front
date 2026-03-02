@@ -1292,7 +1292,7 @@ const ProductDT = ({}) => {
             btnsExport={true}
             fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
             singularName={singularName}
-            indexColumnName={4}
+            indexColumnName={0}
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}
