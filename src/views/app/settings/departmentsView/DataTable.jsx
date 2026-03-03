@@ -234,7 +234,7 @@ const DepartmentDT = () => {
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
          rowEdit={false}
-         btnDeleteMultiple={true}
+         btnDeleteMultiple={false}
          refreshTable={getAllDepartments}
          scrollHeight="64vh"
          btnsExport={true}

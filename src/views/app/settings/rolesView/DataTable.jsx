@@ -185,7 +185,7 @@ const RoleDT = ({ openDialogTable, setOpenDialogTable }) => {
             btnAdd={false /* auth.permissions.create */}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
-            btnDeleteMultiple={true}
+            btnDeleteMultiple={false}
             refreshTable={getAllRoles}
             scrollHeight="64vh"
             btnsExport={true}

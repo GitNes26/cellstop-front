@@ -95,7 +95,7 @@ const ProductDT = ({}) => {
    const { status } = useParams();
 
    const { auth } = useAuthContext();
-   const { setIsLoading, setOpenDialog } = useGlobalContext();
+   const { isLoading, setIsLoading, setOpenDialog } = useGlobalContext();
    const {
       singularName,
       allProducts,
@@ -1063,13 +1063,14 @@ const ProductDT = ({}) => {
             btnAdd={false /* auth.permissions.create */}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
-            btnDeleteMultiple={true}
+            btnDeleteMultiple={false}
             refreshTable={getAllProducts}
             scrollHeight="64vh"
             btnsExport={true}
             fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
             singularName={singularName}
             indexColumnName={0}
+            showLoading={isLoading}
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}

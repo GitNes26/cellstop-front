@@ -305,7 +305,7 @@ const LoteDT = () => {
             btnAdd={auth.permissions.create}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
-            btnDeleteMultiple={true}
+            btnDeleteMultiple={false}
             refreshTable={getAllLotes}
             scrollHeight="64vh"
             btnsExport={true}

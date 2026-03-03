@@ -283,7 +283,7 @@ const MenuDT = () => {
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
          rowEdit={false}
-         btnDeleteMultiple={true}
+         btnDeleteMultiple={false}
          refreshTable={getAllMenus}
          scrollHeight="64vh"
          btnsExport={true}

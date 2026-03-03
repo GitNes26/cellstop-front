@@ -265,7 +265,7 @@ const UserDT = () => {
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
          rowEdit={false}
-         btnDeleteMultiple={true}
+         btnDeleteMultiple={false}
          refreshTable={getAllUsers}
          scrollHeight="64vh"
          btnsExport={true}

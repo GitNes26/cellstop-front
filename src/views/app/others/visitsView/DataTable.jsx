@@ -24,66 +24,49 @@ const VisitDT = () => {
 
    //#region COLUMNAS
    const fontSizeTable = { text: "sm", subtext: "xs" };
-   const globalFilterFields = ["visit_type", "active", "created_at"];
+   const globalFilterFields = ["visit_type", "seller.username", "point_of_sale.name", "contact_name", "contact_phone", "observations", "active", "created_at"];
 
-   const VisitTypeBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.visit_type}
+   //#region BodyTemplate
+   const VisitTypeBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.visit_type}
       </Typography>
    );
 
-   const SellerBodyTemplate = (obj) => {
-      return (
-         <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-            <Person fontSize={"small"} className="mr-1" />
-            {obj.seller?.username || "Sin vendedor"}
-         </Typography>
-      );
-   };
-
-   const POSBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text} className="flex items-center justify-center">
-         <Store fontSize={"small"} className="mr-1" />
-         {obj.point_of_sale?.name || "Sin punto de venta"}
+   const SellerBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         <Person fontSize="small" className="mr-1" />
+         {rowData.seller?.username || "Sin vendedor"}
       </Typography>
    );
 
-   const ContactBodyTemplate = (obj) => (
+   const POSBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text} className="flex items-center justify-center">
+         <Store fontSize="small" className="mr-1" />
+         {rowData.point_of_sale?.name || "Sin punto de venta"}
+      </Typography>
+   );
+
+   const ContactBodyTemplate = (rowData) => (
       <>
-         <Typography textAlign={"center"} size={fontSizeTable.text}>
-            {obj.contact_name}
+         <Typography textAlign="center" size={fontSizeTable.text}>
+            {rowData.point_of_sale.contact_name}
          </Typography>
-         <Typography textAlign={"center"} size={fontSizeTable.subtext} className="flex items-center justify-center italic">
-            <PhoneAndroidRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" />
-            <a href={`tel:${obj.contact_phone}`} className="text-blue-600 hover:underline transition-all">
-               {formatPhone(obj.contact_phone)}
+         <Typography textAlign="center" size={fontSizeTable.subtext} className="flex items-center justify-center italic">
+            <PhoneAndroidRounded fontSize="medium" className="mr-2" />
+            <a href={`tel:${rowData.point_of_sale.contact_phone}`} className="text-blue-600 hover:underline transition-all">
+               {formatPhone(rowData.point_of_sale.contact_phone)}
             </a>
          </Typography>
-         {/* <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.contact_name ? (
-            <div className="flex items-center justify-center">
-               <Person fontSize={"small"} className="mr-1" />
-               {obj.contact_name}
-               {obj.contact_phone && (
-                  <>
-                     <Phone fontSize={"small"} className="ml-2 mr-1" />
-                     {obj.contact_phone}
-                  </>
-               )}
-            </div>
-         ) : (
-            "No aplica"
-         )}
-      </Typography> */}
       </>
    );
 
-   const ProductsBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.visit_type === "Distribución" ? (
+   const ProductsBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.visit_type === "Distribución" ? (
             <div className="flex items-center justify-center">
-               <Category fontSize={"small"} className="mr-1" />
-               {JSON.parse(obj.product_ids).length} productos
+               <Category fontSize="small" className="mr-1" />
+               {JSON.parse(rowData.product_ids).length} productos
             </div>
          ) : (
             "No aplica"
@@ -91,50 +74,35 @@ const VisitDT = () => {
       </Typography>
    );
 
-   const LocationBodyTemplate = (obj) => (
-      <>
-         <Typography
-            textAlign={"center"}
-            size={fontSizeTable.text}
-            component={"a"}
-            href={obj.ubication ?? "#"}
-            target="_blank"
-            className="text-blue-800 hover:underline transition-all"
-         >
-            <MapRounded style={{ color: "" }} fontSize={"medium"} className="mr-2" /> {obj.ubication ? "Ver ubicación" : "Sin ubicación"}
-         </Typography>
-         {/* <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.lat && obj.lon ? (
-            <div className="flex items-center justify-center">
-               <LocationOn fontSize={"small"} className="mr-1" />
-               <span title={`Lat: ${obj.lat}, Lon: ${obj.lon}`}>Verificada</span>
-            </div>
-         ) : (
-            "Sin verificar"
-         )}
-      </Typography> */}
-      </>
-   );
-
-   const ObservationsBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.observations}
+   const LocationBodyTemplate = (rowData) => (
+      <Typography
+         textAlign="center"
+         size={fontSizeTable.text}
+         component="a"
+         href={rowData.ubication ?? "#"}
+         target="_blank"
+         className="text-blue-800 hover:underline transition-all"
+      >
+         <MapRounded fontSize="medium" className="mr-2" />
+         {rowData.ubication ? "Ver ubicación" : "Sin ubicación"}
       </Typography>
    );
 
-   const EvidenceBodyTemplate = (obj) => (
-      <>
-         <img src={`${env.API_URL_IMG}/${obj.evidence_photo}`} className="object-contain h-[50px]" />
-      </>
+   const ObservationsBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.observations}
+      </Typography>
    );
 
-   const ChipsInfoBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {obj.visit_type === "Distribución" ? (
+   const EvidenceBodyTemplate = (rowData) => <img src={`${env.API_URL_IMG}/${rowData.evidence_photo}`} className="object-contain h-[50px]" alt="Evidencia" />;
+
+   const ChipsInfoBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {rowData.visit_type === "Distribución" ? (
             <div>
-               <div>Entregados: {obj.chips_delivered || 0}</div>
-               <div>Vendidos: {obj.chips_sold || 0}</div>
-               <div>Restantes: {obj.chips_remaining || 0}</div>
+               <div>Entregados: {rowData.chips_delivered || 0}</div>
+               <div>Vendidos: {rowData.chips_sold || 0}</div>
+               <div>Restantes: {rowData.chips_remaining || 0}</div>
             </div>
          ) : (
             "No aplica"
@@ -142,134 +110,35 @@ const VisitDT = () => {
       </Typography>
    );
 
-   const ActiveBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} className="flex justify-center">
-         {obj.active ? <CheckCircleRounded style={{ color: "green" }} fontSize={"medium"} /> : <CancelRounded style={{ color: "red" }} fontSize={"medium"} />}
+   const ActiveBodyTemplate = (rowData) => (
+      <Typography textAlign="center" className="flex justify-center">
+         {rowData.active ? <CheckCircleRounded style={{ color: "green" }} fontSize="medium" /> : <CancelRounded style={{ color: "red" }} fontSize="medium" />}
       </Typography>
    );
 
-   const CreatedAtBodyTemplate = (obj) => (
-      <Typography textAlign={"center"} size={fontSizeTable.text}>
-         {formatDatetime(obj.created_at, true)}
+   const CreatedAtBodyTemplate = (rowData) => (
+      <Typography textAlign="center" size={fontSizeTable.text}>
+         {formatDatetime(rowData.created_at, true)}
       </Typography>
    );
+   //#endregion BodyTemplate
 
    const columns = [
-      {
-         field: "visit_type",
-         headerName: "Tipo",
-         sortable: true,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <VisitTypeBodyTemplate {...obj} />;
-         },
-         filter: true
-      },
-      {
-         field: "seller",
-         headerName: "Vendedor",
-         sortable: true,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <SellerBodyTemplate {...obj} />;
-         },
-         filter: true
-      },
-      {
-         field: "point_of_sale",
-         headerName: "Punto de Venta",
-         sortable: true,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <POSBodyTemplate {...obj} />;
-         },
-         filter: true
-      },
-      {
-         field: "contact",
-         headerName: "Contacto",
-         sortable: false,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <ContactBodyTemplate {...obj} />;
-         },
-         filter: false
-      },
-      {
-         field: "products",
-         headerName: "Productos Distribuidos",
-         sortable: false,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <ProductsBodyTemplate {...obj} />;
-         },
-         filter: false
-      },
-      {
-         field: "location",
-         headerName: "Ubicación",
-         sortable: false,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <LocationBodyTemplate {...obj} />;
-         },
-         filter: false
-      },
-      {
-         field: "observations",
-         headerName: "Observaciones",
-         sortable: false,
-         renderCell: (params) => {
-            const { key, ...obj } = params.row;
-            return <ObservationsBodyTemplate {...obj} />;
-         },
-         filter: false
-      },
-      {
-         field: "evidence_photo",
-         headerName: "Evidencia",
-         description: "",
-         // width: 90,
-         sortable: false,
-         functionEdit: null,
-         renderCell: (params) => <EvidenceBodyTemplate {...params.row} key={`evidence_photo-${params.row.id}`} />,
-         filter: false,
-         filterField: null
-      }
-      // {
-      //    field: "chips_info",
-      //    headerName: "Seguimiento",
-      //    sortable: false,
-      //    renderCell: (params) => {
-      //       const { key, ...obj } = params.row;
-      //       return <ChipsInfoBodyTemplate {...obj} />;
-      //    },
-      //    filter: false
-      // }
+      { field: "visit_type", header: "Tipo", sortable: true, filter: true, body: VisitTypeBodyTemplate },
+      { field: "seller.username", header: "Vendedor", sortable: true, filter: true, body: SellerBodyTemplate },
+      { field: "point_of_sale.name", header: "Punto de Venta", sortable: true, filter: true, body: POSBodyTemplate },
+      { field: "point_of_sale.contact_name", header: "Contacto", sortable: false, filter: true, body: ContactBodyTemplate },
+      { field: "products", header: "Productos Distribuidos", sortable: false, body: ProductsBodyTemplate },
+      { field: "location", header: "Ubicación", sortable: false, body: LocationBodyTemplate },
+      { field: "observations", header: "Observaciones", sortable: false, filter: true, body: ObservationsBodyTemplate },
+      { field: "evidence_photo", header: "Evidencia", sortable: false, body: EvidenceBodyTemplate }
+      // { field: 'chips_info', header: 'Seguimiento', sortable: false, body: ChipsInfoBodyTemplate } // si se descomenta
    ];
 
    if (auth.role_id === ROLE_SUPER_ADMIN) {
       columns.push(
-         {
-            field: "active",
-            headerName: "Activo",
-            sortable: true,
-            renderCell: (params) => {
-               const { key, ...obj } = params.row;
-               return <ActiveBodyTemplate {...obj} />;
-            },
-            filter: false
-         },
-         {
-            field: "created_at",
-            headerName: "Fecha",
-            sortable: true,
-            renderCell: (params) => {
-               const { key, ...obj } = params.row;
-               return <CreatedAtBodyTemplate {...obj} />;
-            },
-            filter: false
-         }
+         { field: "active", header: "Activo", sortable: true, body: ActiveBodyTemplate },
+         { field: "created_at", header: "Fecha", sortable: true, width: "120px", body: CreatedAtBodyTemplate }
       );
    }
    //#endregion COLUMNAS
@@ -442,21 +311,41 @@ const VisitDT = () => {
 
    return (
       <DataTableComponent
-         dataColumns={columns}
+         columns={columns}
          data={data}
+         globalFilterFields={globalFilterFields}
          headerFilters={true}
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
-         handleClickEdit={handleClickEdit}
-         handleClickDisEnable={handleClickDisEnable}
-         singularName={singularName}
-         indexColumnName={1}
          rowEdit={false}
+         btnDeleteMultiple={false}
          refreshTable={getAllVisits}
+         scrollHeight="64vh"
          btnsExport={true}
-         fileNameExport="Visitas"
-         scrollHeight="67vh"
+         fileNameExport={`Listado de ${singularName} - ${formatDatetime(new Date(), true, "DD-MM-YYYY")}`}
+         singularName={singularName}
+         indexColumnName={0}
+         // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
+         // positionBtnsToolbar="center"
+         // toolbarContentCenter={toolbarContentCenter}
+         // toolbarContentEnd={toolbarContentEnd}
       />
+      // <DataTableComponent
+      //    dataColumns={columns}
+      //    data={data}
+      //    headerFilters={true}
+      //    btnAdd={auth.permissions.create}
+      //    handleClickAdd={handleClickAdd}
+      //    handleClickEdit={handleClickEdit}
+      //    handleClickDisEnable={handleClickDisEnable}
+      //    singularName={singularName}
+      //    indexColumnName={1}
+      //    rowEdit={false}
+      //    refreshTable={getAllVisits}
+      //    btnsExport={true}
+      //    fileNameExport="Visitas"
+      //    scrollHeight="67vh"
+      // />
    );
 };
 

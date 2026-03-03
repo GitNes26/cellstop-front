@@ -142,7 +142,7 @@ export const SalesPerformance: React.FC<SalesPerformanceProps> = ({ data }) => {
                         title="Vendedores"
                         subtitle="Acomodados por desempeño"
                         columns={sellerColumns}
-                        data={data?.sellers}
+                        data={data?.sellers.sort((a, b) => b.efficiency - a.efficiency)}
                         height={300}
                         pagination={false}
                      />

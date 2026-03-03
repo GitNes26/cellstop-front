@@ -216,7 +216,7 @@ const PositionDT = () => {
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
          rowEdit={false}
-         btnDeleteMultiple={true}
+         btnDeleteMultiple={false}
          refreshTable={getAllPositions}
          scrollHeight="64vh"
          btnsExport={true}
