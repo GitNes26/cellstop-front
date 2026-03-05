@@ -24,7 +24,7 @@ import {
 } from "@mui/icons-material";
 import Toast from "../../utils/Toast";
 import { useLayoutEffect, useState } from "react";
-import { useGlobalContext } from "../../context/GlobalContext";
+import { useGlobalContext } from "../../context/GlobalContext.jsx";
 import { useNavigate } from "react-router-dom";
 import DashboardView from "./main/dashboard/Index.js";
 import { useAuthContext } from "./../../context/AuthContext";
@@ -116,43 +116,43 @@ const Index = ({}) => {
    const quickMetrics = [
       {
          label: "Chips Asignados",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.assigned ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.products_stats?.assigned ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.assigned_rate}%`,
          icon: <SimCardRounded color="primary" />
       },
       {
          label: "Chips en Stock",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.in_stock ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.products_stats?.in_stock ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.in_stock_rate}%`,
          icon: <Inventory color="info" />
       },
       {
          label: "Chips Distribuidos",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.distributed_rate}%`,
          icon: <OutboxRounded color="warning" />
       },
       {
          label: "Chips Activos",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.actived ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.products_stats?.actived ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.actived_rate}%`,
          icon: <CheckCircle color="success" />
       },
       {
          label: "Chips Portados",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.products_stats?.ported ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.products_stats?.ported ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.products_stats?.ported_rate}%`,
          icon: <SignalCellularNoSimRounded color="error" />
       },
       {
          label: "Puntos de Venta",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.points_of_sale?.total ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.points_of_sale?.total ?? "0"),
          change: "100%",
          icon: <Storefront color="warning" />
       },
       {
          label: "Visitas Diarias",
-         value: sellerDashboardData == null ? "0" : sellerDashboardData?.sellers_performance[0]?.visits?.daily ?? "0",
+         value: sellerDashboardData == null ? "0" : (sellerDashboardData?.sellers_performance[0]?.visits?.daily ?? "0"),
          change: sellerDashboardData == null ? "0%" : `${sellerDashboardData?.sellers_performance[0]?.visits?.daily_rate}%`,
          icon: <Schedule color="error" />
       }

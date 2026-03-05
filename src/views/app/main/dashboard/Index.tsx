@@ -29,7 +29,7 @@ import { HeaderStats } from "../../../../components/dashboard/sections/HeaderSta
 import PointsOfSaleMap from "../../../../components/dashboard/PointsOfSaleMap";
 import { useDashboardData } from "../../../../hooks/useDashboardData";
 import { useAuthContext } from "../../../../context/AuthContext";
-import { useGlobalContext } from "../../../../context/GlobalContext";
+import { useGlobalContext } from "../../../../context/GlobalContext.jsx";
 import { useUserContext } from "../../../../context/UserContext";
 import { useProductTypeContext } from "../../../../context/ProductTypeContext.jsx";
 import useFetch from "../../../../hooks/useFetch";

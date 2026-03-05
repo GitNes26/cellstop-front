@@ -21,7 +21,7 @@ import { Toast as ToastPrime } from "primereact/toast";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Box, padding } from "@mui/system";
-import { AddCircleOutlineOutlined, PaddingSharp } from "@mui/icons-material";
+import { AddCircleOutlineOutlined, CancelOutlined, DescriptionSharp, PaddingSharp } from "@mui/icons-material";
 
 // import withReactContent from "sweetalert2-react-content";
 // import Swal from "sweetalert2";
@@ -31,11 +31,11 @@ import { Toolbar } from "primereact/toolbar";
 // import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import * as XLSX from "xlsx";
 import { isMobile } from "react-device-detect";
-import { Button, Card, IconButton, LinearProgress, Switch, Tooltip, Typography } from "@mui/material";
+import { Button, Card, DialogActions, IconButton, LinearProgress, Switch, Tooltip, Typography } from "@mui/material";
 // import icons from "../../constant/icons";
 import { useParams } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
-import { ROLE_SUPER_ADMIN, useGlobalContext } from "../context/GlobalContext";
+import { ROLE_SUPER_ADMIN, useGlobalContext, colorTableHeader } from "../context/GlobalContext";
 import { getKeys } from "../utils/Formats";
 import { bool } from "@techstark/opencv-js";
 import { MenuItem } from "primereact/menuitem";
@@ -43,6 +43,7 @@ import DialogComponent from "./DialogComponent";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { Divider } from "primereact/divider";
 import TableSkeleton from "./TableSkeleton";
+import ColumnSelector from "./ColumnSelector";
 
 /* COMO IMPROTAR
 *    columns={columns}
@@ -254,13 +255,14 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    // const [theme, setTheme] = useState(localStorage.getItem("theme"));
    // const [themeColor, setThemeColor] = useState({ bg: theme == "dif" ? "#E9ECEF" : "#141B24", text: theme == "dif" ? "dark" : "whitesmoke" });
    // const colorHeader = { bg: theme == "dif" ? "#E9ECEF" : "#141B24", text: theme == "dif" ? "dark" : "whitesmoke" };
-   const { colorTableHeader, setColorTableHeader } = useGlobalContext();
+   // const { colorTableHeader, setColorTableHeader } = useGlobalContext();
 
    const [showModal, setShowModal] = useState(false);
    const [selectedCols, setSelectedCols] = useState<string[]>([]);
    const [customLabels, setCustomLabels] = useState<{ [key: string]: string }>({});
    const [titleFileExport, setTitleFileExport] = useState(fileNameExport);
    const [dataColumns, setDataColumns] = useState(data);
+   const [orderedColumns, setOrderedColumns] = useState<string[]>([]);
 
    const dt: any = useRef(null);
    // columns.unshift({ id: 0, label: "Selecciona una opción..." });
@@ -278,12 +280,11 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    // const [globalFilterValue, setGlobalFilterValue] = useState("");
    // FILTROS
 
-   // #region LAZY LOADING
-   const [selectAll, setSelectAll] = useState(false);
    // Para datos remotos, mantener estado finalData
    const [finalData, setFinalData] = useState<any[]>([]);
    const [totalRecords, setTotalRecords] = useState(0);
-   const [loading, setLoading] = useState(false);
+   const [selectAll, setSelectAll] = useState(false);
+   const [loading, setLoading] = useState(true);
    // Reemplaza la declaración de filters y lazyState inicial
    const [lazyState, setLazyState] = useState({
       first: 0,
@@ -317,43 +318,6 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
       return path.split(".").reduce((acc, part) => (acc ? acc[part] : undefined), row);
    };
 
-   // Para datos locales, calcular con useMemo
-   const computedData = useMemo(() => {
-      if (isLazyRemote) {
-         setLoading(false);
-         return []; // No se usa en modo remoto
-      }
-      let filtered = data.filter((rowData) => {
-         return Object.entries(lazyState.filters).every(([key, filter]: any) => {
-            if (key === "global") {
-               const val = filter.value;
-               if (!val) return true;
-               return globalFilterFields.some((field) => {
-                  const v = getRowValue(rowData, field);
-                  return v?.toString().toLowerCase().includes(val.toLowerCase());
-               });
-            }
-            const filterVal = filter.value;
-            if (!filterVal) return true;
-            const v = getRowValue(rowData, key);
-            return v?.toString().toLowerCase().includes(filterVal.toLowerCase());
-         });
-      });
-      if (lazyState.sortField) {
-         filtered = [...filtered].sort((a, b) => {
-            const fa = getRowValue(a, lazyState.sortField);
-            const fb = getRowValue(b, lazyState.sortField);
-            if (fa == null) return 1;
-            if (fb == null) return -1;
-            if (fa < fb) return lazyState.sortOrder;
-            if (fa > fb) return -lazyState.sortOrder;
-            return 0;
-         });
-      }
-      setTotalRecords(filtered.length); // actualizar total para paginación
-      return filtered.slice(lazyState.first, lazyState.first + lazyState.rows);
-   }, [data, lazyState, globalFilterFields]);
-
    const loadLazyData = useCallback(async () => {
       setLoading(true);
       try {
@@ -362,20 +326,49 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
             setTotalRecords(response.totalRecords);
             setFinalData(response.data);
          } else {
-            // Los datos locales ya se calculan en computedData, no es necesario hacer nada aquí
-            // Pero forzamos la actualización de totalRecords (ya se hizo en el memo)
+            // Calcular datos locales
+            let filtered = data.filter((rowData) => {
+               return Object.entries(lazyState.filters).every(([key, filter]: any) => {
+                  if (key === "global") {
+                     const val = filter.value;
+                     if (!val) return true;
+                     return globalFilterFields.some((field) => {
+                        const v = getRowValue(rowData, field);
+                        return v?.toString().toLowerCase().includes(val.toLowerCase());
+                     });
+                  }
+                  const filterVal = filter.value;
+                  if (!filterVal) return true;
+                  const v = getRowValue(rowData, key);
+                  return v?.toString().toLowerCase().includes(filterVal.toLowerCase());
+               });
+            });
+            if (lazyState.sortField) {
+               filtered = [...filtered].sort((a, b) => {
+                  const fa = getRowValue(a, lazyState.sortField);
+                  const fb = getRowValue(b, lazyState.sortField);
+                  if (fa == null) return 1;
+                  if (fb == null) return -1;
+                  if (fa < fb) return lazyState.sortOrder;
+                  if (fa > fb) return -lazyState.sortOrder;
+                  return 0;
+               });
+            }
+            setTotalRecords(filtered.length);
+            setFinalData(filtered.slice(lazyState.first, lazyState.first + lazyState.rows));
          }
       } catch (error) {
+         setLoading(false);
          console.error("Error loading data", error);
          Toast.Error("Error al cargar datos");
       } finally {
          setLoading(false);
       }
-   }, [lazyState, isLazyRemote, fetchLazyData]);
+   }, [lazyState, isLazyRemote, fetchLazyData, data, globalFilterFields]);
 
    useEffect(() => {
       loadLazyData();
-   }, [loadLazyData]); // Solo para remoto; el memo ya cubre local
+   }, [loadLazyData]);
 
    const onPage = (event: any) => setLazyState(event);
    const onSort = (event: any) => {
@@ -387,17 +380,15 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
       const value = event.value;
 
       setSelectedData(value);
-      setSelectAll(value.length === totalRecords);
+      setSelectAll(value.length === finalData.length);
    };
 
    const onSelectAllChange = (event) => {
       const selectAll = event.checked;
 
       if (selectAll) {
-         // data.getCustomers().then((data) => {
          setSelectAll(true);
-         setSelectedData(data);
-         // });
+         setSelectedData(finalData);
       } else {
          setSelectAll(false);
          setSelectedData([]);
@@ -557,49 +548,47 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
       setShowModal(true);
    };
-   const handleClickExportData = (e: any) => {
-      // console.log("🚀 ~ onGlobalFilterChange ~ globalFilterFields:", globalFilterFields);
-      // console.log("🚀 ~ onGlobalFilterChange ~ filtersColumns:", filtersColumns);
-      // console.log("🚀 ~ onGlobalFilterChange ~ filters:", filters);
-      // // Obtener los datos filtrados aplicando los filtros actuales
-      // const filteredData = data.filter((rowData) => {
-      //    return Object.keys(filters).every((key) => {
-      //       const filterValue = filters[key].value;
-      //       if (!filterValue) return true;
+   // Inicializar orden cuando dataColumns cambie
+   useEffect(() => {
+      setOrderedColumns(dataColumns);
+   }, [dataColumns]);
 
-      //       const rowValue = rowData[key];
-      //       return rowValue?.toString().toLowerCase().includes(filterValue.toLowerCase());
-      //    });
-      // });
-      // console.log("🚀 ~ filteredData ~ filteredData:", filteredData);
-
-      // if (filteredData.length === 0) {
-      //    Toast.Info("No hay datos filtrados para exportar.");
-      //    return;
-      // }
-
-      // delete data[0].actions;
-      // console.log("🚀 ~ exportExcel ~ data:", data[0]);
-
+   // Función para manejar cambio de orden
+   const handleOrderChange = (newOrder: string[]) => {
+      setOrderedColumns(newOrder);
+   };
+   const handleClickExportData = () => {
+      // Validar que haya columnas seleccionadas
       if (selectedCols.length === 0) {
          Toast.Info("Selecciona al menos una columna para exportar.");
          return;
       }
 
-      const exportData = data.map((row) => {
-         const filtered: { [key: string]: any } = {};
-         selectedCols.forEach((col) => {
-            let [prop, subprop] = col.split(".");
-            const label = customLabels[col] || col;
-            filtered[label] = subprop === undefined ? row[prop] : row[prop]?.[subprop];
+      // Aplicar filtros si es necesario (descomentar si se desea)
+      // const dataToExport = filteredData.length > 0 ? filteredData : data;
+      const dataToExport = data; // por defecto todos los datos
+
+      // Construir headers en el orden definido por el usuario
+      const columnsInOrder = orderedColumns.filter((col) => selectedCols.includes(col));
+      const headers = columnsInOrder.map((col) => customLabels[col] || col);
+
+      // Construir array de arrays para la hoja de cálculo
+      const sheetData = [headers];
+
+      dataToExport.forEach((row) => {
+         const rowValues = columnsInOrder.map((col) => {
+            const [prop, subprop] = col.split(".");
+            const value = subprop === undefined ? row[prop] : row[prop]?.[subprop];
+            return value !== undefined ? value : "";
          });
-         return filtered;
+         sheetData.push(rowValues);
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      // Crear libro y hoja
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Hoja 1");
-      XLSX.writeFile(workbook, `${titleFileExport}.xlsx`);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+      XLSX.writeFile(workbook, `${titleFileExport || "export"}.xlsx`);
 
       setShowModal(false);
    };
@@ -948,7 +937,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                showGridlines={showGridlines}
                removableSort
                size="small"
-               value={isLazyRemote ? finalData : computedData}
+               value={finalData}
                // onLoadCapture={(e) => console.log("onLoadCapture" + e)}
                // onLoadStartCapture={(e) => console.log("onLoadStartCapture" + e)}
                // onLoadedMetadata={(e) => console.log("onLoadedMetadata" + e)}
@@ -976,7 +965,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                onSelectionChange={(e: any) => setSelectedData(e.value)}
                selectAll={selectAll}
                onSelectAllChange={onSelectAllChange}
-               loading={loading || showLoading}
+               loading={loading /* || showLoading */}
                // loadingIcon={<TableSkeleton rows={5} columns={columns.length} hasHeader hasPagination hasSearch />}
                loadingIcon={<CustomLoadingOverlay />}
                scrollable={true}
@@ -1008,7 +997,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                         key={index}
                         field={col.field}
                         header={col.header}
-                        headerStyle={{ /*backgroundColor: colorTableHeader.bg, color: colorTableHeader.text,*/ textAlign: "center" }}
+                        headerStyle={{ /* backgroundColor: colorTableHeader.bg, color: colorTableHeader.text, */ textAlign: "center" }}
                         headerClassName="text-center"
                         filter={col.filter && headerFilters}
                         filterField={col.filterField || col.field}
@@ -1081,7 +1070,28 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
          {/* Modal Seleccionar columnas */}
          {showModal && (
             <>
-               <DialogComponent
+               <DialogComponent open={showModal} setOpen={setShowModal} maxWidth="xl" dialogActions={true} modalTitle="SELECCIÓN DE COLUMNAS A EXPORTAR">
+                  <ColumnSelector
+                     columns={dataColumns}
+                     selectedColumns={selectedCols}
+                     onSelectionChange={setSelectedCols}
+                     customLabels={customLabels}
+                     onLabelsChange={setCustomLabels}
+                     onOrderChange={handleOrderChange}
+                     title={titleFileExport}
+                     onTitleChange={setTitleFileExport}
+                  />
+                  <DialogActions>
+                     <Button variant="outlined" color="error" fullWidth startIcon={<CancelOutlined />} onClick={() => setShowModal(false)}>
+                        Cancelar
+                     </Button>
+                     <Button variant="contained" fullWidth startIcon={<DescriptionSharp />} onClick={handleClickExportData}>
+                        Exportar
+                     </Button>
+                  </DialogActions>
+               </DialogComponent>
+
+               {/* <DialogComponent
                   open={showModal}
                   // onClose={() => setShowModal(false)}
                   setOpen={setShowModal}
@@ -1120,7 +1130,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                         </label>
                      ))}
                   </div>
-               </DialogComponent>
+               </DialogComponent> */}
 
                {/* <input type="checkbox" id="modal-export" className="modal-toggle" checked={showModal} onChange={() => setShowModal(!showModal)} />
                <div className="modal">

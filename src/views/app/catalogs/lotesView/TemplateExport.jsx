@@ -36,8 +36,8 @@ import dayjs from "dayjs";
 const TemplateExport = ({ open, onClose, data }) => {
    // Estados
    const [plantillas, setPlantillas] = useState({
-      "PLANTILLA A4": { columnas: 10, filas: 28, nombre: "A4", etiquetasPorHoja: 500 },
-      "PLANTILLA TABLOIDE": { columnas: 14, filas: 40, nombre: "Tabloide", etiquetasPorHoja: 500 }
+      "PLANTILLA A4": { columnas: 7, filas: 37, nombre: "A4", etiquetasPorHoja: 500 },
+      "PLANTILLA TABLOIDE": { columnas: 11, filas: 49, nombre: "Tabloide", etiquetasPorHoja: 500 }
    });
    const [tipoPlantilla, setTipoPlantilla] = useState("PLANTILLA A4");
    const [elementos, setElementos] = useState([]);
@@ -61,13 +61,13 @@ const TemplateExport = ({ open, onClose, data }) => {
          fuenteTelefono: 18,
          fuenteIccid: 10,
          fuenteFecha: 10
-      },
-      derecha: {
-         ancho: 9, // puntos
-         altoTotal: 50.25, // 23.25 + 13.5 + 13.5
-         fuenteActiva: 8,
-         fuenteCincuenta: 20
       }
+      // derecha: {
+      //    ancho: 9, // puntos
+      //    altoTotal: 50.25, // 23.25 + 13.5 + 13.5
+      //    fuenteActiva: 8,
+      //    fuenteCincuenta: 20
+      // }
    };
 
    // Parsear datos de texto
@@ -76,15 +76,15 @@ const TemplateExport = ({ open, onClose, data }) => {
       const datos = [];
 
       for (let i = 0; i < lineas.length; i += 3) {
-         if (i + 2 < lineas.length) {
-            datos.push({
-               id: datos.length + 1,
-               celular: lineas[i].trim(),
-               iccid: lineas[i + 1].trim(),
-               fecha: lineas[i + 2].replace("VIG. ", "").trim(),
-               nombre: `Chip ${datos.length + 1}`
-            });
-         }
+         // if (i + 2 < lineas.length) {
+         datos.push({
+            id: datos.length + 1,
+            celular: lineas[i].trim(),
+            iccid: lineas[i + 1].trim(),
+            fecha: lineas[i + 2].replace("VIG. ", "").trim(),
+            nombre: `Chip ${datos.length + 1}`
+         });
+         // }
       }
 
       return datos;
@@ -94,7 +94,7 @@ const TemplateExport = ({ open, onClose, data }) => {
    React.useEffect(() => {
       if (open && data) {
          let datosParseados = data;
-         console.log("🚀 ~ TemplateExport ~ data:", data)
+         // console.log("🚀 ~ TemplateExport ~ data:", data);
 
          // Si data es texto plano, parsearlo
          if (typeof data === "string") {
@@ -155,7 +155,7 @@ const TemplateExport = ({ open, onClose, data }) => {
       switch (tipo) {
          case "telefono":
             return {
-               font: { name: "Arial", sz: medidas.izquierda.fuenteTelefono, bold: true },
+               font: { name: "Calibri", sz: medidas.izquierda.fuenteTelefono, bold: true },
                alignment: { vertical: "center", horizontal: "center" },
                border: configuracion.mostrarBordes
                   ? {
@@ -167,7 +167,7 @@ const TemplateExport = ({ open, onClose, data }) => {
             };
          case "iccid":
             return {
-               font: { name: "Arial", sz: medidas.izquierda.fuenteIccid },
+               font: { name: "Calibri", sz: medidas.izquierda.fuenteIccid },
                alignment: { vertical: "center", horizontal: "center" },
                border: configuracion.mostrarBordes
                   ? {
@@ -178,7 +178,7 @@ const TemplateExport = ({ open, onClose, data }) => {
             };
          case "fecha":
             return {
-               font: { name: "Arial", sz: medidas.izquierda.fuenteFecha, bold: true },
+               font: { name: "Calibri", sz: medidas.izquierda.fuenteFecha, bold: true },
                alignment: { vertical: "center", horizontal: "center" },
                border: configuracion.mostrarBordes
                   ? {
@@ -188,26 +188,26 @@ const TemplateExport = ({ open, onClose, data }) => {
                     }
                   : {}
             };
-         case "activa":
-            // Texto con dos tamaños diferentes
-            const lines = valor.split(" CON ");
-            return {
-               font: { name: "Arial", bold: true, color: { rgb: configuracion.colorTexto } },
-               fill: { fgColor: { rgb: configuracion.colorFondo } },
-               alignment: {
-                  vertical: "center",
-                  horizontal: "center",
-                  wrapText: true
-               },
-               border: configuracion.mostrarBordes
-                  ? {
-                       top: { style: "medium", color: { rgb: "000000" } },
-                       left: { style: "medium", color: { rgb: "000000" } },
-                       right: { style: "medium", color: { rgb: "000000" } },
-                       bottom: { style: "medium", color: { rgb: "000000" } }
-                    }
-                  : {}
-            };
+         // case "activa":
+         //    // Texto con dos tamaños diferentes
+         //    const lines = valor.split(" CON ");
+         //    return {
+         //       font: { name: "Arial", bold: true, color: { rgb: configuracion.colorTexto } },
+         //       fill: { fgColor: { rgb: configuracion.colorFondo } },
+         //       alignment: {
+         //          vertical: "center",
+         //          horizontal: "center",
+         //          wrapText: true
+         //       },
+         //       border: configuracion.mostrarBordes
+         //          ? {
+         //               top: { style: "medium", color: { rgb: "000000" } },
+         //               left: { style: "medium", color: { rgb: "000000" } },
+         //               right: { style: "medium", color: { rgb: "000000" } },
+         //               bottom: { style: "medium", color: { rgb: "000000" } }
+         //            }
+         //          : {}
+         //    };
          default:
             return {};
       }
@@ -221,7 +221,7 @@ const TemplateExport = ({ open, onClose, data }) => {
       }
 
       const plantilla = plantillas[tipoPlantilla];
-      const etiquetasPorFila = tipoPlantilla === "PLANTILLA TABLOIDE" ? 7 : 5;
+      const etiquetasPorFila = tipoPlantilla === "PLANTILLA TABLOIDE" ? 11 : 7;
       const matrizVistaPrevia = [];
 
       elementosSeleccionados.slice(0, 6).forEach((elemento, index) => {
@@ -253,15 +253,15 @@ const TemplateExport = ({ open, onClose, data }) => {
          };
 
          // ACTIVA CON $50 (celda combinada)
-         matrizVistaPrevia[filaBase][columnaBase + 1] = {
-            valor: "ACTIVA CON $50",
-            tipo: "activa",
-            altura: medidas.derecha.altoTotal,
-            esCombinada: true,
-            filaInicio: filaBase,
-            filaFin: filaBase + 2,
-            columnaInicio: columnaBase + 1
-         };
+         // matrizVistaPrevia[filaBase][columnaBase + 1] = {
+         //    valor: "ACTIVA CON $50",
+         //    tipo: "activa",
+         //    altura: medidas.derecha.altoTotal,
+         //    esCombinada: true,
+         //    filaInicio: filaBase,
+         //    filaFin: filaBase + 2,
+         //    columnaInicio: columnaBase + 1
+         // };
       });
 
       setVistaPreviaGenerada({
@@ -284,7 +284,7 @@ const TemplateExport = ({ open, onClose, data }) => {
 
       try {
          const plantilla = plantillas[tipoPlantilla];
-         const etiquetasPorFila = tipoPlantilla === "PLANTILLA TABLOIDE" ? 7 : 5;
+         const etiquetasPorFila = tipoPlantilla === "PLANTILLA TABLOIDE" ? 11 : 7;
          const maxElementosPorHoja = plantilla.etiquetasPorHoja;
          const totalHojas = Math.ceil(elementosSeleccionados.length / maxElementosPorHoja);
 
@@ -303,16 +303,19 @@ const TemplateExport = ({ open, onClose, data }) => {
             // Configurar anchos de columna
             for (let col = 0; col < plantilla.columnas; col++) {
                colWidths.push({
-                  wch:
-                     col % 2 === 0
-                        ? medidas.izquierda.ancho /* * 0.75 */ // Conversión aproximada puntos a píxeles
-                        : medidas.derecha.ancho /* * 0.75 */
+                  wch: medidas.izquierda.ancho /* * 0.75 */ // Conversión aproximada puntos a píxeles
                });
+               // colWidths.push({
+               //    wch:
+               //       col % 2 === 0
+               //          ? medidas.izquierda.ancho /* * 0.75 */ // Conversión aproximada puntos a píxeles
+               //          : medidas.derecha.ancho /* * 0.75 */
+               // });
             }
 
             elementosHoja.forEach((elemento, index) => {
                const filaBase = Math.floor(index / etiquetasPorFila) * 3;
-               const columnaBase = (index % etiquetasPorFila) * 2;
+               const columnaBase = (index % etiquetasPorFila) * 1; //(index % etiquetasPorFila) * 2;
 
                // Configurar altos de fila
                rowHeights[filaBase] = { hch: medidas.izquierda.altoTelefono /* * 0.75 */ };
@@ -341,37 +344,38 @@ const TemplateExport = ({ open, onClose, data }) => {
                };
 
                // ACTIVA CON $50
-               if (!wsData[filaBase]) wsData[filaBase] = [];
-               wsData[filaBase][columnaBase + 1] = {
-                  v: "ACTIVA CON $50",
-                  s: {
-                     font: {
-                        name: "Arial",
-                        bold: true,
-                        color: { rgb: configuracion.colorTexto },
-                        sz: medidas.derecha.fuenteActiva
-                     },
-                     fill: { fgColor: { rgb: configuracion.colorFondo } },
-                     alignment: {
-                        vertical: "center",
-                        horizontal: "center",
-                        wrapText: true
-                     },
-                     border: configuracion.mostrarBordes
-                        ? {
-                             top: { style: "medium", color: { rgb: "000000" } },
-                             bottom: { style: "medium", color: { rgb: "000000" } },
-                             left: { style: "medium", color: { rgb: "000000" } },
-                             right: { style: "medium", color: { rgb: "000000" } }
-                          }
-                        : {}
-                  }
-               };
+               // if (!wsData[filaBase]) wsData[filaBase] = [];
+               // wsData[filaBase][columnaBase + 1] = {
+               //    v: "ACTIVA CON $50",
+               //    s: {
+               //       font: {
+               //          name: "Arial",
+               //          bold: true,
+               //          color: { rgb: configuracion.colorTexto },
+               //          sz: medidas.derecha.fuenteActiva
+               //       },
+               //       fill: { fgColor: { rgb: configuracion.colorFondo } },
+               //       alignment: {
+               //          vertical: "center",
+               //          horizontal: "center",
+               //          wrapText: true
+               //       },
+               //       border: configuracion.mostrarBordes
+               //          ? {
+               //               top: { style: "medium", color: { rgb: "000000" } },
+               //               bottom: { style: "medium", color: { rgb: "000000" } },
+               //               left: { style: "medium", color: { rgb: "000000" } },
+               //               right: { style: "medium", color: { rgb: "000000" } }
+               //            }
+               //          : {}
+               //    }
+               // };
 
                // Merge para celda derecha (3 filas)
                merges.push({
                   s: { r: filaBase, c: columnaBase + 1 },
-                  e: { r: filaBase + 2, c: columnaBase + 1 }
+                  e: { r: filaBase, c: columnaBase + 1 }
+                  // e: { r: filaBase + 2, c: columnaBase + 1 }
                });
             });
 
@@ -521,10 +525,10 @@ const TemplateExport = ({ open, onClose, data }) => {
                                                    celda.tipo === "telefono"
                                                       ? "1rem"
                                                       : celda.tipo === "iccid"
-                                                      ? "0.55rem"
-                                                      : celda.tipo === "fecha"
-                                                      ? "0.7rem"
-                                                      : "0.75rem",
+                                                        ? "0.55rem"
+                                                        : celda.tipo === "fecha"
+                                                          ? "0.7rem"
+                                                          : "0.75rem",
                                                 fontStyle: celda.tipo === "fecha" ? "italic" : "normal"
                                              }}
                                           >
@@ -565,12 +569,12 @@ const TemplateExport = ({ open, onClose, data }) => {
                            {medidas.izquierda.ancho} × {medidas.izquierda.altoFecha} pt
                         </span>
                      </div>
-                     <div className="flex justify-between">
+                     {/* <div className="flex justify-between">
                         <span className="text-gray-600">ACTIVA CON $50:</span>
                         <span className="font-medium">
                            {medidas.derecha.ancho} × {medidas.derecha.altoTotal} pt
                         </span>
-                     </div>
+                     </div> */}
                   </div>
                </Paper>
 
@@ -582,24 +586,24 @@ const TemplateExport = ({ open, onClose, data }) => {
                   <div className="space-y-1 text-sm">
                      <div className="flex justify-between">
                         <span className="text-gray-600">Teléfono:</span>
-                        <span className="font-medium">Arial {medidas.izquierda.fuenteTelefono}pt Bold</span>
+                        <span className="font-medium">Calibri {medidas.izquierda.fuenteTelefono}pt Bold</span>
                      </div>
                      <div className="flex justify-between">
                         <span className="text-gray-600">ICCID:</span>
-                        <span className="font-medium">Arial {medidas.izquierda.fuenteIccid}pt</span>
+                        <span className="font-medium">Calibri {medidas.izquierda.fuenteIccid}pt</span>
                      </div>
                      <div className="flex justify-between">
                         <span className="text-gray-600">Fecha:</span>
-                        <span className="font-medium">Arial {medidas.izquierda.fuenteFecha}pt Bold</span>
+                        <span className="font-medium">Calibri {medidas.izquierda.fuenteFecha}pt Bold</span>
                      </div>
-                     <div className="flex justify-between">
+                     {/* <div className="flex justify-between">
                         <span className="text-gray-600">ACTIVA CON:</span>
                         <span className="font-medium">Arial {medidas.derecha.fuenteActiva}pt Bold</span>
                      </div>
                      <div className="flex justify-between">
                         <span className="text-gray-600">$50:</span>
                         <span className="font-medium">Arial {medidas.derecha.fuenteCincuenta}pt Bold</span>
-                     </div>
+                     </div> */}
                   </div>
                </Paper>
 
@@ -669,7 +673,7 @@ const TemplateExport = ({ open, onClose, data }) => {
                   </Grid>
 
                   {/* Lado derecho */}
-                  <Grid
+                  {/* <Grid
                      className="border-black border-2 border-l-0 p-1 flex items-center justify-center text-white"
                      style={{
                         backgroundColor: `#${configuracion.colorFondo}`
@@ -680,7 +684,7 @@ const TemplateExport = ({ open, onClose, data }) => {
                         <div className="text-xs font-bold">ACTIVA CON</div>
                         <div className="text-2xl font-bold">$50</div>
                      </div>
-                  </Grid>
+                  </Grid> */}
                </Grid>
             </Box>
          </Box>
@@ -789,12 +793,12 @@ const TemplateExport = ({ open, onClose, data }) => {
                            </Select>
                         </FormControl>
                         <Alert severity="info" sx={{ fontSize: 12 }}>
-                           Cada etiqueta ocupa 3 filas × 2 columnas
+                           Cada etiqueta ocupa 3 filas × 1 columnas
                         </Alert>
                      </Box>
 
                      {/* Configuración de colores */}
-                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                     <Box sx={{ display: "none", flexDirection: "column", gap: 1 }}>
                         <Typography variant="subtitle1" className="font-bold flex items-center gap-2">
                            <FormatColorFill className="text-blue-500" />
                            Color de Fondo
@@ -883,7 +887,7 @@ const TemplateExport = ({ open, onClose, data }) => {
                         />
 
                         {/* LISTA */}
-                        <Box className="overflow-auto max-h-[260px] border border-gray-400 rounded-lg" ref={listRef}>
+                        <Box className="overflow-auto max-h-[410px] border border-gray-400 rounded-lg" ref={listRef}>
                            <List dense>
                               {elementosFiltrados.map((elemento) => (
                                  <ListItem

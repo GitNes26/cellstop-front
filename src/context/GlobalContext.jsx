@@ -13,6 +13,10 @@ export const colorPrimaryDark = "#a46c38";
 export const colorSecondaryMain = "#ad4432";
 export const colorSecondaryDark = "#923929";
 export const colorSecondaryLight = "#fdf3f1";
+export const colorTableHeader = {
+   bg: "#034AAB",
+   text: "#f8fafc"
+};
 
 export const ROLE_SUPER_ADMIN = 1;
 export const ROLE_ADMIN = 2;
