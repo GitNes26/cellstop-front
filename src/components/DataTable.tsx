@@ -602,6 +602,145 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    };
    //#endregion EXPORTAR
 
+   interface ActionItem {
+      label: string;
+      iconName: string;
+      permission: boolean;
+      handleOnClick: () => void;
+      color?: string;
+   }
+
+   interface RowDataWithActions {
+      id: string | number;
+      active?: boolean;
+      actions?: ActionItem[];
+      [key: string]: any;
+   }
+
+   interface MenuItemModel {
+      label: string;
+      icon: string;
+      command: () => void;
+      style?: React.CSSProperties;
+   }
+
+   const toastMultiple = useRef<ToastPrime>(null);
+   const MoreActionsMultiple = (rowData: RowDataWithActions): JSX.Element => {
+      const menuRef = useRef<Menu>(null);
+      // const op = useRef<OverlayPanel>(null);
+      const nameElement = rowData[columns[indexColumnName]?.field] || "";
+      // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
+
+      useEffect(() => {
+         return () => {
+            if (menuRef.current) {
+               menuRef?.current?.hide();
+            }
+         };
+      }, []);
+
+      const itemsActions = (rowData.actions || [])
+         .filter((action) => action.permission)
+         .map((action) => ({
+            label: action.label,
+            icon: `pi ${action.iconName.toLowerCase()}`,
+            command: action.handleOnClick,
+            style: { color: action.color || "inherit" }
+         }));
+
+      const items: MenuItem[] = [
+         {
+            label: `${singularName}: ${String(nameElement).substring(0, 20)}${String(nameElement).length > 20 ? "..." : ""}`,
+            items: itemsActions
+         }
+      ];
+
+      return (
+         <div className="flex justify-center">
+            {auth.role_id === ROLE_SUPER_ADMIN && (
+               <Tooltip title={rowData.active ? "Desactivar" : "Reactivar"} placement="left" arrow>
+                  <Button color="primary" onClick={() => handleClickDisEnable?.(rowData.id)} sx={{ p: 0 }}>
+                     <Switch checked={Boolean(rowData.active)} />
+                  </Button>
+               </Tooltip>
+            )}
+
+            <ButtonPrime
+               key={`btn-actions-${rowData.id}`}
+               icon="pi pi-ellipsis-v"
+               onClick={(e) => menuRef.current?.toggle(e)}
+               severity="secondary"
+               text
+               disabled={itemsActions.length === 0}
+               aria-haspopup={"menu"}
+            />
+            <Menu key={`<actions-${rowData.id}`} model={items} popup ref={menuRef} onAuxClickCapture={(e) => console.log(e)} />
+            <ButtonPrime
+               key={`btn-actions-${rowData.id}`}
+               icon="pi pi-ellipsis-v"
+               onClick={(e) => menuRef.current?.toggle(e)}
+               severity="secondary"
+               text
+               disabled={itemsActions.length === 0}
+               aria-haspopup={"menu"}
+            />
+            {/* OverlayPanel estilizado como Menu de PrimeReact */}
+            {/* <OverlayPanel ref={op} dismissable showCloseIcon={false} style={{ padding: " 0 !important" }} className="p-0 menu-context-datatable">
+               <div
+                  className="p-menu"
+                  style={{
+                     minWidth: "250px",
+                     border: "none",
+                     boxShadow: "var(--overlay-shadow)",
+                     background: "var(--surface-overlay)"
+                  }}
+               >
+                  {/* Encabezado con el nombre del registro * /}
+                  {nameElement && (
+                     <>
+                        <Tooltip key={`key-${nameElement}`} title={nameElement}>
+                           <div className="p-submenu-header text-base" style={{ fontWeight: "bold", padding: "0 0.5rem" }}>
+                              {singularName}: {String(nameElement).substring(0, 20)}
+                              {String(nameElement).length > 20 ? "..." : ""}
+                           </div>
+                        </Tooltip>
+                        <Divider style={{ paddingBlock: 0, margin: 0 }} />
+                     </>
+                  )}
+
+                  {/* Lista de acciones * /}
+                  <ul className="p-menu-list p-0 m-0" style={{ listStyle: "none" }}>
+                     {rowData?.actions
+                        ?.filter((action) => action.permission)
+                        .map((action, idx) => (
+                           <li key={idx} className="p-menuitem">
+                              <ButtonPrime
+                                 label={action.label}
+                                 icon={`pi ${action.iconName}`}
+                                 onClick={() => {
+                                    action.handleOnClick();
+                                    op.current?.hide();
+                                 }}
+                                 text
+                                 className="p-menuitem-link hover:p-menuitem-link-active"
+                                 style={{
+                                    justifyContent: "flex-start",
+                                    width: "100%",
+                                    padding: "0.75rem 1rem",
+                                    fontSize: "1rem",
+                                    borderRadius: 0,
+                                    color: action.color || "MenuText"
+                                 }}
+                              />
+                           </li>
+                        ))}
+                  </ul>
+               </div>
+            </OverlayPanel> */}
+         </div>
+      );
+   };
+
    // const onGlobalFilterChange = (e) => {
    //    try {
    //       let value = e.target.value;
@@ -674,6 +813,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
    const header = (
       <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", alignItems: "center", paddingInline: 1 }}>
+         <MoreActionsMultiple selectData={selectedData} />
          {btnDeleteMultiple && (
             <Tooltip title="Eliminar Seleccionados" placement="top">
                <span>
@@ -757,28 +897,6 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
          )}
       </Box>
    );
-
-   interface ActionItem {
-      label: string;
-      iconName: string;
-      permission: boolean;
-      handleOnClick: () => void;
-      color?: string;
-   }
-
-   interface RowDataWithActions {
-      id: string | number;
-      active?: boolean;
-      actions?: ActionItem[];
-      [key: string]: any;
-   }
-
-   interface MenuItemModel {
-      label: string;
-      icon: string;
-      command: () => void;
-      style?: React.CSSProperties;
-   }
 
    const toast = useRef<ToastPrime>(null);
    const ActionsBodyTemplate = (rowData: RowDataWithActions): JSX.Element => {

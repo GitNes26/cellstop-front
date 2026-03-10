@@ -1063,7 +1063,8 @@ const ProductDT = ({}) => {
             btnAdd={false /* auth.permissions.create */}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
-            btnDeleteMultiple={false}
+            btnDeleteMultiple={true}
+            handleClickDisEnable={handleClickDisEnable}
             refreshTable={getAllProducts}
             scrollHeight="64vh"
             btnsExport={true}

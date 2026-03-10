@@ -530,6 +530,7 @@ const PointOfSaleDT = () => {
          headerFilters={true}
          btnAdd={auth.permissions.create}
          handleClickAdd={handleClickAdd}
+         handleClickDisEnable={handleClickDisEnable}
          rowEdit={false}
          refreshTable={getAllPointsOfSale}
          scrollHeight="67vh"
