@@ -620,15 +620,18 @@ const ProductDT = ({}) => {
       }
    };
 
-   const handleClickCreateMultipleManuallyPortabilities = async (id, name) => {
+   const handleClickCreateMultipleManuallyPortabilities = async (obj) => {
+      console.log("🚀 ~ handleClickCreateMultipleManuallyPortabilities ~ obj:", obj);
       try {
-         // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
+         // validar si el obj, es tipo objeto todo queda igual, pero si es un array, hacer que muestre las propiedades de todos los elementos
+         const isArray = Array.isArray(obj);
+         // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${obj.celular}?`, "CONFIRMAR"))
          mySwal
             .fire({
                ...QuestionAlertConfig(
                   `
          <div style="text-align: center;">
-            <h3>¿Estás seguro de portar manualmente el producto ${name}?</h3>
+            <h3>¿Estás seguro de portar manualmente el producto ${isArray ? obj.map((o) => o.celular) : obj.celular}?</h3>
             <br />
             <label for="executedAt" style="display: block; margin-bottom: 8px; font-weight: 500;">
             Fecha de ejecución:
@@ -668,7 +671,7 @@ const ProductDT = ({}) => {
                if (result.isConfirmed) {
                   setIsLoading(true);
                   const ids = [];
-                  ids.push(id);
+                  ids.push(obj.id);
                   const res = await createMultipleManuallyPortabilities({ ids, executed_at: result?.value?.executed_at });
                   // console.log('🚀 ~ handleClickLogout ~ res:', res);
                   if (!res) return setIsLoading(false);
@@ -704,7 +707,7 @@ const ProductDT = ({}) => {
       }
    };
 
-   const handleClickCreateMultipleManuallyAssignments = async (id, obj) => {
+   const handleClickCreateMultipleManuallyAssignments = async (obj) => {
       try {
          // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
          // Construir lista de opciones con lotes cargados (lista desplegable estilizada)
@@ -834,7 +837,7 @@ const ProductDT = ({}) => {
                if (result.isConfirmed) {
                   setIsLoading(true);
                   const ids = [];
-                  ids.push(id);
+                  ids.push(obj.id);
                   const res = await createMultipleManuallyAssignments({ ids, executed_at: result?.value?.executed_at, lote_id: result?.value?.lote_id });
                   if (!res) return setIsLoading(false);
                   if (res.errors) {
@@ -923,7 +926,8 @@ const ProductDT = ({}) => {
                   //    tooltip: "",
                   //    handleOnClick: () => handleClickEdit(obj.id),
                   //    color: "blue",
-                  //    permission: auth.permissions.update
+                  //    permission: auth.permissions.update,
+                  //    multiple:false
                   // },
                   {
                      label: "Ver detalles",
@@ -931,7 +935,8 @@ const ProductDT = ({}) => {
                      tooltip: "",
                      handleOnClick: () => handleClickDetails(obj.id),
                      color: "primary",
-                     permission: true
+                     permission: true,
+                     multiple: false
                   },
                   {
                      label: "Ver movimientos",
@@ -939,23 +944,26 @@ const ProductDT = ({}) => {
                      tooltip: "",
                      handleOnClick: () => handleClickMovements(obj),
                      color: "primary",
-                     permission: true
+                     permission: true,
+                     multiple: false
                   },
                   register.destination != "Portado" && {
                      label: "Portar Manualmente",
                      iconName: "pi-arrow-right-arrow-left",
                      tooltip: "",
-                     handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj.id, obj.celular),
+                     handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj),
                      color: "primary",
-                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"])
+                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"]),
+                     multiple: true
                   },
                   register.seller_id == null && {
                      label: "Asignación Manual",
                      iconName: "pi-tags",
                      tooltip: "",
-                     handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj.id, obj),
+                     handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj),
                      color: "primary",
-                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"])
+                     permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"]),
+                     multiple: true
                   },
                   {
                      label: "Eliminar",
@@ -963,7 +971,8 @@ const ProductDT = ({}) => {
                      tooltip: "",
                      handleOnClick: () => handleClickDelete(obj.id, obj.celular),
                      color: "red",
-                     permission: auth.permissions.delete
+                     permission: auth.permissions.delete,
+                     multiple: false
                   }
                ];
                return register;
@@ -1072,6 +1081,7 @@ const ProductDT = ({}) => {
             singularName={singularName}
             indexColumnName={0}
             showLoading={isLoading}
+            // actions={data[0]?.actions || []}
             // toolBar={auth.more_permissions.includes("Exportar Lista Pública") && status == "aprobadas" ? true : false}
             // positionBtnsToolbar="center"
             // toolbarContentCenter={toolbarContentCenter}

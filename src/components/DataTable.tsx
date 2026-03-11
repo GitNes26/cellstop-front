@@ -131,6 +131,29 @@ function CustomLoadingOverlay() {
    );
 }
 
+interface ActionItem {
+   label: string;
+   iconName: string;
+   permission: boolean;
+   multiple: boolean;
+   handleOnClick: (obj?: any) => void;
+   color?: string;
+}
+
+interface RowDataWithActions {
+   id: string | number;
+   active?: boolean;
+   actions?: ActionItem[];
+   [key: string]: any;
+}
+
+interface MenuItemModel {
+   label: string;
+   icon: string;
+   command: () => void;
+   style?: React.CSSProperties;
+}
+
 interface DataTableComponentProps {
    idName?: string;
    columns: Array<{
@@ -174,6 +197,7 @@ interface DataTableComponentProps {
    handleClickDeleteMultipleContinue?: (selectedData: any[]) => Promise<void>;
    scrollHeight?: string;
    showLoading?: boolean;
+   // actionItems?: ActionItem[];
 }
 
 /**
@@ -243,7 +267,9 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    singularName = "Registro",
    indexColumnName = 2,
    showLoading = false
+   // actionItems = []
 }) => {
+   // console.log("🚀 ~ DataTableComponent ~ data:", data)
    const { auth } = useAuthContext();
 
    const { folio } = useParams();
@@ -602,34 +628,15 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    };
    //#endregion EXPORTAR
 
-   interface ActionItem {
-      label: string;
-      iconName: string;
-      permission: boolean;
-      handleOnClick: () => void;
-      color?: string;
-   }
-
-   interface RowDataWithActions {
-      id: string | number;
-      active?: boolean;
-      actions?: ActionItem[];
-      [key: string]: any;
-   }
-
-   interface MenuItemModel {
-      label: string;
-      icon: string;
-      command: () => void;
-      style?: React.CSSProperties;
-   }
-
    const toastMultiple = useRef<ToastPrime>(null);
-   const MoreActionsMultiple = (rowData: RowDataWithActions): JSX.Element => {
+   const MoreActionsMultiple = (/* { actionItems }: { actionItems: ActionItem[] } */): JSX.Element => {
+      const actionItems: ActionItem[] = data[0]?.actions;
+      // console.log("🚀 ~ MoreActionsMultiple ~ actionItems:", actionItems);
       const menuRef = useRef<Menu>(null);
       // const op = useRef<OverlayPanel>(null);
-      const nameElement = rowData[columns[indexColumnName]?.field] || "";
+      // const nameElement = rowData[columns[indexColumnName]?.field] || "";
       // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
+      console.log("selectedData", selectedData);
 
       useEffect(() => {
          return () => {
@@ -639,34 +646,27 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
          };
       }, []);
 
-      const itemsActions = (rowData.actions || [])
-         .filter((action) => action.permission)
+      const itemsActions = (actionItems || [])
+         .filter((action) => action?.permission && action.multiple)
          .map((action) => ({
-            label: action.label,
-            icon: `pi ${action.iconName.toLowerCase()}`,
-            command: action.handleOnClick,
-            style: { color: action.color || "inherit" }
+            label: action?.label,
+            icon: `pi ${action?.iconName.toLowerCase()}`,
+            // use closure over component state so the current array of selected
+            // rows is passed whenever the menu item is invoked
+            command: () => action?.handleOnClick(selectedData),
+            style: { color: action?.color || "inherit" }
          }));
 
       const items: MenuItem[] = [
          {
-            label: `${singularName}: ${String(nameElement).substring(0, 20)}${String(nameElement).length > 20 ? "..." : ""}`,
+            label: `${singularName} seleccionados`,
             items: itemsActions
          }
       ];
 
       return (
          <div className="flex justify-center">
-            {auth.role_id === ROLE_SUPER_ADMIN && (
-               <Tooltip title={rowData.active ? "Desactivar" : "Reactivar"} placement="left" arrow>
-                  <Button color="primary" onClick={() => handleClickDisEnable?.(rowData.id)} sx={{ p: 0 }}>
-                     <Switch checked={Boolean(rowData.active)} />
-                  </Button>
-               </Tooltip>
-            )}
-
             <ButtonPrime
-               key={`btn-actions-${rowData.id}`}
                icon="pi pi-ellipsis-v"
                onClick={(e) => menuRef.current?.toggle(e)}
                severity="secondary"
@@ -674,8 +674,8 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                disabled={itemsActions.length === 0}
                aria-haspopup={"menu"}
             />
-            <Menu key={`<actions-${rowData.id}`} model={items} popup ref={menuRef} onAuxClickCapture={(e) => console.log(e)} />
-            <ButtonPrime
+            <Menu model={items} popup ref={menuRef} onAuxClickCapture={(e) => console.log(e)} />
+            {/* <ButtonPrime
                key={`btn-actions-${rowData.id}`}
                icon="pi pi-ellipsis-v"
                onClick={(e) => menuRef.current?.toggle(e)}
@@ -683,7 +683,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                text
                disabled={itemsActions.length === 0}
                aria-haspopup={"menu"}
-            />
+            /> */}
             {/* OverlayPanel estilizado como Menu de PrimeReact */}
             {/* <OverlayPanel ref={op} dismissable showCloseIcon={false} style={{ padding: " 0 !important" }} className="p-0 menu-context-datatable">
                <div
@@ -813,7 +813,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
    const header = (
       <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", alignItems: "center", paddingInline: 1 }}>
-         <MoreActionsMultiple selectData={selectedData} />
+         <MoreActionsMultiple />
          {btnDeleteMultiple && (
             <Tooltip title="Eliminar Seleccionados" placement="top">
                <span>
