@@ -671,7 +671,7 @@ const ProductDT = ({}) => {
                if (result.isConfirmed) {
                   setIsLoading(true);
                   const ids = [];
-                  ids.push(obj.id);
+                  isArray ? obj.map((o) => ids.push(o.id)) : ids.push(obj.id);
                   const res = await createMultipleManuallyPortabilities({ ids, executed_at: result?.value?.executed_at });
                   // console.log('🚀 ~ handleClickLogout ~ res:', res);
                   if (!res) return setIsLoading(false);
@@ -709,6 +709,8 @@ const ProductDT = ({}) => {
 
    const handleClickCreateMultipleManuallyAssignments = async (obj) => {
       try {
+         // validar si el obj, es tipo objeto todo queda igual, pero si es un array, hacer que muestre las propiedades de todos los elementos
+         const isArray = Array.isArray(obj);
          // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
          // Construir lista de opciones con lotes cargados (lista desplegable estilizada)
          const lotesSelectByFolio = lotesSelect.filter((d) => Number(d.folio) === Number(obj.folio));
@@ -927,7 +929,7 @@ const ProductDT = ({}) => {
                   //    handleOnClick: () => handleClickEdit(obj.id),
                   //    color: "blue",
                   //    permission: auth.permissions.update,
-                  //    multiple:false
+                  //    multiple: null
                   // },
                   {
                      label: "Ver detalles",
@@ -936,7 +938,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickDetails(obj.id),
                      color: "primary",
                      permission: true,
-                     multiple: false
+                     multiple: null
                   },
                   {
                      label: "Ver movimientos",
@@ -945,7 +947,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickMovements(obj),
                      color: "primary",
                      permission: true,
-                     multiple: false
+                     multiple: null
                   },
                   register.destination != "Portado" && {
                      label: "Portar Manualmente",
@@ -954,7 +956,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickCreateMultipleManuallyPortabilities(obj),
                      color: "primary",
                      permission: includesInArray(auth.permissions.more_permissions, ["todas", "Portacion Manual"]),
-                     multiple: true
+                     multiple: (objs) => handleClickCreateMultipleManuallyPortabilities(objs)
                   },
                   register.seller_id == null && {
                      label: "Asignación Manual",
@@ -963,7 +965,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj),
                      color: "primary",
                      permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"]),
-                     multiple: true
+                     handleOnClick: (objs) => handleClickCreateMultipleManuallyAssignments(objs)
                   },
                   {
                      label: "Eliminar",
@@ -972,7 +974,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickDelete(obj.id, obj.celular),
                      color: "red",
                      permission: auth.permissions.delete,
-                     multiple: false
+                     multiple: null
                   }
                ];
                return register;

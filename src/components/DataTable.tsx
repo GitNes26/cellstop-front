@@ -135,9 +135,9 @@ interface ActionItem {
    label: string;
    iconName: string;
    permission: boolean;
-   multiple: boolean;
    handleOnClick: (obj?: any) => void;
    color?: string;
+   multiple?: (objs?: any) => void;
 }
 
 interface RowDataWithActions {
@@ -653,7 +653,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
             icon: `pi ${action?.iconName.toLowerCase()}`,
             // use closure over component state so the current array of selected
             // rows is passed whenever the menu item is invoked
-            command: () => action?.handleOnClick(selectedData),
+            command: () => action?.multiple(selectedData),
             style: { color: action?.color || "inherit" }
          }));
 
