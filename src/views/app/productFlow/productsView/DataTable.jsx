@@ -621,7 +621,7 @@ const ProductDT = ({}) => {
    };
 
    const handleClickCreateMultipleManuallyPortabilities = async (obj) => {
-      console.log("🚀 ~ handleClickCreateMultipleManuallyPortabilities ~ obj:", obj);
+      // console.log("🚀 ~ handleClickCreateMultipleManuallyPortabilities ~ obj:", obj);
       try {
          // validar si el obj, es tipo objeto todo queda igual, pero si es un array, hacer que muestre las propiedades de todos los elementos
          const isArray = Array.isArray(obj);
@@ -631,7 +631,7 @@ const ProductDT = ({}) => {
                ...QuestionAlertConfig(
                   `
          <div style="text-align: center;">
-            <h3>¿Estás seguro de portar manualmente el producto ${isArray ? obj.map((o) => o.celular) : obj.celular}?</h3>
+            <h3>¿Estás seguro de portar manualmente ${isArray && obj.length > 1 ? "los productos" : "el producto"} ${isArray ? obj.map((o) => o.celular) : obj.celular}?</h3>
             <br />
             <label for="executedAt" style="display: block; margin-bottom: 8px; font-weight: 500;">
             Fecha de ejecución:
@@ -708,12 +708,18 @@ const ProductDT = ({}) => {
    };
 
    const handleClickCreateMultipleManuallyAssignments = async (obj) => {
+      // console.log("🚀 ~ handleClickCreateMultipleManuallyAssignments ~ obj:", obj);
       try {
          // validar si el obj, es tipo objeto todo queda igual, pero si es un array, hacer que muestre las propiedades de todos los elementos
          const isArray = Array.isArray(obj);
+         // console.log("🚀 ~ handleClickCreateMultipleManuallyAssignments ~ isArray:", isArray);
          // mySwal.fire(QuestionAlertConfig(`¿Estas seguro de portar manualmente el producto ${name}?`, "CONFIRMAR"))
          // Construir lista de opciones con lotes cargados (lista desplegable estilizada)
-         const lotesSelectByFolio = lotesSelect.filter((d) => Number(d.folio) === Number(obj.folio));
+         const lotesSelectByFolio = isArray
+            ? lotesSelect.filter((d) => obj.some((item) => Number(item.folio) === Number(d.folio)))
+            : lotesSelect.filter((d) => Number(d.folio) === Number(obj.folio));
+
+         // console.log("🚀 ~ handleClickCreateMultipleManuallyAssignments ~ lotesSelectByFolio:", lotesSelectByFolio);
          const optionsListHTML = (lotesSelectByFolio || [])
             .map((l) => `<li data-id="${l.id}" class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm">${l.label || ""}</li>`)
             .join("");
@@ -723,7 +729,9 @@ const ProductDT = ({}) => {
                ...QuestionAlertConfig(
                   `
          <div class="w-full max-w-md mx-auto text-left">
-            <h3 class="text-lg font-semibold text-center mb-3">Asignación manual del producto <br/> cel:${obj.celular} | folio:${obj.folio}</h3>
+            <h3 class="text-lg font-semibold text-center mb-3">Asignación manual del producto <br/> 
+            ${isArray ? obj.map((o) => `cel:${o.celular} | folio:${o.folio}<br/>`) : `cel:${obj.celular} | folio:${obj.folio}`}
+            </h3>
             <label for="loteSearch" class="block text-sm font-medium text-gray-700 mb-1">Lote</label>
             <div class="relative">
                <div id="loteSelector" class="flex items-center justify-between border rounded px-3 py-2 bg-white cursor-pointer" tabindex="0">
@@ -839,7 +847,8 @@ const ProductDT = ({}) => {
                if (result.isConfirmed) {
                   setIsLoading(true);
                   const ids = [];
-                  ids.push(obj.id);
+                  isArray ? obj.map((o) => ids.push(o.id)) : ids.push(obj.id);
+
                   const res = await createMultipleManuallyAssignments({ ids, executed_at: result?.value?.executed_at, lote_id: result?.value?.lote_id });
                   if (!res) return setIsLoading(false);
                   if (res.errors) {
@@ -965,7 +974,7 @@ const ProductDT = ({}) => {
                      handleOnClick: () => handleClickCreateMultipleManuallyAssignments(obj),
                      color: "primary",
                      permission: includesInArray(auth.permissions.more_permissions, ["todas", "Asignacion Manual"]),
-                     handleOnClick: (objs) => handleClickCreateMultipleManuallyAssignments(objs)
+                     multiple: async (objs) => handleClickCreateMultipleManuallyAssignments(objs)
                   },
                   {
                      label: "Eliminar",
@@ -1074,8 +1083,9 @@ const ProductDT = ({}) => {
             btnAdd={false /* auth.permissions.create */}
             handleClickAdd={handleClickAdd}
             rowEdit={false}
-            btnDeleteMultiple={true}
+            btnDeleteMultiple={false}
             handleClickDisEnable={handleClickDisEnable}
+            btnMultipleActions={true}
             refreshTable={getAllProducts}
             scrollHeight="64vh"
             btnsExport={true}

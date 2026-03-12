@@ -195,6 +195,7 @@ interface DataTableComponentProps {
    showGridlines?: boolean;
    btnDeleteMultiple?: boolean;
    handleClickDeleteMultipleContinue?: (selectedData: any[]) => Promise<void>;
+   btnMultipleActions?: boolean;
    scrollHeight?: string;
    showLoading?: boolean;
    // actionItems?: ActionItem[];
@@ -262,6 +263,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    showGridlines = false,
    btnDeleteMultiple = false,
    handleClickDeleteMultipleContinue,
+   btnMultipleActions = false,
    scrollHeight = "65vh",
    fileNameExport = "datos",
    singularName = "Registro",
@@ -629,14 +631,11 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
    //#endregion EXPORTAR
 
    const toastMultiple = useRef<ToastPrime>(null);
-   const MoreActionsMultiple = (/* { actionItems }: { actionItems: ActionItem[] } */): JSX.Element => {
+   const MoreActionsMultiple = (): JSX.Element => {
       const actionItems: ActionItem[] = data[0]?.actions;
-      // console.log("🚀 ~ MoreActionsMultiple ~ actionItems:", actionItems);
       const menuRef = useRef<Menu>(null);
-      // const op = useRef<OverlayPanel>(null);
-      // const nameElement = rowData[columns[indexColumnName]?.field] || "";
       // console.log("🚀 ~ ActionsBodyTemplate ~ columns:", columns);
-      console.log("selectedData", selectedData);
+      // console.log("selectedData", selectedData);
 
       useEffect(() => {
          return () => {
@@ -653,27 +652,34 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
             icon: `pi ${action?.iconName.toLowerCase()}`,
             // use closure over component state so the current array of selected
             // rows is passed whenever the menu item is invoked
-            command: () => action?.multiple(selectedData),
+            command: async () => {
+               await action?.multiple(selectedData);
+               setSelectedData([]);
+            },
             style: { color: action?.color || "inherit" }
          }));
 
       const items: MenuItem[] = [
          {
-            label: `${singularName} seleccionados`,
+            label: `${singularName}s seleccionados`,
             items: itemsActions
          }
       ];
 
       return (
          <div className="flex justify-center">
-            <ButtonPrime
-               icon="pi pi-ellipsis-v"
-               onClick={(e) => menuRef.current?.toggle(e)}
-               severity="secondary"
-               text
-               disabled={itemsActions.length === 0}
-               aria-haspopup={"menu"}
-            />
+            <Tooltip title={"Opciones para registros seleccionados"}>
+               <ButtonPrime
+                  icon="pi pi-ellipsis-v"
+                  onClick={(e) => menuRef.current?.toggle(e)}
+                  severity="secondary"
+                  text
+                  // disabled={itemsActions.length === 0}
+                  disabled={!selectedData || !selectedData.length}
+                  style={{ color: !selectedData || !selectedData.length ? "gray" : "ButtonText", fontSize: "1.5rem" }}
+                  aria-haspopup={"menu"}
+               />
+            </Tooltip>
             <Menu model={items} popup ref={menuRef} onAuxClickCapture={(e) => console.log(e)} />
             {/* <ButtonPrime
                key={`btn-actions-${rowData.id}`}
@@ -813,7 +819,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
 
    const header = (
       <Box sx={{ display: "flex", gap: 2, justifyContent: "space-between", alignItems: "center", paddingInline: 1 }}>
-         <MoreActionsMultiple />
+         {btnMultipleActions && <MoreActionsMultiple />}
          {btnDeleteMultiple && (
             <Tooltip title="Eliminar Seleccionados" placement="top">
                <span>
@@ -1102,7 +1108,7 @@ export const DataTableComponent: React.FC<DataTableComponentProps> = ({
                metaKeySelection={true}
                className=" hover:bg-slate-500 text-xs"
             >
-               {btnDeleteMultiple && <Column selectionMode="multiple" exportable={false}></Column>}
+               {(btnDeleteMultiple || btnMultipleActions) && <Column selectionMode="multiple" exportable={false}></Column>}
                {columns.map((col, index) => {
                   // console.log("🚀 ~ rowIndex:", rowIndex);
                   // const textMuted = ["", null, undefined].includes(data[rowIndex]?.id);

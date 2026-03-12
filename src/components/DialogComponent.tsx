@@ -79,7 +79,7 @@ const DialogComponent: React.FC<DialogComponentProps> = ({
          >
             <DialogTitle my={0} py={0} sx={{ padding: 0, backgroundColor: "primary.main" }} className="flex flex-col py-1 text-base-content">
                <Toolbar sx={{ py: 0 }}>
-                  <Typography variant="h2" my={0} py={-10} sx={{ ml: 2, flex: 1, py: 0, pt: 0, pb: 0, padding: "0px 24px !important" }}>
+                  <Typography variant={isMobile ? "h4" : "h2"} my={0} py={-10} sx={{ ml: 2, flex: 1, py: 0, pt: 0, pb: 0, padding: "0px 10px !important" }}>
                      {modalTitle}
                   </Typography>
 

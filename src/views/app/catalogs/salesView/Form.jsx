@@ -10,6 +10,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { useGlobalContext } from "../../../../context/GlobalContext";
 import { useSaleContext } from "../../../../context/SaleContext"; // Nuevo contexto para ventas
 import EvidenceCapture from "../../../../components/forms/EvidenceCapture"; // Nuevo componente de cámara
+import { isMobile } from "react-device-detect";
 
 const checkAddInitialState = localStorage.getItem("checkAddSale") === "true";
 
@@ -217,7 +218,7 @@ const SaleForm = ({ container = "drawer", refreshSelect, openDialog, setOpenDial
                />
             </Drawer>
          ) : container === "modal" ? (
-            <DialogComponent open={openDialog} setOpen={setOpenDialog} modalTitle={formTitle}>
+            <DialogComponent open={openDialog} setOpen={setOpenDialog} modalTitle={formTitle} fullScreen={isMobile}>
                <Form
                   formData={formData}
                   validations={validations}

@@ -220,38 +220,6 @@ const Index = ({}) => {
                </Paper>
             </motion.div>
 
-            {/* Métricas Rápidas */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mb-8">
-               <Grid container spacing={2}>
-                  {quickMetrics.map((metric, index) => (
-                     <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
-                        <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }}>
-                           <Paper className="p-4 rounded-2xl shadow-xl border-0 h-full" sx={{}}>
-                              <Box className="flex items-center justify-between">
-                                 <Box>
-                                    <Typography variant="h4" fontWeight="800" className="text-base">
-                                       {metric.value}
-                                    </Typography>
-                                    <Typography variant="body2" className="text-base mt-1">
-                                       {metric.label}
-                                    </Typography>
-                                    <Chip
-                                       label={metric.change}
-                                       size="small"
-                                       color={metric.change.includes("+") ? "success" : metric.change.includes("-") ? "error" : "default"}
-                                       variant="outlined"
-                                       className="mt-2"
-                                    />
-                                 </Box>
-                                 <Box className="p-2 bg-blue-50 rounded-xl">{metric.icon}</Box>
-                              </Box>
-                           </Paper>
-                        </motion.div>
-                     </Grid>
-                  ))}
-               </Grid>
-            </motion.div>
-
             {/* Acciones Rápidas */}
             <motion.div variants={containerVariants} initial="hidden" animate="visible">
                <Typography variant="h5" fontWeight="700" className="text-base mb-6" mb={1}>
@@ -339,6 +307,38 @@ const Index = ({}) => {
                                  </AnimatePresence>
                               </Card>
                            </AnimatePresence>
+                        </motion.div>
+                     </Grid>
+                  ))}
+               </Grid>
+            </motion.div>
+
+            {/* Métricas Rápidas */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-8">
+               <Grid container spacing={2}>
+                  {quickMetrics.map((metric, index) => (
+                     <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+                        <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }}>
+                           <Paper className="p-4 rounded-2xl shadow-xl border-0 h-full" sx={{}}>
+                              <Box className="flex items-center justify-between">
+                                 <Box>
+                                    <Typography variant="h4" fontWeight="800" className="text-base">
+                                       {metric.value}
+                                    </Typography>
+                                    <Typography variant="body2" className="text-base mt-1">
+                                       {metric.label}
+                                    </Typography>
+                                    <Chip
+                                       label={metric.change}
+                                       size="small"
+                                       color={metric.change.includes("+") ? "success" : metric.change.includes("-") ? "error" : "default"}
+                                       variant="outlined"
+                                       className="mt-2"
+                                    />
+                                 </Box>
+                                 <Box className="p-2 bg-blue-50 rounded-xl">{metric.icon}</Box>
+                              </Box>
+                           </Paper>
                         </motion.div>
                      </Grid>
                   ))}

@@ -12,6 +12,7 @@ import { usePointOfSaleContext } from "../../../../context/PointOfSaleContext";
 import UserForm from "../../settings/usersView/Form";
 import useFetch from "../../../../hooks/useFetch";
 import { useUserContext } from "../../../../context/UserContext";
+import { isMobile } from "react-device-detect";
 
 const checkAddInitialState = localStorage.getItem("checkAdd") == "true" ? true : false || false;
 
@@ -411,7 +412,7 @@ const PointOfSaleForm = ({ container = "drawer", refreshSelect, openDialog, setO
                      </Tooltip>
                   </Grid>
                }
-               fullScreen={false}
+               fullScreen={isMobile}
                height={undefined}
                formikRef={undefined}
                textBtnSubmit={undefined}

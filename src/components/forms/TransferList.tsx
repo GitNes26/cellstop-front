@@ -20,7 +20,7 @@ import {
    IconButton
 } from "@mui/material";
 import { Theme } from "@emotion/react";
-import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search, Refresh } from "@mui/icons-material";
+import { KeyboardArrowLeftRounded, KeyboardArrowRightRounded, Search, Refresh, AddTaskSharp } from "@mui/icons-material";
 
 interface ChipItem {
    id: number;
@@ -101,6 +101,11 @@ interface CustomListProps {
    isLoading?: boolean;
    handleToggleAll: (items: readonly number[]) => () => void;
    handleToggle: (value: number) => () => void;
+   /**
+    * Se dispara cuando el usuario quiere seleccionar los primeros N elementos
+    * del listado (antes de filtrar). Recibe el número solicitado.
+    */
+   onSelectFirstN?: (n: number) => void;
    actionTransfer?: "Asignacion" | "Visita" | null;
 }
 
@@ -121,6 +126,7 @@ const CustomList: React.FC<CustomListProps> = memo(
       isLoading,
       handleToggleAll,
       handleToggle,
+      onSelectFirstN,
       actionTransfer
    }) => {
       const isRightList = useMemo(() => title !== labelLeft, [title, labelLeft]);
@@ -162,6 +168,16 @@ const CustomList: React.FC<CustomListProps> = memo(
                const firstId = filteredItems[0].id;
                handleToggle(firstId)();
             }
+         }
+      };
+
+      // estado para el input de cantidad a seleccionar
+      const [selectCount, setSelectCount] = useState(0);
+
+      const handleSelectClick = () => {
+         if (onSelectFirstN) {
+            const n = Math.max(0, Math.min(selectCount, items.length));
+            onSelectFirstN(n);
          }
       };
 
@@ -212,6 +228,50 @@ const CustomList: React.FC<CustomListProps> = memo(
                   }}
                />
             </Box>
+            {/* área para seleccionar primeros N elementos y botones rápidos */}
+            {(onSelectFirstN || true) && (
+               <Box sx={{ px: 2, pt: 1, pb: 1, mt: 1, display: "flex", gap: 1, alignItems: "center", overflowBlock: "auto" }}>
+                  <TextField
+                     type="number"
+                     size="small"
+                     label="Seleccionar"
+                     value={selectCount}
+                     onChange={(e) => {
+                        const v = parseInt(e.target.value, 10);
+                        setSelectCount(isNaN(v) ? 0 : v);
+                     }}
+                     disabled={disabled}
+                     sx={{ minWidth: "120px" }}
+                     inputProps={{ min: 0, max: items.length }}
+                     slotProps={{
+                        input: {
+                           endAdornment: (
+                              <IconButton size="small" color="primary" onClick={handleSelectClick} disabled={disabled || !onSelectFirstN}>
+                                 <AddTaskSharp fontSize="small" className="hover:scale-90 active:scale-105" />
+                              </IconButton>
+                           )
+                        }
+                     }}
+                  />
+                  {/* <Button size="small" variant="outlined" onClick={handleSelectClick} disabled={disabled || !onSelectFirstN}>
+                     <AddTaskSharp />
+                  </Button> */}
+                  {[10, 25, 50, 100, 200].map((v) => (
+                     <Button
+                        key={v}
+                        size="small"
+                        variant="outlined"
+                        onClick={() => {
+                           setSelectCount(v);
+                           onSelectFirstN?.(Math.min(v, items.length));
+                        }}
+                        disabled={disabled || !onSelectFirstN}
+                     >
+                        {v}
+                     </Button>
+                  ))}
+               </Box>
+            )}
             <Divider />
             <List
                sx={{
@@ -332,6 +392,26 @@ const TransferList: React.FC<TransferListProps> = ({
       if (handleClickLeft) handleClickLeft();
    }, [left, right, rightChecked, formik, idNameLeft, idNameRight, handleClickLeft]);
 
+   // permite seleccionar los primeros N ids de uno u otro lado
+   // al seleccionar una cantidad menor debemos también quitar de `checked`
+   // todos los elementos del mismo lado que queden fuera de ese rango.
+   const handleSelectFirstN = useCallback(
+      (side: "left" | "right", n: number) => {
+         const source = side === "left" ? left : right;
+         const count = Math.max(0, Math.min(n, source.length));
+         const toSelect = source.slice(0, count);
+
+         setChecked((prev) => {
+            // separar los ids marcados que pertenecen al otro lado para
+            // no perder la selección de ese lado.
+            const otherSideChecked = prev.filter((id) => !source.includes(id));
+            // combinar con los primeros N del lado actual
+            return [...otherSideChecked, ...toSelect];
+         });
+      },
+      [left, right]
+   );
+
    // Función para recargar data
    const handleRefetch = useCallback(async () => {
       if (!onRefetch || isRefetching) return;
@@ -399,6 +479,7 @@ const TransferList: React.FC<TransferListProps> = ({
                isLoading={isLoading}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
+               onSelectFirstN={(n) => handleSelectFirstN("left", n)}
                actionTransfer={actionTransfer}
             />
          </Grid>
@@ -445,6 +526,7 @@ const TransferList: React.FC<TransferListProps> = ({
                isLoading={isLoading}
                handleToggleAll={handleToggleAll}
                handleToggle={handleToggle}
+               onSelectFirstN={(n) => handleSelectFirstN("right", n)}
                actionTransfer={actionTransfer}
             />
          </Grid>
