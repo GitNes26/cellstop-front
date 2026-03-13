@@ -81,48 +81,48 @@ export const useDashboardData = (filters: DashboardFilters) => {
    const buildParams = useCallback(() => {
       const params: any = {};
 
-      if (filters.startDate) {
+      if (filters?.startDate instanceof Date) {
          params.start_date = filters.startDate.toISOString().split("T")[0];
       }
-      if (filters.endDate) {
+      if (filters?.endDate instanceof Date) {
          params.end_date = filters.endDate.toISOString().split("T")[0];
       }
 
-      if (filters.folio) {
+      if (filters?.folio) {
          params.folio = filters.folio;
       }
 
-      if (filters.startDatePreActivation) {
+      if (filters?.startDatePreActivation instanceof Date) {
          params.start_date_pre_activation = filters.startDatePreActivation.toISOString().split("T")[0];
       }
-      if (filters.endDatePreActivation) {
+      if (filters?.endDatePreActivation instanceof Date) {
          params.end_date_pre_activation = filters.endDatePreActivation.toISOString().split("T")[0];
       }
 
-      if (filters.sellerIds.length > 0) {
+      if (filters?.sellerIds.length > 0) {
          params.seller_id = filters.sellerIds;
       }
 
-      if (filters.locationStatus) {
+      if (filters?.locationStatus) {
          params.location_status = filters.locationStatus;
       }
 
-      if (filters.activationStatus) {
+      if (filters?.activationStatus) {
          params.activation_status = filters.activationStatus;
       }
 
-      if (filters.productTypeId) {
+      if (filters?.productTypeId) {
          params.product_type_id = filters.productTypeId;
       }
 
-      if (filters.searchText) {
+      if (filters?.searchText) {
          params.search = filters.searchText;
       }
 
-      if (filters.startDateInSystem) {
+      if (filters?.startDateInSystem instanceof Date) {
          params.start_datein_system = filters.startDateInSystem.toISOString().split("T")[0];
       }
-      if (filters.endDateInSystem) {
+      if (filters?.endDateInSystem instanceof Date) {
          params.end_datein_system = filters.endDateInSystem.toISOString().split("T")[0];
       }
 
@@ -201,6 +201,7 @@ export const useDashboardData = (filters: DashboardFilters) => {
       data,
       response,
       loading,
+      setLoading,
       error,
       refresh,
       exportData,

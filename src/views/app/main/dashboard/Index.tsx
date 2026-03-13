@@ -153,7 +153,7 @@ const DashboardView: React.FC = () => {
    const tableRef = useRef<HTMLDivElement>(null);
 
    // Hook para datos del dashboard
-   const { data, loading, error, refresh, exportData } = useDashboardData(filters);
+   const { data, loading, setLoading, error, refresh, exportData } = useDashboardData(filters);
    // console.log("🚀 ~ DashboardView ~ data:", data);
 
    // Cargar tipos de producto
