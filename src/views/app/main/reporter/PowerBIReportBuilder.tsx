@@ -223,7 +223,7 @@ const PowerBIReportBuilder: React.FC = () => {
    const theme = useTheme();
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
    const [drawerOpen, setDrawerOpen] = useState(!isMobile);
-   const [showFilters, setShowFilters] = useState(true);
+   // const [showFilters, setShowFilters] = useState(true);
    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
    const [alerts, setAlerts] = useState<string[]>([]);
    const { setIsLoading } = useGlobalContext();
@@ -233,6 +233,9 @@ const PowerBIReportBuilder: React.FC = () => {
    const [filteredData, setFilteredData] = useState<any[]>([]);
    const [globalFilters, setGlobalFilters] = useState<FilterCondition[]>([]);
    const [dateRange, setDateRange] = useState({ startDate: "2024-01-01", endDate: "2024-12-31" });
+
+   const [expandedPanelId, setExpandedPanelId] = useState<string | null>(null);
+   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
 
    // Paneles
    const [panels, setPanels] = useState<Panel[]>([
@@ -405,10 +408,9 @@ const PowerBIReportBuilder: React.FC = () => {
                               exit={{ opacity: 0, y: -10 }}
                               transition={{ duration: 0.2, delay: index * 0.1 }}
                            >
-                              <Paper className="p-3 border border-gray-200 rounded-lg">
+                              <Paper className="p-1 border border-gray-200 rounded-lg">
                                  <Box className="flex items-start gap-3">
-                                    <Chip label={`Filtro ${index + 1}`} size="small" color="primary" variant="outlined" />
-
+                                    <Chip label={`Filtro ${index + 1}`} size="small" color="primary" variant="outlined" className="" />
                                     <Box className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-2">
                                        {/* Campo */}
                                        <FormControl size="small" className="md:col-span-3">
@@ -443,7 +445,7 @@ const PowerBIReportBuilder: React.FC = () => {
 
                                        {/* Eliminar */}
                                        <Box className="md:col-span-1 flex justify-center">
-                                          <IconButton size="small" onClick={() => removeFilter(filter.id)} className="text-red-600 hover:bg-red-50">
+                                          <IconButton size="small" color="error" onClick={() => removeFilter(filter.id)} className="text-red-600 hover:bg-red-50">
                                              <Delete fontSize="small" />
                                           </IconButton>
                                        </Box>
@@ -473,6 +475,46 @@ const PowerBIReportBuilder: React.FC = () => {
          </motion.div>
          // </Collapse>
       );
+   };
+
+   // Función para alternar expansión
+   // const toggleExpand = (panelId: string) => {
+   //    setExpandedPanelId((prev) => (prev === panelId ? null : panelId));
+   // };
+   const toggleExpand = (panelId: string) => {
+      setExpandedPanels((prev) => {
+         const newSet = new Set(prev);
+         if (newSet.has(panelId)) {
+            newSet.delete(panelId);
+         } else {
+            newSet.add(panelId);
+         }
+         return newSet;
+      });
+   };
+
+   // Función para calcular el tamaño de un panel
+   const getPanelSize = (panel: Panel) => {
+      if (expandedPanels.has(panel.id)) return 12;
+      const count = panels.length;
+      if (count === 1) return 12;
+      if (count === 2) return 6;
+      return 4;
+   };
+
+   // Variantes para las tarjetas
+   const cardVariants = {
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+      exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
+   };
+
+   const gridContainerVariants = {
+      hidden: { opacity: 0 },
+      visible: {
+         opacity: 1,
+         transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+      }
    };
 
    // Cargar datos
@@ -786,7 +828,7 @@ const PowerBIReportBuilder: React.FC = () => {
                      <Menu />
                   </IconButton>
                   <Typography variant="h5" fontWeight="bold">
-                     📊 Power BI Report Builder
+                     📊 Reporteador
                   </Typography>
                </Box>
                <Box>
@@ -834,6 +876,7 @@ const PowerBIReportBuilder: React.FC = () => {
                                  <ListItem
                                     key={panel.id}
                                     component="button"
+                                    id=""
                                     // selected={selectedPanelId === panel.id}
                                     onClick={() => setSelectedPanelId(panel.id)}
                                     secondaryAction={
@@ -850,7 +893,8 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Tooltip>
                                        </>
                                     }
-                                    sx={{ cursor: "pointer" }}
+                                    sx={{ cursor: "pointer", borderRadius: 0.5, mb: 1 }}
+                                    className={`hover:scale-102 hover:bg-blue-50 transition-all duration-600 ${selectedPanelId === panel.id ? "border-2 border-sky-700" : ""}`}
                                  >
                                     <ListItemIcon>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</ListItemIcon>
                                     <ListItemText primary={panel.title} secondary={panel.type === "chart" ? panel.chartType : "Tabla"} />
@@ -1011,7 +1055,7 @@ const PowerBIReportBuilder: React.FC = () => {
 
             {/* Área principal con paneles */}
             <Box className="flex-1 p-4 overflow-auto">
-               <Grid container spacing={3}>
+               {/* <Grid container spacing={2}>
                   {panels.map((panel) => (
                      <Grid size={{ xs: 12, md: 6, lg: 4 }} key={panel.id}>
                         <Card variant="outlined" className="h-full flex flex-col">
@@ -1020,7 +1064,7 @@ const PowerBIReportBuilder: React.FC = () => {
                               title={panel.title}
                               subheader={panel.type === "chart" ? `Gráfico: ${panel.chartType}` : "Tabla de datos"}
                               action={
-                                 <IconButton size="small" onClick={() => removePanel(panel.id)}>
+                                 <IconButton size="small" color="error" onClick={() => removePanel(panel.id)}>
                                     <Delete fontSize="small" />
                                  </IconButton>
                               }
@@ -1029,7 +1073,47 @@ const PowerBIReportBuilder: React.FC = () => {
                         </Card>
                      </Grid>
                   ))}
-               </Grid>
+               </Grid> */}
+               <AnimatePresence mode="wait">
+                  <motion.div
+                     key={expandedPanelId || "all"}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, y: -20 }}
+                     transition={{ duration: 0.3 }}
+                  >
+                     <Grid container spacing={2}>
+                        {panels.map((panel) => (
+                           <Grid size={{ xs: 12, md: getPanelSize(panel) }} key={panel.id}>
+                              <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
+                                 <Card variant="outlined" className="h-full flex flex-col">
+                                    <CardHeader
+                                       avatar={<Avatar>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</Avatar>}
+                                       title={panel.title}
+                                       subheader={panel.type === "chart" ? `Gráfico: ${panel.chartType}` : "Tabla de datos"}
+                                       action={
+                                          <>
+                                             <Tooltip title={expandedPanels.has(panel.id) ? "Reducir Panel" : "Expandir Panel"}>
+                                                <IconButton size="small" onClick={() => toggleExpand(panel.id)}>
+                                                   {expandedPanels.has(panel.id) ? <FullscreenExit /> : <Fullscreen />}
+                                                </IconButton>
+                                             </Tooltip>
+                                             <Tooltip title="Eliminar Panel">
+                                                <IconButton size="small" color="error" onClick={() => removePanel(panel.id)}>
+                                                   <Delete fontSize="small" />
+                                                </IconButton>
+                                             </Tooltip>
+                                          </>
+                                       }
+                                    />
+                                    <CardContent className="flex-1">{renderPanel(panel)}</CardContent>
+                                 </Card>
+                              </motion.div>
+                           </Grid>
+                        ))}
+                     </Grid>
+                  </motion.div>
+               </AnimatePresence>
                {panels.length === 0 && (
                   <Box className="text-center mt-20">
                      <Typography variant="h6" color="textSecondary">
