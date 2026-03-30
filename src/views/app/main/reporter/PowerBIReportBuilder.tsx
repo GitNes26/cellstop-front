@@ -1,6 +1,6 @@
 // components/ReportBuilder/PowerBIReportBuilder.tsx
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
    Box,
    Typography,
@@ -31,22 +31,22 @@ import {
    TableContainer,
    TableHead,
    TableRow,
-   Pagination,
    Grid,
    Card,
    CardContent,
    CardHeader,
    Avatar,
+   List,
+   ListItem,
+   ListItemText,
+   ListItemIcon,
+   Checkbox,
    Dialog,
    DialogTitle,
    DialogContent,
    DialogActions,
    LinearProgress,
-   List,
-   ListItem,
-   ListItemText,
-   ListItemIcon,
-   Checkbox
+   Badge
 } from "@mui/material";
 import {
    Menu,
@@ -64,8 +64,6 @@ import {
    ScatterPlot,
    AreaChart,
    Radar,
-   SwapHoriz,
-   Info,
    Add,
    Delete,
    Map,
@@ -73,25 +71,21 @@ import {
    ExpandMore,
    ExpandLess,
    TableChart,
-   Dashboard,
    InsertChart,
-   Remove,
-   DragIndicator,
-   DataUsage,
-   Layers,
-   GridOn,
-   CopyAllRounded
+   CopyAllRounded,
+   PictureAsPdf,
+   Image,
+   Info
 } from "@mui/icons-material";
 import ReactECharts from "echarts-for-react";
 import { utils, writeFile } from "xlsx";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import { useGlobalContext } from "../../../../context/GlobalContext.jsx";
 import { ChartConfig, DataField, FilterCondition, FilterOperator } from "../../../../types/reporter.js";
-import ChartTypeSelector from "../../../../components/chartBuilder/ChartTypeSelector.js";
-// import { ChartConfig, DataField, FilterCondition, FilterOperator } from "../../types/reporter";
 
-// ==================== Diccionario de campos (nombres amigables) ====================
+// ==================== Diccionario de campos ====================
 const fieldMapping: Record<string, { displayName: string; type: "string" | "number" | "date" | "boolean"; show: boolean }> = {
-   // Campos que se muestran
    destination: { displayName: "Estatus", type: "string", show: true },
    executed_at: { displayName: "Fecha de ejecución", type: "date", show: true },
    iccid: { displayName: "ICCID", type: "string", show: true },
@@ -115,11 +109,8 @@ const fieldMapping: Record<string, { displayName: string; type: "string" | "numb
    pos_name: { displayName: "Punto de venta", type: "string", show: true },
    lat: { displayName: "Latitud", type: "number", show: true },
    lon: { displayName: "Longitud", type: "number", show: true }
-   // Campos que no se muestran
-   // ... el resto se omiten
 };
 
-// Convertir a array de campos usables
 const fields: DataField[] = Object.entries(fieldMapping)
    .filter(([, config]) => config.show)
    .map(([name, config]) => ({
@@ -129,7 +120,7 @@ const fields: DataField[] = Object.entries(fieldMapping)
       displayName: config.displayName
    }));
 
-// ==================== Datos de ejemplo (simulación de la vista) ====================
+// ==================== Datos de ejemplo (simulación) ====================
 const generateSampleData = (count = 200) => {
    const statuses = ["Virgen", "Pre-activado", "Activado", "Portado", "Caducado"];
    const types = ["SIM Estándar", "Micro SIM", "Nano SIM", "eSIM"];
@@ -214,30 +205,256 @@ export interface Panel {
    showGrid: boolean;
    stacked: boolean;
    colorScheme: string;
-   // Para tablas
    visibleColumns?: string[];
 }
+
+// ==================== Componente FilterSection mejorado ====================
+interface FilterSectionProps {
+   fields: DataField[];
+   filters: FilterCondition[];
+   onFiltersChange: (filters: FilterCondition[]) => void;
+   dateRange: { startDate: string; endDate: string };
+   onDateRangeChange: (dateRange: { startDate: string; endDate: string }) => void;
+}
+
+const FilterSection: React.FC<FilterSectionProps> = ({ fields, filters, onFiltersChange, dateRange, onDateRangeChange }) => {
+   const [localFilters, setLocalFilters] = useState(filters);
+   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+
+   // Sincronizar con props cuando cambien desde fuera (ej. al limpiar)
+   useEffect(() => {
+      setLocalFilters(filters);
+   }, [filters]);
+
+   const addFilter = () => {
+      const newFilter: FilterCondition = {
+         id: `filter-${Date.now()}`,
+         field: fields[0]?.id || "",
+         operator: "equals",
+         value: ""
+      };
+      const newFilters = [...localFilters, newFilter];
+      setLocalFilters(newFilters);
+      notifyChange(newFilters);
+   };
+
+   const updateFilter = (id: string, updates: Partial<FilterCondition>) => {
+      const updated = localFilters.map((f) => (f.id === id ? { ...f, ...updates } : f));
+      setLocalFilters(updated);
+      notifyChange(updated);
+   };
+
+   const removeFilter = (id: string) => {
+      const updated = localFilters.filter((f) => f.id !== id);
+      setLocalFilters(updated);
+      notifyChange(updated);
+   };
+
+   const notifyChange = (newFilters: FilterCondition[]) => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      const timer = setTimeout(() => {
+         onFiltersChange(newFilters);
+      }, 300);
+      setDebounceTimer(timer);
+   };
+
+   const handleDateChange = (field: "startDate" | "endDate", value: string) => {
+      const newRange = { ...dateRange, [field]: value };
+      onDateRangeChange(newRange);
+   };
+
+   const getFieldType = (fieldId: string) => fields.find((f) => f.id === fieldId)?.type || "string";
+
+   const getOperatorsForField = (fieldType: string) => operatorOptions.filter((op) => op.types.includes(fieldType));
+
+   const renderValueInput = (filter: FilterCondition) => {
+      const fieldType = getFieldType(filter.field);
+      const operator = filter.operator;
+
+      if (operator === "is_empty" || operator === "is_not_empty" || operator === "is_null" || operator === "is_not_null") {
+         return null;
+      }
+
+      if (operator === "between" || operator === "not_between") {
+         return (
+            <Box className="flex gap-2">
+               <TextField
+                  size="small"
+                  type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
+                  value={filter.value || ""}
+                  onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+                  placeholder="Desde"
+                  fullWidth
+               />
+               <TextField
+                  size="small"
+                  type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
+                  value={filter.value2 || ""}
+                  onChange={(e) => updateFilter(filter.id, { value2: e.target.value })}
+                  placeholder="Hasta"
+                  fullWidth
+               />
+            </Box>
+         );
+      }
+
+      if (operator === "in" || operator === "not_in") {
+         return (
+            <TextField
+               size="small"
+               value={filter.value || ""}
+               onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+               placeholder="Valores separados por coma..."
+               fullWidth
+               helperText="Separa múltiples valores con comas"
+            />
+         );
+      }
+
+      return (
+         <TextField
+            size="small"
+            type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
+            value={filter.value || ""}
+            onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+            placeholder="Valor..."
+            fullWidth
+         />
+      );
+   };
+
+   return (
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+         <Paper className="p-4 rounded-xl shadow-sm border">
+            <Box className="flex items-center justify-between mb-4">
+               <Typography variant="h6" className="font-semibold text-gray-800">
+                  Filtros Globales
+               </Typography>
+               <Button startIcon={<Add />} onClick={addFilter} variant="outlined" size="small">
+                  Agregar
+               </Button>
+            </Box>
+
+            {/* Rango de fechas */}
+            <Box className="grid grid-cols-2 gap-3 mb-4">
+               <TextField
+                  label="Fecha inicio"
+                  type="date"
+                  value={dateRange.startDate}
+                  onChange={(e) => handleDateChange("startDate", e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+               />
+               <TextField
+                  label="Fecha fin"
+                  type="date"
+                  value={dateRange.endDate}
+                  onChange={(e) => handleDateChange("endDate", e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+               />
+            </Box>
+
+            <AnimatePresence>
+               {localFilters.length === 0 ? (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-4 text-gray-500">
+                     <FilterList className="text-3xl mb-2 text-gray-300 mx-auto" />
+                     <Typography variant="body2">No hay filtros aplicados</Typography>
+                     <Typography variant="caption">Agrega filtros para refinar tus datos</Typography>
+                  </motion.div>
+               ) : (
+                  <Box className="space-y-3">
+                     {localFilters.map((filter, index) => (
+                        <motion.div
+                           key={filter.id}
+                           initial={{ opacity: 0, y: 10 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           exit={{ opacity: 0, y: -10 }}
+                           transition={{ duration: 0.2, delay: index * 0.1 }}
+                        >
+                           <Paper className="p-1 border border-gray-200 rounded-lg">
+                              <Box className="flex items-start gap-3">
+                                 <Chip label={`Filtro ${index + 1}`} size="small" color="primary" variant="outlined" />
+                                 <Box className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-2">
+                                    {/* Campo */}
+                                    <FormControl size="small" className="md:col-span-3">
+                                       <InputLabel>Campo</InputLabel>
+                                       <Select value={filter.field} label="Campo" onChange={(e) => updateFilter(filter.id, { field: e.target.value })}>
+                                          {fields.map((field) => (
+                                             <MenuItem key={field.id} value={field.id}>
+                                                {field.displayName}
+                                             </MenuItem>
+                                          ))}
+                                       </Select>
+                                    </FormControl>
+
+                                    {/* Operador */}
+                                    <FormControl size="small" className="md:col-span-3">
+                                       <InputLabel>Operador</InputLabel>
+                                       <Select
+                                          value={filter.operator}
+                                          label="Operador"
+                                          onChange={(e) => updateFilter(filter.id, { operator: e.target.value as FilterOperator })}
+                                       >
+                                          {getOperatorsForField(getFieldType(filter.field)).map((op) => (
+                                             <MenuItem key={op.value} value={op.value}>
+                                                {op.label}
+                                             </MenuItem>
+                                          ))}
+                                       </Select>
+                                    </FormControl>
+
+                                    {/* Valor */}
+                                    <Box className="md:col-span-5">{renderValueInput(filter)}</Box>
+
+                                    {/* Eliminar */}
+                                    <Box className="md:col-span-1 flex justify-center">
+                                       <IconButton size="small" color="error" onClick={() => removeFilter(filter.id)}>
+                                          <Delete fontSize="small" />
+                                       </IconButton>
+                                    </Box>
+                                 </Box>
+                              </Box>
+                           </Paper>
+                        </motion.div>
+                     ))}
+                  </Box>
+               )}
+            </AnimatePresence>
+
+            {localFilters.length > 0 && (
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
+                  <Divider className="my-3" />
+                  <Box className="flex items-center justify-between">
+                     <Typography variant="body2" className="text-gray-600">
+                        {localFilters.length} filtro{localFilters.length !== 1 ? "s" : ""} aplicado{localFilters.length !== 1 ? "s" : ""}
+                     </Typography>
+                     <Button onClick={() => notifyChange([])} color="error" size="small">
+                        Limpiar todos
+                     </Button>
+                  </Box>
+               </motion.div>
+            )}
+         </Paper>
+      </motion.div>
+   );
+};
 
 // ==================== Componente principal ====================
 const PowerBIReportBuilder: React.FC = () => {
    const theme = useTheme();
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
    const [drawerOpen, setDrawerOpen] = useState(!isMobile);
-   // const [showFilters, setShowFilters] = useState(true);
    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
-   const [alerts, setAlerts] = useState<string[]>([]);
    const { setIsLoading } = useGlobalContext();
 
-   // Datos reales (se cargarían desde API, aquí usamos ejemplo)
+   // Datos
    const [rawData, setRawData] = useState<any[]>([]);
    const [filteredData, setFilteredData] = useState<any[]>([]);
    const [globalFilters, setGlobalFilters] = useState<FilterCondition[]>([]);
    const [dateRange, setDateRange] = useState({ startDate: "2024-01-01", endDate: "2024-12-31" });
 
-   const [expandedPanelId, setExpandedPanelId] = useState<string | null>(null);
-   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
-
-   // Paneles
+   // Estado de paneles
    const [panels, setPanels] = useState<Panel[]>([
       {
          id: "panel-1",
@@ -265,262 +482,15 @@ const PowerBIReportBuilder: React.FC = () => {
       }
    ]);
    const [selectedPanelId, setSelectedPanelId] = useState<string>(panels[0]?.id);
-   const [activeTab, setActiveTab] = useState(0); // 0: Configuración, 1: Filtros globales
+   const [activeTab, setActiveTab] = useState(0);
+   const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
 
-   // Ref para gráficos
    const chartRefs = useRef<{ [key: string]: any }>({});
+   const exportRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
-   const [chartConfig, setChartConfig] = useState<ChartConfig>({
-      id: `chart-${Date.now()}`,
-      title: "Mi Gráfico de Análisis",
-      description: "Esta gráfica muestra el análisis de los datos seleccionados",
-      chartType: "bar",
-      xAxis: "category",
-      yAxis: "sales",
-      filters: [],
-      colorScheme: "default",
-      showLegend: true,
-      showGrid: true,
-      stacked: false,
-      dateRange: {
-         startDate: "2024-01-01",
-         endDate: "2024-12-31"
-      }
-   });
-
-   // Componente de Filtros
-   const updateChartConfig = (updates: Partial<ChartConfig>) => {
-      setChartConfig((prev) => ({ ...prev, ...updates }));
-   };
-
-   const FilterSection = () => {
-      const addFilter = () => {
-         const newFilter: FilterCondition = {
-            id: `filter-${Date.now()}`,
-            field: fields[0]?.id || "",
-            operator: "equals",
-            value: ""
-         };
-         updateChartConfig({ filters: [...chartConfig.filters, newFilter] });
-      };
-
-      const updateFilter = (id: string, updates: Partial<FilterCondition>) => {
-         const updatedFilters = chartConfig.filters.map((filter) => (filter.id === id ? { ...filter, ...updates } : filter));
-         updateChartConfig({ filters: updatedFilters });
-      };
-
-      const removeFilter = (id: string) => {
-         const updatedFilters = chartConfig.filters.filter((filter) => filter.id !== id);
-         updateChartConfig({ filters: updatedFilters });
-      };
-
-      const getFieldType = (fieldId: string) => {
-         return fields.find((f) => f.id === fieldId)?.type || "string";
-      };
-
-      const getOperatorsForField = (fieldType: string) => {
-         return operatorOptions.filter((op) => op.types.includes(fieldType));
-      };
-
-      const renderValueInput = (filter: FilterCondition) => {
-         const fieldType = getFieldType(filter.field);
-         const operator = filter.operator;
-
-         if (operator === "is_empty" || operator === "is_not_empty" || operator === "is_null" || operator === "is_not_null") {
-            return null;
-         }
-
-         if (operator === "between" || operator === "not_between") {
-            return (
-               <Box className="flex gap-2">
-                  <TextField
-                     size="small"
-                     type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
-                     value={filter.value || ""}
-                     onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
-                     placeholder="Desde"
-                     fullWidth
-                  />
-                  <TextField
-                     size="small"
-                     type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
-                     value={filter.value2 || ""}
-                     onChange={(e) => updateFilter(filter.id, { value2: e.target.value })}
-                     placeholder="Hasta"
-                     fullWidth
-                  />
-               </Box>
-            );
-         }
-
-         if (operator === "in" || operator === "not_in") {
-            return (
-               <TextField
-                  size="small"
-                  value={filter.value || ""}
-                  onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
-                  placeholder="Valores separados por coma..."
-                  fullWidth
-                  helperText="Separa múltiples valores con comas"
-               />
-            );
-         }
-
-         return (
-            <TextField
-               size="small"
-               type={fieldType === "date" ? "date" : fieldType === "number" ? "number" : "text"}
-               value={filter.value || ""}
-               onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
-               placeholder="Valor..."
-               fullWidth
-            />
-         );
-      };
-
-      return (
-         // <Collapse in={showFilters}>
-         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.3 }}>
-            <Paper className="p-4 rounded-xl shadow-sm border">
-               <Box className="flex items-center justify-between mb-4">
-                  <Typography variant="h6" className="font-semibold text-gray-800">
-                     Filtros Avanzados
-                  </Typography>
-                  <Button startIcon={<Add />} onClick={addFilter} variant="outlined" size="small">
-                     Agregar
-                  </Button>
-               </Box>
-
-               <AnimatePresence>
-                  {chartConfig.filters.length === 0 ? (
-                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-4 text-gray-500">
-                        <FilterList className="text-3xl mb-2 text-gray-300 mx-auto" />
-                        <Typography variant="body2">No hay filtros aplicados</Typography>
-                        <Typography variant="caption">Agrega filtros para refinar tus datos</Typography>
-                     </motion.div>
-                  ) : (
-                     <Box className="space-y-3">
-                        {chartConfig.filters.map((filter, index) => (
-                           <motion.div
-                              key={filter.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{ duration: 0.2, delay: index * 0.1 }}
-                           >
-                              <Paper className="p-1 border border-gray-200 rounded-lg">
-                                 <Box className="flex items-start gap-3">
-                                    <Chip label={`Filtro ${index + 1}`} size="small" color="primary" variant="outlined" className="" />
-                                    <Box className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-2">
-                                       {/* Campo */}
-                                       <FormControl size="small" className="md:col-span-3">
-                                          <InputLabel>Campo</InputLabel>
-                                          <Select value={filter.field} label="Campo" onChange={(e) => updateFilter(filter.id, { field: e.target.value })}>
-                                             {fields.map((field) => (
-                                                <MenuItem key={field.id} value={field.id}>
-                                                   {field.displayName}
-                                                </MenuItem>
-                                             ))}
-                                          </Select>
-                                       </FormControl>
-
-                                       {/* Operador */}
-                                       <FormControl size="small" className="md:col-span-3">
-                                          <InputLabel>Operador</InputLabel>
-                                          <Select
-                                             value={filter.operator}
-                                             label="Operador"
-                                             onChange={(e) => updateFilter(filter.id, { operator: e.target.value as FilterOperator })}
-                                          >
-                                             {getOperatorsForField(getFieldType(filter.field)).map((op) => (
-                                                <MenuItem key={op.value} value={op.value}>
-                                                   {op.label}
-                                                </MenuItem>
-                                             ))}
-                                          </Select>
-                                       </FormControl>
-
-                                       {/* Valor */}
-                                       <Box className="md:col-span-5">{renderValueInput(filter)}</Box>
-
-                                       {/* Eliminar */}
-                                       <Box className="md:col-span-1 flex justify-center">
-                                          <IconButton size="small" color="error" onClick={() => removeFilter(filter.id)} className="text-red-600 hover:bg-red-50">
-                                             <Delete fontSize="small" />
-                                          </IconButton>
-                                       </Box>
-                                    </Box>
-                                 </Box>
-                              </Paper>
-                           </motion.div>
-                        ))}
-                     </Box>
-                  )}
-               </AnimatePresence>
-
-               {chartConfig.filters.length > 0 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
-                     <Divider className="my-3" />
-                     <Box className="flex items-center justify-between">
-                        <Typography variant="body2" className="text-gray-600">
-                           {chartConfig.filters.length} filtro{chartConfig.filters.length !== 1 ? "s" : ""} aplicado{chartConfig.filters.length !== 1 ? "s" : ""}
-                        </Typography>
-                        <Button onClick={() => updateChartConfig({ filters: [] })} color="error" size="small">
-                           Limpiar todos
-                        </Button>
-                     </Box>
-                  </motion.div>
-               )}
-            </Paper>
-         </motion.div>
-         // </Collapse>
-      );
-   };
-
-   // Función para alternar expansión
-   // const toggleExpand = (panelId: string) => {
-   //    setExpandedPanelId((prev) => (prev === panelId ? null : panelId));
-   // };
-   const toggleExpand = (panelId: string) => {
-      setExpandedPanels((prev) => {
-         const newSet = new Set(prev);
-         if (newSet.has(panelId)) {
-            newSet.delete(panelId);
-         } else {
-            newSet.add(panelId);
-         }
-         return newSet;
-      });
-   };
-
-   // Función para calcular el tamaño de un panel
-   const getPanelSize = (panel: Panel) => {
-      if (expandedPanels.has(panel.id)) return 12;
-      const count = panels.length;
-      if (count === 1) return 12;
-      if (count === 2) return 6;
-      return 4;
-   };
-
-   // Variantes para las tarjetas
-   const cardVariants = {
-      hidden: { opacity: 0, y: 20 },
-      visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-      exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
-   };
-
-   const gridContainerVariants = {
-      hidden: { opacity: 0 },
-      visible: {
-         opacity: 1,
-         transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-      }
-   };
-
-   // Cargar datos
+   // Cargar datos (simulación)
    useEffect(() => {
       setIsLoading(true);
-      // Simular carga de API
       setTimeout(() => {
          const data = generateSampleData(500);
          setRawData(data);
@@ -534,7 +504,7 @@ const PowerBIReportBuilder: React.FC = () => {
 
       let filtered = [...rawData];
 
-      // Filtro de rango de fechas (usando executed_at)
+      // Filtro de rango de fechas (executed_at)
       if (dateRange.startDate && dateRange.endDate) {
          filtered = filtered.filter((item) => {
             const itemDate = new Date(item.executed_at);
@@ -605,11 +575,7 @@ const PowerBIReportBuilder: React.FC = () => {
       setFilteredData(filtered);
    }, [rawData, globalFilters, dateRange]);
 
-   // ==================== Funciones de ayuda ====================
-   const showSnackbar = (message: string, severity: "success" | "error") => {
-      setSnackbar({ open: true, message, severity });
-   };
-
+   // Funciones de paneles
    const addPanel = () => {
       const newPanel: Panel = {
          id: `panel-${Date.now()}`,
@@ -653,20 +619,43 @@ const PowerBIReportBuilder: React.FC = () => {
 
    const getCurrentPanel = () => panels.find((p) => p.id === selectedPanelId);
 
-   // ==================== Generar opciones de gráfico para un panel ====================
+   const toggleExpand = (panelId: string) => {
+      setExpandedPanels((prev) => {
+         const newSet = new Set(prev);
+         if (newSet.has(panelId)) {
+            newSet.delete(panelId);
+         } else {
+            newSet.add(panelId);
+         }
+         return newSet;
+      });
+   };
+
+   const getPanelSize = (panel: Panel) => {
+      if (expandedPanels.has(panel.id)) return 12;
+      const count = panels.length;
+      if (count === 1) return 12;
+      if (count === 2) return 6;
+      return 4;
+   };
+
+   const showSnackbar = (message: string, severity: "success" | "error") => {
+      setSnackbar({ open: true, message, severity });
+   };
+
+   // Generar opciones de gráfico para un panel
    const getChartOptionsForPanel = (panel: Panel) => {
       const xField = fields.find((f) => f.id === panel.xAxis);
       const yField = fields.find((f) => f.id === panel.yAxis);
       if (!xField || !yField) return { title: { text: "Configura los ejes" } };
 
-      // Procesar datos
       const categories = [...new Set(filteredData.map((item) => item[xField.name]))];
       const seriesData = categories.map((cat) => {
          const items = filteredData.filter((item) => item[xField.name] === cat);
          if (yField.type === "number") {
             return items.reduce((sum, item) => sum + (item[yField.name] || 0), 0);
          } else {
-            return items.length; // contar ocurrencias si es string
+            return items.length;
          }
       });
 
@@ -757,19 +746,9 @@ const PowerBIReportBuilder: React.FC = () => {
       return baseOptions;
    };
 
-   // ==================== Exportar datos a Excel ====================
-   const exportToExcel = () => {
-      const worksheet = utils.json_to_sheet(filteredData);
-      const workbook = utils.book_new();
-      utils.book_append_sheet(workbook, worksheet, "Datos Filtrados");
-      writeFile(workbook, `reporte_${Date.now()}.xlsx`);
-      showSnackbar("Datos exportados a Excel", "success");
-   };
-
-   // ==================== Renderizar panel (gráfico o tabla) ====================
+   // Renderizar panel
    const renderPanel = (panel: Panel) => {
       if (panel.type === "table") {
-         // Tabla: mostrar columnas seleccionadas
          const columns = panel.visibleColumns?.length ? panel.visibleColumns : fields.map((f) => f.id);
          const visibleFields = fields.filter((f) => columns.includes(f.id));
          return (
@@ -802,7 +781,6 @@ const PowerBIReportBuilder: React.FC = () => {
             </TableContainer>
          );
       } else {
-         // Gráfico
          const options = getChartOptionsForPanel(panel);
          return (
             <ReactECharts
@@ -817,7 +795,84 @@ const PowerBIReportBuilder: React.FC = () => {
       }
    };
 
-   // ==================== Interfaz principal ====================
+   // Exportar panel como imagen
+   const exportPanelAsImage = async (panelId: string) => {
+      const element = exportRefs.current[panelId];
+      if (!element) return;
+      try {
+         const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#ffffff" });
+         const link = document.createElement("a");
+         link.download = `panel_${panelId}.png`;
+         link.href = canvas.toDataURL();
+         link.click();
+         showSnackbar("Panel exportado como imagen", "success");
+      } catch (error) {
+         console.error(error);
+         showSnackbar("Error al exportar imagen", "error");
+      }
+   };
+
+   // Exportar panel como PDF
+   const exportPanelAsPDF = async (panelId: string) => {
+      const element = exportRefs.current[panelId];
+      if (!element) return;
+      try {
+         const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#ffffff" });
+         const imgData = canvas.toDataURL("image/png");
+         const pdf = new jsPDF("p", "mm", "a4");
+         const imgWidth = 190;
+         const pageHeight = 297;
+         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+         let heightLeft = imgHeight;
+         let position = 0;
+         pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+         heightLeft -= pageHeight;
+         while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+         }
+         pdf.save(`panel_${panelId}.pdf`);
+         showSnackbar("Panel exportado como PDF", "success");
+      } catch (error) {
+         console.error(error);
+         showSnackbar("Error al exportar PDF", "error");
+      }
+   };
+
+   // Exportar datos a Excel
+   const exportToExcel = () => {
+      const worksheet = utils.json_to_sheet(filteredData);
+      const workbook = utils.book_new();
+      utils.book_append_sheet(workbook, worksheet, "Datos Filtrados");
+      writeFile(workbook, `reporte_${Date.now()}.xlsx`);
+      showSnackbar("Datos exportados a Excel", "success");
+   };
+
+   // Resumen de filtros para mostrar en panel
+   const getActiveFiltersSummary = () => {
+      if (globalFilters.length === 0 && dateRange.startDate === "2024-01-01" && dateRange.endDate === "2024-12-31") {
+         return "Sin filtros aplicados";
+      }
+      const parts = [];
+      if (dateRange.startDate !== "2024-01-01" || dateRange.endDate !== "2024-12-31") {
+         parts.push(`Fecha: ${dateRange.startDate} - ${dateRange.endDate}`);
+      }
+      globalFilters.forEach((f) => {
+         const field = fields.find((ff) => ff.id === f.field);
+         const operatorLabel = operatorOptions.find((op) => op.value === f.operator)?.label || f.operator;
+         let valueText = f.value;
+         if (f.operator === "between" || f.operator === "not_between") {
+            valueText = `${f.value} y ${f.value2}`;
+         } else if (f.operator === "in" || f.operator === "not_in") {
+            valueText = f.value;
+         }
+         parts.push(`${field?.displayName} ${operatorLabel} ${valueText}`);
+      });
+      return parts.join(" | ");
+   };
+
    return (
       <Box className="max-h-5/6 bg-gray-50">
          {/* Header */}
@@ -835,9 +890,9 @@ const PowerBIReportBuilder: React.FC = () => {
                   <Button variant="outlined" startIcon={<Download />} onClick={exportToExcel} sx={{ mr: 1 }}>
                      Exportar Excel
                   </Button>
-                  <Button variant="contained" startIcon={<Save />}>
+                  {/* <Button variant="contained" startIcon={<Save />}>
                      Guardar Reporte
-                  </Button>
+                  </Button> */}
                </Box>
             </Box>
          </Paper>
@@ -876,8 +931,6 @@ const PowerBIReportBuilder: React.FC = () => {
                                  <ListItem
                                     key={panel.id}
                                     component="button"
-                                    id=""
-                                    // selected={selectedPanelId === panel.id}
                                     onClick={() => setSelectedPanelId(panel.id)}
                                     secondaryAction={
                                        <>
@@ -893,8 +946,13 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Tooltip>
                                        </>
                                     }
-                                    sx={{ cursor: "pointer", borderRadius: 0.5, mb: 1 }}
-                                    className={`hover:scale-102 hover:bg-blue-50 transition-all duration-600 ${selectedPanelId === panel.id ? "border-2 border-sky-700" : ""}`}
+                                    sx={{
+                                       cursor: "pointer",
+                                       borderRadius: 0.5,
+                                       mb: 1,
+                                       backgroundColor: selectedPanelId === panel.id ? "action.selected" : "transparent"
+                                    }}
+                                    className={`hover:scale-102 hover:bg-blue-50 transition-all duration-600`}
                                  >
                                     <ListItemIcon>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</ListItemIcon>
                                     <ListItemText primary={panel.title} secondary={panel.type === "chart" ? panel.chartType : "Tabla"} />
@@ -905,21 +963,17 @@ const PowerBIReportBuilder: React.FC = () => {
                            {getCurrentPanel() && (
                               <Box className="mt-6" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                                  <Divider />
-                                 <Typography variant="subtitle1" className="mt-4 mb-2">
-                                    Configurar panel: {getCurrentPanel()?.title}
-                                 </Typography>
+                                 <Typography variant="subtitle1">Configurar panel: {getCurrentPanel()?.title}</Typography>
                                  <TextField
                                     label="Título"
                                     fullWidth
                                     size="small"
                                     value={getCurrentPanel()?.title || ""}
                                     onChange={(e) => updatePanel(selectedPanelId, { title: e.target.value })}
-                                    className="mb-3"
                                  />
-                                 <FormControl fullWidth size="small" className="mb-3">
+                                 <FormControl fullWidth size="small">
                                     <InputLabel>Tipo de visualización</InputLabel>
                                     <Select
-                                       label="Tipo de visualización"
                                        value={getCurrentPanel()?.type || "chart"}
                                        onChange={(e) => updatePanel(selectedPanelId, { type: e.target.value as VisualizationType })}
                                     >
@@ -930,11 +984,9 @@ const PowerBIReportBuilder: React.FC = () => {
 
                                  {getCurrentPanel()?.type === "chart" && (
                                     <>
-                                       <FormControl fullWidth size="small" className="mb-3">
+                                       <FormControl fullWidth size="small">
                                           <InputLabel>Tipo de gráfico</InputLabel>
                                           <Select
-                                             label="Tipo de gráfico"
-                                             title="Tipo de Grafico"
                                              value={getCurrentPanel()?.chartType || "bar"}
                                              onChange={(e) => updatePanel(selectedPanelId, { chartType: e.target.value as ChartType })}
                                           >
@@ -946,13 +998,9 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Select>
                                        </FormControl>
 
-                                       <FormControl fullWidth size="small" className="mb-3">
+                                       <FormControl fullWidth size="small">
                                           <InputLabel>Eje X</InputLabel>
-                                          <Select
-                                             label="Eje X"
-                                             value={getCurrentPanel()?.xAxis || ""}
-                                             onChange={(e) => updatePanel(selectedPanelId, { xAxis: e.target.value })}
-                                          >
+                                          <Select value={getCurrentPanel()?.xAxis || ""} onChange={(e) => updatePanel(selectedPanelId, { xAxis: e.target.value })}>
                                              {fields.map((f) => (
                                                 <MenuItem key={f.id} value={f.id}>
                                                    {f.displayName}
@@ -961,13 +1009,9 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Select>
                                        </FormControl>
 
-                                       <FormControl fullWidth size="small" className="mb-3">
+                                       <FormControl fullWidth size="small">
                                           <InputLabel>Eje Y</InputLabel>
-                                          <Select
-                                             label="Eje Y"
-                                             value={getCurrentPanel()?.yAxis || ""}
-                                             onChange={(e) => updatePanel(selectedPanelId, { yAxis: e.target.value })}
-                                          >
+                                          <Select value={getCurrentPanel()?.yAxis || ""} onChange={(e) => updatePanel(selectedPanelId, { yAxis: e.target.value })}>
                                              {fields.map((f) => (
                                                 <MenuItem key={f.id} value={f.id}>
                                                    {f.displayName}
@@ -976,7 +1020,7 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Select>
                                        </FormControl>
 
-                                       <Box className="flex gap-3 mb-3">
+                                       <Box className="flex gap-3">
                                           <FormControlLabel
                                              control={
                                                 <Switch
@@ -1011,10 +1055,9 @@ const PowerBIReportBuilder: React.FC = () => {
                                  )}
 
                                  {getCurrentPanel()?.type === "table" && (
-                                    <FormControl fullWidth size="small" className="mb-3" sx={{ mb: 3 }}>
+                                    <FormControl fullWidth size="small">
                                        <InputLabel>Columnas visibles</InputLabel>
                                        <Select
-                                          label="Columnas visibles"
                                           multiple
                                           value={getCurrentPanel()?.visibleColumns || fields.map((f) => f.id)}
                                           onChange={(e) => updatePanel(selectedPanelId, { visibleColumns: e.target.value as string[] })}
@@ -1042,11 +1085,11 @@ const PowerBIReportBuilder: React.FC = () => {
 
                      {activeTab === 1 && (
                         <FilterSection
-                        // fields={fields}
-                        // filters={globalFilters}
-                        // onFiltersChange={setGlobalFilters}
-                        // dateRange={dateRange}
-                        // onDateRangeChange={setDateRange}
+                           fields={fields}
+                           filters={globalFilters}
+                           onFiltersChange={setGlobalFilters}
+                           dateRange={dateRange}
+                           onDateRangeChange={setDateRange}
                         />
                      )}
                   </Box>
@@ -1055,28 +1098,9 @@ const PowerBIReportBuilder: React.FC = () => {
 
             {/* Área principal con paneles */}
             <Box className="flex-1 p-4 overflow-auto">
-               {/* <Grid container spacing={2}>
-                  {panels.map((panel) => (
-                     <Grid size={{ xs: 12, md: 6, lg: 4 }} key={panel.id}>
-                        <Card variant="outlined" className="h-full flex flex-col">
-                           <CardHeader
-                              avatar={<Avatar>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</Avatar>}
-                              title={panel.title}
-                              subheader={panel.type === "chart" ? `Gráfico: ${panel.chartType}` : "Tabla de datos"}
-                              action={
-                                 <IconButton size="small" color="error" onClick={() => removePanel(panel.id)}>
-                                    <Delete fontSize="small" />
-                                 </IconButton>
-                              }
-                           />
-                           <CardContent className="flex-1">{renderPanel(panel)}</CardContent>
-                        </Card>
-                     </Grid>
-                  ))}
-               </Grid> */}
                <AnimatePresence mode="wait">
                   <motion.div
-                     key={expandedPanelId || "all"}
+                     key={expandedPanels.size} // para refrescar layout
                      initial={{ opacity: 0, y: 20 }}
                      animate={{ opacity: 1, y: 0 }}
                      exit={{ opacity: 0, y: -20 }}
@@ -1086,28 +1110,56 @@ const PowerBIReportBuilder: React.FC = () => {
                         {panels.map((panel) => (
                            <Grid size={{ xs: 12, md: getPanelSize(panel) }} key={panel.id}>
                               <motion.div layout transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-                                 <Card variant="outlined" className="h-full flex flex-col">
-                                    <CardHeader
-                                       avatar={<Avatar>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</Avatar>}
-                                       title={panel.title}
-                                       subheader={panel.type === "chart" ? `Gráfico: ${panel.chartType}` : "Tabla de datos"}
-                                       action={
-                                          <>
-                                             <Tooltip title={expandedPanels.has(panel.id) ? "Reducir Panel" : "Expandir Panel"}>
-                                                <IconButton size="small" onClick={() => toggleExpand(panel.id)}>
-                                                   {expandedPanels.has(panel.id) ? <FullscreenExit /> : <Fullscreen />}
-                                                </IconButton>
-                                             </Tooltip>
-                                             <Tooltip title="Eliminar Panel">
-                                                <IconButton size="small" color="error" onClick={() => removePanel(panel.id)}>
-                                                   <Delete fontSize="small" />
-                                                </IconButton>
-                                             </Tooltip>
-                                          </>
-                                       }
-                                    />
-                                    <CardContent className="flex-1">{renderPanel(panel)}</CardContent>
-                                 </Card>
+                                 <div
+                                    ref={(el) => {
+                                       if (el) exportRefs.current[panel.id] = el;
+                                    }}
+                                 >
+                                    <Card variant="outlined" className="h-full flex flex-col">
+                                       <CardHeader
+                                          avatar={<Avatar>{panel.type === "chart" ? <InsertChart /> : <TableChart />}</Avatar>}
+                                          title={panel.title}
+                                          subheader={
+                                             <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                                                <span>{panel.type === "chart" ? `Gráfico: ${panel.chartType}` : "Tabla de datos"}</span>
+                                                <Tooltip title={getActiveFiltersSummary()}>
+                                                   <Chip size="small" icon={<FilterList />} label={`${globalFilters.length} filtros`} variant="outlined" />
+                                                </Tooltip>
+                                                <br />
+                                                <small>
+                                                   <b>Filtros aplicados: </b>
+                                                   {getActiveFiltersSummary()}
+                                                </small>
+                                             </Box>
+                                          }
+                                          action={
+                                             <>
+                                                <Tooltip title="Exportar como Imagen">
+                                                   <IconButton size="small" onClick={() => exportPanelAsImage(panel.id)}>
+                                                      <Image />
+                                                   </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Exportar como PDF">
+                                                   <IconButton size="small" onClick={() => exportPanelAsPDF(panel.id)}>
+                                                      <PictureAsPdf />
+                                                   </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title={expandedPanels.has(panel.id) ? "Reducir Panel" : "Expandir Panel"}>
+                                                   <IconButton size="small" onClick={() => toggleExpand(panel.id)}>
+                                                      {expandedPanels.has(panel.id) ? <FullscreenExit /> : <Fullscreen />}
+                                                   </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Eliminar Panel">
+                                                   <IconButton size="small" color="error" onClick={() => removePanel(panel.id)}>
+                                                      <Delete fontSize="small" />
+                                                   </IconButton>
+                                                </Tooltip>
+                                             </>
+                                          }
+                                       />
+                                       <CardContent className="flex-1">{renderPanel(panel)}</CardContent>
+                                    </Card>
+                                 </div>
                               </motion.div>
                            </Grid>
                         ))}
