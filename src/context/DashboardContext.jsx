@@ -70,7 +70,6 @@ export default function DashboardContextProvider({ children }) {
       if (res.result === null) {
          return Toast.Info("No se encontraron datos con los filtros seleccionados");
       }
-      console.log("🚀 ~ getReporter ~ res.result:", res.result);
       setData(res.result);
 
       return res;

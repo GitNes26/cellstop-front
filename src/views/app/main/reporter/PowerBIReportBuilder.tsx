@@ -361,6 +361,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({ fields, filters, onFilter
                />
             </Box>
 
+            <Divider sx={{ my: 2 }} />
+
             <AnimatePresence>
                {localFilters.length === 0 ? (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-4 text-gray-500">
@@ -455,7 +457,7 @@ const PowerBIReportBuilder: React.FC = () => {
    const { isLoading, setIsLoading } = useGlobalContext();
 
    // Datos
-   const [rawData, setRawData] = useState<any[]>([]);
+   // const [rawData, setRawData] = useState<any[]>([]);
    const [globalFilters, setGlobalFilters] = useState<FilterCondition[]>([]);
    const [dateRange, setDateRange] = useState({ startDate: dayjs().startOf("month").format("YYYY-MM-DD"), endDate: dayjs().endOf("month").format("YYYY-MM-DD") });
    const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -502,29 +504,29 @@ const PowerBIReportBuilder: React.FC = () => {
       (async () => {
          setIsLoading(true);
          await refetchData();
-         setTimeout(() => {
-            // const data = generateSampleData(500);
-            console.log("🚀 ~ PowerBIReportBuilder ~ data:", data);
-            setRawData(data);
-            setIsLoading(false);
-         }, 500);
+         setIsLoading(false);
+         // setTimeout(() => {
+         //    // const data = generateSampleData(500);
+         //    console.log("🚀 ~ PowerBIReportBuilder ~ data:", data);
+         //    // setRawData(data);
+         // }, 500);
       })();
    }, []);
 
    // Aplicar filtros globales y rango de fechas
    useEffect(() => {
-      console.log("hola aplicando filtros");
-      if (!rawData.length) return;
+      if (!data.length) return;
 
-      let filtered = [...rawData];
+      let filtered = [...data];
 
       // Filtro de rango de fechas (executed_at)
       if (dateRange.startDate && dateRange.endDate) {
          filtered = filtered.filter((item) => {
-            const itemDate = new Date(item.executed_at);
-            const start = new Date(dateRange.startDate);
-            const end = new Date(dateRange.endDate);
-            return itemDate >= start && itemDate <= end;
+            const itemDate = dayjs(item.executed_at);
+            const start = dayjs(dateRange.startDate);
+            const end = dayjs(dateRange.endDate);
+            return itemDate.isBetween(start, end, null, "[]"); // '[]' incluye los extremos
+            // return itemDate.isSameOrAfter(start) && itemDate.isSameOrBefore(end);
          });
       }
 
@@ -532,6 +534,51 @@ const PowerBIReportBuilder: React.FC = () => {
       globalFilters.forEach((filter) => {
          const field = fields.find((f) => f.id === filter.field);
          if (!field) return;
+
+         // Si el campo es de tipo fecha, usar dayjs para comparar
+         if (field.type === "date") {
+            filtered = filtered.filter((item) => {
+               const value = item[field.name];
+               if (!value) return filter.operator === "is_empty" || filter.operator === "is_null";
+
+               const dateValue = dayjs(value);
+               if (!dateValue.isValid()) return false; // Fecha inválida, no cumple ningún filtro excepto empty/null
+
+               const filterValue = filter.value ? dayjs(filter.value) : null;
+               const filterValue2 = filter.value2 ? dayjs(filter.value2) : null;
+
+               switch (filter.operator) {
+                  case "equals":
+                     return filterValue && dateValue.isSame(filterValue, "day");
+                  case "not_equals":
+                     return filterValue && !dateValue.isSame(filterValue, "day");
+                  case "greater_than":
+                     return filterValue && dateValue.isAfter(filterValue);
+                  case "greater_than_equal":
+                     return filterValue && (dateValue.isAfter(filterValue) || dateValue.isSame(filterValue, "day"));
+                  case "less_than":
+                     return filterValue && dateValue.isBefore(filterValue);
+                  case "less_than_equal":
+                     return filterValue && (dateValue.isBefore(filterValue) || dateValue.isSame(filterValue, "day"));
+                  case "between":
+                     return filterValue && filterValue2 && dateValue.isBetween(filterValue, filterValue2, "day", "[]");
+                  case "not_between":
+                     return filterValue && filterValue2 && !dateValue.isBetween(filterValue, filterValue2, "day", "[]");
+                  case "is_empty":
+                     return !value || value === "";
+                  case "is_not_empty":
+                     return value && value !== "";
+                  case "is_null":
+                     return value === null || value === undefined;
+                  case "is_not_null":
+                     return value !== null && value !== undefined;
+                  default:
+                     return true;
+               }
+            });
+
+            return; // Ya procesamos este filtro
+         }
 
          filtered = filtered.filter((item) => {
             const value = item[field.name];
@@ -585,10 +632,9 @@ const PowerBIReportBuilder: React.FC = () => {
             }
          });
       });
-      console.log("🚀 ~ PowerBIReportBuilder ~ globalFilters:", globalFilters);
 
       setFilteredData(filtered);
-   }, [rawData, globalFilters, dateRange, data]);
+   }, [data, globalFilters, dateRange]);
 
    // Funciones de paneles
    const addPanel = () => {
@@ -659,106 +705,374 @@ const PowerBIReportBuilder: React.FC = () => {
    };
 
    // Generar opciones de gráfico para un panel
-   const getChartOptionsForPanel = (panel: Panel) => {
-      const xField = fields.find((f) => f.id === panel.xAxis);
-      const yField = fields.find((f) => f.id === panel.yAxis);
-      if (!xField || !yField) return { title: { text: "Configura los ejes" } };
-
-      const categories = [...new Set(filteredData.map((item) => item[xField.name]))];
-      const seriesData = categories.map((cat) => {
-         const items = filteredData.filter((item) => item[xField.name] === cat);
-         if (yField.type === "number") {
-            return items.reduce((sum, item) => sum + (item[yField.name] || 0), 0);
-         } else {
-            return items.length;
-         }
-      });
-
-      const baseOptions: any = {
-         title: { text: panel.title, left: "center", textStyle: { fontSize: 16, fontWeight: "bold" } },
-         tooltip: { trigger: "item" },
-         legend: panel.showLegend ? { show: true, orient: "horizontal", bottom: 0 } : { show: false },
-         grid: panel.showGrid ? { left: "3%", right: "4%", bottom: panel.showLegend ? "15%" : "3%", containLabel: true } : { show: false }
-      };
-
-      if (panel.chartType === "map") {
-         return {
-            title: { text: panel.title, left: "center" },
+   const getChartOptionsForPanel = (panel: Panel, option: number = 1) => {
+      if (option === 1) {
+         const xField = fields.find((f) => f.id === panel.xAxis);
+         const yField = fields.find((f) => f.id === panel.yAxis);
+         if (!xField || !yField) return { title: { text: "Configura los ejes" } };
+         const categories = [...new Set(filteredData.map((item) => item[xField.name]))];
+         const seriesData = categories.map((cat) => {
+            const items = filteredData.filter((item) => item[xField.name] === cat);
+            if (yField.type === "number") {
+               return items.reduce((sum, item) => sum + (item[yField.name] || 0), 0);
+            } else {
+               return items.length;
+            }
+         });
+         const baseOptions: any = {
+            title: { text: panel.title, left: "center", textStyle: { fontSize: 16, fontWeight: "bold" } },
             tooltip: { trigger: "item" },
-            visualMap: {
-               min: 0,
-               max: Math.max(...filteredData.map((d) => d[yField.name])),
-               calculable: true,
-               inRange: { color: ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027"] }
-            },
-            series: [
-               {
-                  name: yField.displayName,
-                  type: "map",
-                  map: "world",
-                  data: filteredData.map((item) => ({ name: item[xField.name], value: item[yField.name] }))
-               }
-            ]
+            legend: panel.showLegend ? { show: true, orient: "horizontal", bottom: 0 } : { show: false },
+            grid: panel.showGrid ? { left: "3%", right: "4%", bottom: panel.showLegend ? "15%" : "3%", containLabel: true } : { show: false }
          };
-      }
+         if (panel.chartType === "map") {
+            return {
+               title: { text: panel.title, left: "center" },
+               tooltip: { trigger: "item" },
+               visualMap: {
+                  min: 0,
+                  max: Math.max(...filteredData.map((d) => d[yField.name])),
+                  calculable: true,
+                  inRange: { color: ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027"] }
+               },
+               series: [
+                  {
+                     name: yField.displayName,
+                     type: "map",
+                     map: "world",
+                     data: filteredData.map((item) => ({ name: item[xField.name], value: item[yField.name] }))
+                  }
+               ]
+            };
+         }
+         switch (panel.chartType) {
+            case "bar":
+               baseOptions.xAxis = { type: "category", data: categories, axisLabel: { rotate: 45 } };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [{ name: yField.displayName, type: "bar", data: seriesData }];
+               break;
+            case "line":
+               baseOptions.xAxis = { type: "category", data: categories };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [{ name: yField.displayName, type: "line", data: seriesData }];
+               break;
+            case "pie":
+               baseOptions.series = [
+                  {
+                     type: "pie",
+                     radius: "50%",
+                     data: categories.map((cat, i) => ({ name: cat, value: seriesData[i] }))
+                  }
+               ];
+               break;
+            case "doughnut":
+               baseOptions.series = [
+                  {
+                     type: "pie",
+                     radius: ["40%", "70%"],
+                     data: categories.map((cat, i) => ({ name: cat, value: seriesData[i] }))
+                  }
+               ];
+               break;
+            case "area":
+               baseOptions.xAxis = { type: "category", data: categories, boundaryGap: false };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [{ type: "line", data: seriesData, areaStyle: {} }];
+               break;
+            case "scatter":
+               baseOptions.xAxis = { type: "value", name: xField.displayName };
+               baseOptions.yAxis = { type: "value", name: yField.displayName };
+               baseOptions.series = [
+                  {
+                     type: "scatter",
+                     data: filteredData.map((item) => [item[xField.name], item[yField.name]])
+                  }
+               ];
+               break;
+            case "radar":
+               baseOptions.radar = { indicator: categories.map((c) => ({ name: c, max: Math.max(...seriesData) })) };
+               baseOptions.series = [
+                  {
+                     type: "radar",
+                     data: [{ value: seriesData, name: yField.displayName }]
+                  }
+               ];
+               break;
+            default:
+               baseOptions.graphic = { elements: [{ type: "text", style: { text: "Tipo no soportado" } }] };
+         }
+         return baseOptions;
+      } else if (option === 2) {
+         const xField = fields.find((f) => f.id === panel.xAxis);
+         const yField = fields.find((f) => f.id === panel.yAxis);
 
-      switch (panel.chartType) {
-         case "bar":
-            baseOptions.xAxis = { type: "category", data: categories, axisLabel: { rotate: 45 } };
-            baseOptions.yAxis = { type: "value" };
-            baseOptions.series = [{ name: yField.displayName, type: "bar", data: seriesData }];
-            break;
-         case "line":
-            baseOptions.xAxis = { type: "category", data: categories };
-            baseOptions.yAxis = { type: "value" };
-            baseOptions.series = [{ name: yField.displayName, type: "line", data: seriesData }];
-            break;
-         case "pie":
-            baseOptions.series = [
-               {
-                  type: "pie",
-                  radius: "50%",
-                  data: categories.map((cat, i) => ({ name: cat, value: seriesData[i] }))
+         if (!xField || !yField) {
+            return {
+               title: { text: "Configura los ejes para ver la gráfica", left: "center", textStyle: { color: "#999" } },
+               graphic: {
+                  elements: [
+                     {
+                        type: "text",
+                        style: { text: "Selecciona campos para los ejes X e Y", fill: "#ccc" },
+                        left: "center",
+                        top: "center"
+                     }
+                  ]
                }
-            ];
-            break;
-         case "doughnut":
-            baseOptions.series = [
-               {
-                  type: "pie",
-                  radius: ["40%", "70%"],
-                  data: categories.map((cat, i) => ({ name: cat, value: seriesData[i] }))
+            };
+         }
+
+         // Procesar categorías del eje X
+         let categories = [...new Set(filteredData.map((item) => item[xField.name]))];
+
+         // Si es fecha, formatear a DD/MM/YYYY
+         if (xField.type === "date") {
+            categories = categories.map((d) => dayjs(d).format("DD/MM/YYYY"));
+         }
+
+         // Datos de la serie
+         const seriesData = categories.map((cat, idx) => {
+            const items = filteredData.filter((item) => {
+               const rawValue = item[xField.name];
+               if (xField.type === "date") {
+                  return dayjs(rawValue).format("DD/MM/YYYY") === cat;
                }
+               return item[xField.name] === cat;
+            });
+            if (yField.type === "number") {
+               return items.reduce((sum, item) => sum + (item[yField.name] || 0), 0);
+            } else {
+               return items.length; // contar ocurrencias
+            }
+         });
+
+         // Función para formatear tooltips
+         const tooltipFormatter = (params: any) => {
+            if (panel.chartType === "pie") {
+               return `${params.name}<br/>${yField.displayName}: ${params.value}`;
+            }
+            return `${params.seriesName}<br/>${xField.displayName}: ${params.name}<br/>${yField.displayName}: ${params.value}`;
+         };
+
+         const baseOptions: any = {
+            title: {
+               text: panel.title,
+               left: "center",
+               textStyle: { fontSize: 16, fontWeight: "bold" }
+            },
+            tooltip: {
+               trigger: panel.chartType === "pie" ? "item" : "axis",
+               formatter: tooltipFormatter
+            },
+            legend: panel.showLegend ? { show: true, orient: "horizontal", bottom: 0 } : { show: false },
+            grid: panel.showGrid
+               ? {
+                    left: "3%",
+                    right: "4%",
+                    bottom: panel.showLegend ? "15%" : "3%",
+                    containLabel: true
+                 }
+               : { show: false }
+         };
+
+         // Configuración según tipo de gráfico
+         switch (panel.chartType) {
+            case "bar":
+               baseOptions.xAxis = {
+                  type: "category",
+                  data: categories,
+                  axisLabel: {
+                     rotate: categories.some((c) => c.length > 10) ? 45 : 0,
+                     formatter: (value: string) => (value.length > 15 ? value.slice(0, 12) + "..." : value)
+                  }
+               };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "bar",
+                     data: seriesData,
+                     itemStyle: { color: "#3b82f6" },
+                     label: {
+                        show: true,
+                        position: "top",
+                        formatter: (params: any) => params.value
+                     }
+                  }
+               ];
+               break;
+
+            case "line":
+               baseOptions.xAxis = {
+                  type: "category",
+                  data: categories,
+                  axisLabel: {
+                     rotate: categories.some((c) => c.length > 10) ? 45 : 0,
+                     formatter: (value: string) => (value.length > 15 ? value.slice(0, 12) + "..." : value)
+                  }
+               };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "line",
+                     data: seriesData,
+                     itemStyle: { color: "#10b981" },
+                     lineStyle: { width: 3 },
+                     label: { show: true, position: "top" }
+                  }
+               ];
+               break;
+
+            case "pie":
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "pie",
+                     radius: "50%",
+                     data: categories.map((cat, idx) => ({ name: cat, value: seriesData[idx] })),
+                     label: {
+                        show: true,
+                        formatter: "{b}: {d}%"
+                     },
+                     emphasis: {
+                        itemStyle: {
+                           shadowBlur: 10,
+                           shadowOffsetX: 0,
+                           shadowColor: "rgba(0, 0, 0, 0.5)"
+                        }
+                     }
+                  }
+               ];
+               break;
+
+            case "doughnut":
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "pie",
+                     radius: ["40%", "70%"],
+                     data: categories.map((cat, idx) => ({ name: cat, value: seriesData[idx] })),
+                     label: { show: true, formatter: "{b}: {d}%" }
+                  }
+               ];
+               break;
+
+            case "area":
+               baseOptions.xAxis = {
+                  type: "category",
+                  data: categories,
+                  boundaryGap: false,
+                  axisLabel: {
+                     rotate: categories.some((c) => c.length > 10) ? 45 : 0,
+                     formatter: (value: string) => (value.length > 15 ? value.slice(0, 12) + "..." : value)
+                  }
+               };
+               baseOptions.yAxis = { type: "value" };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "line",
+                     data: seriesData,
+                     areaStyle: { color: "#f59e0b" },
+                     lineStyle: { width: 2 },
+                     label: { show: true, position: "top" }
+                  }
+               ];
+               break;
+
+            case "scatter":
+               baseOptions.xAxis = {
+                  type: "value",
+                  name: xField.displayName,
+                  axisLabel: {
+                     formatter: (value: number) => value.toFixed(2)
+                  }
+               };
+               baseOptions.yAxis = {
+                  type: "value",
+                  name: yField.displayName,
+                  axisLabel: {
+                     formatter: (value: number) => value.toFixed(2)
+                  }
+               };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "scatter",
+                     data: filteredData.map((item) => [item[xField.name], item[yField.name]]),
+                     itemStyle: { color: "#ef4444" },
+                     label: { show: false }
+                  }
+               ];
+               break;
+
+            case "radar":
+               baseOptions.radar = {
+                  indicator: categories.map((cat) => ({ name: cat, max: Math.max(...seriesData) }))
+               };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "radar",
+                     data: [{ value: seriesData, name: yField.displayName }],
+                     areaStyle: { color: "#8b5cf6" }
+                  }
+               ];
+               break;
+
+            case "map":
+               // Mapa simple basado en nombres de ubicación
+               baseOptions.tooltip = { trigger: "item" };
+               baseOptions.visualMap = {
+                  min: 0,
+                  max: Math.max(...filteredData.map((d) => d[yField.name] || 0)),
+                  calculable: true,
+                  inRange: {
+                     color: ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027"]
+                  }
+               };
+               baseOptions.series = [
+                  {
+                     name: yField.displayName,
+                     type: "map",
+                     map: "world",
+                     data: filteredData.map((item) => ({ name: item[xField.name], value: item[yField.name] })),
+                     roam: true,
+                     label: { show: true },
+                     emphasis: { label: { show: true } }
+                  }
+               ];
+               break;
+
+            default:
+               baseOptions.graphic = {
+                  elements: [
+                     {
+                        type: "text",
+                        style: { text: `Tipo de gráfico no soportado`, fill: "#999" },
+                        left: "center",
+                        top: "center"
+                     }
+                  ]
+               };
+         }
+
+         // Agregar dataZoom si hay muchas categorías (para barras, líneas, área)
+         if (["bar", "line", "area"].includes(panel.chartType) && categories.length > 10) {
+            baseOptions.dataZoom = [
+               { type: "slider", start: 0, end: 50, bottom: panel.showLegend ? 40 : 10 },
+               { type: "inside", start: 0, end: 50 }
             ];
-            break;
-         case "area":
-            baseOptions.xAxis = { type: "category", data: categories, boundaryGap: false };
-            baseOptions.yAxis = { type: "value" };
-            baseOptions.series = [{ type: "line", data: seriesData, areaStyle: {} }];
-            break;
-         case "scatter":
-            baseOptions.xAxis = { type: "value", name: xField.displayName };
-            baseOptions.yAxis = { type: "value", name: yField.displayName };
-            baseOptions.series = [
-               {
-                  type: "scatter",
-                  data: filteredData.map((item) => [item[xField.name], item[yField.name]])
-               }
-            ];
-            break;
-         case "radar":
-            baseOptions.radar = { indicator: categories.map((c) => ({ name: c, max: Math.max(...seriesData) })) };
-            baseOptions.series = [
-               {
-                  type: "radar",
-                  data: [{ value: seriesData, name: yField.displayName }]
-               }
-            ];
-            break;
-         default:
-            baseOptions.graphic = { elements: [{ type: "text", style: { text: "Tipo no soportado" } }] };
+         }
+
+         // Ajustar bottom de la leyenda si se usa dataZoom
+         if (baseOptions.dataZoom && baseOptions.legend?.show) {
+            baseOptions.legend.bottom = 30;
+         }
+
+         return baseOptions;
       }
-      return baseOptions;
    };
 
    // Renderizar panel
@@ -892,8 +1206,7 @@ const PowerBIReportBuilder: React.FC = () => {
    const handleRefresh = async () => {
       await refetchData();
       Toast.Info("Actualizando datos...");
-      console.log("🚀 ~ handleRefresh ~ data:", data);
-      setRawData(data);
+      // setRawData(data);
    };
 
    return (
@@ -956,7 +1269,7 @@ const PowerBIReportBuilder: React.FC = () => {
                               {panels.map((panel) => (
                                  <ListItem
                                     key={panel.id}
-                                    component="button"
+                                    component="div"
                                     onClick={() => setSelectedPanelId(panel.id)}
                                     secondaryAction={
                                        <>
@@ -974,9 +1287,14 @@ const PowerBIReportBuilder: React.FC = () => {
                                     }
                                     sx={{
                                        cursor: "pointer",
-                                       borderRadius: 0.5,
+                                       borderRadius: 1,
                                        mb: 1,
-                                       backgroundColor: selectedPanelId === panel.id ? "action.selected" : "transparent"
+                                       // backgroundColor: selectedPanelId === panel.id ? "action.selected" : "transparent",
+                                       ...(selectedPanelId === panel.id && {
+                                          border: "2px solid",
+                                          borderColor: "primary.main",
+                                          bgcolor: "action.selected"
+                                       })
                                     }}
                                     className={`hover:scale-102 hover:bg-blue-50 transition-all duration-600`}
                                  >
@@ -1000,6 +1318,7 @@ const PowerBIReportBuilder: React.FC = () => {
                                  <FormControl fullWidth size="small">
                                     <InputLabel>Tipo de visualización</InputLabel>
                                     <Select
+                                       label={"Tipo de visualización"}
                                        value={getCurrentPanel()?.type || "chart"}
                                        onChange={(e) => updatePanel(selectedPanelId, { type: e.target.value as VisualizationType })}
                                     >
@@ -1013,12 +1332,13 @@ const PowerBIReportBuilder: React.FC = () => {
                                        <FormControl fullWidth size="small">
                                           <InputLabel>Tipo de gráfico</InputLabel>
                                           <Select
+                                             label={"Tipo de gráfico"}
                                              value={getCurrentPanel()?.chartType || "bar"}
                                              onChange={(e) => updatePanel(selectedPanelId, { chartType: e.target.value as ChartType })}
                                           >
                                              {chartTypes.map((ct) => (
                                                 <MenuItem key={ct.type} value={ct.type}>
-                                                   {ct.label}
+                                                   <ct.icon className="mr-2" /> {ct.label}
                                                 </MenuItem>
                                              ))}
                                           </Select>
@@ -1026,7 +1346,11 @@ const PowerBIReportBuilder: React.FC = () => {
 
                                        <FormControl fullWidth size="small">
                                           <InputLabel>Eje X</InputLabel>
-                                          <Select value={getCurrentPanel()?.xAxis || ""} onChange={(e) => updatePanel(selectedPanelId, { xAxis: e.target.value })}>
+                                          <Select
+                                             label={"Eje X"}
+                                             value={getCurrentPanel()?.xAxis || ""}
+                                             onChange={(e) => updatePanel(selectedPanelId, { xAxis: e.target.value })}
+                                          >
                                              {fields.map((f) => (
                                                 <MenuItem key={f.id} value={f.id}>
                                                    {f.displayName}
@@ -1037,7 +1361,11 @@ const PowerBIReportBuilder: React.FC = () => {
 
                                        <FormControl fullWidth size="small">
                                           <InputLabel>Eje Y</InputLabel>
-                                          <Select value={getCurrentPanel()?.yAxis || ""} onChange={(e) => updatePanel(selectedPanelId, { yAxis: e.target.value })}>
+                                          <Select
+                                             label={"Eje Y"}
+                                             value={getCurrentPanel()?.yAxis || ""}
+                                             onChange={(e) => updatePanel(selectedPanelId, { yAxis: e.target.value })}
+                                          >
                                              {fields.map((f) => (
                                                 <MenuItem key={f.id} value={f.id}>
                                                    {f.displayName}
@@ -1046,7 +1374,7 @@ const PowerBIReportBuilder: React.FC = () => {
                                           </Select>
                                        </FormControl>
 
-                                       <Box className="flex gap-3">
+                                       <Box className="flex gap-3 hidden">
                                           <FormControlLabel
                                              control={
                                                 <Switch

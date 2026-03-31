@@ -39,6 +39,7 @@ import SaleContextProvider from "../context/SaleContext";
 import ProductTypeContextProvider from "../context/ProductTypeContext";
 import VisitContextProvider from "../context/VisitContext";
 import VisitsView from "../views/app/others/visitsView/Index";
+import DashboardContextProvider from "../context/DashboardContext";
 // import MenusView from "./../views/app/settings/menusView/Index";
 
 const mainRouter = {
@@ -104,7 +105,9 @@ const mainRouter = {
             //          <SubcategoryContextProvider>
             //             <SituationContextProvider>
             //                <RoleContextProvider>
-            <ReporterView />
+            <DashboardContextProvider>
+               <ReporterView />
+            </DashboardContextProvider>
             //                </RoleContextProvider>
             //             </SituationContextProvider>
             //          </SubcategoryContextProvider>
