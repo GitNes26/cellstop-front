@@ -32,7 +32,7 @@ import { useAuthContext } from "../../../../context/AuthContext";
 import { useGlobalContext } from "../../../../context/GlobalContext.jsx";
 import { useUserContext } from "../../../../context/UserContext";
 import { useProductTypeContext } from "../../../../context/ProductTypeContext.jsx";
-import useFetch from "../../../../hooks/useFetch";
+import useFetch from "../../../../hooks/useFetch.jsx";
 import ChartComponent from "../../../../components/charts/ChartComponent";
 import { Dashboard, Refresh, Download, Menu, Close, Circle } from "@mui/icons-material";
 import { motion } from "framer-motion";

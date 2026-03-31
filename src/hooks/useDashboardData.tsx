@@ -5,7 +5,7 @@ import { Axios } from "../utils/Api";
 import { SalesPerformanceProps } from "../components/dashboard/sections/SalesPerformance";
 import { ImportName } from "../views/app/main/dashboard/Index";
 
-interface DashboardFilters {
+export interface DashboardFilters {
    startDate: Date | null;
    endDate: Date | null;
    folio: string | null; // NUEVO

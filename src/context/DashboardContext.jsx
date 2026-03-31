@@ -25,6 +25,7 @@ export default function DashboardContextProvider({ children }) {
    const [dashboard, setDashboard] = useState(null);
    const [sellerDashboard, setSellerDashboard] = useState([]);
    const [sellerDashboardData, setSellerDashboardData] = useState(null);
+   const [data, setData] = useState([]);
    const [formTitle, setFormTitle] = useState(`REGISTRAR ${singularName.toUpperCase()}`);
    const [textBtnSubmit, setTextBtnSubmit] = useState("REGISTRAR");
    const [formData, setFormData] = useState(null);
@@ -51,6 +52,29 @@ export default function DashboardContextProvider({ children }) {
 
       return res;
    };
+
+   const getReporter = async (filters) => {
+      const [error, response] = await to(Axios.post(`${prefixPath}/getReporter`, filters));
+      // console.log("🚀 ~ getReporter ~ error:", error);
+      // console.log("🚀 ~ getReporter ~ response:", response);
+      if (error) {
+         console.log("🚀 ~ getReporter ~ error:", error);
+         const message = error.response.data.message || "getReporter ~ Ocurrio algun error, intenta de nuevo :c";
+         Toast.Error(message);
+         return;
+         // throw new Error("que sale aqui?");
+      }
+
+      Response.success = response.data.data;
+      const res = Response.success;
+      if (res.result === null) {
+         return Toast.Info("No se encontraron datos con los filtros seleccionados");
+      }
+      console.log("🚀 ~ getReporter ~ res.result:", res.result);
+      setData(res.result);
+
+      return res;
+   };
    //#endregion CRUD
 
    // useEffect(() => {
@@ -69,6 +93,9 @@ export default function DashboardContextProvider({ children }) {
             setSellerDashboard,
             sellerDashboardData,
             setSellerDashboardData,
+            data,
+            setData,
+            getReporter,
             formTitle,
             setFormTitle,
             textBtnSubmit,

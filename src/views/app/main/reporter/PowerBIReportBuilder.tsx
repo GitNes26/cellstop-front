@@ -75,7 +75,8 @@ import {
    CopyAllRounded,
    PictureAsPdf,
    Image,
-   Info
+   Info,
+   Refresh
 } from "@mui/icons-material";
 import ReactECharts from "echarts-for-react";
 import { utils, writeFile } from "xlsx";
@@ -83,6 +84,10 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { useGlobalContext } from "../../../../context/GlobalContext.jsx";
 import { ChartConfig, DataField, FilterCondition, FilterOperator } from "../../../../types/reporter.js";
+import dayjs from "dayjs";
+import useFetch from "../../../../hooks/useFetch.jsx";
+import { useDashboardContext } from "../../../../context/DashboardContext.jsx";
+import Toast from "../../../../utils/Toast.js";
 
 // ==================== Diccionario de campos ====================
 const fieldMapping: Record<string, { displayName: string; type: "string" | "number" | "date" | "boolean"; show: boolean }> = {
@@ -133,7 +138,8 @@ const generateSampleData = (count = 200) => {
 
    return Array.from({ length: count }, (_, i) => ({
       destination: i % 3 === 0 ? "Stock" : i % 3 === 1 ? "Asignado" : "Distribuido",
-      executed_at: `2024-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
+      // executed_at: `${dayjs().year()}-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
+      executed_at: `${dayjs().year()}-${dayjs().month() + 1}-${String((i % 28) + 1).padStart(2, "0")}`,
       iccid: `8931040610123456789${i.toString().padStart(2, "0")}`,
       imei: `${Math.floor(Math.random() * 100000000000000)}`,
       fecha: `2024-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
@@ -446,13 +452,13 @@ const PowerBIReportBuilder: React.FC = () => {
    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
    const [drawerOpen, setDrawerOpen] = useState(!isMobile);
    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
-   const { setIsLoading } = useGlobalContext();
+   const { isLoading, setIsLoading } = useGlobalContext();
 
    // Datos
    const [rawData, setRawData] = useState<any[]>([]);
-   const [filteredData, setFilteredData] = useState<any[]>([]);
    const [globalFilters, setGlobalFilters] = useState<FilterCondition[]>([]);
-   const [dateRange, setDateRange] = useState({ startDate: "2024-01-01", endDate: "2024-12-31" });
+   const [dateRange, setDateRange] = useState({ startDate: dayjs().startOf("month").format("YYYY-MM-DD"), endDate: dayjs().endOf("month").format("YYYY-MM-DD") });
+   const [filteredData, setFilteredData] = useState<any[]>([]);
 
    // Estado de paneles
    const [panels, setPanels] = useState<Panel[]>([
@@ -488,18 +494,26 @@ const PowerBIReportBuilder: React.FC = () => {
    const chartRefs = useRef<{ [key: string]: any }>({});
    const exportRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
+   const { getReporter, data, setData } = useDashboardContext();
+   const { refetch: refetchData } = useFetch(() => getReporter({ start_date: dateRange.startDate, end_date: dateRange.endDate }), setData, false);
+
    // Cargar datos (simulación)
    useEffect(() => {
-      setIsLoading(true);
-      setTimeout(() => {
-         const data = generateSampleData(500);
-         setRawData(data);
-         setIsLoading(false);
-      }, 500);
+      (async () => {
+         setIsLoading(true);
+         await refetchData();
+         setTimeout(() => {
+            // const data = generateSampleData(500);
+            console.log("🚀 ~ PowerBIReportBuilder ~ data:", data);
+            setRawData(data);
+            setIsLoading(false);
+         }, 500);
+      })();
    }, []);
 
    // Aplicar filtros globales y rango de fechas
    useEffect(() => {
+      console.log("hola aplicando filtros");
       if (!rawData.length) return;
 
       let filtered = [...rawData];
@@ -571,9 +585,10 @@ const PowerBIReportBuilder: React.FC = () => {
             }
          });
       });
+      console.log("🚀 ~ PowerBIReportBuilder ~ globalFilters:", globalFilters);
 
       setFilteredData(filtered);
-   }, [rawData, globalFilters, dateRange]);
+   }, [rawData, globalFilters, dateRange, data]);
 
    // Funciones de paneles
    const addPanel = () => {
@@ -873,6 +888,14 @@ const PowerBIReportBuilder: React.FC = () => {
       return parts.join(" | ");
    };
 
+   // Refrescar datos
+   const handleRefresh = async () => {
+      await refetchData();
+      Toast.Info("Actualizando datos...");
+      console.log("🚀 ~ handleRefresh ~ data:", data);
+      setRawData(data);
+   };
+
    return (
       <Box className="max-h-5/6 bg-gray-50">
          {/* Header */}
@@ -912,6 +935,9 @@ const PowerBIReportBuilder: React.FC = () => {
                <Box className="h-full flex flex-col">
                   <Box className="p-4 border-b">
                      <Typography variant="h6">Configuración</Typography>
+                     <Button fullWidth variant="contained" onClick={handleRefresh} disabled={isLoading} sx={{ mt: 2 }} startIcon={<Refresh />}>
+                        {isLoading ? "Actualizando..." : "Aplicar Fechas"}
+                     </Button>
                   </Box>
                   <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
                      <Tab label="Paneles" />

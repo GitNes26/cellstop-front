@@ -22,14 +22,14 @@ import {
    SimCardRounded,
    OutboxRounded
 } from "@mui/icons-material";
-import Toast from "../../utils/Toast";
+import Toast from "../../utils/Toast.js";
 import { useLayoutEffect, useState } from "react";
 import { useGlobalContext } from "../../context/GlobalContext.jsx";
 import { useNavigate } from "react-router-dom";
 import DashboardView from "./main/dashboard/Index.js";
 import { useAuthContext } from "./../../context/AuthContext";
-import { useDashboardContext } from "./../../context/DashboardContext";
-import useFetch from "./../../hooks/useFetch";
+import { useDashboardContext } from "../../context/DashboardContext.jsx";
+import useFetch from "../../hooks/useFetch.jsx";
 import VisitForm from "./others/visitsView/Form.jsx";
 
 const Index = ({}) => {
