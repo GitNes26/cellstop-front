@@ -897,24 +897,22 @@ const DashboardView: React.FC = () => {
                            🗺️ Distribución Geográfica ({data?.points_of_sale.length} puntos)
                         </Typography>
 
-                        <SalesMap pointsOfSale={data?.points_of_sale} />
-                        {/* <SalesMap/> */}
+                        {/* <SalesMap pointsOfSale={data?.points_of_sale} /> */}
 
-                        {/* <DistributionMonitoring salesPoints={salesData} /> */}
-
-                        {/* <PointsOfSaleMap
-                           points={data?.points_of_sale}
+                        <PointsOfSaleMap
+                           pointsData={data?.points_of_sale}
                            //   loading={loading}
-                           onPointClick={(point) => {
-                              console.log("Punto clickeado:", point);
+                           onPointSelect={(point) => {
+                              // console.log("Punto clickeado:", point);
                               setSnackbar({
                                  open: true,
-                                 message: `${point.name}: ${point.inventory_count || 0} chips`,
+                                 message: `${point.name}: seleccionado`,
+                                 // message: `${point.name}: ${point.inventory_count || 0} chips`,
                                  // message: `${point.name}: ${point?.inventory?.products || 0} chips`,
                                  severity: "info"
                               });
                            }}
-                        /> */}
+                        />
                      </Box>
                   )}
 

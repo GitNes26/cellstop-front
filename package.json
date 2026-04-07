@@ -1,7 +1,7 @@
 {
    "name": "sistema-cellstop",
    "private": true,
-   "version": "1.0.1.4",
+   "version": "1.0.1.5",
    "engines": {
       "node": ">=22"
    },
@@ -50,6 +50,7 @@
       "jspdf-autotable": "^5.0.7",
       "laravel-echo": "^2.2.7",
       "leaflet": "^1.9.4",
+      "lucide-react": "^1.7.0",
       "maplibre-gl": "^5.16.0",
       "notistack": "^3.0.2",
       "primeicons": "^7.0.0",
