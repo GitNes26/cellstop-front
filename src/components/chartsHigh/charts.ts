@@ -2,7 +2,7 @@ import Highcharts from "highcharts";
 import Highcharts3D from "highcharts/highcharts-3d";
 import ExportingInit from "highcharts/modules/exporting";
 import { setPrueba } from "./Chart";
-import { getKeys, groupBy } from "../../utils/Formats";
+import { getKeys, groupBy } from "../../utils/Formats.js";
 
 export const createChart = (id, chart, title = "Titulo", causas, conteos, enable3D, key = null, data = null, showDetails, dictionaryKeys) => {
    // console.log("🚀 ~ createChart ~ id, chart, title, causas, conteos, enable3D, key = null, data = null:", id, chart, title, causas, conteos, enable3D, key, data);

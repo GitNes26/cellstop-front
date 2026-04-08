@@ -3,7 +3,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, TimelineOppositeContent } from "@mui/lab";
 import { Person, Timeline as TimelineIcon, ArrowRightAlt, CheckCircle, Error, Warning, Info, History, AssignmentIndRounded } from "@mui/icons-material";
 import { DialogComponent } from "../../../../components";
-import { formatDatetime } from "../../../../utils/Formats";
+import { formatDatetime } from "../../../../utils/Formats.js";
 
 // Interfaz para los datos de movimiento
 interface ProductMovement {

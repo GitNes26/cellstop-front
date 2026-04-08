@@ -36,7 +36,7 @@ import { Button, Card, DialogActions, IconButton, LinearProgress, Switch, Toolti
 import { useParams } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import { ROLE_SUPER_ADMIN, useGlobalContext, colorTableHeader } from "../context/GlobalContext";
-import { getKeys } from "../utils/Formats";
+import { getKeys } from "../utils/Formats.js";
 import { bool } from "@techstark/opencv-js";
 import { MenuItem } from "primereact/menuitem";
 import DialogComponent from "./DialogComponent";

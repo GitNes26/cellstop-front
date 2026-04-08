@@ -2,7 +2,7 @@ import Highcharts from "highcharts";
 import Highcharts3D from "highcharts/highcharts-3d";
 import exportingInit from "highcharts/modules/exporting"; // Importa el módulo de exportación de Highcharts
 import { setPrueba } from "./Chart";
-import { getKeys } from "../../utils/Formats";
+import { getKeys } from "../../utils/Formats.js";
 
 export const createChart = (id, chart, title, causas, conteos, enable3D, key = null, data = null, showDetails) => {
    console.log("🚀 ~ createChart ~ id", id);
@@ -184,7 +184,7 @@ const configPlotOptions = (chart, id, conteos, causa, title, causasUnicas, key, 
             };
          }
       });
-            console.log("🚀 ~ getKeys ~ result:", result)
+      console.log("🚀 ~ getKeys ~ result:", result);
       // Object.keys(filteredData[0]).forEach((item, index) => {
       //    if (item !== key) {
       //       console.log("aqui");
@@ -286,7 +286,7 @@ const configXaxis = (chart, titles) => {
       case "area":
          return {
             xAxis: {
-                type: "category" as const,
+               type: "category" as const,
                categories: ["", ...titles],
                title: {
                   text: "total",

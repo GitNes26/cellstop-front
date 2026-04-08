@@ -24,7 +24,7 @@ import { UploadFile, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAuthContext } from "../../../../context/AuthContext";
 import Toast from "../../../../utils/Toast";
 import * as XLSX from "xlsx";
-import { formatCurrency } from "../../../../utils/Formats";
+import { formatCurrency } from "../../../../utils/Formats.js";
 import showFlexibleAlert, { ALERT_TYPES, showMetricsAlert } from "../../../../components/showDuplicatesAlert";
 import { productHistoryColumns, TableDetails } from "./TableDetails";
 import dayjs from "dayjs";

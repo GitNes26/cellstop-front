@@ -26,12 +26,15 @@ import {
 // import { format, isToday } from "date-fns";
 import dayjs, { isToday } from "dayjs"; // o dayjs
 import { FullscreenExitRounded, FullscreenRounded } from "@mui/icons-material";
+import { useGlobalContext } from "../../context/GlobalContext";
+import { formatDatetime } from "../../utils/Formats.js";
 
 // types.ts
 export interface Seller {
    id: number;
    full_name: string;
    username: string;
+   pin_color: string; // nuevo campo para color del pin
    // ... otros campos
 }
 
@@ -61,36 +64,6 @@ export interface PointOfSale {
    hasTodayVisit?: boolean;
 }
 
-// Asumiendo que los datos vienen así:
-// interface PointOfSaleData {
-//    id: number;
-//    name: string;
-//    contact_name: string;
-//    contact_phone: string;
-//    address: string;
-//    lat: number;
-//    lon: number;
-//    ubication: string;
-//    seller: {
-//       id: number;
-//       full_name: string;
-//       username: string;
-//       // ...
-//    };
-//    visits: {
-//       total: number;
-//       by_type: {
-//          Distribución?: number;
-//          Monitoreo?: number;
-//       };
-//       list?: Array<{
-//          type: string;
-//          date: string;
-//          // ...
-//       }>;
-//    };
-// }
-
 interface PointsOfSaleMapProps {
    pointsData?: PointOfSale[];
    onPointSelect?: (point: PointOfSale) => void;
@@ -109,7 +82,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 18,
          full_name: "ALFREDO HERNANDEZ LOPEZ",
-         username: "AlfredoHL"
+         username: "AlfredoHL",
+         pin_color: "#10b981" // verde
       },
       visits: {
          total: 3,
@@ -118,11 +92,11 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 1
          },
          list: [
-            { date: "2026-04-06", type: "Distribución" },
+            { date: "2026-04-07", type: "Distribución" },
             { date: "2026-04-01", type: "Monitoreo" },
             { date: "2026-03-28", type: "Distribución" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -137,7 +111,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 19,
          full_name: "JUAN PEREZ",
-         username: "JuanP"
+         username: "JuanP",
+         pin_color: "#f9f9f9" // blanco
       },
       visits: {
          total: 1,
@@ -145,9 +120,9 @@ const dataFake: PointOfSale[] = [
             Distribución: 1,
             Monitoreo: 0
          },
-         list: [{ date: "2026-04-06", type: "Distribución" }]
+         list: [{ date: "2026-04-07", type: "Distribución" }]
       }
-      // last_visit_date: "2026-04-06"
+      // last_visit_date: "2026-04-07"
    },
    {
       id: 3,
@@ -161,7 +136,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 20,
          full_name: "MARIA GONZALEZ",
-         username: "MariaG"
+         username: "MariaG",
+         pin_color: "#868686" // gris
       },
       visits: {
          total: 2,
@@ -170,10 +146,10 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 1
          },
          list: [
-            { date: "2026-04-06", type: "Monitoreo" },
+            { date: "2026-04-07", type: "Monitoreo" },
             { date: "2026-03-30", type: "Distribución" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -188,7 +164,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 21,
          full_name: "CARLOS RUIZ",
-         username: "CarlosR"
+         username: "CarlosR",
+         pin_color: "#e7a647" // verde
       },
       visits: {
          total: 0,
@@ -212,7 +189,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 18,
          full_name: "ALFREDO HERNANDEZ LOPEZ",
-         username: "AlfredoHL"
+         username: "AlfredoHL",
+         pin_color: "#10b981" // verde
       },
       visits: {
          total: 4,
@@ -221,12 +199,12 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 1
          },
          list: [
-            { date: "2026-04-06", type: "Distribución" },
+            { date: "2026-04-07", type: "Distribución" },
             { date: "2026-04-03", type: "Monitoreo" },
             { date: "2026-04-01", type: "Distribución" },
             { date: "2026-03-28", type: "Distribución" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -241,7 +219,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 22,
          full_name: "LAURA MENDOZA",
-         username: "LauraM"
+         username: "LauraM",
+         pin_color: "#D1A65F" // verde
       },
       visits: {
          total: 2,
@@ -268,7 +247,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 19,
          full_name: "JUAN PEREZ",
-         username: "JuanP"
+         username: "JuanP",
+         pin_color: "#f9f9f9" // verde
       },
       visits: {
          total: 1,
@@ -276,8 +256,8 @@ const dataFake: PointOfSale[] = [
             Distribución: 1,
             Monitoreo: 0
          },
-         list: [{ date: "2026-04-06", type: "Distribución" }]
-         // last_visit_date: "2026-04-06"
+         list: [{ date: "2026-04-07", type: "Distribución" }]
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -292,7 +272,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 20,
          full_name: "MARIA GONZALEZ",
-         username: "MariaG"
+         username: "MariaG",
+         pin_color: "#868686" // verde
       },
       visits: {
          total: 0,
@@ -316,7 +297,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 21,
          full_name: "CARLOS RUIZ",
-         username: "CarlosR"
+         username: "CarlosR",
+         pin_color: "#e7a647" // verde
       },
       visits: {
          total: 3,
@@ -344,7 +326,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 18,
          full_name: "ALFREDO HERNANDEZ LOPEZ",
-         username: "AlfredoHL"
+         username: "AlfredoHL",
+         pin_color: "#10b981" // verde
       },
       visits: {
          total: 2,
@@ -353,10 +336,10 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 1
          },
          list: [
-            { date: "2026-04-06", type: "Monitoreo" },
+            { date: "2026-04-07", type: "Monitoreo" },
             { date: "2026-04-01", type: "Distribución" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -371,7 +354,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 22,
          full_name: "LAURA MENDOZA",
-         username: "LauraM"
+         username: "LauraM",
+         pin_color: "#D1A65F" // verde
       },
       visits: {
          total: 1,
@@ -395,7 +379,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 19,
          full_name: "JUAN PEREZ",
-         username: "JuanP"
+         username: "JuanP",
+         pin_color: "#f9f9f9" // verde
       },
       visits: {
          total: 0,
@@ -419,7 +404,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 20,
          full_name: "MARIA GONZALEZ",
-         username: "MariaG"
+         username: "MariaG",
+         pin_color: "#868686" // verde
       },
       visits: {
          total: 2,
@@ -428,10 +414,10 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 0
          },
          list: [
-            { date: "2026-04-06", type: "Distribución" },
+            { date: "2026-04-07", type: "Distribución" },
             { date: "2026-04-02", type: "Distribución" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -446,7 +432,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 21,
          full_name: "CARLOS RUIZ",
-         username: "CarlosR"
+         username: "CarlosR",
+         pin_color: "#e7a647" // verde
       },
       visits: {
          total: 1,
@@ -470,7 +457,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 18,
          full_name: "ALFREDO HERNANDEZ LOPEZ",
-         username: "AlfredoHL"
+         username: "AlfredoHL",
+         pin_color: "#10b981" // verde
       },
       visits: {
          total: 3,
@@ -498,7 +486,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 22,
          full_name: "LAURA MENDOZA",
-         username: "LauraM"
+         username: "LauraM",
+         pin_color: "#D1A65F" // verde
       },
       visits: {
          total: 0,
@@ -522,7 +511,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 19,
          full_name: "JUAN PEREZ",
-         username: "JuanP"
+         username: "JuanP",
+         pin_color: "#f9f9f9" // verde
       },
       visits: {
          total: 2,
@@ -531,10 +521,10 @@ const dataFake: PointOfSale[] = [
             Monitoreo: 1
          },
          list: [
-            { date: "2026-04-06", type: "Distribución" },
+            { date: "2026-04-07", type: "Distribución" },
             { date: "2026-03-31", type: "Monitoreo" }
          ]
-         // last_visit_date: "2026-04-06"
+         // last_visit_date: "2026-04-07"
       }
    },
    {
@@ -549,7 +539,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 20,
          full_name: "MARIA GONZALEZ",
-         username: "MariaG"
+         username: "MariaG",
+         pin_color: "#868686" // verde
       },
       visits: {
          total: 1,
@@ -573,7 +564,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 21,
          full_name: "CARLOS RUIZ",
-         username: "CarlosR"
+         username: "CarlosR",
+         pin_color: "#e7a647" // verde
       },
       visits: {
          total: 2,
@@ -600,7 +592,8 @@ const dataFake: PointOfSale[] = [
       seller: {
          id: 18,
          full_name: "ALFREDO HERNANDEZ LOPEZ",
-         username: "AlfredoHL"
+         username: "AlfredoHL",
+         pin_color: "#10b981" // verde
       },
       visits: {
          total: 1,
@@ -608,13 +601,15 @@ const dataFake: PointOfSale[] = [
             Distribución: 1,
             Monitoreo: 0
          },
-         list: [{ date: "2026-04-06", type: "Distribución" }]
-         // last_visit_date: "2026-04-06"
+         list: [{ date: "2026-04-07", type: "Distribución" }]
+         // last_visit_date: "2026-04-07"
       }
    }
 ];
 
 const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake, onPointSelect }) => {
+   const { openDrawerSidebar, setOpenDrawerSidebar, setIsLoading } = useGlobalContext();
+
    const [selectedPoint, setSelectedPoint] = useState<PointOfSale | null>(null);
    const [popupVisible, setPopupVisible] = useState(false);
    const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
@@ -631,6 +626,7 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
    // Función para alternar pantalla completa
    const toggleFullscreen = () => {
       setIsFullscreen(!isFullscreen);
+      setOpenDrawerSidebar(isFullscreen); // Cerrar sidebar al entrar/salir de pantalla completa
    };
 
    useEffect(() => {
@@ -872,14 +868,6 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
                         </div>
                      </div>
                   ) : (
-                     // <div className="p-6 text-center">
-                     //    <Store className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                     //    <p className="text-gray-400">Selecciona un punto en el mapa</p>
-                     //    <p className="text-gray-500 text-sm mt-2">Para ver detalles y estado de visitas</p>
-                     // </div>
-                     // Dentro del bloque donde se muestra el panel vacío (cuando selectedLocation es null)
-                     // Reemplaza el <div className="p-6 text-center">...</div> por lo siguiente:
-
                      <div className="p-6">
                         {/* Tarjeta de bienvenida / resumen */}
                         <div className="bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-2xl p-5 mb-6">
@@ -908,11 +896,11 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
                         {(() => {
                            const today = new Date().toISOString().slice(0, 10);
                            const visitsToday = pointsData.flatMap(
-                              (p) => p.visits.list?.filter((v) => v.date === today).map((v) => ({ ...v, pointName: p.name, pointId: p.id })) || []
+                              (p) => p.visits.list?.filter((v) => dayjs(v.date).isToday()).map((v) => ({ ...v, pointName: p.name, pointId: p.id })) || []
                            );
                            const distributionToday = visitsToday.filter((v) => v.type === "Distribución").length;
                            const monitoringToday = visitsToday.filter((v) => v.type === "Monitoreo").length;
-                           const pointsWithoutVisit = pointsData.filter((p) => !p.visits.list?.some((v) => v.date === today)).length;
+                           const pointsWithoutVisit = pointsData.filter((p) => !p.visits.list?.some((v) => dayjs(v.date).isToday())).length;
 
                            return (
                               <div className="bg-gray-800/40 rounded-xl p-4 mb-6">
@@ -984,7 +972,7 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
                                              {visit.type} • {visit.seller}
                                           </div>
                                        </div>
-                                       <div className="text-xs text-gray-400 flex-shrink-0 ml-2">{visit.date}</div>
+                                       <div className="text-xs text-gray-400 flex-shrink-0 ml-2">{formatDatetime(visit.date, true)}</div>
                                     </div>
                                  ));
                               })()}
@@ -1073,7 +1061,8 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
                            <div
                               className="w-8 h-8 rounded-full border-2 border-white shadow-xl flex items-center justify-center"
                               style={{
-                                 background: `radial-gradient(circle at 30% 30%, ${getMarkerColor(point)} 0%, #1f2937 80%)`,
+                                 // background: `radial-gradient(circle at 30% 30%, ${getMarkerColor(point)} 0%, #1f2937 80%)`,
+                                 background: `radial-gradient(circle at 30% 30%, ${point.seller.pin_color} 0%, #3e3e3e 90%)`,
                                  boxShadow: `0 0 0 2px ${getMarkerColor(point)}40`
                               }}
                            >
@@ -1094,6 +1083,7 @@ const PointsOfSaleMap: React.FC<PointsOfSaleMapProps> = ({ pointsData = dataFake
                         closeOnClick={false}
                         className="custom-popup !bg-gray-900 !text-white !rounded-xl !shadow-2xl !border !border-gray-700"
                         maxWidth="280px"
+                        style={{ display: "none" }}
                      >
                         <div className="p-3">
                            <h4 className="font-bold text-blue-300 text-sm mb-1">{selectedPoint.name}</h4>

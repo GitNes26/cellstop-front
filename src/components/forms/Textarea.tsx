@@ -2,7 +2,7 @@ import { FormikValues, useFormikContext } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { FormControlLabel, FormGroup, Grid, IconButton, InputAdornment, Switch, TextField, Typography, CircularProgress, Box, SxProps } from "@mui/material";
 import { TextFieldProps } from "@mui/material/TextField";
-import { handleInputFormik, handlePhoneChange } from "../../utils/Formats";
+import { handleInputFormik, handlePhoneChange } from "../../utils/Formats.js";
 import { Visibility, VisibilityOff, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
 import { Theme } from "@emotion/react";
 

@@ -9,7 +9,7 @@ import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { isMobile } from "react-device-detect";
 import { useGlobalContext } from "../context/GlobalContext";
-import { printContent } from "../utils/Formats";
+import { printContent } from "../utils/Formats.js";
 import { ClearRounded, FullscreenExitRounded, FullscreenRounded, PrintRounded } from "@mui/icons-material";
 
 // Tipos para las props

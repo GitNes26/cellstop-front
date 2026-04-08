@@ -8,7 +8,7 @@ import { useGlobalContext } from "../../context/GlobalContext";
 import Toast from "../../utils/Toast";
 import { Button } from "@mui/material";
 import { UploadFileRounded } from "@mui/icons-material";
-import { excelDateToJSDate } from "../../utils/Formats";
+import { excelDateToJSDate } from "../../utils/Formats.js";
 
 type ValidationFn = (value: any) => boolean;
 

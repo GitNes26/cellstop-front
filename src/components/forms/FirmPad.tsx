@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 // import Input from "./Input";
-import { base64ToFile } from "../../utils/Formats";
+import { base64ToFile } from "../../utils/Formats.js";
 import { imageCompress } from "./FileInput";
 import { Button, Grid, SxProps } from "@mui/material";
 import DialogComponent from "../DialogComponent";
